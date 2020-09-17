@@ -1,0 +1,19 @@
+.button-image
+{
+    /*content: " " ;*/
+    width: 300px;
+    /*height: 120px;*/
+    /*display: inline-block;*/
+    margin-right: 10px;
+    vertical-align: text-top;
+    /*background-size: 100% ;*/
+    border-radius: 30px;
+    /*background-color: transparent;*/
+    /*background-position : center center;*/
+    /*background-repeat:no-repeat;*/
+}
+
+.button
+{
+    display:inline-block;
+}

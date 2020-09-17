@@ -1,0 +1,52 @@
+.credentials-box
+{
+	border-radius: 25px;
+}
+
+.credentials-box-header
+{
+	background-color: #a9a9a9;
+	border-top-left-radius: 25px;
+	border-top-right-radius: 25px;
+
+}
+
+.credentials-box-header h3
+{
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+.credentials-box-content
+{
+	background-color: #f5f5f5;
+	padding-left: 10px;
+	padding-bottom: 20px;
+	padding-top: 10px;
+	border-bottom-left-radius: 25px;
+	border-bottom-right-radius: 25px;
+}
+
+.modal-loading
+{
+	display:none;
+	color:red;
+	padding-left: 10px;
+}
+
+.pass-warning-div
+{
+	display:none;
+}
+
+.retrieving-loading
+{
+	color: green;
+}
+
+.password-div
+{
+	display:none;
+}

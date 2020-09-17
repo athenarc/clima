@@ -1,0 +1,22 @@
+/**
+ * Css file for everything concering the magic search box widget!
+ *
+ * @author Thanasis Vergoulis
+ * @author Ilias kanellos
+ * @author Serafeim Chatzopoulos
+ */
+
+/*
+ * This is the class of the close buttons on selected elements
+ */
+.fas.fa-times
+{
+    cursor: pointer;
+    /*margin-left: 8px;*/
+}
+
+
+.hidden_element_box
+{
+	color: #3399FF;
+}
