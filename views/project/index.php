@@ -144,13 +144,13 @@ foreach ($active as $res)
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-2"><?=$res['name']?></td>
-				<td class="col-md-2" style="padding-left: 20px;" title="<?=$title?>"><?=$project_icon ?></td>
-				<td class="col-md-2 text-center"><?=$res[0]?></td>
-				<td class="col-md-2 text-center"><?=$res[1]?> days</td>
+				<td class="col-md-2" style="vertical-align: middle!important;"><?=$res['name']?></td>
+				<td class="col-md-2" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
+				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
+				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
 				<td class="col-md-3 text-right">
 					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>'btn btn-secondary btn-md'])?>
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index'],['class'=>'btn btn-secondary btn-md'])?> 
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
 					<?=Html::a("$access_icon Access", $projectLink,['class'=>'btn btn-success btn-md','target'=>$projectTarget])?>
 				</td>	
 			</tr>
@@ -182,7 +182,7 @@ else
 
 
 <div class="row"><h3 class="col-md-12">Expired Projects (<?=$number_of_expired?>) 
-	<i class="fas fa-chevron-down" id="arrow" ></i></h3> 
+	<i class="fas fa-chevron-down" id="arrow" title="Show projects" ></i></h3> 
 </div>
 <div class="row main-content">
 <?php
@@ -200,7 +200,7 @@ if (!empty($expired))
 				<th class="col-md-2" scope="col">Project</th>
 				<th class="col-md-2" scope="col">Type</th>
 				<th class="col-md-2 text-center" scope="col">Owner</th>
-				<th class="col-md-2 text-center" scope="col">Expires on</th>
+				<th class="col-md-2 text-center" scope="col">Expired on</th>
 				<th class="col-md-3" scope="col">&nbsp;</th>
 			</tr>
 		</thead>
@@ -224,6 +224,7 @@ foreach ($expired as $res)
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand computation';
+		
 	}
 	else if ($res['project_type']==1) 
 	{
@@ -231,6 +232,7 @@ foreach ($expired as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='24/7 Service';
+
 	}
 	else
 	{
@@ -244,12 +246,12 @@ foreach ($expired as $res)
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-2"> <?=$res['name']?></td>
-				<td class="col-md-2" style="padding-left: 20px;" title="<?=$title?>"><?=$project_icon?></td>
-				<td class="col-md-2 text-center"><?=$res[0]?></td>
-				<td class="col-md-2 text-center"><?=$res[1]?></td>
+				<td class="col-md-2" style="vertical-align: middle!important;"> <?=$res['name']?></td>
+				<td class="col-md-2" style="padding-left: 20px;vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon?></td>
+				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
+				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?></td>
 				<td class="col-md-3 text-right">
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index'],['class'=>'btn btn-secondary btn-md'])?> 
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>1],['class'=>'btn btn-secondary btn-md'])?> 
 					
 				</td>
 			</tr>

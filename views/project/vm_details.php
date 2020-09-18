@@ -9,55 +9,101 @@ $this->title="VM details";
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $x_icon='<i class="fas fa-times"></i>';
+$console_icon='<i class="fas fa-external-link-square-alt"></i>';
+$info_icon='<i class="fas fa-question-circle"></i>';
+$string = explode(" ", $model->image_name)[0];
+$username=strtolower($string);
 
 ?>
-<div class="row"><div class="col-md-11 headers"><?=Html::encode($this->title)?></div><div class="col-md-1"><?= Html::a("$back_icon Back", ['/project/index'], ['class'=>'btn btn-default']) ?></div></div>
-
-<div class="row">&nbsp;</div>
-<div class="credentials-box">
-	<div class="credentials-box-header"><div class='text-center'><h3>SSH login details</h3></div></div>
-	<div class="credentials-box-content">
-		<div class="row">
-			<div class="col-md-5">
-				<strong>Image:</strong>
-			</div>
-			<div class="col-md-2">
-				<?=$model->image_name?>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-5">
-				<strong>IP Address (SSH):</strong>
-			</div>
-			<div class="col-md-2">
-				<?=$model->ip_address?>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-5">
-				<strong>Username:</strong>
-			</div>
-			<div class="col-md-7">
-				Use the name of the image selected e.g. (for Ubuntu use "ubuntu" as username, for Debian use "debian", etc.)
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-5">
-				<strong>Additional storage attached to (if applicable):</strong>
-			</div>
-			<div class="col-md-7">
-				/dev/vdb
-			</div>
-		</div>
+<div class="row">
+	<div class="col-md-9 headers"><?=Html::encode($this->title)?></div>
+	<div class="col-md-3 float-right" style="text-align:right!important; padding-top: 5px;">
+		<?= Html::a("$console_icon Console",$model->consoleLink, ['class'=>'btn btn-secondary', 'target'=>'_blank'])?>
+		<?= Html::tag("button","$x_icon Delete", ['class'=>'btn btn-danger delete-vm-btn'])?>
+		<?= Html::a("$back_icon Back", ['/project/index'], ['class'=>'btn btn-default']) ?>
 	</div>
 </div>
 
 <div class="row">&nbsp;</div>
-<div class="row"><div class="col-md-12 text-center">In order to partition, format and mount the additional storage (if applicable), which is attached to /dev/vdb, please follow this <?=Html::a('guide','https://medium.com/@sh.tsang/partitioning-formatting-and-mounting-a-hard-drive-in-linux-ubuntu-18-04-324b7634d1e0', ['target'=>'_blank'])?></div></div>
+
+<div class="row">
+	<span class="col-md-2">
+		<strong>Image:</strong>
+	</span>
+	<span class="col-md-2">
+		<?=$model->image_name?>
+	</span>
+</div>
+<div class="row">
+	<span class="col-md-2">
+		<strong>IP (for SSH):</strong>
+	</span>
+	<span class="col-md-2">
+		<?=$model->ip_address?>
+	</span>
+</div>
+<?php
+if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
+{
+?>
+	<div class="row">
+		<span class="col-md-2">
+			<strong>Username:</strong>
+		</span>
+		<span class="col-md-2">
+			<?=$username?>
+		</span>
+	</div>
+<?php
+}?>
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
+<div class="row"><h3 style="padding-left: 15px;">Useful tips:</h3></div>
+
+<div class="row">
+	<div class="col-md-4">
+		<div class="credentials-box">
+			<div class="credentials-box-header"><div class='text-center'><h3><?=$info_icon?> Additional Storage</h3></div></div>
+			<div class="credentials-box-content">
+				<div class="row" style="padding-left: 15px;">
+				In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide','https://medium.com/@sh.tsang/partitioning-formatting-and-mounting-a-hard-drive-in-linux-ubuntu-18-04-324b7634d1e0', ['target'=>'_blank'])?>. 
+				</div>
+				<div class="row">&nbsp;</div>
+				<div class="row">
+					<div class="col-md-6">
+						<strong>Additional storage:</strong>
+					</div>
+					<div class="col-md-2">
+						/dev/vdb
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="credentials-box">
+			<div class="credentials-box-header"><div class='text-center'><h3> <?=$info_icon?> Graphical UI</h3></div></div>
+			<div class="credentials-box-content">
+				If your VM supports a Graphical User Interface (GUI) you need to use a  <?=Html::a('VNC client','https://www.privateshell.com/docs/howto_vnc.htm', ['target'=>'_blank'])?> to connect to it.
+			</div> 
+						
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="credentials-box">
+			<div class="credentials-box-header"><div class='text-center'><h3> <?=$info_icon?> Extra Users</h3></div></div>
+			<div class="credentials-box-content">
+				It is possible to give access to the VM to other users by following this <?=Html::a('tutorial',['site/ssh-tutorial'], ['target'=>'_blank'])?>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">&nbsp;</div>
+<!-- <div class="row"><div class="col-md-12 text-center">In order to partition, format and mount the additional storage (if applicable), which is attached to /dev/vdb, please follow this <?=Html::a('guide','https://medium.com/@sh.tsang/partitioning-formatting-and-mounting-a-hard-drive-in-linux-ubuntu-18-04-324b7634d1e0', ['target'=>'_blank'])?></div></div>
 <div class="row"><div class="col-md-12 text-center">It is possible to give access to the VM to other users by following this <?=Html::a('tutorial',['site/ssh-tutorial'], ['target'=>'_blank'])?></div></div>
 <div class="row">&nbsp;</div>
 <div class="row"><div class="col-md-12 text-center">If your VM supports a Graphical User Interface (GUI) you need to use a  <?=Html::a('VNC client','https://www.privateshell.com/docs/howto_vnc.htm', ['target'=>'_blank'])?> to connect to it.</div> </div>
-<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div> -->
 
 <?php
 if (isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
@@ -101,11 +147,7 @@ if (isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 	}
 }
 ?>
-<div class="row"><div class="col-md-12 text-center"><?= Html::a("Open console",$model->consoleLink, ['class'=>'btn btn-secondary', 'target'=>'_blank'])?></div></div>
-<div class="row">&nbsp;</div>
 
-<div class="row"><div class="col-md-12 text-center"><h3>I do not need this VM anymore:</h3></div></div>
-<div class="row"><div class="col-md-12 text-center"><?= Html::tag("button","Delete VM", ['class'=>'btn btn-danger delete-vm-btn'])?></div></div>
 
 <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">

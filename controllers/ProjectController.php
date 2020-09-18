@@ -251,22 +251,16 @@ class ProjectController extends Controller
 
                 if (empty($errors))
                 {
-                    $project_types=Project::TYPES;
-                    $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                        2=>'/project/view-cold-storage-request-user'];
-
+                    if(!empty($success))
+                    {
+                        Yii::$app->session->setFlash('success', "$success");
+                    }
+                    if(!empty($warnings))
+                    {
+                        Yii::$app->session->setFlash('warning', "$warnings");
+                    }
                     
-                    $deleted=Project::getDeletedProjects();
-                    $expired=Project::getExpiredProjects();
-                    $owner=Project::getActiveProjectsOwner();
-                    $participant=Project::getActiveProjectsParticipant();
-                    $role=User::getRoleType();
-                    
-                    
-
-                    return $this->render('index',['owner'=>$owner,'participant'=>$participant,'button_links'=>$button_links,
-                        'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-                        'deleted'=>$deleted,'expired'=>$expired]);
+                    return $this->redirect(['project/index']);
                 }
             }
         }
@@ -361,20 +355,18 @@ class ProjectController extends Controller
 
                 if (empty($errors))
                 {
-                    $project_types=Project::TYPES;
-                    $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                        2=>'/project/view-cold-storage-request-user'];
-
-                    $deleted=Project::getDeletedProjects();
-                    $expired=Project::getExpiredProjects();
-                    $owner=Project::getActiveProjectsOwner();
-                    $participant=Project::getActiveProjectsParticipant();
-                    $role=User::getRoleType();
                     
+                    if(!empty($success))
+                    {
+                        Yii::$app->session->setFlash('success', "$success");
+                    }
+                    if(!empty($warnings))
+                    {
+                        Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+                    
+                    return $this->redirect(['project/index']);
 
-                    return $this->render('index',['owner'=>$owner,'participant'=>$participant,
-                        'button_links'=>$button_links,'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-                        'deleted'=>$deleted,'expired'=>$expired]);
                 }
             }
         }
@@ -473,20 +465,16 @@ class ProjectController extends Controller
 
                 if (empty($errors))
                 {
-                    $project_types=Project::TYPES;
-                    $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                        2=>'/project/view-cold-storage-request-user'];
-
-                    $deleted=Project::getDeletedProjects();
-                    $expired=Project::getExpiredProjects();
-                    $owner=Project::getActiveProjectsOwner();
-                    $participant=Project::getActiveProjectsParticipant();
-                    $role=User::getRoleType();
-
-
-                    return $this->render('index',['owner'=>$owner,'participant'=>$participant,
-                        'button_links'=>$button_links,'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-                        'deleted'=>$deleted,'expired'=>$expired]);
+                    if(!empty($success))
+                    {
+                        Yii::$app->session->setFlash('success', "$success");
+                    }
+                    if(!empty($warnings))
+                    {
+                        Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+                    
+                    return $this->redirect(['project/index']);
                 }
             }
         }
@@ -1028,22 +1016,17 @@ class ProjectController extends Controller
          * If there are no errors, load the index page
          */
         
-        $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                        2=>'/project/view-cold-storage-request-user'];
-
         
-        $deleted=Project::getDeletedProjects();
-        $expired=Project::getExpiredProjects();            
-        $owner=Project::getActiveProjectsOwner();
-        $participant=Project::getActiveProjectsParticipant();
-        $role=User::getRoleType();
 
         $success='Successfully deleted VM.';
 
-        return $this->render('index',['owner'=>$owner,'participant'=>$participant,'button_links'=>$button_links,
-                        'project_types'=>$project_types, 'success'=>$success, 'warnings'=>'','role'=>$role,
-                        'deleted'=>$deleted,'expired'=>$expired]);
+        if(!empty($success))
+        {
+            Yii::$app->session->setFlash('success', "$success");
+        }
+        
+                    
+        return $this->redirect(['project/index']);
         
 
     }
@@ -1273,21 +1256,16 @@ class ProjectController extends Controller
 
                 if (empty($errors))
                 {
-                    $project_types=Project::TYPES;
-                    $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                        2=>'/project/view-cold-storage-request-user'];
-
+                    if(!empty($success))
+                    {
+                        Yii::$app->session->setFlash('success', "$success");
+                    }
+                    if(!empty($warnings))
+                    {
+                        Yii::$app->session->setFlash('warning', "$warnings");
+                    }
                     
-                    $deleted=Project::getDeletedProjects();
-                    $expired=Project::getExpiredProjects();
-                    $owner=Project::getActiveProjectsOwner();
-                    $participant=Project::getActiveProjectsParticipant();
-                    $role=User::getRoleType();
-
-
-                    return $this->render('index',['owner'=>$owner,'participant'=>$participant,'button_links'=>$button_links,
-                        'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-                        'deleted'=>$deleted,'expired'=>$expired]);
+                    return $this->redirect(['project/index']);
                 }
             }
         }
@@ -1474,20 +1452,16 @@ class ProjectController extends Controller
 
                 if (empty($errors))
                 {
-                    $project_types=Project::TYPES;
-                    $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                        2=>'/project/view-cold-storage-request-user'];
-
-                    $deleted=Project::getDeletedProjects();
-                    $expired=Project::getExpiredProjects();
-                    $owner=Project::getActiveProjectsOwner();
-                    $participant=Project::getActiveProjectsParticipant();
-                    $role=User::getRoleType();
-
-
-                    return $this->render('index',['owner'=>$owner,'participant'=>$participant,'button_links'=>$button_links,
-                        'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-                        'deleted'=>$deleted,'expired'=>$expired]);
+                    if(!empty($success))
+                    {
+                        Yii::$app->session->setFlash('success', "$success");
+                    }
+                    if(!empty($warnings))
+                    {
+                        Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+                    
+                    return $this->redirect(['project/index']);
                 }
             }
         }
@@ -1520,21 +1494,16 @@ class ProjectController extends Controller
         $errors='';
         $success='Project request canceled.';
 
-        $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-            2=>'/project/view-cold-storage-request-user'];
-
+        if(!empty($success))
+        {
+            Yii::$app->session->setFlash('success', "$success");
+        }
+        if(!empty($warnings))
+        {
+            Yii::$app->session->setFlash('warning', "$warnings");
+        }
         
-        $deleted=Project::getDeletedProjects();
-        $expired=Project::getExpiredProjects();
-        $owner=Project::getActiveProjectsOwner();
-        $participant=Project::getActiveProjectsParticipant();
-        $role=User::getRoleType();
-
-
-        return $this->render('index',['owner'=>$owner,'participant'=>$participant,'button_links'=>$button_links,
-            'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-            'deleted'=>$deleted,'expired'=>$expired]);
+        return $this->redirect(['project/index']);
     }
 
     public function actionCancelProject($id)
@@ -1566,21 +1535,16 @@ class ProjectController extends Controller
         $errors='';
         $success="Project $prequest->name canceled.";
 
-        $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-            2=>'/project/view-cold-storage-request-user'];
-
+        if(!empty($success))
+        {
+            Yii::$app->session->setFlash('success', "$success");
+        }
+        if(!empty($warnings))
+        {
+            Yii::$app->session->setFlash('warning', "$warnings");
+        }
         
-        $deleted=Project::getDeletedProjects();
-        $expired=Project::getExpiredProjects();
-        $owner=Project::getActiveProjectsOwner();
-        $participant=Project::getActiveProjectsParticipant();
-        $role=User::getRoleType();
-
-
-        return $this->render('index',['owner'=>$owner,'participant'=>$participant,'button_links'=>$button_links,
-            'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-            'deleted'=>$deleted,'expired'=>$expired]);
+        return $this->redirect(['project/index']);
     }
 
     public function actionRetrieveWinPassword($id)

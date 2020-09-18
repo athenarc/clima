@@ -24,6 +24,7 @@ $bar_percentage=round(($usage['count'])/$details->num_of_jobs*100);
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
+$expired=$_GET['expired'];
 
 if ($bar_percentage<=25)
 {
@@ -53,10 +54,9 @@ else if (($bar_percentage>75) && ($bar_percentage<=100))
 	</div>
 	<div class="col-md-4" style="text-align: right; padding-top: 5px;">
 		<?php
-		if ($project_owner & (($project->status==1) || ($project->status==2)) )
+		if ($project_owner & (($project->status==1) || ($project->status==2)) & $expired!=1)
 		{?>
 		<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$request_id],['class'=>'btn btn-secondary btn-md'])?>
-		<?= Html::A("$cancel_icon Delete",['/project/cancel-project', 'id'=>$request_id], ['class' => 'btn btn-secondary delete-project-btn']) ?>
 		<?php
 		}?>
 		<?= Html::a("$back_icon Back", [$back_link], ['class'=>'btn btn-default']) ?>

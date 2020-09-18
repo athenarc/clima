@@ -23,6 +23,7 @@ $back_link=($return=='index') ? '/project/index' : '/project/user-request-list';
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
+$expired=$_GET['expired'];
 
 /*
  * Users are able to view the name, version, start date, end date, mountpoint 
@@ -35,10 +36,9 @@ $update_icon='<i class="fas fa-pencil-alt"></i>';
 	</div>
 	<div class="col-md-4" style="text-align: right; padding-top: 5px;">
 		<?php
-		if ($project_owner & (($project->status==1) || ($project->status==2)) )
+		if ($project_owner & (($project->status==1) || ($project->status==2)) & $expired!=1)
 		{?>
 		<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$request_id],['class'=>'btn btn-secondary btn-md'])?>
-		<?= Html::A("$cancel_icon Delete",['/project/cancel-project', 'id'=>$request_id], ['class' => 'btn btn-secondary delete-project-btn']) ?>
 		<?php
 		}?>
 		<?= Html::a("$back_icon Back", [$back_link], ['class'=>'btn btn-default']) ?>

@@ -409,8 +409,7 @@ class Vm extends \yii\db\ActiveRecord
                             ->send();
         if (!$response->getIsOk())
         {
-            print_r($response);
-            exit(0);
+            
             return false;
         }
 
