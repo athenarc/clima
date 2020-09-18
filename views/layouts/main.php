@@ -85,7 +85,7 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
 
     if(User::hasRole("Temporary", $superAdminAllowed = true) || User::hasRole("Silver", $superAdminAllowed = true) || User::hasRole("Gold", $superAdminAllowed = true))
     {
-        $menuItems[]=['label' => 'My projects', 'url' => ['/project/index']];
+        $menuItems[]=['label' => 'Dashboard', 'url' => ['/project/index']];
         $menuItems[]=['label' => 'User options', 'url' => ['/personal/user-options']];
         
     }

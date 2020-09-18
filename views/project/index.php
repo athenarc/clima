@@ -16,6 +16,7 @@ use yii\helpers\Url;
 
 
 echo Html::CssFile('@web/css/project/index.css');
+$this->registerJsFile('@web/js/project/index.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->title="Dashboard";
 
@@ -112,7 +113,7 @@ foreach ($active as $res)
 
 	$view_icon='<i class="fas fa-eye"></i>';
 	$usage_icon='<i class="fas fa-chart-pie"></i>';
-	$project_icon='<i class="fas fa-external-link-square-alt"></i>';
+	$access_icon='<i class="fas fa-external-link-square-alt"></i>';
 	$button_link=$button_links[$res['project_type']];
 	$update_icon='<i class="fas fa-pencil-alt"></i>';
 	
@@ -122,18 +123,21 @@ foreach ($active as $res)
 		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
+		$title='On-demand computation';
 	}
 	else if ($res['project_type']==1) 
 	{
 		$projectLink=Url::to(['/project/configure-vm','id'=>$res['id']]);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
+		$title='24/7 Service';
 	}
 	else
 	{
 		$projectLink=Url::to(['/site/under-construction']);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
+		$title="Cold-Storage";
 	}
 
 
@@ -141,13 +145,13 @@ foreach ($active as $res)
 ?>
 			<tr class="active" style="font-size: 14px;">
 				<td class="col-md-2"><?=$res['name']?></td>
-				<td class="col-md-2" style="padding-left: 20px;"><?=$project_icon ?></td>
+				<td class="col-md-2" style="padding-left: 20px;" title="<?=$title?>"><?=$project_icon ?></td>
 				<td class="col-md-2 text-center"><?=$res[0]?></td>
 				<td class="col-md-2 text-center"><?=$res[1]?> days</td>
 				<td class="col-md-3 text-right">
 					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>'btn btn-secondary btn-md'])?>
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index'],['class'=>'btn btn-secondary btn-md'])?> 
-					<?=Html::a("$project_icon Access", $projectLink,['class'=>'btn btn-success btn-md','target'=>$projectTarget])?>
+					<?=Html::a("$access_icon Access", $projectLink,['class'=>'btn btn-success btn-md','target'=>$projectTarget])?>
 				</td>	
 			</tr>
 
@@ -177,7 +181,9 @@ else
 
 
 
-<div class="row"><h3 class="col-md-12">Expired Projects (<?=$number_of_expired?>)</h3></div>
+<div class="row"><h3 class="col-md-12">Expired Projects (<?=$number_of_expired?>) 
+	<i class="fas fa-chevron-down" id="arrow" ></i></h3> 
+</div>
 <div class="row main-content">
 <?php
 if (!empty($expired))
@@ -187,7 +193,7 @@ if (!empty($expired))
 	
 ?>
 
-<div class="table-responsive">
+<div class="table-responsive" style="display:none;" id="expired-table">
    	<table class="table table-striped">
 		<thead>
 			<tr>
@@ -208,7 +214,7 @@ foreach ($expired as $res)
 	
 	$view_icon='<i class="fas fa-eye"></i>';
 	$usage_icon='<i class="fas fa-chart-pie"></i>';
-	$project_icon='<i class="fas fa-external-link-square-alt"></i>';
+	$access_icon='<i class="fas fa-external-link-square-alt"></i>';
 	$button_link=$button_links[$res['project_type']];
 	$update_icon='<i class="fas fa-pencil-alt"></i>';
 
@@ -217,18 +223,21 @@ foreach ($expired as $res)
 		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
+		$title='On-demand computation';
 	}
 	else if ($res['project_type']==1) 
 	{
 		$projectLink=Url::to(['/project/configure-vm','id'=>$res['id']]);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
+		$title='24/7 Service';
 	}
 	else
 	{
 		$projectLink=Url::to(['/site/under-construction']);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
+		$title='Cold Storage';
 
 	}
 
@@ -236,12 +245,12 @@ foreach ($expired as $res)
 ?>
 			<tr class="active" style="font-size: 14px;">
 				<td class="col-md-2"> <?=$res['name']?></td>
-				<td class="col-md-2" style="padding-left: 20px;"><?=$project_icon?></td>
+				<td class="col-md-2" style="padding-left: 20px;" title="<?=$title?>"><?=$project_icon?></td>
 				<td class="col-md-2 text-center"><?=$res[0]?></td>
 				<td class="col-md-2 text-center"><?=$res[1]?></td>
 				<td class="col-md-3 text-right">
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index'],['class'=>'btn btn-secondary btn-md'])?> 
-					<?=Html::a("$project_icon Access", $projectLink,['class'=>'btn btn-success btn-md','target'=>$projectTarget])?>
+					
 				</td>
 			</tr>
 
@@ -262,6 +271,4 @@ else
 }
 ?>
 
-</div> <!-- main-content-->
-
-<!--  -->
+</div> 

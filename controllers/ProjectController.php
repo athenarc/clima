@@ -261,6 +261,8 @@ class ProjectController extends Controller
                     $owner=Project::getActiveProjectsOwner();
                     $participant=Project::getActiveProjectsParticipant();
                     $role=User::getRoleType();
+                    
+                    
 
                     return $this->render('index',['owner'=>$owner,'participant'=>$participant,'button_links'=>$button_links,
                         'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
@@ -268,6 +270,7 @@ class ProjectController extends Controller
                 }
             }
         }
+        
 
         return $this->render('new_service_request',['service'=>$serviceModel, 'project'=>$projectModel, 
                     'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed]);
@@ -367,14 +370,15 @@ class ProjectController extends Controller
                     $owner=Project::getActiveProjectsOwner();
                     $participant=Project::getActiveProjectsParticipant();
                     $role=User::getRoleType();
+                    
 
                     return $this->render('index',['owner'=>$owner,'participant'=>$participant,
                         'button_links'=>$button_links,'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
-                        'deleted'=>$deleted,'expired'=>$expired
-                    ]);
+                        'deleted'=>$deleted,'expired'=>$expired]);
                 }
             }
         }
+        
 
         return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel, 
                     'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
@@ -479,12 +483,14 @@ class ProjectController extends Controller
                     $participant=Project::getActiveProjectsParticipant();
                     $role=User::getRoleType();
 
+
                     return $this->render('index',['owner'=>$owner,'participant'=>$participant,
                         'button_links'=>$button_links,'project_types'=>$project_types, 'success'=>$success, 'warnings'=>$warnings,'role'=>$role,
                         'deleted'=>$deleted,'expired'=>$expired]);
                 }
             }
         }
+        
 
         return $this->render('new_ondemand_request',['ondemand'=>$ondemandModel, 'project'=>$projectModel, 
                      'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed]);
@@ -973,8 +979,10 @@ class ProjectController extends Controller
                     $message=$result[1];
                     if ($error!=0)
                     {
+                        
                         return $this->render('error_vm_creation',['error' => $error,'message'=>$message]);
                     }
+
                     else
                     {
                         $existing=Vm::find()->where(['request_id'=>$id])->andWhere(['active'=>true])->one();
