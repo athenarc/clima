@@ -21,7 +21,7 @@ use webvimark\modules\UserManagement\models\User as Userw;
 class Vm extends \yii\db\ActiveRecord
 {
     public $keyFile,$consoleLink;
-    private $name, $token, $port_id;
+    private $name, $token, $port_id, $windows_unique_id;
 
 
     private $create_errors=[
