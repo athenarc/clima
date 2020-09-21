@@ -39,14 +39,21 @@ $service_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 </div>
 <?php
 ?>
-<?= ToolButton::createButton("$ondemand_icon New ondemand-computation", "",['/project/new-ondemand-request']) ?>
-<?= ToolButton::createButton("$service_icon New 24/7 service", "",['/project/new-service-request']) ?>
+<div class="col-md-12" style="margin-bottom: 5px;">
+<?= ToolButton::createButton("$ondemand_icon  Ondemand-computation", "",['/project/new-ondemand-request']) ?>
+</div>
+<div class="col-md-12" style="margin-bottom: 5px;">
+<?= ToolButton::createButton("$service_icon  24/7 service", "",['/project/new-service-request']) ?>
+</div>
+<div class="col-md-12" style="margin-bottom: 5px;">
 <?php
 if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false))
 {?>
-	<?= ToolButton::createButton("$storage_icon New cold-storage", "",['/project/new-cold-storage-request']) ?>
+	<?= ToolButton::createButton("$storage_icon Cold-storage", "",['/project/new-cold-storage-request']) ?>
 <?php
 }?>
+</div>
+
 
 
 
