@@ -605,6 +605,7 @@ class ProjectController extends Controller
         $results=$results[1];
 
         $sidebarItems=[];
+        $expired=0;
 
         foreach ($filters as $f=>$text)
         {
@@ -614,7 +615,7 @@ class ProjectController extends Controller
 
         return $this->render('request_list_user',['results'=>$results,'pages'=>$pages,'statuses'=>$statuses,
                                 'sideItems'=>$sidebarItems,'project_types'=>$project_types,
-                                'filter'=>$filter,'line_classes'=>$line_classes,]);
+                                'filter'=>$filter,'line_classes'=>$line_classes, 'expired'=>$expired]);
     }
 
     public function actionViewRequest($id,$filter='all')
@@ -724,10 +725,10 @@ class ProjectController extends Controller
         $number_of_users=count($users);
         
         
-
+        $expired=0;
         return $this->render($view_file,['project'=>$project,'details'=>$details, 
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs]);
+            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
 
         // ProjectRequest::recordViewed($id);
 
@@ -879,11 +880,11 @@ class ProjectController extends Controller
 
         $number_of_users=count($users);
         
-        
+        $expired=0;
 
         return $this->render($view_file,['project'=>$project,'details'=>$details, 'return'=>$return,
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs]);
+        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
 
     }
 
