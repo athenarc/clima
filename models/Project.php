@@ -211,8 +211,7 @@ class Project extends \yii\db\ActiveRecord
         
         $results=$query->all();
 
-        // print_r($results);
-        // exit(0);
+        
         $active=[];
         foreach ($results as $project) 
         {

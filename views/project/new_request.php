@@ -13,6 +13,7 @@ use yii\widgets\LinkPager;
 use yii\bootstrap\NavBar;
 use yii\bootstrap\Nav;
 use yii\helpers\Url;  
+use app\components\ToolButton;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 
@@ -20,35 +21,33 @@ echo Html::CssFile('@web/css/project/new-request.css');
 
 $this->title="Create new project";
 
-$ondemandImage=Html::img('@web/img/project/on-demand.png', ['alt' => 'New ondemand project request', 'class'=> 'button-image']);
-$serviceImage=Html::img('@web/img/project/24_7-service.png', ['alt' => 'New 24/7 service project request', 'class'=> 'button-image']);
-$coldImage=Html::img('@web/img/project/cold-storage.png', ['alt' => 'New cold-storage project request', 'class'=> 'button-image']);
-/*
- * Users are able to view the name, version, start date, end date, mountpoint 
- * and running status of their previous software executions. 
- */
-$view_icon='<i class="fas fa-eye"></i>';
+// $ondemandImage=Html::img('@web/img/project/on-demand.png', ['alt' => 'New ondemand project request', 'class'=> 'button-image']);
+// $serviceImage=Html::img('@web/img/project/24_7-service.png', ['alt' => 'New 24/7 service project request', 'class'=> 'button-image']);
+// $coldImage=Html::img('@web/img/project/cold-storage.png', ['alt' => 'New cold-storage project request', 'class'=> 'button-image']);
+
+$ondemand_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
+$storage_icon='<i class="fa fa-database" aria-hidden="true"></i>';
+$service_icon='<i class="fa fa-server" aria-hidden="true"></i>';
+
 
 ?>
 
 <div class='title row'>
 	<div class="col-md-30 headers">
 		<?= Html::encode($this->title) ?>
-		<br><br><br>
-		<div class="col-md-offset-0">
-			<?= Html::a($serviceImage, ['/project/new-service-request'], ['class'=>'image-button']) ?>
-			<?= Html::a($ondemandImage, ['/project/new-ondemand-request'], ['class'=>'image-button']) ?>
-		<?php
-			if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false))
-			{
-				echo Html::a($coldImage, ['/project/new-cold-storage-request'], ['class'=>'image-button']);
-			}
-		?>
-			
-			
-	</div>
 	</div>
 </div>
+<?php
+?>
+<?= ToolButton::createButton("$ondemand_icon New ondemand-computation", "",['/project/new-ondemand-request']) ?>
+<?= ToolButton::createButton("$service_icon New 24/7 service", "",['/project/new-service-request']) ?>
+<?php
+if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false))
+{?>
+	<?= ToolButton::createButton("$storage_icon New cold-storage", "",['/project/new-cold-storage-request']) ?>
+<?php
+}?>
+
 
 
 

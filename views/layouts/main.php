@@ -16,6 +16,13 @@ use app\components\NotificationWidget;
 
 AppAsset::register($this);
 
+$twitter_icon='<i class="fab fa-twitter fa-2x"></i>';
+$twitter_link=Html::a($twitter_icon,'https://twitter.com/ELIXIRGR_Comp',
+    ['target'=>'_blank']);
+$youtube_icon='<i class="fab fa-youtube fa-2x" style="color:red"></i>';
+$youtube_link=Html::a($youtube_icon,'https://www.youtube.com/channel/UC6ek-jYFfq0FDEcSJF4UEuw',
+    ['target'=>'_blank']);
+
 //Include font-awsome icons
 echo Html::cssFile('https://use.fontawesome.com/releases/v5.5.0/css/all.css', ['integrity'=> 'sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU', 'crossorigin'=> 'anonymous']);
 echo Html::cssFile('@web/css/components/notificationWidget.css');
@@ -176,7 +183,8 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
         <div class="row">
             <div class="text-left copyright">&copy; ELIXIR-GR <?= date('Y') ?></div>
             <div class="col-md-offset-4 col-md-1 text-center"><?= Html::img('@web/img/layouts/elixir-dark.png',['class'=>"navbar-logo"]) ?> </div>
-            <div class="col-md-offset-3 col-md-2 text-right"><?=Html::a('Privacy & cookie policy',['site/privacy'])?></div>
+            <div class="col-md-offset-2 col-md-2 text-right"><?=Html::a('Privacy & cookie policy',['site/privacy'])?></div>
+            <div class="pull-right"><?=$twitter_link?>&nbsp;<?=$youtube_link?></div>
         </div>
         <div class="row">
             <div class="col-md-12 text-center espa-wrapper"><?= Html::img('@web/img/layouts/espa-logo.png',['class'=>'espa-logo'])?></div>

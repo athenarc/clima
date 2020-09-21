@@ -86,10 +86,21 @@ if (!empty($errors))
         </div>
         <div class="row">&nbsp;</div>
 
-        <?= $form->field($details,'flavour')->dropDownList($details->flavours)->label($flavour_label)?>
-        <?= $form->field($details, 'storage')->label($storage_label) ?>
-        
-    
+        <?php 
+        if($vm_exists==1)
+        {?>
+            
+                <?= $form->field($details,'flavour')->dropDownList($details->flavours, ['disabled'=>true])->label($flavour_label)?>
+                <?= $form->field($details, 'storage')->textInput(['disabled'=>true])->label($storage_label) ?>
+            
+        <?php
+        }
+        else
+        {?>
+            <?= $form->field($details,'flavour')->dropDownList($details->flavours)->label($flavour_label)?>
+            <?= $form->field($details, 'storage')->label($storage_label) ?>
+        <?php
+        }?>
         <div class="form-group">
             <?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?>
             <?= Html::a('<i class="fas fa-times"></i> Cancel', ['/project/index'], ['class'=>'btn btn-default']) ?>

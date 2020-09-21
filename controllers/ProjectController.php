@@ -150,9 +150,65 @@ class ProjectController extends Controller
         $number_of_active=count($active);
         $number_of_expired=count($expired);
 
+        
+        foreach ($active as $project) 
+        {
+                $start=date('Y-m-d',strtotime($project['approval_date']));
+                $duration=$project['duration'];
+                $end=date('Y-m-d', strtotime($start. " + $duration months"));
+                $now = strtotime(date("Y-m-d"));
+                $end_project = strtotime($end);
+                $remaining_secs=$end_project-$now;
+                $user_id=User::findByUsername($username)->id;
+                $notification_remaining_days=$remaining_secs/86400;
+                // if($duration>1)
+                // {
+                $message1="Project '$project[name] will end in 30 days.";
+                //}
+
+                $message2="Project '$project[name] will end in 15 days.";
+                
+                
+                $notifications1=Notification::find(['recipient_id'=>$user_id])
+                ->andWhere(['message'=>$message1])->all();
+                $notifications2=Notification::find(['recipient_id'=>$user_id])
+                ->andWhere(['message'=>$message2])->all();
+                 // print_r($notification_remaining_days);
+                 // print_r($notification_remaining_days);
+                 // exit(0);
+                
+                if(empty($notifications1))
+                {
+                    if($notification_remaining_days==30 && $duration>1)
+                    {
+                             Notification::notify($user_id,$message1,1,null);
+                    }
+                    
+                }
+                else
+                {
+                    continue;
+                }
+
+                if(empty($notifications2))
+                {
+                    if($notification_remaining_days==15)
+                    {
+                             Notification::notify($user_id,$message2,1,null);
+                    }
+                    
+                }
+                else
+                {
+                    continue;
+                }    
+        }
+        
+
         return $this->render('index',['owner'=>$owner,'participant'=>$participant,
             'button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
             'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired]);
+
     }
 
      public function actionNewRequest()
@@ -580,7 +636,7 @@ class ProjectController extends Controller
             $view_file='view_ondemand_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project->name);
             $type="On-demand computation";
-            $start = date('Y-m-d', strtotime($project->approval_date));
+            $start = date('Y-m-d', strtotime($project->submission_date));
             $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
@@ -604,7 +660,7 @@ class ProjectController extends Controller
             $view_file='view_service_request';
             $usage=[];
             $type="24/7 Service";
-            $start = date('Y-m-d', strtotime($project->approval_date));
+            $start = date('Y-m-d', strtotime($project->submission_date));
             $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
@@ -625,7 +681,7 @@ class ProjectController extends Controller
             $view_file='view_cold_request';
             $usage=[];
             $type="Cold-Storage";
-            $start = date('Y-m-d', strtotime($project->approval_date));
+            $start = date('Y-m-d', strtotime($project->submission_date));
             $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
@@ -1112,6 +1168,8 @@ class ProjectController extends Controller
 
         $role=User::getRoleType();
 
+        $vm_exists=0;
+
         if ($prType==0)
         {
             $drequest=OndemandRequest::find()->where(['request_id'=>$id])->one();
@@ -1129,10 +1187,12 @@ class ProjectController extends Controller
             $upperlimits=ServiceLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
 
+            
             $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
             if (!empty($vm))
             {
-                return $this->render('error_service_vm_exist');
+                // return $this->render('error_service_vm_exist');
+                $vm_exists=1;
             }
 
             $trls[0]='Unspecified';
@@ -1271,7 +1331,7 @@ class ProjectController extends Controller
         }
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists]);
 
 
     }
@@ -1467,7 +1527,7 @@ class ProjectController extends Controller
         }
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'vm_exists'=>$vm_exists, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities]);
 
 
     }

@@ -90,7 +90,7 @@ class Notification extends \yii\db\ActiveRecord
     {
 
         $query=Yii::$app->db->createCommand()->insert('notification',
-            [
+        [
 
                 "recipient_id"=>$recipient_id,
                 "message" => $message,
@@ -98,7 +98,7 @@ class Notification extends \yii\db\ActiveRecord
                 "url" => $url,
                 "created_at" => 'NOW()',
                 "read_at" => null
-            ]
+        ]
                 
         )->execute();
 
@@ -115,7 +115,7 @@ class Notification extends \yii\db\ActiveRecord
     public static function markAllAsSeen()
     {
         $recipient_id=Userw::getCurrentUser()['id'];
-         $query=Yii::$app->db->createCommand()->update('notification', ["seen" => true,
+        $query=Yii::$app->db->createCommand()->update('notification', ["seen" => true,
                 "read_at" => 'NOW()'], "recipient_id='$recipient_id'")->execute();
                  
             
