@@ -4,6 +4,9 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use app\components\MagicSearchBox;
+use kartik\date\DatePicker;
+
+
 
 /* @var $this yii\web\View */
 /* @var $model app\models\ServiceRequest */
@@ -40,7 +43,22 @@ if (!empty($errors))
             
         
         <?= $form->field($project, 'name') ?>
-        <?= $form->field($project, 'duration') ?>
+        <!-- <?= $form->field($project, 'duration') ?> -->
+         
+        <div style="margin-bottom: 20px;">
+        <?php echo '<label>  Project end date *  </label>';
+            echo DatePicker::widget([
+            'model' => $project, 
+            'attribute' => 'end_date',
+            'options' => ['placeholder' => 'Enter date'],
+            'pluginOptions' => [
+            'autoclose'=>true,
+            'padding-top'=>"500px;"
+            ]
+        ]);?>
+        </div>
+        
+
         <?= $form->field($project, 'user_num') ?>
 
         <?= Html::label($participating_label, 'user_search_box', ['class'=>'blue-label']) ?>

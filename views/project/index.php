@@ -182,7 +182,7 @@ else
 
 
 <div class="row"><h3 class="col-md-12">Expired Projects (<?=$number_of_expired?>) 
-	<i class="fas fa-chevron-down" id="arrow" title="Show projects" ></i></h3> 
+	<i class="fas fa-chevron-down" id="arrow" title="Show projects" style="cursor: pointer" ></i></h3> 
 </div>
 <div class="row main-content">
 <?php

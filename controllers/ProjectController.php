@@ -106,7 +106,15 @@ class ProjectController extends Controller
             
             $start=date('Y-m-d',strtotime($project['approval_date']));
             $duration=$project['duration'];
-            $end=date('Y-m-d', strtotime($start. " + $duration months"));
+            if(empty($project['end_date']))
+            {
+                $end=date('Y-m-d', strtotime($start. " + $duration months"));
+            }
+            else
+            {
+                $end= explode(' ', $project['end_date'])[0];
+            }
+            
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($end);
             $remaining_secs=$end_project-$now;
@@ -155,7 +163,14 @@ class ProjectController extends Controller
         {
                 $start=date('Y-m-d',strtotime($project['approval_date']));
                 $duration=$project['duration'];
-                $end=date('Y-m-d', strtotime($start. " + $duration months"));
+                if(empty($project['end_date']))
+                {
+                    $end=date('Y-m-d', strtotime($start. " + $duration months"));
+                }
+                else
+                {
+                    $end= explode(' ', $project['end_date'])[0];
+                }
                 $now = strtotime(date("Y-m-d"));
                 $end_project = strtotime($end);
                 $remaining_secs=$end_project-$now;
@@ -637,8 +652,22 @@ class ProjectController extends Controller
             $view_file='view_ondemand_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project->name);
             $type="On-demand computation";
-            $start = date('Y-m-d', strtotime($project->submission_date));
-            $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
             $datetime2 = strtotime($ends);
@@ -652,8 +681,6 @@ class ProjectController extends Controller
             $used_jobs=$usage['count'];
             $remaining_jobs=$num_of_jobs-$used_jobs;
 
-            
-
         }
         else if ($project->project_type==1)
         {
@@ -661,8 +688,22 @@ class ProjectController extends Controller
             $view_file='view_service_request';
             $usage=[];
             $type="24/7 Service";
-            $start = date('Y-m-d', strtotime($project->submission_date));
-            $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
             $datetime2 = strtotime($ends);
@@ -682,8 +723,22 @@ class ProjectController extends Controller
             $view_file='view_cold_request';
             $usage=[];
             $type="Cold-Storage";
-            $start = date('Y-m-d', strtotime($project->submission_date));
-            $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
             $datetime2 = strtotime($ends);
@@ -794,8 +849,22 @@ class ProjectController extends Controller
             $view_file='view_ondemand_request_user';
             $usage=ProjectRequest::getProjectSchemaUsage($project->name);
             $type="On-demand computation";
-            $start = date('Y-m-d', strtotime($project->approval_date));
-            $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
             $datetime2 = strtotime($ends);
@@ -808,9 +877,6 @@ class ProjectController extends Controller
             $num_of_jobs=$details->num_of_jobs;
             $used_jobs=$usage['count'];
             $remaining_jobs=$num_of_jobs-$used_jobs;
-
-            
-
         }
         else if ($project->project_type==1)
         {
@@ -818,8 +884,23 @@ class ProjectController extends Controller
             $view_file='view_service_request_user';
             $usage=[];
             $type="24/7 Service";
-            $start = date('Y-m-d', strtotime($project->approval_date));
-            $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            $ends= explode(' ', $project->end_date)[0];
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
             $datetime2 = strtotime($ends);
@@ -838,8 +919,22 @@ class ProjectController extends Controller
             $view_file='view_cold_request_user';
             $usage=[];
             $type="Cold-Storage";
-            $start = date('Y-m-d', strtotime($project->approval_date));
-            $ends= date('Y-m-d', strtotime($start. " + $project->duration months"));
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
             $datetime2 = strtotime($ends);
@@ -1143,6 +1238,7 @@ class ProjectController extends Controller
     public function actionEditProject($id)
     {
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
+        
         if (empty($prequest))
         {
             return $this->render('error_unauthorized');
@@ -1170,6 +1266,20 @@ class ProjectController extends Controller
         $role=User::getRoleType();
 
         $vm_exists=0;
+
+        $start=date('Y-m-d',strtotime($prequest->approval_date));
+        $duration=$prequest->duration;
+
+        if(empty($prequest->end_date))
+        {
+                $ends=date('Y-m-d', strtotime($start. " + $duration months"));
+        }
+        else
+        {
+                $ends= explode(' ', $prequest->end_date)[0];
+        }
+
+        $prequest->end_date=$ends;
 
         if ($prType==0)
         {
@@ -1332,7 +1442,7 @@ class ProjectController extends Controller
         }
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends]);
 
 
     }
@@ -1350,6 +1460,20 @@ class ProjectController extends Controller
         {
             return $this->render('error_unauthorized');
         }
+
+        $start=date('Y-m-d',strtotime($prequest->submission_date));
+        $duration=$prequest->duration;
+
+        if(empty($prequest->end_date))
+        {
+                $ends=date('Y-m-d', strtotime($start. " + $duration months"));
+        }
+        else
+        {
+                $ends= explode(' ', $prequest->end_date)[0];
+        }
+
+        $prequest->end_date=$ends;
 
 
         
@@ -1528,7 +1652,7 @@ class ProjectController extends Controller
         }
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'vm_exists'=>$vm_exists, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends]);
 
 
     }

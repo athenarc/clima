@@ -62,7 +62,7 @@ class Project extends \yii\db\ActiveRecord
 
         $user=Userw::getCurrentUser()['id'];
 
-        $query->select(['pr.id','pr.name','pr.duration','pr.submission_date','pr.approval_date','pr.status','pr.viewed', 'pr.project_type','username'])
+        $query->select(['pr.id','pr.name','pr.end_date', 'pr.duration','pr.submission_date','pr.approval_date','pr.status','pr.viewed', 'pr.project_type','username'])
               ->from('project as p')
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
               ->innerJoin('user as u','pr.submitted_by=u.id')
@@ -92,7 +92,7 @@ class Project extends \yii\db\ActiveRecord
         // print_r($user);
         // exit(0);
 
-        $query->select(['pr.id','pr.name','pr.duration','pr.submission_date','pr.approval_date','pr.status','pr.viewed', 'pr.project_type','u.username'])
+        $query->select(['pr.id','pr.name','pr.end_date', 'pr.duration','pr.submission_date','pr.approval_date','pr.status','pr.viewed', 'pr.project_type','u.username'])
               ->from('project as p')
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
               ->innerJoin('user as u','pr.submitted_by=u.id')

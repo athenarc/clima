@@ -70,11 +70,11 @@ class ProjectRequest extends \yii\db\ActiveRecord
             [['duration', 'user_num', 'status', 'submitted_by', 'assigned_to'], 'default', 'value' => null],
             [['status', 'submitted_by', 'assigned_to'], 'integer'],
             [['backup_services', 'viewed'], 'boolean'],
-            [['submission_date'], 'safe'],
+            [['submission_date', 'end_date'], 'safe'],
             [['name'],'sameOrUnique'],
             [['name'], 'string', 'max' => 30],
             [['name'],'allowed_name_chars'],
-            [['name','duration','user_num','backup_services'],'required'],
+            [['name','user_num','backup_services', 'end_date'],'required'],
             [['duration'],'integer','min'=>0,'max'=>36],
             [['user_num'],'integer','min'=>0],
         ];
@@ -96,6 +96,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             'status' => 'Status',
             'submitted_by' => 'Submitted By',
             'submission_date' => 'Submission Date',
+            'end_date'=>'Ending Date',
             'assigned_to' => 'Assigned To',
         ];
     }
@@ -148,7 +149,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Yii::$app->db->createCommand()->insert('project_request', [
             
                         'name' => $this->name,
-                        'duration' => $this->duration,
+                        // 'duration' => $this->duration,
+                        'end_date'=>$this->end_date,
                         'user_num' => $this->user_num,
                         'user_list' => $this->user_list,
                         'backup_services' => ($this->backup_services=='1') ? true : false,

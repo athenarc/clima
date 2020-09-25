@@ -48,10 +48,23 @@ $modify_icon='<i class="fas fa-pencil-alt"></i>';
 				<th class="col-md-6 text-right" scope="col">Started on:</th>
 				<td class="col-md-6 text-left" scope="col"><?=$start?></td>
 			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Ends on: </th>
-				<td class="col-md-6 text-left" scope="col"><?=$ends?> (<?=$remaining_time?> days remaining)</td>
-			</tr>
+			<?php
+			if($remaining_time==0)
+			{?>
+				<tr>
+					<th class="col-md-6 text-right" scope="col">Ended on: </th>
+					<td class="col-md-6 text-left" scope="col"><?=$ends?> (<?=$remaining_time?> days remaining)</td>
+				</tr>
+			<?php
+			}
+			else
+			{?>
+				<tr>
+					<th class="col-md-6 text-right" scope="col">Ends on: </th>
+					<td class="col-md-6 text-left" scope="col"><?=$ends?> (<?=$remaining_time?> days remaining)</td>
+				</tr>
+			<?php
+			}?>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Participating users:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $user_list ?> (<?=$number_of_users?> out of <?=$maximum_number_users?>)</td>
