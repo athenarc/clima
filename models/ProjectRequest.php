@@ -75,7 +75,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             [['name'], 'string', 'max' => 30],
             [['name'],'allowed_name_chars'],
             [['name','user_num','backup_services', 'end_date'],'required'],
-            [['duration'],'integer','min'=>0,'max'=>36],
+           // [['duration'],'integer','min'=>0,'max'=>36],
             [['user_num'],'integer','min'=>0],
         ];
     }

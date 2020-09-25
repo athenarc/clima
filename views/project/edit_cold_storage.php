@@ -26,7 +26,7 @@ if (!empty($errors))
 
 
 <div class="row"><div class="col-md-12 headers"><?= Html::encode($this->title) ?></div></div>
-<div class="ondemand_project">
+<div class="cold">
 
 <div class="row"><div class="col-md-12">* All fields marked with asterisk are mandatory</div></div>
     <?php $form = ActiveForm::begin($form_params); ?>
@@ -38,6 +38,7 @@ if (!empty($errors))
            
         <?= $form->field($project, 'name') ?>
         <?= $form->field($project, 'user_num') ?>
+        <?= $form->field($project, 'end_date')->textInput(['disabled'=>true]) ?>
         <?= Html::label($participating_label, 'user_search_box', ['class'=>'blue-label']) ?>
         <br/>
         <?= MagicSearchBox::widget(

@@ -103,17 +103,29 @@ class ProjectController extends Controller
         $active=[];
         foreach ($all_projects as $project) 
         {
+            if(empty($project['approval_date']))
+            {
+                $start=date('Y-m-d',strtotime($project['submission_date']));
+            }
+            else
+            {
+                $start=date('Y-m-d',strtotime($project['approval_date']));
+            }
             
-            $start=date('Y-m-d',strtotime($project['approval_date']));
+
             $duration=$project['duration'];
             if(empty($project['end_date']))
             {
                 $end=date('Y-m-d', strtotime($start. " + $duration months"));
+                
+
             }
             else
             {
                 $end= explode(' ', $project['end_date'])[0];
             }
+
+
             
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($end);
@@ -152,6 +164,8 @@ class ProjectController extends Controller
                 $active[]=$project;
              }
 
+             
+
 
         }
 
@@ -161,7 +175,14 @@ class ProjectController extends Controller
         
         foreach ($active as $project) 
         {
-                $start=date('Y-m-d',strtotime($project['approval_date']));
+                if(empty($project['approval_date']))
+                {
+                    $start=date('Y-m-d',strtotime($project['submission_date']));
+                }
+                else
+                {
+                    $start=date('Y-m-d',strtotime($project['approval_date']));
+                }
                 $duration=$project['duration'];
                 if(empty($project['end_date']))
                 {
@@ -349,7 +370,8 @@ class ProjectController extends Controller
     {
         $coldStorageModel=new ColdStorageRequest;
         $projectModel=new ProjectRequest;
-        $projectModel->duration=36;
+        // $projectModel->duration=36;
+        $projectModel->end_date='2100-1-1';
         $projectModel->backup_services=false;
 
         $limitsModel=new ColdStorageLimits;
@@ -390,7 +412,7 @@ class ProjectController extends Controller
         {
             $isValid = $projectModel->validate();
             $isValid = $coldStorageModel->validate() && $isValid;
-            $projectModel->duration=1200;
+            $projectModel->end_date='2100-1-1';
             if ($isValid)
             {    
                 $participant_ids_tmp=[];
@@ -1268,6 +1290,7 @@ class ProjectController extends Controller
         $vm_exists=0;
 
         $start=date('Y-m-d',strtotime($prequest->approval_date));
+
         $duration=$prequest->duration;
 
         if(empty($prequest->end_date))
@@ -1280,6 +1303,8 @@ class ProjectController extends Controller
         }
 
         $prequest->end_date=$ends;
+
+
 
         if ($prType==0)
         {
@@ -1316,7 +1341,11 @@ class ProjectController extends Controller
         {
             $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
             $view_file='edit_cold_storage';
-            $prequest->duration=36;
+            //$prequest->duration=0;
+            $prequest->end_date='2100-1-1';
+            //$prequest->update();
+            // print_r($prequest);
+            // exit(0);
             $upperlimits=ColdStorageLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
         }
@@ -1394,7 +1423,7 @@ class ProjectController extends Controller
                 // exit(0);
                 if ($prType==2)
                 {
-                    $prequest->duration=1200;
+                    $prequest->end_date='2100-1-1';
                 }
                 if ($prType==1)
                 {
@@ -1440,6 +1469,9 @@ class ProjectController extends Controller
                 }
             }
         }
+
+        // print_r($prequest);
+        // exit(0);
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
                     'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends]);
@@ -1520,7 +1552,8 @@ class ProjectController extends Controller
         {
             $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
             $view_file='edit_cold_storage';
-            $prequest->duration=36;
+            //$prequest->duration=36;
+            $prequest->duration='2100-1-1';
             $upperlimits=ColdStorageLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
         }
@@ -1602,7 +1635,7 @@ class ProjectController extends Controller
                 // exit(0);
                 if ($prType==2)
                 {
-                    $prequest->duration=1200;
+                    $prequest->end_date='2100-1-1';
                 }
                 if ($prType==1)
                 {
