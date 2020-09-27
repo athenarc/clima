@@ -47,6 +47,7 @@ if (!empty($errors))
                     'attribute' => 'end_date',
                     'pluginOptions' => [
                     'autoclose'=>true,
+                    'format'=>'yyyy-m-d'
                     
                     ]
                 ]);

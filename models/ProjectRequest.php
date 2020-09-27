@@ -216,7 +216,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Yii::$app->db->createCommand()->insert('project_request', [
             
                         'name' => $this->name,
-                        'duration' => $this->duration,
+                        // 'duration' => $this->duration,
+                        'end_date'=>$this->end_date,
                         'user_num' => $this->user_num,
                         'user_list' => $this->user_list,
                         'backup_services' => ($this->backup_services=='1') ? true : false,

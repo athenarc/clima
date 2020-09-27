@@ -721,11 +721,14 @@ class ProjectController extends Controller
             if(is_null($project->end_date))
             {
                 $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+                // print_r($project->duration);
+                // exit(0);
             }
             else
             {
                 $ends= explode(' ', $project->end_date)[0];
             }
+            // 
             $now=date('Y-m-d');
             $datetime1 = strtotime($now);
             $datetime2 = strtotime($ends);
@@ -1313,6 +1316,7 @@ class ProjectController extends Controller
             $upperlimits=OndemandLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
             $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+            $prequest->end_date=$ends;
 
         }
         else if ($prType==1)
@@ -1322,6 +1326,9 @@ class ProjectController extends Controller
             $view_file='edit_service';
             $upperlimits=ServiceLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
+            $prequest->end_date=$ends;
+            // print_r($prequest);
+            // exit(0);
 
             
             $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
@@ -1423,7 +1430,7 @@ class ProjectController extends Controller
                 // exit(0);
                 if ($prType==2)
                 {
-                    $prequest->end_date='2100-1-1';
+                  //  $prequest->end_date='2100-1-1';
                 }
                 if ($prType==1)
                 {
@@ -1507,7 +1514,7 @@ class ProjectController extends Controller
 
         $prequest->end_date=$ends;
 
-
+        $vm_exists=0;
         
         $prequest->fillUsernameList();
 
@@ -1539,9 +1546,9 @@ class ProjectController extends Controller
             $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
             if (!empty($vm))
             {
-                return $this->render('error_service_vm_exist');
+                // return $this->render('error_service_vm_exist');
+                $vm_exists=1;
             }
-
             $trls[0]='Unspecified';
             for ($i=1; $i<10; $i++)
             {
@@ -1685,7 +1692,7 @@ class ProjectController extends Controller
         }
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists]);
 
 
     }
