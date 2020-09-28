@@ -189,7 +189,7 @@ class Project extends \yii\db\ActiveRecord
           // print_r($user);
           // exit(0);
 
-        $query->select(['pr.name','pr.approval_date', 'pr.duration','odr.num_of_jobs','odr.time_per_job','odr.ram','odr.cores'])
+        $query->select(['pr.name','pr.approval_date', 'pr.duration','pr.end_date','odr.num_of_jobs','odr.time_per_job','odr.ram','odr.cores'])
                 ->from('project as p')
                 ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
                 ->innerJoin('ondemand_request as odr','pr.id=odr.request_id')
@@ -218,7 +218,15 @@ class Project extends \yii\db\ActiveRecord
             
             $start=date('Y-m-d',strtotime($project['approval_date']));
             $duration=$project['duration'];
-            $end=date('Y-m-d', strtotime($start. " + $duration months"));
+            if(is_null($project['end_date']))
+            {
+                $end=date('Y-m-d', strtotime($start. " + $duration months"));
+            }
+            else
+            {
+              $end=$project['end_date'];
+            }
+            
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($end);
             $remaining_secs=$end_project-$now;
