@@ -101,6 +101,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $ram=$flavor['ram']/1024;
             $disk=$flavor['disk'];
             
+            
             $this->flavourIdNameLimitless[$id]=$name;
             
             if ((($cpus > $this->limits->cores) || ($ram > $this->limits->ram)) && (!$isAdmin))
