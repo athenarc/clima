@@ -144,7 +144,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             [['num_of_cores'], 'integer','max'=>$this->limits->cores,'min'=>0],
             [['num_of_ips'], 'integer','max'=>$this->limits->ips,'min'=>0],
             [['ram'], 'number','max'=>$this->limits->ram,'min'=>0],
-            [['storage'], 'number',/*'max'=>$this->limits->storage,*/'min'=>0],
+            [['storage'], 'number','max'=>$this->limits->storage,'min'=>0],
             [['name'], 'string', 'max' => 200],
             [['version'], 'string', 'max' => 50],
             [['name','version','description','trl'],'required'],
