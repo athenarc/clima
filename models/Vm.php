@@ -588,7 +588,27 @@ class Vm extends \yii\db\ActiveRecord
         // print_r($ips);
         // exit(0);
 
-        return [$cpu,$ram,$ips];
+        /*
+         * Get available volume space
+         */
+        $client = new Client(['baseUrl' => 'https://cinder-louros.cloud.grnet.gr:8776']);
+        $response = $client->createRequest()
+                            ->setMethod('GET')
+                            ->setFormat(Client::FORMAT_JSON)
+                            ->addHeaders(['X-Auth-Token'=>$token])
+                            ->setUrl(['v3/8119419d2b294b5596c17a310f229fb9/limits'])
+                            ->send();
+
+
+        $used_disk=$response->data['limits']['absolute']['totalGigabytesUsed'];
+        $total_disk=$response->data['limits']['absolute']['maxTotalVolumeGigabytes'];
+        $disk=$total_disk-$used_disk;
+        // print_r($response->data['limits']['absolute']);
+        // print_r("<br /><br />");
+        // print_r($disk);
+        // exit(0);
+
+        return [$cpu,$ram,$ips,$disk];
         
     }
 

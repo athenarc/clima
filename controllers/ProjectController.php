@@ -1134,7 +1134,7 @@ class ProjectController extends Controller
             // print_r($avResources);
             // exit(0);
             
-            if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) )
+            if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
             {
                 return $this->render('service_unavailable_resources');
             }
