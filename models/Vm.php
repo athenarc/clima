@@ -619,7 +619,9 @@ class Vm extends \yii\db\ActiveRecord
         $this->public_key=file_get_contents($keyFileName);
         $this->public_key=trim($this->public_key);
         $user=Userw::getCurrentUser()['id'];
-        $project=ProjectRequest::find()->where(['id'=>$requestId])->one();
+        $project_request=ProjectRequest::find()->where(['id'=>$requestId])->one();
+        $project_id=$project_request->project_id;
+        $project=Project::find()->where(['id'=>$project_id])->one();
         $this->image_name=$images[$this->image_id];
 
         $this->name=$project->name;
@@ -724,8 +726,8 @@ class Vm extends \yii\db\ActiveRecord
         }
         
         Yii::$app->db->createCommand()->insert('vm', [
-
-                'request_id' => $requestId,
+                'request_id'=> $requestId,
+                'project_id' => $project_id,
                 'ip_address' => $this->ip_address,
                 'ip_id' => $this->ip_id,
                 'vm_id' => $this->vm_id,

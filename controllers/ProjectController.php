@@ -1097,7 +1097,26 @@ class ProjectController extends Controller
             return $this->render('error_unauthorized');
         }
 
-        $existing=Vm::find()->where(['request_id'=>$id])->andWhere(['active'=>true])->one();
+        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+
+        //If vm is upgraded, then show message to user to delete past vm and create new
+        if(!empty($existing))
+        {
+            $service_old=ServiceRequest::find()->where(['request_id'=>$existing->request_id])->one();
+            $service_old_id=$service_old->id;
+            $project=Project::find()->where(['id'=>$id])->one();
+            $latest_service_request_id=$project->latest_project_request_id;
+            $service=ServiceRequest::find()->where(['request_id'=>$latest_service_request_id])->one();
+            if($service_old_id<$latest_service_request_id)
+            {
+                if($service_old->vm_flavour != $service->vm_flavour)
+                {
+                    Yii::$app->session->setFlash('success', "Due to an accepted project update, you have the option to create a larger machine. If you want to create it, backup any data stored in your current machine and then destroy it. After that you will be able to create a larger machine");
+                }
+            }
+        }
+        
+       
         if (empty($existing))
         {
             /*
@@ -1108,7 +1127,9 @@ class ProjectController extends Controller
             $avResources=VM::getOpenstackAvailableResources();
             // print_r($avResources);
             // exit(0);
-            $service=ServiceRequest::find()->where(['request_id'=>$id])->one();
+            $project=Project::find()->where(['id'=>$id])->one();
+            $latest_project_request_id=$project->latest_project_request_id;
+            $service=ServiceRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
 
             // print_r($avResources);
             // exit(0);
@@ -1139,7 +1160,7 @@ class ProjectController extends Controller
                 // exit(0);
                 if ($model->validate())
                 {
-                    $result=$model->createVM($id,$service, $imageDD);
+                    $result=$model->createVM($latest_project_request_id,$service, $imageDD);
                     $error=$result[0];
                     $message=$result[1];
                     if ($error!=0)
@@ -1150,7 +1171,7 @@ class ProjectController extends Controller
 
                     else
                     {
-                        $existing=Vm::find()->where(['request_id'=>$id])->andWhere(['active'=>true])->one();
+                        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
                         $existing->getConsoleLink();
     
                         return $this->render('vm_details',['model'=>$existing, 'requestId'=>$id]);
@@ -1178,11 +1199,11 @@ class ProjectController extends Controller
             return $this->render('error_unauthorized');
         }
 
-        $vm=Vm::find()->where(['request_id'=>$id])->andWhere(['active'=>true])->one();
+        $vm=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
 
         $result=$vm->deleteVM();
         $error=$result[0];
-                    $message=$result[1];
+        $message=$result[1];
 
         if ($error!=0)
         {
@@ -1327,16 +1348,15 @@ class ProjectController extends Controller
             $upperlimits=ServiceLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
             $prequest->end_date=$ends;
-            // print_r($prequest);
-            // exit(0);
-
             
-            $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
+            $project_id=$prequest->project_id;
+            $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
             if (!empty($vm))
             {
                 // return $this->render('error_service_vm_exist');
                 $vm_exists=1;
             }
+
 
             $trls[0]='Unspecified';
             for ($i=1; $i<10; $i++)
@@ -1381,6 +1401,8 @@ class ProjectController extends Controller
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : $prequest->usernameList;
         $pold=clone $prequest;
         $dold=clone $drequest;
+
+
         
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
@@ -1419,7 +1441,19 @@ class ProjectController extends Controller
             $pchanged= ProjectRequest::modelChanged($pold,$prequest);
             $dchanged= ProjectRequest::modelChanged($dold,$drequest);
             // exit(0);
-
+            $project_id=$prequest->project_id;
+            $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
+            
+            if (!empty($vm))
+            {
+                   
+                if(ServiceRequest::compareServices($dold,$drequest))
+                {
+                    Yii::$app->session->setFlash('danger', "You are not allowed to request fewer resources, since you have already created a VM");
+                    return $this->redirect(['project/edit-project', 'id'=>$id]);
+                 }
+                
+            }
             
 
             if ($isValid)
@@ -1449,6 +1483,7 @@ class ProjectController extends Controller
                     $requestId=$messages[3];
                     if ($requestId!=-1)
                     {
+                       
                         $messages=$drequest->uploadNewEdit($requestId);
                         $errors.=$messages[0];
                         $success.=$messages[1];

@@ -127,7 +127,7 @@ foreach ($active as $res)
 	}
 	else if ($res['project_type']==1) 
 	{
-		$projectLink=Url::to(['/project/configure-vm','id'=>$res['id']]);
+		$projectLink=Url::to(['/project/configure-vm','id'=>$res['project_id']]);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='24/7 Service';

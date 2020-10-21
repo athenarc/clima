@@ -196,6 +196,33 @@ class ServiceRequest extends \yii\db\ActiveRecord
         ];
     }
 
+    public function compareServices($service1,$service2)
+    {
+        $num_of_cores_service1=$service1->flavourCores[$service1->flavour];
+        $num_of_cores_service2=$service2->flavourCores[$service2->flavour];
+        $ram_service1=$service1->flavourRam[$service1->flavour];
+        $ram_service2=$service2->flavourRam[$service2->flavour];
+        $disk1=$service1->flavourDisk[$service1->flavour];
+        $disk2=$service2->flavourDisk[$service2->flavour];
+        $storage1=$service1->storage;
+        $storage2=$service2->storage;
+        if( ($num_of_cores_service2 < $num_of_cores_service1) || ($ram_service2 < $ram_service1) || ($disk2 < $disk1) || $storage2 < $storage1 )
+        {
+            return true;
+        }
+        return false;
+        // print_r($num_of_cores_service2.'');
+        // print_r($num_of_cores_service2.'');
+        // print_r($ram_service1);
+        // print_r($ram_service2);
+        // print_r($disk1);
+        // print_r($disk2);
+        // print_r($storage1);
+        // print_r($storage2);
+        // exit(0);
+
+    }
+
     public function uploadNew($requestId)
     {
         $errors='';
