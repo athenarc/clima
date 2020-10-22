@@ -286,7 +286,7 @@ class Project extends \yii\db\ActiveRecord
 
     }
 
-    public static function userInProject($requestId)
+    public static function userInProject($projectId)
     {
         $query=new Query;
 
@@ -299,7 +299,7 @@ class Project extends \yii\db\ActiveRecord
               ->innerJoin('user as u','pr.submitted_by=u.id')
               // ->where(['IN','pr.status',$status])
               ->where(['or', ['pr.submitted_by'=>$user],"$user = ANY(pr.user_list)"])
-              ->andWhere(['pr.id'=>$requestId])
+              ->andWhere(['pr.project_id'=>$projectId])
               ->orderBy('pr.submission_date DESC');
         // print_r($query->createCommand()->getRawSql());
         // exit(0);

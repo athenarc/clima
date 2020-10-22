@@ -1090,8 +1090,12 @@ class ProjectController extends Controller
 
     public function actionConfigureVm($id)
     {
+    	// $project=Project::find()->where(['id'=>$id])->one();
+    	// $latest_project_request_id=$project->latest_project_request_id;
         $owner=Project::userInProject($id);
 
+        // print_r($owner);
+        // exit(0);
         if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
