@@ -136,7 +136,7 @@ if ($vm->active)
 			<div class="modal-loading"><b>Deleting <i class="fas fa-spinner fa-spin"></i></b></div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
-				<?=Html::a("$x_icon Delete",['/project/delete-vm','id'=>$vm->request_id],['class'=>"btn btn-danger confirm-delete"])?>
+				<?=Html::a("$x_icon Delete",['/project/delete-vm','id'=>$project_id],['class'=>"btn btn-danger confirm-delete"])?>
 			</div>
 		</div>
 	</div>

@@ -1255,18 +1255,19 @@ class ProjectController extends Controller
                                 'sideItems'=>$sidebarItems,'filter'=>$filter]);
     }
 
-    public function actionAdminVmDetails($id,$request_id,$filter)
+    public function actionAdminVmDetails($id,$project_id,$filter)
     {
         
         if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('error_unauthorized');
         }
-
-        $project=ProjectRequest::find()->where(['id'=>$request_id])->one();
-        $projectOwner=User::returnUsernameById($project->submitted_by);
+        $project=Project::find()->where(['id'=>$project_id])->one();
+        $project_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+       // $project_request=ProjectRequest::find()->where(['id'=>$request_id])->one();
+        $projectOwner=User::returnUsernameById($project_request->submitted_by);
         $projectOwner=explode('@', $projectOwner)[0];
-        $service=ServiceRequest::find()->where(['request_id'=>$request_id])->one();
+        $service=ServiceRequest::find()->where(['request_id'=>$project_request->id])->one();
         $vm=VM::find()->where(['id'=>$id])->one();
         $createdBy=User::returnUsernameById($vm->created_by);
         $createdBy=explode('@', $createdBy)[0];
@@ -1277,7 +1278,7 @@ class ProjectController extends Controller
         
         return $this->render('vm_admin_details',['project'=>$project,'service'=>$service,
                                 'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
-                                'deletedBy'=>$deletedBy, 'filter'=>$filter ]);
+                                'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
     }
 
     public function actionModeratorOptions()

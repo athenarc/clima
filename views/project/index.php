@@ -50,8 +50,9 @@ $roles=['temporary'=>'Temporary','gold'=>'Gold','silver'=>'Silver'];
 </span> <span><?=$roles[$role]?> user &nbsp;</span><span title="Type of user"><i class="fa fa-question-circle" aria-hidden="true"></i>
 </span></h5>
 	</div>
-
 </div>
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
 <div class="row">&nbsp;</div>
 
 <?php
@@ -74,8 +75,7 @@ if (!empty($warnings))
 
 
 
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
+
 
 
 <div class="row"><h3 class="col-md-12">Active projects (<?=$number_of_active?>)</h3></div>
@@ -121,6 +121,7 @@ foreach ($active as $res)
 	if ($res['project_type']==0)
 	{
 		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
+		//$projectLink="http://62.217.82.57/schema_test/web/index.php?r=software%2Findex&selected_project=". $res['name'];
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand computation';

@@ -99,7 +99,7 @@ if (!empty($results))
 							<td class="col-md-2 align-middle"><?=$userd?></td>
 							<td class="col-md-2 align-middle"><?=empty($res['deleted_at'])? '' : date("F j, Y, H:i:s",strtotime($res['deleted_at']))?></td>
 							<td class="col-md-1 align-middle"><?=$status?></td>
-							<td class="col-md-1 align-middle"><?=Html::a("$view_icon Details",[$button_link,'request_id'=>$res['project_id'],'filter'=>$filter, 'id'=>$res['vm_id']],['class'=>'btn btn-primary btn-md'])?></td>
+							<td class="col-md-1 align-middle"><?=Html::a("$view_icon Details",[$button_link,'project_id'=>$res['project_id'],'filter'=>$filter, 'id'=>$res['vm_id']],['class'=>'btn btn-primary btn-md'])?></td>
 					</tr>
 
 	<?php
