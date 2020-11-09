@@ -12,7 +12,8 @@ use yii\helpers\Html;
 use yii\widgets\LinkPager;
 use yii\bootstrap\NavBar;
 use yii\bootstrap\Nav;
-use yii\helpers\Url;  
+use yii\helpers\Url;
+use app\components\Headers;  
 
 
 echo Html::CssFile('@web/css/project/request-list.css');
@@ -20,21 +21,15 @@ echo Html::CssFile('@web/css/project/request-list.css');
 $this->title="Project requests";
 
 
-/*
- * Users are able to view the name, version, start date, end date, mountpoint 
- * and running status of their previous software executions. 
- */
-
-
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Project requests', 
+])
 ?>
+<?Headers::end()?>
 
-	<div class='title row'>
-		<div class="col-md-12 headers">
-			<?= Html::encode($this->title) ?>
-		</div>
-	</div>
 
-	<div class="row">&nbsp;</div>
+	
 
 
 <?php

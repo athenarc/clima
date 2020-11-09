@@ -5,6 +5,7 @@ use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use app\components\MagicSearchBox;
 use kartik\date\DatePicker;
+use app\components\Headers;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\ServiceRequest */
@@ -28,10 +29,14 @@ if (!empty($errors))
     echo '</div>';
 
 }
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Edit on-demand computation project request',])
 ?>
+<?Headers::end()?>
 
 
-<div class="row"><div class="col-md-12 headers"><?= Html::encode($this->title) ?></div></div>
+
 <div class="ondemand_project">
 
 <div class="row"><div class="col-md-12"> * All fields marked with asterisk are mandatory</div></div>

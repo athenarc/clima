@@ -14,6 +14,7 @@ use yii\bootstrap\NavBar;
 use yii\bootstrap\Nav;
 use yii\helpers\Url;  
 use app\components\ToolButton;
+use app\components\Headers;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 
@@ -21,22 +22,22 @@ echo Html::CssFile('@web/css/project/new-request.css');
 
 $this->title="Create new project";
 
-// $ondemandImage=Html::img('@web/img/project/on-demand.png', ['alt' => 'New ondemand project request', 'class'=> 'button-image']);
-// $serviceImage=Html::img('@web/img/project/24_7-service.png', ['alt' => 'New 24/7 service project request', 'class'=> 'button-image']);
-// $coldImage=Html::img('@web/img/project/cold-storage.png', ['alt' => 'New cold-storage project request', 'class'=> 'button-image']);
+
 
 $ondemand_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 $storage_icon='<i class="fa fa-database" aria-hidden="true"></i>';
 $service_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 
-
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Create new project', 
+])
 ?>
+<?Headers::end()?>
 
-<div class='title row'>
-	<div class="col-md-30 headers">
-		<?= Html::encode($this->title) ?>
-	</div>
-</div>
+
+
+
 <?php
 ?>
 <div class="col-md-12" style="margin-bottom: 5px;">

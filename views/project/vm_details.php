@@ -1,11 +1,12 @@
 <?php
 
 use yii\helpers\Html;
+use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/vm-details.css');
 $this->registerJsFile('@web/js/project/vm-details.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->title="VM details";
+
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $x_icon='<i class="fas fa-times"></i>';
@@ -13,18 +14,25 @@ $console_icon='<i class="fas fa-external-link-square-alt"></i>';
 $info_icon='<i class="fas fa-question-circle"></i>';
 $string = explode(" ", $model->image_name)[0];
 $username=strtolower($string);
+$consoleLink=$model->consoleLink;
 
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'VM details', 
+	'buttons'=>
+	[
+		['fontawesome_class'=>$console_icon,'name'=> 'Console', 'action'=> $consoleLink, 
+		'options'=>['class'=>'btn btn-secondary', 'target'=>'_blank'], 'type'=>'a' ],
+		['fontawesome_class'=>$x_icon,'name'=> 'Delete', 'button_name'=>"button", 'type'=>'tag', 
+		'options'=>['class'=>'btn btn-danger delete-vm-btn']] ,
+		['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>['/project/index'], 'type'=>'a', 
+		'options'=>['class'=>'btn btn-default']] 
+	],
+])
 ?>
-<div class="row">
-	<div class="col-md-9 headers"><?=Html::encode($this->title)?></div>
-	<div class="col-md-3 float-right" style="text-align:right!important; padding-top: 5px;">
-		<?= Html::a("$console_icon Console",$model->consoleLink, ['class'=>'btn btn-secondary', 'target'=>'_blank'])?>
-		<?= Html::tag("button","$x_icon Delete", ['class'=>'btn btn-danger delete-vm-btn'])?>
-		<?= Html::a("$back_icon Back", ['/project/index'], ['class'=>'btn btn-default']) ?>
-	</div>
-</div>
+<?Headers::end()?>
 
-<div class="row">&nbsp;</div>
+
 
 <div class="row">
 	<span class="col-md-2">

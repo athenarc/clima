@@ -2,25 +2,31 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\components\Headers;
 
-$this->title="Machine Creation";
+
 echo Html::CssFile('@web/css/project/vm-configure.css');
 $this->registerJsFile('@web/js/project/vm-configure.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 $helpLink=Html::a('&nbsp;guide&nbsp;','https://confluence.atlassian.com/bitbucketserver/creating-ssh-keys-776639788.html',["target"=>'_blank']);
 $info='<i class="fas fa-info-circle"></i>';
 
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Machine Creation', 
+	'buttons'=>
+	[
+		['fontawesome_class'=>'<i class="fas fa-check"></i>','name'=> 'Create',
+		'options'=>['class'=>'btn btn-primary create-vm-btn'], 'type'=>'submitButton' ],
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/index'],
+		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
+	],
+])
 ?>
+<?Headers::end()?>
 
-<div class="row">
-	<div class="col-md-9 headers">
-		<?=Html::encode($this->title)?>
-	</div>
-	<div class="col-md-3 form-group" style="text-align: right; padding-top: 5px;">
-            <?= Html::submitButton('<i class="fas fa-check"></i> Create', ['class' => 'btn btn-primary create-vm-btn']) ?>
-            <?= Html::a('<i class="fas fa-arrow-left"></i> Back', ['/project/index'], ['class'=>'btn btn-default']) ?>
-    </div>
-</div>
+
+
 
 <div class="row"><div class="col-md-12"><h3>Machine specification:</h3></div></div>
 <div class="row">

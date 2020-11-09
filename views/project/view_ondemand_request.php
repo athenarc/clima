@@ -10,8 +10,8 @@
 
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
+use app\components\Headers;
 
-$this->title="Project details";
 
 echo Html::cssFile('@web/css/project/project_details.css');
 
@@ -38,24 +38,21 @@ else if (($bar_percentage>75) && ($bar_percentage<=100))
 	$bar_class='bg-danger';
 }
 
-/*
- * Users are able to view the name, version, start date, end date, mountpoint 
- * and running status of their previous software executions. 
- */
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Project details', 
+	'buttons'=>
+	[
+		
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/request-list'],
+		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
+	],
+])
 ?>
-<div class='title row'>
-	<div class="col-md-11 headers">
-		<?= Html::encode($this->title) ?>
-	</div>
-	<div class="col-md-1 float-right" style="padding-top: 5px;">
-		<?= Html::a("$back_icon Back", ['/project/request-list'], ['class'=>'btn btn-default']) ?>
-	</div>
-</div>
+<?Headers::end()?>
 
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
+
+
 
 <div class="col-md-12 text-center"><h3 style="font-weight:bold;">Basic info </h3></tr></div>
 	<div class="table-responsive">

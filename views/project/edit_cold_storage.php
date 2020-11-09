@@ -5,12 +5,13 @@ use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use app\components\MagicSearchBox;
 use kartik\date\DatePicker;
+use app\components\Headers;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
-$this->title="Edit cold storage project";
+
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 $storage_label="Maximum allowed storage (in GBs) * <span class='limits-label'> [upper limits: $autoacceptlimits->storage (automatically accepted), $upperlimits->storage (with RAC review)] </span>";
@@ -22,10 +23,16 @@ if (!empty($errors))
     echo '</div>';
 
 }
+
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Edit cold storage project',])
 ?>
+<?Headers::end()?>
 
 
-<div class="row"><div class="col-md-12 headers"><?= Html::encode($this->title) ?></div></div>
+
+
 <div class="cold">
 
 <div class="row"><div class="col-md-12">* All fields marked with asterisk are mandatory</div></div>

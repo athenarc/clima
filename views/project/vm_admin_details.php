@@ -1,17 +1,30 @@
 <?php
 
 use yii\helpers\Html;
+use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/vm-details.css');
 $this->registerJsFile('@web/js/project/vm-details.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->title="VM details";
+
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $x_icon='<i class="fas fa-times"></i>';
 
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Vm details', 
+	'buttons'=>
+	[
+		
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/vm-list'],
+		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
+	],
+])
 ?>
-<div class="row"><div class="col-md-11 headers"><?=Html::encode($this->title)?></div><div class="col-md-1"><?= Html::a("$back_icon Back", ['/project/vm-list', 'filter'=>$filter], ['class'=>'btn btn-default']) ?></div></div>
+<?Headers::end()?>
+
+
 
 <div class="row">&nbsp;</div>
 <div class="credentials-box">

@@ -17,6 +17,12 @@ color:#E6833B;
 font-size:30px;
 }
 
+.header-buttons
+{
+text-align:right;
+padding-top:5px;
+}
+
 .subtitle
 {
 color:#EA9A61;
@@ -29,7 +35,7 @@ color:#EA9A61;
 }
 
 .wrap > .container {
-    padding: 70px 15px 20px;
+    padding: 90px 20px 20px;
 }
 
 .footer {

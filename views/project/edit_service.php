@@ -5,12 +5,13 @@ use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use app\components\MagicSearchBox;
 use kartik\date\DatePicker;
+use app\components\Headers;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
-$this->title="Edit 24/7 service project request";
+
 
 $trl_label=" Technology readiness level (<a href='https://en.wikipedia.org/wiki/Technology_readiness_level' target='_blank'>TRL</a>)";
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
@@ -25,10 +26,14 @@ if (!empty($errors))
 
 }
 
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Edit 24/7 service project request',])
 ?>
+<?Headers::end()?>
 
 
-<div class="row"><div class="col-md-12 headers"><?= Html::encode($this->title) ?></div></div>
+
 <div class="new_service_request">
 
 <div class="row"> <div class="col-md-12">* All fields marked with asterisk are mandatory</div></div>

@@ -10,8 +10,9 @@
 
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
+use app\components\Headers;
 
-$this->title="Project details";
+
 
 echo Html::cssFile('@web/css/project/project_details.css');
 $this->registerJsFile('@web/js/project/view-request-user.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
@@ -25,30 +26,37 @@ $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
 $expired=$_GET['expired'];
 
-/*
- * Users are able to view the name, version, start date, end date, mountpoint 
- * and running status of their previous software executions. 
- */
-?>
-<div class='title row'>
-	<div class="col-md-8 headers">
-		<span><?= Html::encode($this->title) ?></span>/<span class="subtitle"><?=$project->name?></span>
-	</div>
-	<div class="col-md-4" style="text-align: right; padding-top: 5px;">
-		<?php
-		if ($project_owner & (($project->status==1) || ($project->status==2)) & $expired!=1)
-		{?>
-		<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$request_id],['class'=>'btn btn-secondary btn-md'])?>
-		<?php
-		}?>
-		<?= Html::a("$back_icon Back", [$back_link], ['class'=>'btn btn-default']) ?>
-	</div>
-</div>
+Headers::begin() ?>
+<?php
+if ($project_owner & (($project->status==1) || ($project->status==2)) & $expired!=1)
+{
+	
+	echo Headers::widget(
+	['title'=>"Project details", 'subtitle'=>$project->name,
+		'buttons'=>
+		[
+			['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
+			['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link], 'type'=>'a', 
+			'options'=>['class'=>'btn btn-default']] 
+		],
+	]);
+}
+else
+{
+	echo Headers::widget(
+	['title'=>"Project details", 'subtitle'=>$project->name,
+		'buttons'=>
+		[
+			['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link], 'type'=>'a', 
+			'options'=>['class'=>'btn btn-default']] 
+		],
+	]);
+}?>
+<?Headers::end()?>
 
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
+
+
+
 
 <div class="col-md-12 text-center"><h3 style="font-weight:bold;">Basic info </h3></tr></div>
 	<div class="table-responsive">

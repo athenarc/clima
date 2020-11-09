@@ -209,9 +209,7 @@ class ProjectController extends Controller
                 ->andWhere(['message'=>$message1])->all();
                 $notifications2=Notification::find(['recipient_id'=>$user_id])
                 ->andWhere(['message'=>$message2])->all();
-                 // print_r($notification_remaining_days);
-                 // print_r($notification_remaining_days);
-                 // exit(0);
+                
                 
                 if(empty($notifications1))
                 {

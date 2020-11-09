@@ -2,16 +2,15 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\components\Headers;
 
-$this->title="Edit VM credentials for service $service->name";
 
+
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'Edit VM credentials for service $service->name',])
 ?>
-
-<div class="row">
-	<div class="col-md-12 headers">
-		<?=Html::encode($this->title)?>
-	</div>
-</div>
+<?Headers::end()?>
 
 <?php
 

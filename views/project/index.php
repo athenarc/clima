@@ -13,12 +13,13 @@ use yii\widgets\LinkPager;
 use yii\bootstrap\NavBar;
 use yii\bootstrap\Nav;
 use yii\helpers\Url;  
+use app\components\Headers;
 
 
 echo Html::CssFile('@web/css/project/index.css');
 $this->registerJsFile('@web/js/project/index.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->title="Dashboard";
+//$this->title="Dashboard";
 
 
 /*
@@ -29,31 +30,25 @@ $history_icon='<i class="fas fa-history"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
 $roles=['temporary'=>'Temporary','gold'=>'Gold','silver'=>'Silver'];
 
-
-
-
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>"Dashboard", 
+	'buttons'=>
+	[
+		['fontawesome_class'=>$history_icon,'name'=> 'Project requests', 'action'=> ['/project/user-request-list'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
+		['fontawesome_class'=>$new_icon,'name'=> 'New project', 'action'=>['/project/new-request'], 'type'=>'a', 
+		'options'=>['class'=>'btn btn-success']] 
+	],
+	'special_content'=>'<div class="col-md-12 text-right">
+							<h5><span class='.$role.'-user><i class="fa fa-certificate fa-xs" aria-hidden="true"></i>
+							</span> <span>'. $roles[$role]. ' user &nbsp;</span><span title="Type of user"><i class="fa fa-question-circle" aria-hidden="true"></i></h5>
+							</span>
+						</div>'
+])
 ?>
+<?Headers::end()?>
 
-<div class='title row'>
-	<div class="col-md-7 headers">
-		<?= Html::encode($this->title) ?>
-	</div>
-	<div class="col-md-5 header-button-area" style="text-align:right;padding-top: 5px;">
-			<?= Html::a("$history_icon Project requests", ['/project/user-request-list'], ['class'=>'btn btn-default  float-right']) ?>
-			<?= Html::a("$new_icon New project", ['/project/new-request'], ['class'=>'btn btn-success  float-right']) ?>
-	</div>
 
-</div>
-<div class='title row'>
-	<div class="col-md-12 text-right">
-		<h5><span class="<?=$role?>-user"><i class="fa fa-certificate fa-xs" aria-hidden="true"></i>
-</span> <span><?=$roles[$role]?> user &nbsp;</span><span title="Type of user"><i class="fa fa-question-circle" aria-hidden="true"></i>
-</span></h5>
-	</div>
-</div>
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
 
 <?php
 

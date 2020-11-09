@@ -12,7 +12,8 @@ use yii\helpers\Html;
 use yii\widgets\LinkPager;
 use yii\bootstrap\NavBar;
 use yii\bootstrap\Nav;
-use yii\helpers\Url;  
+use yii\helpers\Url;
+use app\components\Headers;  
 
 
 echo Html::CssFile('@web/css/project/vm-list.css');
@@ -26,15 +27,12 @@ $this->title="List of VMs";
  */
 
 
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'List of VMs', 
+])
 ?>
-
-	<div class='title row'>
-		<div class="col-md-12 headers">
-			<?= Html::encode($this->title) ?>
-		</div>
-	</div>
-
-	<div class="row">&nbsp;</div>
+<?Headers::end()?>
 
 
 <div class="container-fluid">

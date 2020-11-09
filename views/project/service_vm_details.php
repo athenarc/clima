@@ -2,17 +2,28 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/vm-details.css');
 
-$this->title="VM details for project $project->name";
+
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 
 
+Headers::begin() ?>
+<?php echo Headers::widget(
+['title'=>'VM details for project $project->name',]
+	'buttons'=>
+	[
+		['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=> ['/project/index'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
+		
+	],
+)
 ?>
+<?Headers::end()?>
 
-<div class="row"><div class="col-md-11 headers"><?=Html::encode($this->title)?></div><div class="col-md-1"><?= Html::a("$back_icon Back", ['/project/index'], ['class'=>'btn btn-default']) ?></div></div>
+
 <?php
 
 if (!empty($creds->ip) && !empty($creds->username) && !empty($creds->password))
