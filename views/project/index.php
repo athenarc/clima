@@ -19,7 +19,7 @@ use app\components\Headers;
 echo Html::CssFile('@web/css/project/index.css');
 $this->registerJsFile('@web/js/project/index.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-//$this->title="Dashboard";
+$this->title="Dashboard";
 
 
 /*

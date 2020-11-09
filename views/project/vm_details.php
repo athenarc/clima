@@ -7,6 +7,7 @@ echo Html::CssFile('@web/css/project/vm-details.css');
 $this->registerJsFile('@web/js/project/vm-details.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 
+$this->title="VM details";
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $x_icon='<i class="fas fa-times"></i>';

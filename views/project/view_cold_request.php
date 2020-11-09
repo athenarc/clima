@@ -12,7 +12,7 @@ use yii\helpers\Html;
 use yii\widgets\LinkPager;
 use app\components\Headers;
 
-
+$this->title="Project details";
 
 echo Html::cssFile('@web/css/project/project_details.css');
 

@@ -7,6 +7,8 @@ use app\components\MagicSearchBox;
 use kartik\date\DatePicker;
 use app\components\Headers;
 
+$this->title = "Edit cold storage project";
+
 /* @var $this yii\web\View */
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */

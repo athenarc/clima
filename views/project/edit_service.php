@@ -11,7 +11,7 @@ use app\components\Headers;
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
-
+$this->title="Edit 24/7 service project request";
 
 $trl_label=" Technology readiness level (<a href='https://en.wikipedia.org/wiki/Technology_readiness_level' target='_blank'>TRL</a>)";
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";

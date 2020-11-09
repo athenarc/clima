@@ -2,11 +2,19 @@
 use yii\helpers\Url;
 use yii\helpers\Html;
 use app\models\TicketHead;
+use app\components\Headers;
 
 /** @var TicketHead $dataProvider */
 
 $this->title = 'Support';
+?>
+<?php
+Headers::begin() ?>
+<?php echo Headers::widget()?>
+<?php
+Headers::end()?>
 
+<?php 
 $this->registerJs("
 
     $('td').click(function (e) {

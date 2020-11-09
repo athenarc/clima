@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\components\Headers;
 
-
+$this->title = "Edit VM credentials for service $service->name'";
 
 Headers::begin() ?>
 <?php echo Headers::widget(

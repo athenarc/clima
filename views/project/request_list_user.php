@@ -18,7 +18,7 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/request-list.css');
 
-
+$this->title="Project requests";
 
 
 Headers::begin() ?>

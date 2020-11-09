@@ -12,6 +12,8 @@ use app\components\Headers;
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
 
+$this->title="Submit a new cold storage request";
+
 
 Headers::begin() ?>
 <?php echo Headers::widget(

@@ -4,6 +4,8 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use app\components\Headers;
 
+$this->title = "Machine Creation";
+
 
 echo Html::CssFile('@web/css/project/vm-configure.css');
 $this->registerJsFile('@web/js/project/vm-configure.js', ['depends' => [\yii\web\JqueryAsset::className()]]);

@@ -5,7 +5,7 @@ use yii\widgets\ActiveForm;
 use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/vm-details.css');
-
+$this->title="Project error";
 
 
 $back_icon='<i class="fas fa-arrow-left"></i>';

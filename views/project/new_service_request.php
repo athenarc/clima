@@ -11,7 +11,7 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/project-request.css');
 
-
+$this->title="Request a new 24/7 service project";
 
 Headers::begin() ?>
 <?php echo Headers::widget(

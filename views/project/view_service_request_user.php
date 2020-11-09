@@ -13,6 +13,7 @@ use yii\widgets\LinkPager;
 use app\components\Headers;
 
 
+$this->title="Project details";
 
 echo Html::cssFile('@web/css/project/project_details.css');
 $this->registerJsFile('@web/js/project/view-request-user.js', ['depends' => [\yii\web\JqueryAsset::className()]]);

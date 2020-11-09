@@ -13,6 +13,8 @@ use yii\widgets\LinkPager;
 use app\components\Headers;
 
 
+$this->title="Project details";
+
 echo Html::cssFile('@web/css/project/project_details.css');
 
 $approve_icon='<i class="fas fa-check"></i>';

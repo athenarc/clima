@@ -6,6 +6,7 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/vm-details.css');
 
+$this->title="VM details";
 
 
 $back_icon='<i class="fas fa-arrow-left"></i>';

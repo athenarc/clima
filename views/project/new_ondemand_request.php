@@ -11,7 +11,7 @@ use app\components\Headers;
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
-
+$this->title="Submit a new on-demand computation project request";
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 
