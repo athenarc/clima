@@ -12,6 +12,8 @@ body {
 
 .headers
 {
+margin-top:0px;
+padding-top:0px;
 padding-left:0px;
 color:#E6833B;
 font-size:30px;
@@ -35,7 +37,7 @@ color:#EA9A61;
 }
 
 .wrap > .container {
-    padding: 90px 20px 20px;
+    padding: 65px 20px 20px;
 }
 
 .footer {

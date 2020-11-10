@@ -44,7 +44,7 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
 <body>
 <?php $this->beginBody() ?>
 
-<div class="wrap background-image" style="padding-top: 40px;">
+<div class="wrap">
     <?php
 
     if(Yii::$app->user->getIsGuest() == false)

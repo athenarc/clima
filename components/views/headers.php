@@ -31,11 +31,19 @@ use yii\helpers\Html;
 			}
 		}?>
 	</div>
-	<?php echo $special_content;?>
+
+	<?php
+	if($special_content)
+	{
+		echo $special_content;
+	}
+	else
+	{?>
+		<div class="row">&nbsp;</div>
+	<?php
+	}?>
 </div>
 
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
-<div class="row">&nbsp;</div>
+
 
 
