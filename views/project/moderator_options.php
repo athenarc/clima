@@ -17,3 +17,5 @@ Headers::begin() ?>
 
 <?= ToolButton::createButton("View project requests", "",['/project/request-list']) ?>
 <br />
+<?= ToolButton::createButton("Email notifications", "",['/project/moderator-email-notifications']) ?>
+<br />

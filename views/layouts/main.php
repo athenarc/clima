@@ -56,8 +56,8 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
         // 'brandLabel' => Yii::$app->name,
         'brandLabel' => Html::img('@web/img/layouts/eg-ci-logo-h.png',['class'=>"navbar-logo"]),
         'brandUrl' => Yii::$app->homeUrl,
-        'options' => [
-            // 'class' => 'navbar-default navbar-fixed-top',
+		'options' => [
+            //'class' => 'navbar-default navbar-fixed-top',
             'class' => 'navbar navbar-default navbar-fixed-top navbar-expand-md bg-light', 
         ],
     ]);
@@ -144,11 +144,18 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
 
     }
 
+    // print_r(Yii::$app->request->url);
+    // exit(0);
+   
+
     echo Nav::widget([
 
-        'options' => ['class' => 'navbar-nav navbar-right'],
+        'options' => ['class' => 'navbar-nav navbar-right treeview' ],
         'items' => $menuItems,
-        'encodeLabels' => false,
+		'encodeLabels' => false,
+		//'route'=>Yii::$app->request->url,
+		//'activateItems' => true,
+		//'activateParents' => true,
         // [
         //     ['label' => 'Home', 'url' => ['/site/index']],
         //     ['label' => 'About', 'url' => ['/site/about']],
@@ -168,7 +175,9 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
         // ],
     ]);
     NavBar::end();
+
     ?>
+
     <div class="container">
         <?= Breadcrumbs::widget([
             'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],

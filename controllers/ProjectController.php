@@ -25,10 +25,14 @@ use app\models\ServiceVmCredentials;
 use app\models\Notification;
 use app\models\User;
 use app\models\Vm;
+use app\models\Smtp;
+use app\models\EmailEvents;
+use app\models\Email;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\web\UploadedFile;
 use webvimark\modules\UserManagement\models\User as Userw;
+
 
 
 class ProjectController extends Controller
@@ -169,12 +173,17 @@ class ProjectController extends Controller
 
         }
 
+        // print_r($active);
+        // exit(0);
+
         $number_of_active=count($active);
         $number_of_expired=count($expired);
+
 
         
         foreach ($active as $project) 
         {
+            
                 if(empty($project['approval_date']))
                 {
                     $start=date('Y-m-d',strtotime($project['submission_date']));
@@ -199,45 +208,53 @@ class ProjectController extends Controller
                 $notification_remaining_days=$remaining_secs/86400;
                 // if($duration>1)
                 // {
-                $message1="Project '$project[name] will end in 30 days.";
+                $message1="Project '$project[name]' will end in 30 days.";
                 //}
 
-                $message2="Project '$project[name] will end in 15 days.";
+                $message2="Project '$project[name]' will end in 15 days.";
                 
                 
-                $notifications1=Notification::find(['recipient_id'=>$user_id])
+                $notifications1=Notification::find()->where(['recipient_id'=>$user_id])
                 ->andWhere(['message'=>$message1])->all();
-                $notifications2=Notification::find(['recipient_id'=>$user_id])
+                $notifications2=Notification::find()->where(['recipient_id'=>$user_id])
                 ->andWhere(['message'=>$message2])->all();
-                
-                
-                if(empty($notifications1))
-                {
-                    if($notification_remaining_days==30 && $duration>1)
-                    {
-                             Notification::notify($user_id,$message1,1,null);
-                    }
-                    
-                }
-                else
-                {
-                    continue;
-                }
 
-                if(empty($notifications2))
+
+                if(empty($notifications1) && ($notification_remaining_days==30))
                 {
-                    if($notification_remaining_days==15)
-                    {
-                             Notification::notify($user_id,$message2,1,null);
-                    }
+                    Notification::notify($user_id,$message1,1,null);
+                }
+                
+
+                if(empty($notifications2) && ($notification_remaining_days==15))
+                {
+                   Notification::notify($user_id,$message2,1,null);
+                }
+                
+
+                $email_30=Email::find()->where(['project_id'=>$project['project_id']])
+                ->andWhere(['type'=>'expires_30'])
+                ->one();
+                if(empty($email_30) && ($notification_remaining_days==30))
+                {
+                     
+                    EmailEvents::NotifyByEmail('expires_30', $project['project_id'],$message1);
                     
                 }
-                else
+                
+                $email_15=Email::find()->where(['project_id'=>$project['project_id']])
+                ->andWhere(['type'=>'expires_15'])
+                ->one();
+                if(empty($email_15) && ($notification_remaining_days==15))
                 {
-                    continue;
-                }    
+                    EmailEvents::NotifyByEmail('expires_15', $project['project_id'],$message2);
+                }
+                
+
         }
-        
+
+       
+         
 
         return $this->render('index',['owner'=>$owner,'participant'=>$participant,
             'button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
@@ -1825,6 +1842,43 @@ class ProjectController extends Controller
 
         return $this->renderPartial('vm_password',['message'=>$password]);
     }
+
+    public function actionModeratorEmailNotifications()
+    {
+
+
+        $user=Userw::getCurrentUser();
+        $user_id=$user->id;
+        $user_notifications=EmailEvents::find()->where(['user_id'=>$user_id])->one();
+        if(empty($user_notifications))
+        {
+        		$user_notifications=new EmailEvents;
+        		$user_notifications->user_id=$user_id;
+        		$user_notifications->save();
+        		
+       	}
+
+        $smtp=Smtp::find()->one();
+        $smtp_config=true;
+        if((empty($smtp->host)) || (empty($smtp->port)) || (empty($smtp->username)) || (empty($smtp->password)) || (empty($smtp->encryption)))
+        {
+            Yii::$app->session->setFlash('danger', "SMTP is not configured properly to enable email notifications");
+            $smtp_config=false;
+        }
+       	if($user->load(Yii::$app->request->post()) && $user_notifications->load(Yii::$app->request->post()))
+        {
+        	
+            $user->update();
+           	$user_notifications->update();
+       		Yii::$app->session->setFlash('success', "Your changes have been successfully submitted");
+            return $this->redirect(['moderator-options']);
+        }
+
+        return $this->render('moderator_email_notifications', ['user'=>$user, 'user_notifications'=>$user_notifications,
+            'smtp_config'=>$smtp_config]);
+    }
+
+
 }
 
 

@@ -1,5 +1,7 @@
 $(document).ready(function()
-{
+{	
+	
+
 	$(".tab-button").click(function ()
 	{
 		var divClass= '.' + $(this).attr('data-controlling');
@@ -8,7 +10,7 @@ $(document).ready(function()
 		var activeButtonId=$(this).attr('id');
 		$('#hidden_active_button').val(activeButtonId);
 
-		if (divClass=='.tab-general')
+		if (divClass=='.tab-general' || divClass=='.tab-email-configuration')
 		{
 			$('#typeDropdown').hide();
 		}
@@ -25,6 +27,7 @@ $(document).ready(function()
 		$(divClass).show();
 		$(divClass).addClass("tab-active");
 		$(this).addClass("button-active");
+		
 
 	});
 

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\TicketBody;
 use app\models\TicketFile;
 use app\models\TicketHead;
@@ -14,6 +15,9 @@ use yii\web\UploadedFile;
 use app\models\Notification;
 use app\models\TicketConfig;
 use app\models\User;
+use app\models\Smtp;
+use app\models\EmailEvents;
+use webvimark\modules\UserManagement\models\User as Userw;
 
 /**
  * Default controller for the `ticket` module
@@ -113,6 +117,8 @@ class TicketUserController extends Controller
             {
                 Notification::notify($admin, $message, '0' ,$url);
             }
+        
+
             $this->redirect(Url::to(['/ticket-user/index']));
         }
 
@@ -179,6 +185,10 @@ class TicketUserController extends Controller
                     {
                         Notification::notify($admin, $message, '0' ,$url);
                     }
+                    
+                    EmailEvents::NotifyByEmail('new_ticket',-1, $message);
+
+
                     return $this->redirect(Url::previous());
                 }
             }

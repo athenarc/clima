@@ -62,5 +62,7 @@ else
 <br />
 <?= ToolButton::createButton("View VM history", "",['/project/vm-list']) ?>
 <br />
-<?= ToolButton::createButton("Website configuration", "",['administration/configure']) ?>
+<?= ToolButton::createButton("System configuration", "",['administration/configure']) ?>
+<br />
+<?= ToolButton::createButton("Email notifications", "",['administration/email-notifications']) ?>
 <br />

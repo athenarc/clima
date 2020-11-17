@@ -10,6 +10,8 @@ use yii\db\Query;
 use yii\data\Pagination;
 use yii\helpers\Url;
 use yii\httpclient\Client;
+use app\models\Smtp;
+use app\models\EmailEvents;
 
 /**
  * This is the model class for table "project".
@@ -166,10 +168,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $request_id=$id = Yii::$app->db->getLastInsertID();
 
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$project_id'")->execute();
-        }
 
-        
-        
+            $message="A new project with name '$this->name' has been submitted";
+            EmailEvents::NotifyByEmail('new_project', $project_id,$message);
+        }
 
         return [$errors,$success,$warnings,$request_id];
     }
@@ -342,10 +344,15 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
         }
+
+        EmailEvents::NotifyByEmail('project_decision', $this->project_id,$message);
+             
+
+        
+
        
-
-
     }
+    
     public function reject()
     {
         $this->status=-1;
@@ -361,14 +368,13 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $message="Project '$this->name' has been rejected";
         
-          
-
         foreach ($this->user_list as $user) 
         {
                 
             Notification::notify($user,$message,-1,Url::to(['project/user-request-list','filter'=>'rejected']));
         }
-        
+        EmailEvents::NotifyByEmail('project_decision', $this->project_id,$message);
+
 
     }
 

@@ -17,6 +17,7 @@ use app\models\User;
 use yii\helpers\Url;
 use app\models\Notification;
 use webvimark\modules\UserManagement\models\User as Userw;
+use app\models\EmailEvents;
 
 class SiteController extends Controller
 {
@@ -82,47 +83,7 @@ class SiteController extends Controller
      *
      * @return Response|string
      */
-    // public function actionLogin($eppn,$persistent_id)
-    // {
     
-    //     if (!Yii::$app->user->isGuest) {
-    //         return $this->goHome();
-    //     }
-
-    //     if (!empty($eppn))
-    //     {
-    //         $identity=User::findByUsername($eppn);
-    //         $identityHash=User::findByPersistentId($persistent_id);
-    //         if (empty($identity) && empty($identityHash))
-    //         {
-    //             User::createNewUser($eppn, $persistent_id);
-    //             $identity=$identity=User::findByUsername($eppn);
-    //         }
-
-    //         if (!empty($identity) && empty($identityHash))
-    //         {
-    //             $user=$identity;
-    //         }
-    //         else if ((empty($identity)) && (!empty($identityHash))) 
-    //         {
-    //             $user=$identityHash;
-    //         }
-    //         else if ($identity==$identityHash)
-    //         {
-    //             $user=$identity;
-    //         }
-
-    //         Yii::$app->user->login($user,3600*24);
-
-    //         return $this->goHome();
-        // }
-        
-
-        // // $model->password = '';
-        // // return $this->render('login', [
-        // //     'model' => $model,
-        // // ]);
-    // }
 
     public function actionAuthConfirmed($token)
     {
@@ -149,6 +110,8 @@ class SiteController extends Controller
             {
                 User::createNewUser($username, $persistent_id);
                 $identity=User::findByUsername($username);
+                $message="A new user with username $username has been created";
+                EmailEvents::NotifyByEmail('user_creation', -1,$message);
             }
             else
             {
