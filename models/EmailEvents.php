@@ -63,6 +63,9 @@ class EmailEvents extends \yii\db\ActiveRecord
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;
         $decrypted_password= base64_decode($encrypted_password);
+
+        // print_r($decrypted_password);
+        // exit(0);
       
         $mailer = Yii::$app->mailer->setTransport([
 

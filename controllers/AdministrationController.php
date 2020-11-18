@@ -144,7 +144,7 @@ class AdministrationController extends Controller
             $smtp->update();
             
 
-           //  gnllpxnyqivomknp
+           
 
             $isValid = $general->validate();
             $isValid = $service->validate() && $isValid;
