@@ -1253,9 +1253,29 @@ class ProjectController extends Controller
 
         $results=ProjectRequest::getVmList($filter);
 
-        $pages=$results[0];
-        $results=$results[1];
+        $new_results=[];
+        foreach ($results[1] as $res) 
+        {
+            $now = strtotime(date("Y-m-d"));
+            $end_project = strtotime($res['end_date']);
+            $remaining=$now-$end_project;
+            
+            if($remaining<0)
+            {
+                $expired=0;
+                $res['expired']=$expired;
+            }    
+            else
+            {   
+                $expired=1;
+                $res['expired']=$expired;
+            }
+            $new_results[]=$res;
+        }
 
+        $pages=$results[0];
+        $results=$new_results;
+      
         $sidebarItems=[];
         $filters=['all', 'active', 'deleted'];
         $filter_names=['all'=>'All','active'=>'Active','deleted'=>'Deleted'];

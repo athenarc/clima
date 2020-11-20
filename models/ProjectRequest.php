@@ -73,6 +73,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
             [['status', 'submitted_by', 'assigned_to'], 'integer'],
             [['backup_services', 'viewed'], 'boolean'],
             [['submission_date', 'end_date'], 'safe'],
+            ['end_date', 'validateDates'],
+            //['end_date', 'compare', '2020-10-10', '<'],
             [['name'],'sameOrUnique'],
             [['name'], 'string', 'max' => 30],
             [['name'],'allowed_name_chars'],
@@ -85,6 +87,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    public function validateDates()
+    {
+    	if(strtotime($this->end_date) < strtotime(date("Y-m-d")))
+    	{
+    		Yii::$app->session->setFlash('danger', 'Please give correct End date');
+        	$this->addError('end_date','Project end date cannot precede today');
+    	}
+	}
+
+
     public function attributeLabels()
     {
         return [
@@ -404,8 +416,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Yii::$app->db->createCommand()->update('project_request',['status'=>ProjectRequest::EXPIRED], "id=$rid")->execute();
         }
 
-        print_r('NOW()');
-        exit(0);
+        
     }
 
     public function cancel()
@@ -449,12 +460,13 @@ class ProjectRequest extends \yii\db\ActiveRecord
         // exit(0);
 
         
-        $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name',
+        $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
                         'u1.username as created_by', 'u2.username as deleted_by', 
                         'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
               ->from('project_request as pr')
               ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')
               ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+              //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
               ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
               ->where(['pr.project_type'=>1]);
         if ($filter=='active')

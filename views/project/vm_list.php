@@ -18,7 +18,7 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/vm-list.css');
 
-$this->title="List of VMs";
+$this->title="VM history";
 
 
 /*
@@ -29,7 +29,7 @@ $this->title="List of VMs";
 
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>'List of VMs', 
+['title'=>'VM history', 
 ])
 ?>
 <?Headers::end()?>
@@ -62,13 +62,13 @@ if (!empty($results))
 			<table class="table table-responsive">
 				<thead>
 					<tr>
-						<th class="col-md-2" scope="col">Project Name</th>
-						<th class="col-md-2" scope="col">Created by</th>
-						<th class="col-md-2" scope="col">Created at</th>
-						<th class="col-md-2" scope="col">Deleted by</th>
-						<th class="col-md-2" scope="col">Deleted at</th>
-						<th class="col-md-1" scope="col">Status</th>
-						<th class="col-md-1" scope="col">&nbsp;</th>
+						<th class="col-md-2 text-center" scope="col">Project Name</th>
+						<th class="col-md-2 text-center" scope="col">Created by</th>
+						<th class="col-md-2 text-center" scope="col">Created at</th>
+						<th class="col-md-2 text-center" scope="col">Deleted by</th>
+						<th class="col-md-2 text-center" scope="col">Deleted at</th>
+						<th class="col-md-1 text-center" scope="col">Status</th>
+						<th class="col-md-1 text-center" scope="col">&nbsp;</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -79,6 +79,7 @@ if (!empty($results))
 	{
 
 		$view_icon='<i class="fas fa-eye"></i>';
+		$exclamation_icon='<i class="fas fa-exclamation-triangle" style="color:orange" title="The Vm belongs to an expired project"></i>';
 		$button_link='project/admin-vm-details';
 		$userc=explode('@', $res['created_by'])[0];
 		$userd=explode('@', $res['deleted_by'])[0];
@@ -90,7 +91,8 @@ if (!empty($results))
 
 	?>
 						<tr class="<?=$class?>">
-							<td class="col-md-2 align-middle"><?=$res['project_name']?></td>
+							<td class="col-md-2 align-middle"><?=$res['project_name']?> <?=($res['expired']==1 &&
+							$res['active']==1) ? $exclamation_icon : ''?></td>
 							<td class="col-md-2 align-middle"><?=$userc?></td>
 							<td class="col-md-2 align-middle"><?=empty($res['created_at'])? '' : date("F j, Y, H:i:s",strtotime($res['created_at']))?></td>
 
