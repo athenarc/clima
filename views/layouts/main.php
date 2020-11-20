@@ -93,20 +93,30 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
     if(User::hasRole("Temporary", $superAdminAllowed = true) || User::hasRole("Silver", $superAdminAllowed = true) || User::hasRole("Gold", $superAdminAllowed = true))
     {
         $menuItems[]=['label' => 'Dashboard', 'url' => ['/project/index']];
-        $menuItems[]=['label' => 'User options', 'url' => ['/personal/user-options']];
+        $menuItems[]=['label' => 'User options', 'url' => ['/personal/user-options'],
+      //  'active' => in_array(\Yii::$app->controller->id, ['personal'])
+    ];
         
     }
 
     if(User::hasRole("Admin", $superAdminAllowed = true) || User::hasRole("Moderator", $superAdminAllowed = true))
     {
         
-        $menuItems[]=['label' => 'Moderator options', 'url' => ['/project/moderator-options']];
+        $menuItems[]=['label' => 'Moderator options', 'url' => ['/project/moderator-options'], 
+      
+       // 'active' => in_array(\Yii::$app->controller->id, ['moderator'])
+    ];
     }
 
     if(User::hasRole("Admin", $superAdminAllowed = true))
     {
-        $menuItems[]=['label' => 'Admin options', 'url' => ['/administration/index']];
+        $menuItems[]=['label' => 'Admin options', 'url' => ['/administration/index'],
+      //  'active' => in_array(\Yii::$app->controller->id, ['administration']), 
+    ];
     }
+    //print_r(\Yii::$app->controller->id);
+    // print_r($menuItems);
+    // exit(0);
 
     if(Yii::$app->user->getIsGuest() == false)
     {

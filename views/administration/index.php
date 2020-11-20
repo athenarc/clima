@@ -60,7 +60,7 @@ else
 <br />
 <?= ToolButton::createButton("User administration", "",['/personal/superadmin-actions']) ?>
 <br />
-<?= ToolButton::createButton("View VM history", "",['/project/vm-list']) ?>
+<?= ToolButton::createButton("VM history", "",['/project/vm-list']) ?>
 <br />
 <?= ToolButton::createButton("System configuration", "",['administration/configure']) ?>
 <br />
