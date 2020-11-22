@@ -10,25 +10,24 @@
 
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
+use app\components\Headers;
 
 $this->title="Enable user login via SSH (Ubuntu)";
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 
-/*
- * Users are able to view the name, version, start date, end date, mountpoint 
- * and running status of their previous software executions. 
- */
-?>
-<div class='title row'>
-	<div class="col-md-10">
-		<h1><?= Html::encode($this->title) ?></h1>
-	</div>
-	<div class="col-md-1 float-right">
-		<?= Html::a("$back_icon Back", ['project/index'], ['class'=>'btn btn-default']) ?>
-	</div>
-</div>
+ echo Headers::widget(
+['title'=>$this->title, 
+	'buttons'=>
+	[
+		
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>', 'name'=>'Back', 'action'=>['project/index'], 'type'=>'a', 'options'=>['class'=>'btn btn-default']]
+	]
+])
 
+?>
+
+<div class="row">&nbsp;</div>
 <div class="row"><div class="col-md-12">1. Connect to the VM via SSH:</div></div>
 <div class="code">ssh ubuntu@vm-ip</div>
 <div class="row"><div class="col-md-12">where vm-ip is the IP address of the VM you just created.</div></div>

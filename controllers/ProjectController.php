@@ -95,6 +95,35 @@ class ProjectController extends Controller
                     2=>'/project/view-cold-storage-request-user'];
 
         //ProjectRequest::invalidateExpiredProjects();
+        
+
+       // $activeprojects=Project::getAllActiveProjects();
+        $activeprojects=ProjectRequest::find()->where(['end_date'=>null])->all();
+        foreach($activeprojects as $project)
+        {
+        	if(empty($project->approval_date))
+            {
+                $start=date('Y-m-d',strtotime($project->submission_date));
+            }
+            else
+            {
+                $start=date('Y-m-d',strtotime($project->approval_date));
+            }
+            
+
+            $duration=$project->duration;
+            $end=date('Y-m-d', strtotime($start. " + $duration months"));
+            if(empty($project->end_date))
+            {
+                
+           		
+           		$project->end_date=$end;
+           		$project->update();     
+
+            }
+		}
+       
+        
         $deleted=Project::getDeletedProjects();
         //$expired=Project::getExpiredProjects();
         $owner=Project::getActiveProjectsOwner();
@@ -174,7 +203,7 @@ class ProjectController extends Controller
         }
 
         // print_r($active);
-        // exit(0);
+        //  exit(0);
 
         $number_of_active=count($active);
         $number_of_expired=count($expired);
