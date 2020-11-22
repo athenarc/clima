@@ -371,5 +371,28 @@ class Project extends \yii\db\ActiveRecord
         return $results;
 
     }
+
+    public static function getAllActiveProjects()
+    {
+        $query=new Query;
+        $date=date("Y-m-d");
+        $status=[1,2];
+        //print_r($date);
+        //exit(0);
+        $query->select(['pr.id','pr.name','pr.duration','pr.status','pr.viewed','pr.end_date', 'pr.approval_date','pr.project_type', 'pr.submission_date' //'u.username'
+          ])
+              ->from('project as p')
+              ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+              //->innerJoin('user as u','pr.submitted_by=u.id')
+             // ->where(['>=', 'end_date', $date])
+              ->andWhere(['IN','pr.status',$status])
+              ->orderBy('pr.submission_date DESC');
+        
+        
+        $results=$query->all();
+        return $results;
+
+    }
+    
     
 }
