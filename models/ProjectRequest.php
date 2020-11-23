@@ -73,7 +73,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             [['status', 'submitted_by', 'assigned_to'], 'integer'],
             [['backup_services', 'viewed'], 'boolean'],
             [['submission_date', 'end_date'], 'safe'],
-           // ['end_date', 'validateDates'],
+            ['end_date', 'validateDates'],
             //['end_date', 'compare', '2020-10-10', '<'],
             [['name'],'sameOrUnique'],
             [['name'], 'string', 'max' => 30],

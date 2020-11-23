@@ -81,6 +81,13 @@ class TicketAdminController extends Controller
     public function actionAnswer($id)
     {
         $thisTicket = TicketBody::find()->where(['id_head' => $id])->joinWith('file')->asArray()->orderBy('date DESC')->all();
+        if(empty($thisTicket))
+        {
+            Yii::$app->session->setFlash('danger', "The ticket has been deleted.");
+            return $this->redirect(Url::to(['/ticket-admin/index']));
+        }
+
+
         $newTicket = new TicketBody();
         $ticketHead = TicketHead::find()->where(['id'=> $id])->one();
 

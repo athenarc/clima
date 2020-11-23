@@ -10,6 +10,7 @@ use app\models\ProjectRequest;
 use app\models\Email;
 
 
+
 /**
  * This is the model class for table "email_notifications".
  *
@@ -84,7 +85,8 @@ class EmailEvents extends \yii\db\ActiveRecord
             $user_ids=array_column($email_notifications, 'user_id');
             $admins=Userw::find()->where(['id'=>$user_ids])
                 ->andWhere(['not', ['email' => null]])
-                ->all();
+            ->all();
+
             $admin_emails=array_column($admins, 'email');
             $admin_ids=array_column($admins, 'id');
 
@@ -136,74 +138,6 @@ class EmailEvents extends \yii\db\ActiveRecord
 
 
 
-        }
-        elseif($email_type=='expires_30')
-        {
-            $project=Project::find()->where(['id'=>$project_id])->one();
-            $project_request_id=$project->latest_project_request_id;
-            $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
-
-
-            $project_users=Userw::find()->where(['id'=>$project_request->user_list])
-                ->andWhere(['not', ['email' => null]])
-                ->all();
-            $project_users_emails=array_column($project_users, 'email');
-
-            foreach ($project_users_emails as $user) 
-            {
-                Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('Project ending')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
-            }
-
-            $recipient_ids=array_column($project_users, 'id');
-
-           
-            Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
-        }
-        elseif($email_type=='expires_15')
-        {
-            $project=Project::find()->where(['id'=>$project_id])->one();
-            $project_request_id=$project->latest_project_request_id;
-            $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
-
-            $project_users=Userw::find()->where(['id'=>$project_request->user_list])
-                ->andWhere(['not', ['email' => null]])
-                ->all();
-            $project_users_emails=array_column($project_users, 'email');
-            foreach ($project_users_emails as $user) 
-            {
-                Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('Project ending')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
-            }
-
-            $recipient_ids=array_column($project_users, 'id');
-            Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
         }
         elseif($email_type=='user_creation')
         {
@@ -290,6 +224,94 @@ class EmailEvents extends \yii\db\ActiveRecord
             }
 
             $recipient_ids=array_column($admins, 'id');
+            Yii::$app->db->createCommand()->insert('email', [
+                    'recipient_ids' => $recipient_ids,
+                    'type'=>$email_type,
+                    'sent_at' => 'NOW()',
+                    'message' => $message,
+                    'project_id' => $project_id,
+              ])->execute();
+        }
+        
+    }
+
+    public function NotifyByEmailDate($email_type, $project_id, $message, $date)
+    {
+        $smtp=Smtp::find()->one();
+        $encrypted_password=$smtp->password;
+        $decrypted_password= base64_decode($encrypted_password);
+
+        $mailer = Yii::$app->mailer->setTransport([
+        'class' => 'Swift_SmtpTransport',
+        'host' => $smtp->host,
+        'username' => $smtp->username,
+        'password' => $decrypted_password,
+        'port' => $smtp->port,
+        'encryption' => $smtp->encryption,
+
+        ]);
+
+        
+        if($email_type=='expires_30')
+        {
+            $project=Project::find()->where(['id'=>$project_id])->one();
+            $project_request_id=$project->latest_project_request_id;
+            $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
+
+
+            $project_users=Userw::find()->where(['id'=>$project_request->user_list])
+                ->andWhere(['not', ['email' => null]])
+                ->all();
+            $project_users_emails=array_column($project_users, 'email');
+
+            foreach ($project_users_emails as $user) 
+            {
+                Yii::$app->mailer->compose()
+                 ->setFrom("$smtp->username")
+                 ->setTo("$user")
+                 ->setSubject('Project ending')
+                 ->setTextBody('Plain text content')
+                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
+                 <br> <br> Sincerely, <br> EG-CI")
+                 ->send();
+                 usleep(2000);
+            }
+
+            $recipient_ids=array_column($project_users, 'id');
+
+           
+            Yii::$app->db->createCommand()->insert('email', [
+                    'recipient_ids' => $recipient_ids,
+                    'type'=>$email_type,
+                    'sent_at' => 'NOW()',
+                    'message' => $message,
+                    'project_id' => $project_id,
+              ])->execute();
+        }
+        else
+        {
+            $project=Project::find()->where(['id'=>$project_id])->one();
+            $project_request_id=$project->latest_project_request_id;
+            $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
+
+            $project_users=Userw::find()->where(['id'=>$project_request->user_list])
+                ->andWhere(['not', ['email' => null]])
+                ->all();
+            $project_users_emails=array_column($project_users, 'email');
+            foreach ($project_users_emails as $user) 
+            {
+                Yii::$app->mailer->compose()
+                 ->setFrom("$smtp->username")
+                 ->setTo("$user")
+                 ->setSubject('Project ending')
+                 ->setTextBody('Plain text content')
+                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
+                 <br> <br> Sincerely, <br> EG-CI")
+                 ->send();
+                 usleep(2000);
+            }
+
+            $recipient_ids=array_column($project_users, 'id');
             Yii::$app->db->createCommand()->insert('email', [
                     'recipient_ids' => $recipient_ids,
                     'type'=>$email_type,

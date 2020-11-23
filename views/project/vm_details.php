@@ -65,6 +65,21 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 	</div>
 <?php
 }?>
+
+<div class="row"><div class="col-md-12"><h3>Machine specification:</h3></div></div>
+<div class="row">
+	<div class="col-md-2 tab-label"><b>CPU cores:</b></div><div class="col-md-1 tab-value"><?=$service->num_of_cores?></div>
+</div>
+<div class="row">
+	<div class="col-md-2 tab-label"><b>RAM:</b></div><div class="col-md-1 tab-value"><?=$service->ram?> GB</div>
+</div>
+<div class="row">
+	<div class="col-md-2 tab-label"><b>Operating system disk:</b></div><div class="col-md-1 tab-value"><?=$service->disk?> GB</div>
+</div>
+<div class="row">
+	<div class="col-md-2 tab-label"><b>Additional storage:</b></div><div class="col-md-10 tab-value"><?=$service->storage?> GB</div>
+</div>
+
 <div class="row">&nbsp;</div>
 <div class="row">&nbsp;</div>
 <div class="row"><h3 style="padding-left: 15px;">Useful tips:</h3></div>
@@ -75,7 +90,9 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 			<div class="credentials-box-header"><div class='text-center'><h3><?=$info_icon?> Additional Storage</h3></div></div>
 			<div class="credentials-box-content">
 				<div class="row" style="padding-left: 15px;">
-				In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide','https://medium.com/@sh.tsang/partitioning-formatting-and-mounting-a-hard-drive-in-linux-ubuntu-18-04-324b7634d1e0', ['target'=>'_blank'])?>. 
+				In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide',['site/additional-storage-tutorial'], ['target'=>'_blank'])?>.
+
+				<!-- <?=Html::a('guide','https://medium.com/@sh.tsang/partitioning-formatting-and-mounting-a-hard-drive-in-linux-ubuntu-18-04-324b7634d1e0', ['target'=>'_blank'])?>.  -->
 				</div>
 				<div class="row">&nbsp;</div>
 				<div class="row">

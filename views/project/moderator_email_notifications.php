@@ -6,7 +6,7 @@ use webvimark\modules\UserManagement\models\User;
 use app\components\Headers;
 use yii\widgets\ActiveForm;
 
-echo Html::CssFile('@web/css/personal-account-settings.css');
+
 $this->title = "Email notifications";
 ?>
 <?php $form = ActiveForm::begin();  ?>
