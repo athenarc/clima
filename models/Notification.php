@@ -104,6 +104,24 @@ class Notification extends \yii\db\ActiveRecord
 
     }
 
+    public static function notifyDate($recipient_id, $message, $type,$url=null, $date)
+    {
+
+        $query=Yii::$app->db->createCommand()->insert('notification',
+        [
+
+                "recipient_id"=>$recipient_id,
+                "message" => $message,
+                "type" =>$type ,
+                "url" => $url,
+                "created_at" => 'NOW()',
+                "read_at" => null
+        ]
+                
+        )->execute();
+
+    }
+
 
     public function markAsSeen()
     {

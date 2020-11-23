@@ -33,6 +33,7 @@ namespace app\components;
  * Includes
  */
 // use yii\base\Widget;
+use Yii;
 use app\models\Notification;
 use webvimark\modules\UserManagement\models\User as Userw;
 use yii\helpers\Html;
@@ -41,6 +42,8 @@ use yii\helpers\Url;
 /*
  * The widget class
  */
+Yii::$app->getView()->registerJsFile('@web/js/components/supportWindow.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+
 class SupportWindow //extends Widget
 {
     
@@ -51,11 +54,20 @@ class SupportWindow //extends Widget
     {
     	echo Html::cssFile('@web/css/components/supportWindow.css');
     	echo "<div class='support-window-wrapper text-center'>";
+        echo    "<div class='col-md-1 col-md-offset-2 support-window-text support-arrow-right'  style='padding-top:5px;
+                     cursor:pointer; padding-left:100px;  ' title='Minimize support window'>
+                    <i class='fa fa-angle-double-right' aria-hidden='true'></i></div>";
     	echo 	"<div class='support-window-text'>Have you encountered a problem or do you have any suggestion?</div>";
     	echo 	"<div class='support-window-button'>";
     	echo 		Html::a('Click here',['ticket-user/open', 'link'=>urlencode($link)], ['class'=>'btn btn-info']);
     	echo	"</div>";
     	echo "</div>";
+        
+        //minimized window
+        echo  "<div class='support-minimized' style='display:none; text-align:left;'>";
+        echo        "<span class='col-md-12 support-arrow-left'   style='cursor:pointer; padding-left:8px; padding-top:3px;' title='Maximize support window'>
+                    <i class='fa fa-angle-double-left' aria-hidden='true'></i></span>";
+        echo    "</div>";
 
     }
 }

@@ -52,3 +52,5 @@ else
 
 <?= ToolButton::createButton("View my tickets", "",['/ticket-user/index']) ?>
 <br />
+<?= ToolButton::createButton("Email notifications", "",['/personal/email-notifications']) ?>
+<br />

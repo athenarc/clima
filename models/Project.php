@@ -59,6 +59,7 @@ class Project extends \yii\db\ActiveRecord
         $query=new Query;
 
         $status=[1,2];
+        $date=date("Y-m-d");
 
         $user=Userw::getCurrentUser()['id'];
 
@@ -67,6 +68,7 @@ class Project extends \yii\db\ActiveRecord
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
               ->innerJoin('user as u','pr.submitted_by=u.id')
               ->where(['IN','pr.status',$status])
+              ->andWhere(['>=', 'end_date', $date])
               ->andWhere(['pr.submitted_by'=>$user])
               ->orderBy('pr.submission_date DESC');
         // print_r($query->createCommand()->getRawSql());
@@ -87,6 +89,7 @@ class Project extends \yii\db\ActiveRecord
         $query=new Query;
 
         $status=[1,2];
+        $date=date("Y-m-d");
 
         $user=Userw::getCurrentUser()['id'];
         // print_r($user);
@@ -97,6 +100,7 @@ class Project extends \yii\db\ActiveRecord
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
               ->innerJoin('user as u','pr.submitted_by=u.id')
               ->where(['IN','pr.status',$status])
+              ->andWhere(['>=', 'end_date', $date])
               ->andWhere("$user = ANY(pr.user_list)")
               ->andWhere(['<>','pr.submitted_by',$user])
               ->orderBy('pr.submission_date DESC');
@@ -347,17 +351,17 @@ class Project extends \yii\db\ActiveRecord
     {
         $query=new Query;
 
-        $status=ProjectRequest::EXPIRED;
-
+       // $status=ProjectRequest::EXPIRED;
+        $date=date("Y-m-d");
         $user=Userw::getCurrentUser()['id'];
         // print_r($user);
         // exit(0);
 
-        $query->select(['pr.id','pr.name','pr.duration',"(pr.approval_date + interval '1 month' * pr.duration) as expired_at",'pr.status','pr.viewed', 'pr.approval_date','pr.project_type','u.username'])
+        $query->select(['pr.id','pr.name','pr.duration',"pr.end_date",'pr.status','pr.viewed', 'pr.approval_date','pr.project_type','u.username'])
               ->from('project as p')
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
               ->innerJoin('user as u','pr.submitted_by=u.id')
-              ->where(['IN','pr.status',$status])
+              ->where(['<','end_date',$date])
               ->andWhere("$user = ANY(pr.user_list)")
               ->orderBy('pr.submission_date DESC');
         // print_r($query->createCommand()->getRawSql());
@@ -365,8 +369,8 @@ class Project extends \yii\db\ActiveRecord
         
         $results=$query->all();
 
-        // print_r($results);
-        // exit(0);
+         //print_r($results);
+        //exit(0);
         
         return $results;
 
@@ -377,14 +381,12 @@ class Project extends \yii\db\ActiveRecord
         $query=new Query;
         $date=date("Y-m-d");
         $status=[1,2];
-        //print_r($date);
-        //exit(0);
-        $query->select(['pr.id','pr.name','pr.duration','pr.status','pr.viewed','pr.end_date', 'pr.approval_date','pr.project_type', 'pr.submission_date' //'u.username'
+        $query->select(['pr.id','pr.name', 'p.id as project_id', 'pr.duration','pr.status','pr.viewed','pr.end_date', 'pr.approval_date','pr.project_type', 'pr.submission_date', 'pr.submitted_by' //'u.username'
           ])
               ->from('project as p')
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
               //->innerJoin('user as u','pr.submitted_by=u.id')
-             // ->where(['>=', 'end_date', $date])
+              ->where(['>=', 'end_date', $date])
               ->andWhere(['IN','pr.status',$status])
               ->orderBy('pr.submission_date DESC');
         

@@ -262,4 +262,9 @@ class SiteController extends Controller
         return $this->render('mass_notification',['form_params'=>$form_params, 'notification'=>$notification]);
     }
 
+    public function actionAdditionalStorageTutorial()
+    {
+        return $this->render('additional_storage_tutorial');
+    }
+
 }
