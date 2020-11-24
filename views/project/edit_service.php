@@ -11,6 +11,7 @@ use app\components\Headers;
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
+$this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->title="Edit 24/7 service project request";
 
 $trl_label=" Technology readiness level (<a href='https://en.wikipedia.org/wiki/Technology_readiness_level' target='_blank'>TRL</a>)";
@@ -105,6 +106,17 @@ Headers::begin() ?>
       
             <?= $form->field($details,'flavour')->dropDownList($details->flavours)->label($flavour_label)?>
             <?= $form->field($details, 'storage')->label($storage_label) ?>
+            <?php
+            if($role=='gold')
+            {?>
+                <input type="checkbox" id="additional" name="additional">
+                <label for="additional"> I need more resources than the maximum provided. </label><br>
+                <div id='textarea' style="display: none;">
+                <div class="row">&nbsp;</div>
+                <?= $form->field($details, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
+                </div>
+            <?php
+            }?>
         
         <div class="form-group">
             <?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?>

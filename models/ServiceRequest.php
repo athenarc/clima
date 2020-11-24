@@ -150,6 +150,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             [['version'], 'string', 'max' => 50],
             [['name','version','description','trl'],'required'],
             [['flavour'],'required'],
+            [['additional_resources'],'string'],
             [['disk'], 'integer'],
         ];
     }
@@ -246,6 +247,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 'num_of_cores' => $this->num_of_cores,
                 'num_of_ips' => 1,
                 'ram' => $this->ram,
+                'additional_resources'=>$this->additional_resources,
                 'storage' => $this->storage,
                 'request_id' => $requestId,
                 'vm_flavour' => $this->flavourID[$this->flavour],
@@ -350,6 +352,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 'ram' => $this->ram,
                 'storage' => $this->storage,
                 'request_id' => $requestId,
+                'additional_resources'=>$this->additional_resources,
                 'vm_flavour' => $this->flavourID[$this->flavour],
                 'disk' => $this->flavourDisk[$this->flavour]
             ])->execute();

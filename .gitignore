@@ -43,7 +43,6 @@ tests/_support/_generated
 
 /Vagrantfile
 /codeception.yml
-/commands/
 /composer.json
 /composer.lock
 /config

@@ -11,6 +11,7 @@ use app\components\Headers;
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
+$this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->title="Edit on-demand computation project request";
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
@@ -110,6 +111,17 @@ Headers::begin() ?>
                 <?= $form->field($details, 'time_per_job')->label($time_label) ?>
                 <?= $form->field($details, 'ram')->label($ram_label) ?>
                 <?= $form->field($details, 'storage')->label($storage_label ) ?>
+                <?php
+                if($role=='gold')
+                {?>
+                    <input type="checkbox" id="additional" name="additional">
+                    <label for="additional"> I need more resources than the maximum provided. </label><br>
+                    <div id='textarea' style="display: none;">
+                    <div class="row">&nbsp;</div>
+                    <?= $form->field($details, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
+                    </div>
+                <?php
+                }?>
         
         
     

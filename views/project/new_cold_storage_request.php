@@ -7,10 +7,14 @@ use app\components\MagicSearchBox;
 use kartik\date\DatePicker;
 use app\components\Headers;
 
+
 /* @var $this yii\web\View */
 /* @var $model app\models\ServiceRequest */
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
+
+$this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+?>
 
 $this->title="Submit a new cold storage request";
 
@@ -80,12 +84,20 @@ if (!empty($errors))
         </div>
         <div class="row">&nbsp;</div>
 
+        
 
-        
         <?= $form->field($coldStorage, 'storage')-> label($storage_label) ?>
-        
-        
-    
+        <?php
+        if($role=='gold')
+        {?>
+            <input type="checkbox" id="additional" name="additional">
+            <label for="additional"> I need more resources than the maximum provided. </label><br>
+            <div id='textarea' style="display: none;">
+            <div class="row">&nbsp;</div>
+            <?= $form->field($coldStorage, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
+            </div>
+        <?php
+        }?>
         <div class="row">
             <div class="col-md-1"><?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?></div>
             <div class="col-md-1"><?= Html::a('<i class="fas fa-times"></i> Cancel', ['/project/index'], ['class'=>'btn btn-default']) ?></div>

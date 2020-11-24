@@ -79,6 +79,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
             [['containerized'], 'boolean'],
             [['storage', 'time_per_job', 'ram'], 'number'],
             [['analysis_type'], 'string', 'max' => 200],
+            [['additional_resources'],'string'],
             [['description','num_of_jobs','time_per_job','cores','ram',
               'analysis_type','maturity','storage','containerized'],'required'],
 
@@ -160,7 +161,9 @@ class OndemandRequest extends \yii\db\ActiveRecord
                 'time_per_job' => $this->time_per_job,
                 'ram' => $this->ram,
                 'cores' => $this->cores,
+                'additional_resources'=>$this->additional_resources,
                 'request_id' => $requestId
+
             ])->execute();
 
 
@@ -253,6 +256,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
                 'time_per_job' => $this->time_per_job,
                 'ram' => $this->ram,
                 'cores' => $this->cores,
+                'additional_resources'=>$this->additional_resources,
                 'request_id' => $requestId
             ])->execute();
 

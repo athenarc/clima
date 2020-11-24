@@ -10,6 +10,8 @@ use app\components\Headers;
 
 
 echo Html::CssFile('@web/css/project/project-request.css');
+$this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+?>
 
 $this->title="Request a new 24/7 service project";
 
@@ -113,7 +115,19 @@ if (!empty($errors))
 
         <?= $form->field($service,'flavour')->dropDownList($service->flavours)->label($flavour_label)?>
         <?= $form->field($service, 'storage')->label($storage_label) ?>
-        
+
+        <?php
+        if($role=='gold')
+        {?>
+            <input type="checkbox" id="additional" name="additional">
+            <label for="additional"> I need more resources than the maximum provided. </label><br>
+            <div id='textarea' style="display: none;">
+            <div class="row">&nbsp;</div>
+            <?= $form->field($service, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
+            </div>
+        <?php
+        }?>
+
     
         <div class="row">
             <div class="col-md-1"><?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?></div>

@@ -117,6 +117,10 @@ else
 			<th class="col-md-6 text-right" scope="col">Description</th>
 			<td class="col-md-6 text-left" scope="col"><?= $details->description ?></td>
 			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col" style="color:#E6833B">Request for additional resources:</th>
+				<td class="col-md-6 text-left" scope="col"><?= $details->additional_resources?></td>
+			</tr>
 		</body>
 	</table>
 </div>

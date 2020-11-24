@@ -65,6 +65,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             [['request_id'], 'integer'],
             [['description'], 'string'],
             [['storage','description'],'required'],
+            [['additional_resources'],'string'],
             [['storage'], 'number','max'=>$this->limits->storage,'min'=>0],
         ];
     }
@@ -96,6 +97,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
 
                 'description' => $this->description,
                 'storage' => $this->storage,
+                'additional_resources'=>$this->additional_resources,
                 'request_id' => $requestId,
             ])->execute();
 
@@ -168,6 +170,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
 
                 'description' => $this->description,
                 'storage' => $this->storage,
+                'additional_resources'=>$this->additional_resources,
                 'request_id' => $requestId,
             ])->execute();
 

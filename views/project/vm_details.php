@@ -91,8 +91,6 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 			<div class="credentials-box-content">
 				<div class="row" style="padding-left: 15px;">
 				In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide',['site/additional-storage-tutorial'], ['target'=>'_blank'])?>.
-
-				<!-- <?=Html::a('guide','https://medium.com/@sh.tsang/partitioning-formatting-and-mounting-a-hard-drive-in-linux-ubuntu-18-04-324b7634d1e0', ['target'=>'_blank'])?>.  -->
 				</div>
 				<div class="row">&nbsp;</div>
 				<div class="row">

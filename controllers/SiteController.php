@@ -264,6 +264,7 @@ class SiteController extends Controller
 
     public function actionAdditionalStorageTutorial()
     {
+        //
         return $this->render('additional_storage_tutorial');
     }
 

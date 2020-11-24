@@ -124,6 +124,10 @@ Headers::begin() ?>
 				<th class="col-md-6 text-right" scope="col">Service TRL:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->trl ?></td>
 			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col" style="color:#E6833B">Request for additional resources:</th>
+				<td class="col-md-6 text-left" scope="col"><?= $details->additional_resources?></td>
+			</tr>
 			</body>
 		</table>
 	</div>

@@ -153,7 +153,7 @@ class EmailEvents extends \yii\db\ActiveRecord
                 Yii::$app->mailer->compose()
                  ->setFrom("$smtp->username")
                  ->setTo("$user")
-                 ->setSubject('Project decision')
+                 ->setSubject('User creation')
                  ->setTextBody('Plain text content')
                  ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
                  <br> <br> Sincerely, <br> EG-CI")
@@ -184,7 +184,7 @@ class EmailEvents extends \yii\db\ActiveRecord
                 Yii::$app->mailer->compose()
                  ->setFrom("$smtp->username")
                  ->setTo("$user")
-                 ->setSubject('Project decision')
+                 ->setSubject('New project')
                  ->setTextBody('Plain text content')
                  ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
                  <br> <br> Sincerely, <br> EG-CI")
@@ -215,7 +215,7 @@ class EmailEvents extends \yii\db\ActiveRecord
                 Yii::$app->mailer->compose()
                  ->setFrom("$smtp->username")
                  ->setTo("$user")
-                 ->setSubject('Project decision')
+                 ->setSubject('New project')
                  ->setTextBody('Plain text content')
                  ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
                  <br> <br> Sincerely, <br> EG-CI")

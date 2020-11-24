@@ -74,12 +74,11 @@ class ProjectRequest extends \yii\db\ActiveRecord
             [['backup_services', 'viewed'], 'boolean'],
             [['submission_date', 'end_date'], 'safe'],
             ['end_date', 'validateDates'],
-            //['end_date', 'compare', '2020-10-10', '<'],
+            [['additional_resources'], 'string'],
             [['name'],'sameOrUnique'],
             [['name'], 'string', 'max' => 30],
             [['name'],'allowed_name_chars'],
             [['name','user_num','backup_services', 'end_date'],'required'],
-           // [['duration'],'integer','min'=>0,'max'=>36],
             [['user_num'],'integer','min'=>0],
         ];
     }
