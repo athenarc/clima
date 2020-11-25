@@ -1,0 +1,49 @@
+.credentials-box
+{
+	height:170px;
+	border: 1px solid grey;
+	
+	
+}
+
+
+
+.credentials-box-header h3
+{
+	
+	margin-top: 0px;
+	margin-bottom: 0px;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+.credentials-box-content
+{
+	height:170px;
+	padding-left: 10px;
+	padding-bottom: 20px;
+	padding-top: 10px;
+	
+}
+
+.modal-loading
+{
+	display:none;
+	color:red;
+	padding-left: 10px;
+}
+
+.pass-warning-div
+{
+	display:none;
+}
+
+.retrieving-loading
+{
+	color: green;
+}
+
+.password-div
+{
+	display:none;
+}

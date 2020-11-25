@@ -1,0 +1,47 @@
+.list-group
+{
+	margin-bottom:0px !important;
+}
+
+td,th
+{
+	text-align:center;
+	font-size:14px !important;
+}
+
+.tr
+{
+	padding-top:10px;
+}
+
+.vm-Active
+{
+	background-color: #d4edda;
+	border-color: #c3e6cb;
+}
+
+.vm-Deleted
+{
+	background-color: #f8d7da;
+	border-color: #f5c6cb;
+}
+
+.btn-primary
+{
+	font-size:14px !important;
+}
+
+.empty-message
+{
+	margin-top:0px !important;
+}
+
+.facet-sidebar
+{
+	padding-left:0px !important;
+}
+
+.main-content
+{
+	padding-right:0px !important;
+}

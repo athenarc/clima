@@ -1,0 +1,25 @@
+.header-button-area .btn-success
+{
+	margin-right:10px;
+}
+
+.table-responsive
+{
+	margin-left:10px;
+	margin-right:10px;
+}
+
+.temporary-user
+{
+	color:#5bc0de;
+}
+
+.silver-user
+{
+	color:#e0e0e0;
+}
+
+.gold-user
+{
+	color:#f37d30;
+}

@@ -1,0 +1,41 @@
+.tab-active
+{
+	display:block !important;
+}
+.tab
+{
+	display:none;
+}
+.tab-button
+{
+	text-decoration:none;
+	text-align:center;
+	/*border:1px solid #ccc;*/
+	background-color:#e7e7e7;
+}
+
+.dropdown-hidden
+{
+	display:none;
+}
+
+.tab-button:hover
+{
+	cursor: pointer;
+	background-color:#b7b7b7;
+}
+
+.button-active
+{
+	background-color:#d7d7d7;
+}
+
+.category-tabs
+{
+	padding-left:15px;
+}
+
+.button-text
+{
+	padding: 10px;
+}
