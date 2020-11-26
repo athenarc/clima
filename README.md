@@ -20,7 +20,7 @@ The node running the installation of SCHeMa should have the following PHP packag
 
 
 
-## Installing SCHeMa
+## Installing CLIMA
 
 1. Install the Yii2 framework([tutorial](https://www.yiiframework.com/doc/guide/2.0/en/start-installation)) and install the following plugins:
   * [Webvimark User management](https://github.com/webvimark/user-management) without migrating the database.
@@ -33,10 +33,10 @@ The node running the installation of SCHeMa should have the following PHP packag
 3. Create a postgres database named "clima" for user "clima".
 
 4. Restore the .sql file inside the "database_schema" folder as user "postgres" to the database created in the previous step:
-  ```sudo -u postgres psql -d clima -f <path_to_database_schema>/database_schema.sql```
+  ```sudo -u postgres psql -d clima -f <path_to_database_schema>/db_structure.sql```
 
-5. Inside the project folder change the following files:
-  * edit config/db.php and add the database credentials
-  * rename config/params-template.php to config/params.php and fill the information according to the description provided
+5. Inside the project folder edit the following files:
+  * config/db.php: add the database credentials.
+  * config/params-template.php: rename to config/params.php and fill the information according to the description provided.
 
 
