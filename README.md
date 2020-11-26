@@ -8,7 +8,7 @@
 In order to install SCHeMa you need:
 * a PostgreSQL database server
 * an OpenStack cloud infrastructure with a project and application credentials configured.
-* a working[SCHeMa](https://github.com/athenarc/schema) installation  in a non-standalone mode (for on-demand projects.
+* a working[SCHeMa](https://github.com/athenarc/schema) installation  in a non-standalone mode (for on-demand projects). Users must have the same username as in CLIMA, in order to be able to access their projects.
 
 ### Required PHP packages
 The node running the installation of SCHeMa should have the following PHP packages installed:
@@ -18,61 +18,7 @@ The node running the installation of SCHeMa should have the following PHP packag
 * php-pgsql
 * php-yaml
 
-### Required Python packages
-The node running the installation of SCHeMa should have the following Python packages installed:
-* python-ruamel.yaml
-* python-psycopg2
-* python-yaml
-* python-requests
 
-### Other packages required:
-* cwltool
-
-## Installing a local docker registry with self-signed certificates and basic authentication
-On the machine that will run the SCHeMa installation:
-1. Create a folder for the registry certificates and authentication files (e.g. /data/registry) with two additional directories, "certs" and reg_auth".
-2. Create self-signed certificates:
-```bash
-openssl req \
-  -newkey rsa:4096 -nodes -sha256 -keyout <registry_data_directory>/certs/domain.key \
-  -x509 -days 365 -out <registry_data_directory>/certs/domain.crt
-````
-3. Create a username and password for the registry (change ```<registry_username>``` and ```<registry_username>``` appropriately):
-```bash
-sudo docker run -it --entrypoint htpasswd -v $PWD/reg_auth:/auth -w /auth registry:2 -Bbc /auth/htpasswd <registry_username> <registry_password>
-```
-4. Start the registry with the created certificates:
-```bash
-  docker run -d \
-  --restart=always \
-  --name registry \
-  -v "$(pwd)"/certs:/certs \
-  -v "$(pwd)"/reg_auth:/auth \
-  -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 \
-  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
-  -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
-  -e "REGISTRY_AUTH=htpasswd" \
-  -e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
-  -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
-  -e REGISTRY_STORAGE_DELETE_ENABLED=true \
-  -p 5000:5000 \
-  registry:2
-```
-5. Create folders with the certificate for the docker registry and copy the certificates:
-```bash
-sudo mkdir -p /etc/docker/certs.d/127.0.0.1:5000
-sudo mkdir -p /etc/docker/certs.d/localhost:5000
-sudo cp <registry_data_directory>/certs/domain.crt /etc/docker/certs.d/127.0.0.1:5000/ca.crt
-sudo cp <registry_data_directory>/certs/domain.crt /etc/docker/certs.d/localhost:5000/ca.crt
-```
-6. Login to the registry:
-```bash
-docker login 127.0.0.1:5000 -u <registry_username> -p pass <registry_password>
-```
-7. Create a Kubernetes secret named `docker-secret` with your Docker login. This is so that Kubernetes can retrieve images from your private registry:
-```bash
-kubectl create secret docker-registry --docker-server <docker-registry-ip> --docker-username <registry_username> --docker-password <registry_password>
-```
 
 ## Installing SCHeMa
 
@@ -81,36 +27,16 @@ kubectl create secret docker-registry --docker-server <docker-registry-ip> --doc
   * [DatePicker](https://demos.krajee.com/widget-details/datepicker)
   * [Yii2 Bootstrap4](https://github.com/yiisoft/yii2-bootstrap4)
   * [Yii http requests](https://github.com/yiisoft/yii2-httpclient)
-  * [elFinder](https://github.com/alexantr/yii2-elfinder)
 
-2. Download the SCHeMa code from GitHub and replace the files inside the Yii project folder.
+2. Download the CLIMA code from GitHub and replace the files inside the Yii project folder.
 
-3. Create a postgres database named "schema" for user "schema".
+3. Create a postgres database named "clima" for user "clima".
 
 4. Restore the .sql file inside the "database_schema" folder as user "postgres" to the database created in the previous step:
-  ```sudo -u postgres psql -d schema -f <path_to_database_schema>/database_schema.sql```
+  ```sudo -u postgres psql -d clima -f <path_to_database_schema>/database_schema.sql```
 
-5. Copy the docker registry certificates in the project_root/scheduler_files/certificates:
-```cp <registry_data_directory>/certs/* <path_to_schema_project>/scheduler_files/certificates```
+5. Inside the project folder change the following files:
+  * edit config/db.php and add the database credentials
+  * rename config/params-template.php to config/params.php and fill the information according to the description provided
 
-6. Using root permissions create an empty file inside /etc/sudoers.d/ with ```visudo``` and paste the following inside it after filling the relevant information:
-```bash
-www-data ALL=(<user>) NOPASSWD: <path-to-kubectl>, <path-to-docker>, <path_to_schema_project>/scheduler_files/scheduler.py, <path_to_schema_project>/scheduler_files/ontology/initialClassify.py, <path_to_schema_project>/scheduler_files/imageUploader.py, <path_to_schema_project>/scheduler_files/imageRemover.py, <path_to_schema_project>/scheduler_files/inputReplacer.py, <path_to_schema_project>/scheduler_files/probe_stats.py, <path_to_schema_project>/scheduler_files/setupMpiCluster.py, <path_to_schema_project>/scheduler_files/mpiMonitorAndClean.py, <path_to_schema_project>/scheduler_files/existingImageUploader.py, <path_to_schema_project>/scheduler_files/workflowMonitorAndClean.py, <path_to_schema_project>/scheduler_files/workflowUploader.py, <path_to_cwltool>/cwltool
-```
-  where ```<user>```: a user that has permissions to run path-to-kubectl. As an example take a look at the following
 
-```bash
-  www-data ALL=(ubuntu) NOPASSWD: /usr/bin/kubectl, /data/www/schema/scheduler_files/scheduler.py, /data/www/schema/scheduler_files/ontology/initialClassify.py, /data/www/schema/scheduler_files/imageUploader.py, /data/www/schema/scheduler_files/imageRemover.py, /data/www/schema/scheduler_files/inputReplacer.py, /data/www/schema/scheduler_files/probe_stats.py, /data/www/schema/scheduler_files/setupMpiCluster.py,/data/www/schema/scheduler_files/mpiMonitorAndClean.py, /data/www/schema/scheduler_files/existingImageUploader.py, /data/www/schema/scheduler_files/workflowMonitorAndClean.py, /data/www/schema/scheduler_files/workflowUploader.py
-```
-
-  This will allow www-data to run kubectl and the python scripts inside the folder as the user you have selected.
-
-7. Inside the project folder change the following files according to the database and Docker registry configuration:
-  * scheduler_files/configuration.json using the template found at scheduler_files/configuration-template.json and fill the appropriate details.
-  * config/db.php and fill the details for the database (for details see the Yii2 documentation)
-  * config/params.php and fill the following details according to your configuration (you can use params-template.php):
-
-8. Create a new namespace in Kubernetes for the Open MPI Cluster:
-```bash
-kubectl create namespace mpi-cluster
-```
