@@ -18,24 +18,25 @@ return [
             
                 "application_credential"=>
                 [
-                    "id"=> "",
-                    "secret"=> ""
+                    "id"=> "ID of the OpenStack application credentials",
+                    "secret"=> "secret of the OpenStack application credentials"
                 ],
             ]
         ]
     ],
-    'openstackProjectID' => '',
-    'openstackFloatNetID' => '',
+    'openstackProjectID' => 'ID of the OpenStack project',
+    'openstackFloatNetID' => 'ID of the OpenStack network providing floating IP addresses to the VMs',
     'windowsImageIDs' =>
     [
+        //Fill this if you have Windows OS VM images
         '<id1>'=> '<name1>',
         '<id2>'=> '<name2>',
     ],
-    'windowsKeysFolder' => '/data/windows_keys/',
-    'aai_auth'=>true,
-    'logo-header'=>'',
-    'logo-footer'=>'',
-    'funding-footer'=>'',
-    'youtube_url' => '',
-    'twitter_url' => '',
+    'windowsKeysFolder' => 'This is the folder that saves the pairs of public/private keys for Windows VMs',
+    'logo-header'=>'Location of the branding logo for the header or leave empty for default',
+    'logo-footer'=>'Location of the branding logo for the center of the footer or leave empty for none',
+    'funding-footer'=>'Location funding logo for the footer or leave empty for none',
+    'youtube_url' => 'Fill if you have a youtube channel',
+    'twitter_url' => 'Fill if you have a twitter account',
+    'copyright' => 'Fill if you want to add a copyright text', 
 ];

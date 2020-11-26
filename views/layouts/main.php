@@ -198,8 +198,11 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
 <footer class="footer">
     <div class="container-fluid">
         <div class="row">
-            <div class="text-left copyright">&copy; ELIXIR-GR <?= date('Y') ?></div>
-            <div class="col-md-offset-4 col-md-1 text-center"><?= (isset(Yii::$app->params['logo-footer']) && !empty(Yii::$app->params['logo-footer'])) ? Html::img(Yii::$app->params['logo-footer'],['class'=>"navbar-logo"]) : ''?> </div>
+            <div class="col-md-3 text-center copyright">
+                <?=isset(Yii::$app->params['copyright']) && !empty(Yii::$app->params['copyright']) ? '&copy; ' . Yii::$app->params['copyright'] : '' ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                Powered by <?=Html::a('CLIMA', 'https://github.com/athenarc/clima', ['target'=>'_blank'])?>
+             </div>
+            <div class="col-md-offset-2 col-md-1 text-right"><?= (isset(Yii::$app->params['logo-footer']) && !empty(Yii::$app->params['logo-footer'])) ? Html::img(Yii::$app->params['logo-footer'],['class'=>"navbar-logo"]) : ''?> </div>
             <div class="col-md-offset-2 col-md-2 text-right"><?=Html::a('Privacy & cookie policy',['site/privacy'])?></div>
             <div class="pull-right"><?=$twitter_link?>&nbsp;<?=$youtube_link?></div>
         </div>
