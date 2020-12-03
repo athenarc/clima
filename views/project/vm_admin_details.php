@@ -29,7 +29,6 @@ Headers::begin() ?>
 
 <div class="row">&nbsp;</div>
 <div class="credentials-box">
-	<div class="credentials-box-header"><div class='text-center'><h3>VM details</h3></div></div>
 	<div class="credentials-box-content">
 		<div class="row">
 			<div class="col-md-5">
@@ -134,7 +133,7 @@ if ($vm->active)
 {
 ?>
 
-<div class="row"><div class="col-md-12 text-center"><h3>Delete VM:</h3></div></div>
+<div class="row"><div class="col-md-12 text-center">&nbsp;</div></div>
 <div class="row"><div class="col-md-12 text-center"><?= Html::tag("button","Delete VM", ['class'=>'btn btn-danger delete-vm-btn'])?></div></div>
 
 <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
