@@ -8,7 +8,7 @@
 In order to install SCHeMa you need:
 * a PostgreSQL database server
 * an OpenStack cloud infrastructure with a project and application credentials configured.
-* a working[SCHeMa](https://github.com/athenarc/schema) installation  in a non-standalone mode (for on-demand projects). Users must have the same username as in CLIMA, in order to be able to access their projects.
+* a working [SCHeMa](https://github.com/athenarc/schema) installation in a non-standalone mode (for on-demand projects). Users must have the same username as in CLIMA, in order to be able to access their projects.
 
 ### Required PHP packages
 The node running the installation of SCHeMa should have the following PHP packages installed:

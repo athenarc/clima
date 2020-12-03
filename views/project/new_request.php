@@ -51,12 +51,7 @@ Headers::begin() ?>
 if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false))
 {?>
 	<?= ToolButton::createButton("$storage_icon Cold-storage", "",['/project/new-cold-storage-request']) ?>
-<?php
-}?>
 </div>
-
-
-
 
 <?php
 }
