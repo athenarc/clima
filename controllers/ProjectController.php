@@ -404,9 +404,6 @@ class ProjectController extends Controller
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
 
         $autoaccept_allowed=($autoaccepted_num < 1) ? true :false; 
-
-         // print_r($autoaccepted_num);
-         // exit(0);
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
