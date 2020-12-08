@@ -41,6 +41,7 @@ tests/_support/_generated
 /.bowerrc
 /.svn/
 
+/cronjob.log
 /Vagrantfile
 /codeception.yml
 /composer.json
