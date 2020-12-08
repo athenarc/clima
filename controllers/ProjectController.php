@@ -182,8 +182,11 @@ class ProjectController extends Controller
 
 
         $role=User::getRoleType();
-        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->count();
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        
         $autoaccept_allowed=($autoaccepted_num < 1) ? true :false; 
+
+
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
@@ -294,7 +297,7 @@ class ProjectController extends Controller
         $autoacceptModel=new ColdStorageAutoaccept;
 
         $role=User::getRoleType();
-        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'], ])->count();
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
         $autoaccept_allowed=($autoaccepted_num < 1) ? true :false; 
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
@@ -398,8 +401,12 @@ class ProjectController extends Controller
         $autoacceptModel=new OndemandAutoaccept;
 
         $role=User::getRoleType();
-        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'], ])->count();
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+
         $autoaccept_allowed=($autoaccepted_num < 1) ? true :false; 
+
+         // print_r($autoaccepted_num);
+         // exit(0);
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
