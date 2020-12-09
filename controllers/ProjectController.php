@@ -942,7 +942,7 @@ class ProjectController extends Controller
 
 
         Yii::$app->session->setFlash('success', $message);
-        return $this->redirect('project/request-list');
+        return $this->redirect(['project/request-list']);
 
     }
 
@@ -959,7 +959,7 @@ class ProjectController extends Controller
         $message='Project rejected.';
 
         Yii::$app->session->setFlash('danger', $message);
-        return $this->redirect('project/request-list');
+        return $this->redirect(['project/request-list']);
     }
 
 
