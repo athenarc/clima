@@ -941,31 +941,8 @@ class ProjectController extends Controller
         $message='Project approved.';
 
 
-        $statuses=ProjectRequest::STATUSES;
-        $filters=['all'=>'All','pending'=>'Pending','approved'=>'Approved','auto-approved'=>'Auto-approved','rejected'=>'Rejected'];
-        $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request', 1=>'/project/view-service-request', 2=>'/project/view-cold-storage-request'];
-        $line_classes=[-5=>'expired',-4=>'deleted',-3=>'modified',-1=>'rejected',0=>'pending', 1=>'approved', 2=>'approved'];
-        // $user=User::getCurrentUser()['username'];
-
-        $results=ProjectRequest::getRequestList('all');
-
-
-        $pages=$results[0];
-        $results=$results[1];
-
-        $sidebarItems=[];
-
-        foreach ($filters as $f=>$text)
-        {
-            $active=($f==$filter) ? 'active' : '';
-            $sidebarItems[]=['link'=>Url::to(['project/user-request-list', 'filter'=>$f]), 'class'=>"list-group-item $active",'text'=>$text];
-        }
-
-
-        return $this->render('request_list',['results'=>$results,'pages'=>$pages,'statuses'=>$statuses,'message'=>$message,
-                                'sideItems'=>$sidebarItems,'project_types'=>$project_types,
-                                'button_links'=>$button_links,'line_classes'=>$line_classes,'filter'=>$filter]);
+        Yii::$app->session->setFlash('success', $message);
+        return $this->redirect('project/request-list');
 
     }
 
@@ -981,30 +958,8 @@ class ProjectController extends Controller
 
         $message='Project rejected.';
 
-        $statuses=ProjectRequest::STATUSES;
-        $filters=['all'=>'All','pending'=>'Pending','approved'=>'Approved','auto-approved'=>'Auto-approved','rejected'=>'Rejected'];
-        $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request', 1=>'/project/view-service-request', 2=>'/project/view-cold-storage-request'];
-        $line_classes=[-5=>'expired',-4=>'deleted',-3=>'modified',-1=>'rejected',0=>'pending', 1=>'approved', 2=>'approved'];
-        // $user=User::getCurrentUser()['username'];
-
-        $results=ProjectRequest::getRequestList('all');
-
-        $pages=$results[0];
-        $results=$results[1];
-
-        $sidebarItems=[];
-
-        foreach ($filters as $f=>$text)
-        {
-            $active=($f==$filter) ? 'active' : '';
-            $sidebarItems[]=['link'=>Url::to(['project/user-request-list', 'filter'=>$f]), 'class'=>"list-group-item $active",'text'=>$text];
-        }
-
-
-        return $this->render('request_list',['results'=>$results,'pages'=>$pages,'statuses'=>$statuses,'message'=>$message,
-                                'sideItems'=>$sidebarItems,'project_types'=>$project_types,
-                                'button_links'=>$button_links,'line_classes'=>$line_classes,'filter'=>$filter]);
+        Yii::$app->session->setFlash('danger', $message);
+        return $this->redirect('project/request-list');
     }
 
 
