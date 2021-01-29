@@ -59,7 +59,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         ];
     }
 
-    public function NotifyByEmail($email_type, $project_id, $message)
+    public static function NotifyByEmail($email_type, $project_id, $message)
     {
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;
@@ -209,6 +209,8 @@ class EmailEvents extends \yii\db\ActiveRecord
                 ->andWhere(['not', ['email' => null]])
                 ->all();
             $admin_emails=array_column($admins, 'email');
+            // print_r($smtp->username);
+            // exit(0);
 
             foreach ($admin_emails as $user) 
             {
@@ -235,7 +237,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         
     }
 
-    public function NotifyByEmailDate($email_type, $project_id, $message, $date)
+    public static function NotifyByEmailDate($email_type, $project_id, $message, $date)
     {
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;

@@ -138,7 +138,8 @@ $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => 
         $username=explode('@',User::getCurrentUser()['username'])[0];
         $menuItems[]=[
             'label' => 'Logout (' . $username . ')',
-            'url' => ['/user-management/auth/logout'],
+            // 'url' => ['/user-management/auth/logout'],
+            'url' => ['/site/logout'],
             'linkOptions' => ['data-method' => 'post']
         ];
         $notifications=NotificationWidget::createMenuItem();
