@@ -21,7 +21,7 @@ use webvimark\modules\UserManagement\models\User as Userw;
 class Vm extends \yii\db\ActiveRecord
 {
     public $keyFile,$consoleLink;
-    private $name, $token, $port_id, $windows_unique_id;
+    private $name, $token, $port_id;
 
 
     private $create_errors=[
@@ -82,7 +82,9 @@ class Vm extends \yii\db\ActiveRecord
 
     public static function getOpenstackFlavours()
     {
-        $token=self::authenticate();
+        $result=self::authenticate();
+        $token=$result[0];
+        $message=$result[1];
 
         $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
         $response = $client->createRequest()
@@ -97,7 +99,9 @@ class Vm extends \yii\db\ActiveRecord
 
     public function getOpenstackImages()
     {
-        $token=self::authenticate();
+        $result=self::authenticate();
+        $token=$result[0];
+        $message=$result[1];
 
         $client = new Client(['baseUrl' => 'https://glance-louros.cloud.grnet.gr:9292/v2']);
         $response = $client->createRequest()
@@ -141,15 +145,17 @@ class Vm extends \yii\db\ActiveRecord
                             ->setData(Yii::$app->params['openstackAuth'])
                             ->send();
 
+        $message='';
         if (!$response->getIsOk())
         {
             $token='';
+            $message=$response->data['error']['message'];
         }
         
         $token=$response->headers['x-subject-token'];
 
 
-        return $token;
+        return [$token,$message];
     }
 
     public function createKey()
@@ -177,10 +183,10 @@ class Vm extends \yii\db\ActiveRecord
         
         if (!$response->getIsOk())
         {
-            return false;
+            return [false,$response->data['conflictingRequest']['message']];
         }
 
-        return true;
+        return [true,''];
 
     }
 
@@ -233,7 +239,7 @@ class Vm extends \yii\db\ActiveRecord
                             ->setUrl(Yii::$app->params['openstackProjectID'] . '/volumes/' . $this->volume_id)
                             ->send();
         $volumeStatus=$response->data['volume']['status'];
-        // print_r($volumeStatus);
+        
         while($volumeStatus!='available')
         {
             sleep(10);
@@ -246,7 +252,6 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(Yii::$app->params['openstackProjectID'] . '/volumes/' . $this->volume_id)
                                 ->send();
             $volumeStatus=$response->data['volume']['status'];
-            // print_r($volumeStatus);
 
         }
         /*
@@ -296,8 +301,7 @@ class Vm extends \yii\db\ActiveRecord
                             ->setUrl('/servers/' . $this->vm_id . '/os-volume_attachments' )
                             ->setData($volumedata)
                             ->send();
-        // print_r($response);
-        // exit(0);
+
         if (!$response->getIsOk())
         {
             return false;
@@ -399,6 +403,7 @@ class Vm extends \yii\db\ActiveRecord
                 "key_name"=>$this->name,
             ]
         ];
+
         $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
         $response = $client->createRequest()
                             ->setMethod('POST')
@@ -409,13 +414,12 @@ class Vm extends \yii\db\ActiveRecord
                             ->send();
         if (!$response->getIsOk())
         {
-            
-            return false;
+            return [false,$response->data['badRequest']['message']];
         }
 
         $this->vm_id=$response->data['server']['id'];
 
-        return true;
+        return [true,''];
     }
 
     public function getServerPort()
@@ -432,8 +436,6 @@ class Vm extends \yii\db\ActiveRecord
         {
             return false;
         }
-        // print_r($response->data);
-        // exit(0);
         
         $this->port_id=$response->data['interfaceAttachments'][0]['port_id'];
 
@@ -512,7 +514,9 @@ class Vm extends \yii\db\ActiveRecord
 
     public static function getOpenstackAvailableResources()
     {
-        $token=self::authenticate();
+        $result=self::authenticate();
+        $token=$result[0];
+        $message=$result[1];
 
         $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
         $responseOK=false;
@@ -527,21 +531,15 @@ class Vm extends \yii\db\ActiveRecord
 
 
 
-                    // print_r($response);
-                    // exit(0);
                     if (($response->getIsOk()) && (isset($response->data['limits'])))
                     {
                         $responseOK=true;
                     }
-                    // print_r($response);
-                    // exit(0);
                     sleep(1);
                     
         }
         $results=$response->data['limits']['absolute'];
 
-        // print_r($results);
-        // exit(0);
 
         $cpu=$results['maxTotalCores']-$results['totalCoresUsed'];
         $ram=$results['maxTotalRAMSize']-$results['totalRAMUsed'];
@@ -556,11 +554,9 @@ class Vm extends \yii\db\ActiveRecord
                             ->setUrl(['v2.0/floatingips'])
                             ->setData(['floating_network_id'=>'fa87edbd-b40c-4144-b317-5838aaf440db'])
                             ->send();
-        // print_r($response->data);
-        // exit(0);
+        
         $ipRes=$response->data['floatingips'];
-        // print_r($ipRes);
-        // exit(0);
+        
         if (empty($ipRes))
         {
             $usedIps=0;
@@ -581,12 +577,9 @@ class Vm extends \yii\db\ActiveRecord
 
 
         $floatingIps=$response->data['quota']['floatingip'];
-        // print_r($floatingIps);
-        // exit(0);
-        // $ips=$results['floatingip']-$usedIps;
+        
         $ips=$floatingIps-$usedIps;
-        // print_r($ips);
-        // exit(0);
+        
 
         /*
          * Get available volume space
@@ -603,10 +596,7 @@ class Vm extends \yii\db\ActiveRecord
         $used_disk=$response->data['limits']['absolute']['totalGigabytesUsed'];
         $total_disk=$response->data['limits']['absolute']['maxTotalVolumeGigabytes'];
         $disk=$total_disk-$used_disk;
-        // print_r($response->data['limits']['absolute']);
-        // print_r("<br /><br />");
-        // print_r($disk);
-        // exit(0);
+        
 
         return [$cpu,$ram,$ips,$disk];
         
@@ -645,14 +635,7 @@ class Vm extends \yii\db\ActiveRecord
         $this->image_name=$images[$this->image_id];
 
         $this->name=$project->name;
-        // $this->name=str_replace(',', '', $this->name);
-        // $this->name = preg_replace('/\s+/', '-', $this->name);
-        // if (strlen($this->name)>40)
-        // {
-        //  $this->name=substr($this->name,0,40);
-        // }
-        // print_r($this->name);
-        // exit(0);
+        
         
         $flavour=$service->vm_flavour;
 
@@ -660,32 +643,39 @@ class Vm extends \yii\db\ActiveRecord
          * Get authentication token from the openstack api
          */
 
-        $this->token=self::authenticate();
+        $result=self::authenticate();
+        $this->token=$result[0];
+        $message=$result[1];
 
         if (empty($this->token))
         {
-            return [1,$this->create_errors[2]];
+            return [1,$this->create_errors[2],$message];
         }
 
         /*
          * Add a new ssh key
          */
-        $keyCreated=$this->createKey();
+        $result=$this->createKey();
+        $keyCreated=$result[0];
+        $message=$result[1];
         
         if (!$keyCreated)
         {
-            return [2,$this->create_errors[2]];
+            return [2,$this->create_errors[2],$message];
         }
 
         /*
          * Create VM
          */
         
-        $serverCreated=$this->createServer($flavour);
+        $result=$this->createServer($flavour);
+        $serverCreated=$result[0];
+        $message=$result[1];
+
         if (!$serverCreated)
         {
             $this->deleteKey($this->name);
-            return [3,$this->create_errors[3]];
+            return [3,$this->create_errors[3],$message];
         }
 
 
@@ -699,7 +689,7 @@ class Vm extends \yii\db\ActiveRecord
         {
             $this->deleteServer();
             $this->deleteKey($this->name);
-            return [4,$this->create_errors[4]];
+            return [4,$this->create_errors[4],''];
         }
 
         /*
@@ -711,20 +701,20 @@ class Vm extends \yii\db\ActiveRecord
         {
             $this->deleteServer();
             $this->deleteKey($this->name);
-            return [5,$this->create_errors[5]];
+            return [5,$this->create_errors[5],''];
         }
 
         if ($service->storage>0)
         {
 
             $volumeCreated=$this->createVolume($service->storage);
-            // exit(0);
+            
             if (!$volumeCreated)
             {
                 $this->deleteIP();
                 $this->deleteServer();
                 $this->deleteKey($this->name);
-                return [6,$this->create_errors[6]];
+                return [6,$this->create_errors[6],''];
             }
 
             // sleep(15);
@@ -736,7 +726,7 @@ class Vm extends \yii\db\ActiveRecord
                 $this->deleteIP();
                 $this->deleteServer();
                 $this->deleteKey($this->name);
-                return [7,$this->create_errors[7]];
+                return [7,$this->create_errors[7],''];
             }
             
         }
@@ -762,7 +752,7 @@ class Vm extends \yii\db\ActiveRecord
                 'windows_unique_id' => $this->windows_unique_id,
             ])->execute();
 
-        return [0,''];
+        return [0,'',''];
 
 
 
@@ -776,11 +766,13 @@ class Vm extends \yii\db\ActiveRecord
                      ->update('vm',['deleted_by'=>$user,], "id=$this->id")
                      ->execute();
 
-        $this->token=self::authenticate();
+        $result=self::authenticate();
+        $this->token=$result[0];
+        $message=$result[1];
 
         if (empty($this->token))
         {
-            return [1,$this->$delete_errors[1]];
+            return [1,$this->$delete_errors[1],$message];
         }
 
         if (!empty($this->volume_id))
@@ -833,7 +825,9 @@ class Vm extends \yii\db\ActiveRecord
 
     public function retrieveWinPassword()
     {
-        $token=self::authenticate();
+        $result=self::authenticate();
+        $token=$result[0];
+        $message=$result[1];
         
         $passNotExists=true;
         $encrypted='';
@@ -858,8 +852,7 @@ class Vm extends \yii\db\ActiveRecord
             sleep(5);
 
         }
-        // print_r($response->data);
-        // exit(0);
+        
         $keyfile=Yii::$app->params['windowsKeysFolder'] . '/' . $this->windows_unique_id . '/key';
 
         $command="echo '$encrypted' | openssl base64 -d | openssl rsautl -decrypt -inkey $keyfile -keyform PEM";
@@ -876,7 +869,9 @@ class Vm extends \yii\db\ActiveRecord
 
     public function getConsoleLink()
     {
-        $token=self::authenticate();
+        $result=self::authenticate();
+        $token=$result[0];
+        $message=$result[1];
 
         $consoleData=
         [

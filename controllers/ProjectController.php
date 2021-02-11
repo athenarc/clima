@@ -1042,10 +1042,11 @@ class ProjectController extends Controller
                     $result=$model->createVM($latest_project_request_id,$service, $imageDD);
                     $error=$result[0];
                     $message=$result[1];
+                    $openstackMessage=$result[2];
                     if ($error!=0)
                     {
                         
-                        return $this->render('error_vm_creation',['error' => $error,'message'=>$message]);
+                        return $this->render('error_vm_creation',['error' => $error,'message'=>$message,'openstackMessage'=>$openstackMessage]);
                     }
 
                     else
@@ -1716,8 +1717,7 @@ class ProjectController extends Controller
             return $this->renderPartial('vm_password',['message'=>'You are not authorized to view the VM password.']);
         }
 
-        $existing=Vm::find()->where(['request_id'=>$id])->andWhere(['active'=>true])->one();
-
+        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
         $password=$existing->retrieveWinPassword();
 
         return $this->renderPartial('vm_password',['message'=>$password]);

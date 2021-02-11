@@ -1,0 +1,4 @@
+<?php
+?>
+
+<strong><?=$message?></strong>
