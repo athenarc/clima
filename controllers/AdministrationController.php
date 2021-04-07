@@ -19,6 +19,7 @@ use app\models\ColdStorageLimits;
 use app\models\Configuration;
 use yii\helpers\Url;
 use app\models\ProjectRequest;
+use app\models\Project;
 use app\models\User;
 use app\models\EmailEvents;
 use app\models\Smtp;
@@ -410,5 +411,72 @@ class AdministrationController extends Controller
         }
 
         return $this->render('view-page',['page'=>$page]);
+    }
+
+    public function actionAllProjects()
+    {
+        $project_types=Project::TYPES;
+        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
+                    2=>'/project/view-cold-storage-request-user'];
+
+        $deleted=Project::getAllDeletedProjects();
+       
+        $all_projects=Project::getAllActiveProjectsAdm();
+        $expired_owner=Project::getAllExpiredProjects();
+        $role=User::getRoleType();
+        $username=Userw::getCurrentUser()['username'];
+        $user_split=explode('@',$username)[0];
+        
+        $active=[];
+        $expired=[];
+      
+        foreach ($all_projects as $project) 
+        {
+            $now = strtotime(date("Y-m-d"));
+            $end_project = strtotime($project['end_date']);
+            $remaining_secs=$end_project-$now;
+            $remaining_days=$remaining_secs/86400;
+            $remaining_months=round($remaining_days/30);
+            if($username==$project['username'])
+            {
+                    array_push($project,'<b>You</b>' );
+                    array_push($project, $remaining_days);
+            }
+            else
+            {
+                array_push($project, "$project[username]");
+                array_push($project, $remaining_days);
+             }
+                $active[]=$project;
+        }
+
+        foreach ($expired_owner as $project) 
+        {
+            $now = strtotime(date("Y-m-d"));
+            $end_project = strtotime($project['end_date']);
+            $remaining_secs=$end_project-$now;
+            $remaining_days=$remaining_secs/86400;
+            $remaining_months=round($remaining_days/30);
+            if($username==$project['username'])
+            {
+                array_push($project,'<b>You</b>');
+                array_push($project, $project['end_date']);
+            }
+            else
+            {
+                array_push($project, "$project[username]");
+                array_push($project, $project['end_date']);
+            }
+            $expired[]=$project;
+        }
+
+
+        $number_of_active=count($all_projects);
+        $number_of_expired=count($expired);
+        
+        
+       
+        return $this->render('all_projects',['button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
+            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired]);
     }
 }

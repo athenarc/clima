@@ -395,6 +395,83 @@ class Project extends \yii\db\ActiveRecord
         return $results;
 
     }
+
+    public static function getAllDeletedProjects()
+    {
+        $query=new Query;
+
+        $status=ProjectRequest::DELETED;
+
+        $user=Userw::getCurrentUser()['id'];
+        // print_r($user);
+        // exit(0);
+
+        $query->select(['pr.id','pr.name','pr.duration','pr.deletion_date','pr.status','pr.viewed', 'pr.project_type','u.username'])
+              ->from('project as p')
+              ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+              ->innerJoin('user as u','pr.submitted_by=u.id')
+              ->where(['IN','pr.status',$status])
+              ->orderBy('pr.submission_date DESC');
+        // print_r($query->createCommand()->getRawSql());
+        // exit(0);
+        
+        $results=$query->all();
+
+        // print_r($results);
+        // exit(0);
+        
+        return $results;
+
+    }
+
+    public static function getAllExpiredProjects()
+    {
+        $query=new Query;
+
+       // $status=ProjectRequest::EXPIRED;
+        $date=date("Y-m-d");
+        $user=Userw::getCurrentUser()['id'];
+        // print_r($user);
+        // exit(0);
+
+        $query->select(['pr.id','pr.name','pr.duration',"pr.end_date",'pr.status','pr.viewed', 'pr.approval_date','pr.project_type','u.username'])
+              ->from('project as p')
+              ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+              ->innerJoin('user as u','pr.submitted_by=u.id')
+              ->where(['<','end_date',$date])
+              ->orderBy('pr.submission_date DESC');
+        // print_r($query->createCommand()->getRawSql());
+        // exit(0);
+        
+        $results=$query->all();
+
+         //print_r($results);
+        //exit(0);
+        
+        return $results;
+
+    }
+
+     public static function getAllActiveProjectsAdm()
+    {
+        $query=new Query;
+        $date=date("Y-m-d");
+        $status=[1,2];
+        $query->select(['pr.id','pr.name', 'p.id as project_id', 'pr.duration','pr.status','pr.viewed','pr.end_date', 'pr.approval_date','pr.project_type', 
+            'pr.submission_date', 'pr.submitted_by','u.username'
+          ])
+              ->from('project as p')
+              ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+              ->innerJoin('user as u','pr.submitted_by=u.id')
+              ->where(['>=', 'end_date', $date])
+              ->andWhere(['IN','pr.status',$status])
+              ->orderBy('pr.submission_date DESC');
+        
+        
+        $results=$query->all();
+        return $results;
+
+    }
     
     
 }
