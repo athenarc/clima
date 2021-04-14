@@ -93,7 +93,7 @@ class ProjectController extends Controller
     {
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                    2=>'/project/view-cold-storage-request-user'];
+                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user'];
 
         //ProjectRequest::invalidateExpiredProjects();
        // $active_projects=Project::getAllActiveProjects();
@@ -1201,6 +1201,113 @@ class ProjectController extends Controller
 
     }
 
+    public function actionMachineComputeConfigureVm($id)
+    {
+        // $project=Project::find()->where(['id'=>$id])->one();
+        // $latest_project_request_id=$project->latest_project_request_id;
+        $owner=Project::userInProject($id);
+
+        // print_r($owner);
+        // exit(0);
+        if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+
+        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+
+        //If vm is upgraded, then show message to user to delete past vm and create new
+        if(!empty($existing))
+        {
+            $service_old=MachineComputeRequest::find()->where(['request_id'=>$existing->request_id])->one();
+            $service_old_id=$service_old->id;
+            $project=Project::find()->where(['id'=>$id])->one();
+            $latest_service_request_id=$project->latest_project_request_id;
+            $service=MachineComputeRequest::find()->where(['request_id'=>$latest_service_request_id])->one();
+            if($service_old_id<$latest_service_request_id)
+            {
+                if($service_old->vm_flavour != $service->vm_flavour)
+                {
+                    Yii::$app->session->setFlash('success', "Due to an accepted project update, you have the option to create a larger machine. If you want to create it, backup any data stored in your current machine and then destroy it. After that you will be able to create a larger machine");
+                }
+            }
+        }
+        
+       
+        if (empty($existing))
+        {
+            /*
+             * Create new VM
+             */
+            $model=new Vm;
+
+            $avResources=VM::getOpenstackAvailableResources();
+            // print_r($avResources);
+            // exit(0);
+            $project=Project::find()->where(['id'=>$id])->one();
+            $latest_project_request_id=$project->latest_project_request_id;
+            $service=MachineComputeRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
+
+            // print_r($avResources);
+            // exit(0);
+            
+            if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
+            {
+                return $this->render('service_unavailable_resources');
+            }
+            
+            $imageDD=Vm::getOpenstackImages();
+
+            $form_params =
+            [
+                'action' => URL::to(['project/machine-compute-configure-vm','id'=>$id]),
+                'options' => 
+                [
+                    'class' => 'vm__form',
+                    'id'=> "vm_form"
+                ],
+                'method' => 'POST'
+            ];
+
+            if ($model->load(Yii::$app->request->post()))
+            {
+
+                $model->keyFile = UploadedFile::getInstance($model, 'keyFile');
+                // print_r($model->keyFile->extension);
+                // exit(0);
+                if ($model->validate())
+                {
+                    $result=$model->createVM($latest_project_request_id,$service, $imageDD);
+                    $error=$result[0];
+                    $message=$result[1];
+                    $openstackMessage=$result[2];
+                    if ($error!=0)
+                    {
+                        
+                        return $this->render('error_vm_creation',['error' => $error,'message'=>$message,'openstackMessage'=>$openstackMessage]);
+                    }
+
+                    else
+                    {
+                        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+                        $existing->getConsoleLink();
+    
+                        return $this->render('vm_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service]);
+                    }
+                }
+            }
+            
+            return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service]);
+        }
+        else
+        {
+             $existing->getConsoleLink();
+             return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service]);
+        }
+        
+
+    }
+
     public function actionDeleteVm($id)
     {
         $owner=Project::userInProject($id);
@@ -1295,6 +1402,10 @@ class ProjectController extends Controller
         $projectOwner=User::returnUsernameById($project_request->submitted_by);
         $projectOwner=explode('@', $projectOwner)[0];
         $service=ServiceRequest::find()->where(['request_id'=>$project_request->id])->one();
+        if(empty($service))
+        {
+             $service=MachineComputeRequest::find()->where(['request_id'=>$project_request->id])->one();
+        }
         $vm=VM::find()->where(['id'=>$id])->one();
         $createdBy=User::returnUsernameById($vm->created_by);
         $createdBy=explode('@', $createdBy)[0];
@@ -1394,6 +1505,22 @@ class ProjectController extends Controller
             for ($i=1; $i<10; $i++)
             {
                 $trls[$i]='Level ' . $i;
+            }
+        }
+        else if ($prType==3)
+        {
+            $drequest=MachineComputeRequest::find()->where(['request_id'=>$id])->one();
+            $drequest->flavour=$drequest->flavourIdNameLimitless[$drequest->vm_flavour];
+            $view_file='edit_machine_compute';
+            $prequest->end_date=$ends;
+            $upperlimits='';
+            $autoacceptlimits='';
+            $project_id=$prequest->project_id;
+            $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
+            if (!empty($vm))
+            {
+                // return $this->render('error_service_vm_exist');
+                $vm_exists=1;
             }
         }
         else if ($prType==2)
@@ -1827,7 +1954,7 @@ class ProjectController extends Controller
             return $this->render('error_unauthorized');
         }
 
-        if ($prequest->project_type==ProjectRequest::SERVICE)
+        if ($prequest->project_type==ProjectRequest::SERVICE || $prequest->project_type==ProjectRequest::MACHINECOMPUTE)
         {
             $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
             if (!empty($vm))

@@ -32,7 +32,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 {
     public $usernameList;
 
-    const TYPES=[0=>'On-demand computation', 1=>'24/7 Service', 2=>'Cold-Storage'];
+    const TYPES=[0=>'On-demand computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'Machine Compute'];
     const STATUSES=[-5=>'Expired',-4 =>'Deleted',-3 =>'Invalid due to modification',-2=>'Inactive',-1=>'Rejected',0=>'Pending', 1=>'Approved', 2=>'Auto-approved'];
 
     /**
@@ -53,6 +53,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
     const ONDEMAND=0;
     const SERVICE=1;
     const COLD=2;
+    const MACHINECOMPUTE=3;
 
 
     /**
@@ -467,7 +468,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
               ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
               //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
               ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
-              ->where(['pr.project_type'=>1]);
+              ->where(['pr.project_type'=>1])
+              ->orWhere(['pr.project_type'=>3]);
         if ($filter=='active')
         {
             $query->andWhere(['v.active'=>true]);
