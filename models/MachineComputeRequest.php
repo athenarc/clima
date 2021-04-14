@@ -238,11 +238,6 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
 
         
         $warnings='Your request will be examined by the RAC.';
-      
-
-            
-
-       
         $success="Successfully modified project '$request->name'.";
 
         return [$errors,$success,$warnings];
