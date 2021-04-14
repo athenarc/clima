@@ -226,7 +226,7 @@ foreach ($expired as $res)
 		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand computation';
+		$title='On-demand batch computation';
 		
 	}
 	else if ($res['project_type']==1) 
@@ -235,6 +235,14 @@ foreach ($expired as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='24/7 Service';
+
+	}
+	else if ($res['project_type']==3) 
+	{
+		$projectLink=Url::to(['/project/machine-compute-configure-vm','id'=>$res['id']]);
+		$projectTarget='_self';
+		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
+		$title='On-demand computation machines';
 
 	}
 	else
