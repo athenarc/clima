@@ -40,17 +40,20 @@ Headers::begin() ?>
 
 <?php
 ?>
-<div class="col-md-12" style="margin-bottom: 5px;">
-<?= ToolButton::createButton("$ondemand_icon  Ondemand-computation", "",['/project/new-ondemand-request']) ?>
+<div class="col-md-12 project">
+<?= ToolButton::createButton("$ondemand_icon  On-demand batch computations", "",['/project/new-ondemand-request']) ?>
 </div>
-<div class="col-md-12" style="margin-bottom: 5px;">
+<div class="col-md-12 project">
+<?= ToolButton::createButton("$ondemand_icon  On-demand computation machines", "",['/project/new-machine-compute-request']) ?>
+</div>
+<div class="col-md-12 project">
 <?= ToolButton::createButton("$service_icon  24/7 service", "",['/project/new-service-request']) ?>
 </div>
-<div class="col-md-12" style="margin-bottom: 5px;">
+<div class="col-md-12 project">
 <?php
 if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false))
 {?>
-	<?= ToolButton::createButton("$storage_icon Cold-storage", "",['/project/new-cold-storage-request']) ?>
+	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-cold-storage-request']) ?>
 </div>
 
 <?php
