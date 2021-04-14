@@ -1487,6 +1487,10 @@ class ProjectController extends Controller
         {
             $drequest=ServiceRequest::find()->where(['request_id'=>$id])->one();
             $drequest->flavour=$drequest->flavourIdNameLimitless[$drequest->vm_flavour];
+            if (!isset($drequest->flavours[$drequest->flavour]))
+            {
+                $drequest->flavours[$drequest->flavour]=$drequest->allFlavours[$drequest->flavour];
+            }
             $view_file='edit_service';
             $upperlimits=ServiceLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
