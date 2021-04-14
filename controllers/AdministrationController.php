@@ -417,7 +417,7 @@ class AdministrationController extends Controller
     {
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                    2=>'/project/view-cold-storage-request-user'];
+                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user'];
 
         $deleted=Project::getAllDeletedProjects();
        
