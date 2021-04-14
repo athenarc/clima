@@ -84,6 +84,7 @@ class EmailEvents extends \yii\db\ActiveRecord
             $email_notifications=EmailEvents::find()->where(['project_decision'=>1])->all();
             $user_ids=array_column($email_notifications, 'user_id');
             $admins=Userw::find()->where(['id'=>$user_ids])
+                ->andWhere(['superadmin'=>1])
                 ->andWhere(['not', ['email' => null]])
             ->all();
 
@@ -145,6 +146,7 @@ class EmailEvents extends \yii\db\ActiveRecord
             $user_ids=array_column($email_notifications, 'user_id');
             $admins=Userw::find()->where(['id'=>$user_ids])
                 ->andWhere(['not', ['email' => null]])
+                ->andWhere(['superadmin'=>1])
                 ->all();
             $admin_emails=array_column($admins, 'email');
 
@@ -176,6 +178,7 @@ class EmailEvents extends \yii\db\ActiveRecord
             $user_ids=array_column($email_notifications, 'user_id');
             $admins=Userw::find()->where(['id'=>$user_ids])
                 ->andWhere(['not', ['email' => null]])
+                ->andWhere(['superadmin'=>1])
                 ->all();
             $admin_emails=array_column($admins, 'email');
 
@@ -207,6 +210,7 @@ class EmailEvents extends \yii\db\ActiveRecord
             $user_ids=array_column($email_notifications, 'user_id');
             $admins=Userw::find()->where(['id'=>$user_ids])
                 ->andWhere(['not', ['email' => null]])
+                ->andWhere(['superadmin'=>1])
                 ->all();
             $admin_emails=array_column($admins, 'email');
             // print_r($smtp->username);
