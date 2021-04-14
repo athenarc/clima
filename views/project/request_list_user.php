@@ -74,10 +74,10 @@ if (!empty($results))
 <table class="table table-responsive">
 	<thead>
 		<tr>
-			<th class="col-md-2" scope="col">Name</th>
-			<th class="col-md-3" scope="col">Submitted on</th>
-			<th class="col-md-2" scope="col">Project type</th>
-			<th class="col-md-2" scope="col">Status</th>
+			<th class="col-md-2 text-center" scope="col">Name</th>
+			<th class="col-md-3 text-center" scope="col">Submitted on</th>
+			<th class="col-md-2 text-center" scope="col">Project type</th>
+			<th class="col-md-2 text-center" scope="col">Status</th>
 			<th class="col-md-1" scope="col">&nbsp;</th>
 		</tr>
 	</thead>

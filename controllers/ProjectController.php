@@ -13,6 +13,7 @@ use app\models\Project;
 use app\models\ProjectRequest;
 use app\models\ProjectRequestCold;
 use app\models\ServiceRequest;
+use app\models\MachineComputeRequest;
 use app\models\ColdStorageLimits;
 use app\models\ColdStorageAutoaccept;
 use app\models\OndemandRequest;
@@ -283,6 +284,99 @@ class ProjectController extends Controller
 
 
     }
+
+    public function actionNewMachineComputeRequest()
+    {
+        $serviceModel=new MachineComputeRequest;
+        $projectModel=new ProjectRequest;
+       
+        
+
+        $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'machine_compute'=>3];
+
+        $form_params =
+        [
+            'action' => URL::to(['project/new-machine-compute-request']),
+            'options' => 
+            [
+                'class' => 'machine_compute_request_form',
+                'id'=> "machine_compute_request_form"
+            ],
+            'method' => 'POST'
+        ];
+
+
+        $errors='';
+        $success='';
+        $warnings='';
+        $username=Userw::getCurrentUser()['username'];
+        $user_split=explode('@',$username)[0];
+        $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
+        
+        if ( ($serviceModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
+        {
+            
+            $isValid = $projectModel->validate();
+            $isValid = $serviceModel->validate() && $isValid;
+
+            // print_r($serviceModel->validate());
+            // exit(0);
+
+            if ($isValid)
+            {   
+                $participant_ids_tmp=[];
+                foreach ($participating as $participant)
+                {
+                   
+                    $username=$participant . '@elixir-europe.org';
+                    $pid=User::findByUsername($username)->id;
+                    $participant_ids_tmp[$pid]=null;
+                }
+
+                $participant_ids=[];
+                foreach ($participant_ids_tmp as $pid => $dummy)
+                {
+                    $participant_ids[]=$pid;
+                }
+
+                $projectModel->user_list=$participant_ids;
+                $messages=$projectModel->uploadNew($participating,$project_types['machine_compute']);
+                $errors.=$messages[0];
+                $success.=$messages[1];
+                $warnings.=$messages[2];
+                $requestId=$messages[3];
+                if ($requestId!=-1)
+                {
+                    $messages=$serviceModel->uploadNew($requestId);
+                    $errors.=$messages[0];
+                    $success.=$messages[1];
+                    $warnings.=$messages[2];
+                    // ServiceVmCredentials::createEmpty($requestId);
+                }
+
+                if (empty($errors))
+                {
+                    if(!empty($success))
+                    {
+                        Yii::$app->session->setFlash('success', "$success");
+                    }
+                    if(!empty($warnings))
+                    {
+                        Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+                    
+                    return $this->redirect(['project/index']);
+                }
+            }
+        }
+        
+
+        return $this->render('new_machine_compute_request',['service'=>$serviceModel, 'project'=>$projectModel,  'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, ]);
+
+
+
+    }
+
 
 
     public function actionNewColdStorageRequest()
@@ -593,7 +687,7 @@ class ProjectController extends Controller
             $details=OndemandRequest::findOne(['request_id'=>$id]);
             $view_file='view_ondemand_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project->name);
-            $type="On-demand computation";
+            $type="On-demand batch computation";
             if(is_null($project->approval_date))
             {
                 $start = date('Y-m-d', strtotime($project->submission_date));
@@ -662,12 +756,51 @@ class ProjectController extends Controller
             
 
         }
+
+        else if ($project->project_type==3)
+        {
+            $details=MachineComputeRequest::findOne(['request_id'=>$id]);
+            $view_file='view_machine_compute_request';
+            $usage=[];
+            $type="On-demand computation machines";
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+                // print_r($project->duration);
+                // exit(0);
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
+            // 
+            $now=date('Y-m-d');
+            $datetime1 = strtotime($now);
+            $datetime2 = strtotime($ends);
+            $secs = $datetime2 - $datetime1;
+            $remaining_time = $secs / 86400;
+            if($remaining_time<=0)
+            {    
+                $remaining_time=0;
+            }
+            $remaining_jobs=0;
+            
+
+        }
         else if ($project->project_type==2)
         {
             $details=ColdStorageRequest::findOne(['request_id'=>$id]);
             $view_file='view_cold_request';
             $usage=[];
-            $type="Cold-Storage";
+            $type="Storage volumes";
             if(is_null($project->approval_date))
             {
                 $start = date('Y-m-d', strtotime($project->submission_date));
@@ -730,46 +863,6 @@ class ProjectController extends Controller
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
             'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
 
-        // ProjectRequest::recordViewed($id);
-
-        // $project=ProjectRequest::findOne($id);
-
-        // //Request details must be retrieved by the project request id
-        // if ($project->project_type==0)
-        // {
-        //     $details=OndemandRequest::findOne(['request_id'=>$id]);
-        //     $view_file='view_ondemand_request';
-        //     $usage=ProjectRequest::getProjectSchemaUsage($project->name);
-        // }
-        // else if ($project->project_type==1)
-        // {
-        //     $details=ServiceRequest::findOne(['request_id'=>$id]);
-        //     $view_file='view_service_request';
-        //     $usage=[];
-        // }
-        // else if ($project->project_type==2)
-        // {
-        //     $details=ColdStorageRequest::findOne(['request_id'=>$id]);
-        //     $view_file='view_cold_request';
-        //     $usage=[];
-        // }
-        
-
-        // $users=User::find()->where(['IN','id',$project->user_list])->all();
-        // $submitted=User::find()->where(['id'=>$project->submitted_by])->one();
-        // $submitted->username=explode('@',$submitted->username)[0];
-        // // $users=User::returnList($project->user_list);
-        // $user_list='';
-        // foreach ($users as $user)
-        // {
-        //     $usernames=$user->username;
-        //     $user_list.=explode('@', $usernames)[0].'<br/>';
-        // }
-
-        
-
-        // return $this->render($view_file,['project'=>$project,'details'=>$details, 
-        //     'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id,]);
 
     }
 
@@ -793,7 +886,7 @@ class ProjectController extends Controller
             $details=OndemandRequest::findOne(['request_id'=>$id]);
             $view_file='view_ondemand_request_user';
             $usage=ProjectRequest::getProjectSchemaUsage($project->name);
-            $type="On-demand computation";
+            $type="On-demand batch computation";
             if(is_null($project->approval_date))
             {
                 $start = date('Y-m-d', strtotime($project->submission_date));
@@ -858,12 +951,50 @@ class ProjectController extends Controller
             $remaining_jobs=0;
 
         }
+        else if ($project->project_type==3)
+        {
+            $details=MachineComputeRequest::findOne(['request_id'=>$id]);
+            $view_file='view_machine_compute_request_user';
+            $usage=[];
+            $type="On-demand computation machines";
+            if(is_null($project->approval_date))
+            {
+                $start = date('Y-m-d', strtotime($project->submission_date));
+            }
+            else
+            {
+                $start = date('Y-m-d', strtotime($project->approval_date));
+            }
+            if(is_null($project->end_date))
+            {
+                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
+                // print_r($project->duration);
+                // exit(0);
+            }
+            else
+            {
+                $ends= explode(' ', $project->end_date)[0];
+            }
+            // 
+            $now=date('Y-m-d');
+            $datetime1 = strtotime($now);
+            $datetime2 = strtotime($ends);
+            $secs = $datetime2 - $datetime1;
+            $remaining_time = $secs / 86400;
+            if($remaining_time<=0)
+            {    
+                $remaining_time=0;
+            }
+            $remaining_jobs=0;
+            
+
+        }
         else if ($project->project_type==2)
         {
             $details=ColdStorageRequest::findOne(['request_id'=>$id]);
             $view_file='view_cold_request_user';
             $usage=[];
-            $type="Cold-Storage";
+            $type="Storage volumes";
             if(is_null($project->approval_date))
             {
                 $start = date('Y-m-d', strtotime($project->submission_date));
@@ -1367,7 +1498,7 @@ class ProjectController extends Controller
                 {
                   //  $prequest->end_date='2100-1-1';
                 }
-                if ($prType==1)
+                if ($prType==1 || $prType==3)
                 {
                     if ($dold->flavour != $drequest->flavour)
                     {
@@ -1491,6 +1622,20 @@ class ProjectController extends Controller
                 $trls[$i]='Level ' . $i;
             }
         }
+        else if ($prType==3)
+        {
+            $drequest=MachineComputeRequest::find()->where(['request_id'=>$id])->one();
+            $drequest->flavour=$drequest->flavourIdName[$drequest->vm_flavour];
+            $view_file='edit_machine_compute';
+            $upperlimits='';
+            $autoacceptlimits='';
+            $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
+            if (!empty($vm))
+            {
+                // return $this->render('error_service_vm_exist');
+                $vm_exists=1;
+            }
+        }
         else if ($prType==2)
         {
             $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
@@ -1580,7 +1725,7 @@ class ProjectController extends Controller
                 {
                     $prequest->end_date='2100-1-1';
                 }
-                if ($prType==1)
+                if ($prType==1 || $prType==3)
                 {
                     if ($dold->flavour != $drequest->flavour)
                     {
