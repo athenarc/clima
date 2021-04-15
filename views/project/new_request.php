@@ -43,26 +43,32 @@ Headers::begin() ?>
 <div class="col-md-12 project">
 <?= ToolButton::createButton("$ondemand_icon  On-demand batch computations", "",['/project/new-ondemand-request']) ?>
 </div>
+<?php
+if (Userw::hasRole('Admin',$superAdminAllowed=true))
+{
+?>
 <div class="col-md-12 project">
 <?= ToolButton::createButton("$ondemand_icon  On-demand computation machines", "",['/project/new-machine-compute-request']) ?>
 </div>
+<?php
+}
+?>
 <div class="col-md-12 project">
 <?= ToolButton::createButton("$service_icon  24/7 service", "",['/project/new-service-request']) ?>
 </div>
-<div class="col-md-12 project">
-<?php
-if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false))
-{?>
-	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-cold-storage-request']) ?>
-</div>
 
 <?php
-}
-else
+/*
+ * To be changed later
+ */
+// if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false)) 
+if (Userw::hasRole('Admin',$superAdminAllowed=true))
 {
 ?>
-	<div class="col-md-5"><br /><br /><h3>You do not currently have any active projects.</h3></div>
+<div class="col-md-12 project">
+	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-cold-storage-request']) ?>
+</div>
 <?php
 }
 ?>
-	</div><!--row--> 
+ 

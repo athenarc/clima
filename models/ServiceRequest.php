@@ -38,6 +38,12 @@ class ServiceRequest extends \yii\db\ActiveRecord
     public $flavourIdName=[];
     public $flavourIdNameLimitless=[];
 
+    private $allFlavourCores=[];
+    private $allFlavourRam=[];
+    private $allFlavourDisk=[];
+    public $allFlavours=[];
+    private $allFlavourID=[];
+
 
     public function init()
     {
@@ -101,8 +107,16 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $ram=$flavor['ram']/1024;
             $disk=$flavor['disk'];
             
-            
+            /*
+             * This is done due to users 
+             * needing larger VMs than the respective limits
+             */
             $this->flavourIdNameLimitless[$id]=$name;
+            $this->allFlavourCores[$name]=$cpus;
+            $this->allFlavourRam[$name]=$ram;
+            $this->allFlavourDisk[$name]=$disk;
+            $this->allFlavours[$name]="Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB";
+            $this->allFlavourID[$name]=$id;
             
             if ((($cpus > $this->limits->cores) || ($ram > $this->limits->ram)) && (!$isAdmin))
             {
@@ -141,10 +155,10 @@ class ServiceRequest extends \yii\db\ActiveRecord
             [['num_of_vms', 'num_of_cores', 'num_of_ips'], 'default', 'value' => null],
             [['num_of_vms', 'num_of_cores', 'num_of_ips'], 'integer'],
             [['ram', 'storage'], 'number'],
-            [['num_of_vms'], 'integer','max'=>$this->limits->vms,'min'=>0],
-            [['num_of_cores'], 'integer','max'=>$this->limits->cores,'min'=>0],
-            [['num_of_ips'], 'integer','max'=>$this->limits->ips,'min'=>0],
-            [['ram'], 'number','max'=>$this->limits->ram,'min'=>0],
+            // [['num_of_vms'], 'integer','max'=>$this->limits->vms,'min'=>0],
+            // [['num_of_cores'], 'integer','max'=>$this->limits->cores,'min'=>0],
+            // [['num_of_ips'], 'integer','max'=>$this->limits->ips,'min'=>0],
+            // [['ram'], 'number','max'=>$this->limits->ram,'min'=>0],
             [['storage'], 'number','max'=>$this->limits->storage,'min'=>0],
             [['name'], 'string', 'max' => 200],
             [['version'], 'string', 'max' => 50],
@@ -197,14 +211,14 @@ class ServiceRequest extends \yii\db\ActiveRecord
         ];
     }
 
-    public function compareServices($service1,$service2)
+    public static function compareServices($service1,$service2)
     {
-        $num_of_cores_service1=$service1->flavourCores[$service1->flavour];
-        $num_of_cores_service2=$service2->flavourCores[$service2->flavour];
-        $ram_service1=$service1->flavourRam[$service1->flavour];
-        $ram_service2=$service2->flavourRam[$service2->flavour];
-        $disk1=$service1->flavourDisk[$service1->flavour];
-        $disk2=$service2->flavourDisk[$service2->flavour];
+        $num_of_cores_service1=$service1->allFlavourCores[$service1->flavour];
+        $num_of_cores_service2=$service2->allFlavourCores[$service2->flavour];
+        $ram_service1=$service1->allFlavourRam[$service1->flavour];
+        $ram_service2=$service2->allFlavourRam[$service2->flavour];
+        $disk1=$service1->allFlavourDisk[$service1->flavour];
+        $disk2=$service2->allFlavourDisk[$service2->flavour];
         $storage1=$service1->storage;
         $storage2=$service2->storage;
         if( ($num_of_cores_service2 < $num_of_cores_service1) || ($ram_service2 < $ram_service1) || ($disk2 < $disk1) || $storage2 < $storage1 )
@@ -212,15 +226,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             return true;
         }
         return false;
-        // print_r($num_of_cores_service2.'');
-        // print_r($num_of_cores_service2.'');
-        // print_r($ram_service1);
-        // print_r($ram_service2);
-        // print_r($disk1);
-        // print_r($disk2);
-        // print_r($storage1);
-        // print_r($storage2);
-        // exit(0);
+        
 
     }
 
@@ -290,7 +296,6 @@ class ServiceRequest extends \yii\db\ActiveRecord
              * Get project_request from request id in order to get the project_id 
              * in order to update the latest active request 
              */
-            // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
             $message="Project '$request->name' has been automatically approved.";
 
             
@@ -300,14 +305,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             foreach ($request->user_list as $user) 
             {
                 Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
-            }// $result=$query->select(['project_id'])
-            //           ->from('project_request')
-            //           ->where(['id'=>$requestId])
-            //           ->one();
-            // $projectId=$result['project_id'];
-
-
-            ;
+            }
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
             $project->status=2;
@@ -335,8 +333,8 @@ class ServiceRequest extends \yii\db\ActiveRecord
 
         // print_r($this->flavourID[$this->flavour]);
         // exit(0);
-        $this->num_of_cores=$this->flavourCores[$this->flavour];
-        $this->ram=$this->flavourRam[$this->flavour];
+        $this->num_of_cores=$this->allFlavourCores[$this->flavour];
+        $this->ram=$this->allFlavourRam[$this->flavour];
         $this->storage=empty($this->storage) ? 0 : $this->storage;
 
         Yii::$app->db->createCommand()->insert('service_request', [
@@ -353,8 +351,8 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 'storage' => $this->storage,
                 'request_id' => $requestId,
                 'additional_resources'=>$this->additional_resources,
-                'vm_flavour' => $this->flavourID[$this->flavour],
-                'disk' => $this->flavourDisk[$this->flavour]
+                'vm_flavour' => $this->allFlavourID[$this->flavour],
+                'disk' => $this->allFlavourDisk[$this->flavour]
             ])->execute();
 
         $query= new Query;
