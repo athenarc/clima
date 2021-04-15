@@ -188,6 +188,10 @@ class Project extends \yii\db\ActiveRecord
         $status=[1,2];
 
         $user=User::findByUsername($username);
+        if (empty($user))
+        {
+            return [];
+        }
         $user=$user->id;
         
           // print_r($user);
@@ -258,6 +262,10 @@ class Project extends \yii\db\ActiveRecord
         // print_r($username);
         // exit(0);
         $user=User::findByUsername($username);
+        if (empty($user))
+        {
+            return [];
+        }
         $user=$user->id;
         
           // print_r($user);

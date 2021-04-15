@@ -27,7 +27,10 @@ $youtube_link=isset(Yii::$app->params['youtube_url']) ? Html::a($youtube_icon,Yi
 echo Html::cssFile('https://use.fontawesome.com/releases/v5.5.0/css/all.css', ['integrity'=> 'sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU', 'crossorigin'=> 'anonymous']);
 echo Html::cssFile('@web/css/components/notificationWidget.css');
 $this->registerJsFile('@web/js/components/notificationWidget.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
-$this->registerLinkTag(['rel' => 'icon', 'type' => 'image/png', 'href' => Yii::$app->params['favicon']]);
+if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])))
+{
+    $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/png', 'href' => Yii::$app->params['favicon']]);
+}
 ?>
 
 
