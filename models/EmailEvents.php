@@ -8,7 +8,7 @@ use app\models\Smtp;
 use app\models\Project;
 use app\models\ProjectRequest;
 use app\models\Email;
-
+use yii\db\Query;
 
 
 /**
@@ -64,10 +64,11 @@ class EmailEvents extends \yii\db\ActiveRecord
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;
         $decrypted_password= base64_decode($encrypted_password);
-
-        // print_r($decrypted_password);
-        // exit(0);
-      
+        $project=Project::find()->where(['id'=>$project_id])->one();
+        if(!empty($project))
+        {
+            $project_name=$project->name;
+        }
         $mailer = Yii::$app->mailer->setTransport([
 
         'class' => 'Swift_SmtpTransport',
@@ -81,163 +82,58 @@ class EmailEvents extends \yii\db\ActiveRecord
 
         if($email_type=='project_decision')
         {
-            $email_notifications=EmailEvents::find()->where(['project_decision'=>1])->all();
-            $user_ids=array_column($email_notifications, 'user_id');
-            $admins=Userw::find()->where(['id'=>$user_ids])
-                ->andWhere(['superadmin'=>1])
-                ->andWhere(['not', ['email' => null]])
-            ->all();
-
-            $admin_emails=array_column($admins, 'email');
-            $admin_ids=array_column($admins, 'id');
-
-            foreach ($admin_emails as $user) 
-            {
-                Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('Project decision')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
-            }
-
-            $project=Project::find()->where(['id'=>$project_id])->one();
-            $project_request_id=$project->latest_project_request_id;
-            $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
-
-            $project_users=Userw::find()->where(['id'=>$project_request->user_list])
-                ->andWhere(['not', ['email' => null]])
-                ->all();
-            $project_users_emails=array_column($project_users, 'email');
-            $project_users_ids=array_column($project_users,'id');
-
-            foreach ($project_users_emails as $user) 
-            {
-                Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('Project decision')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
-            }
-
-            $recipient_ids=array_merge($admin_ids, $project_users_ids);
-
-             Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
-
-
+            
+            $moderators=self::getModerators($email_type);
+            $project_users=self::getProjectUsers($project_id);
+            $subject='Decision on '. $project_name;
+            $all_users=$moderators+$project_users;
+            $moderator_ids=array_keys($moderators);
+            $project_users_ids=array_keys($project_users);
+            $recipient_ids=array_unique(array_merge($moderator_ids, $project_users_ids));
 
         }
         elseif($email_type=='user_creation')
         {
-            $email_notifications=EmailEvents::find()->where(['user_creation'=>1])->all();
-            $user_ids=array_column($email_notifications, 'user_id');
-            $admins=Userw::find()->where(['id'=>$user_ids])
-                ->andWhere(['not', ['email' => null]])
-                ->andWhere(['superadmin'=>1])
-                ->all();
-            $admin_emails=array_column($admins, 'email');
-
-            foreach ($admin_emails as $user) 
-            {
-                Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('User creation')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
-            }
-
-            $recipient_ids=array_column($admins, 'id');
-            Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
+            $all_users=self::getAdmins($email_type);
+            $subject='User creation';
+            $recipient_ids=array_keys($all_users);
         }
+
         elseif($email_type=='new_project')
         {
-            $email_notifications=EmailEvents::find()->where(['new_project'=>1])->all();
-            $user_ids=array_column($email_notifications, 'user_id');
-            $admins=Userw::find()->where(['id'=>$user_ids])
-                ->andWhere(['not', ['email' => null]])
-                ->andWhere(['superadmin'=>1])
-                ->all();
-            $admin_emails=array_column($admins, 'email');
+            $all_users=self::getModerators($email_type);
+            $subject='New project';
+            $recipient_ids=array_keys($all_users);
 
-            foreach ($admin_emails as $user) 
-            {
-                Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('New project')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
-            }
-
-            $recipient_ids=array_column($admins, 'id');
-            Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
         }
-        else
+        elseif($email_type=='new_ticket')
         {
-            $email_notifications=EmailEvents::find()->where(['new_ticket'=>1])->all();
-            $user_ids=array_column($email_notifications, 'user_id');
-            $admins=Userw::find()->where(['id'=>$user_ids])
-                ->andWhere(['not', ['email' => null]])
-                ->andWhere(['superadmin'=>1])
-                ->all();
-            $admin_emails=array_column($admins, 'email');
-            // print_r($smtp->username);
-            // exit(0);
+            $all_users=self::getAdmins($email_type);
+            $subject='New ticket';
+            $recipient_ids=array_keys($all_users);
 
-            foreach ($admin_emails as $user) 
-            {
+        }
+
+        foreach ($all_users as $user) 
+        {
                 Yii::$app->mailer->compose()
                  ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('New project')
+                 ->setTo($user['email'])
+                 ->setSubject($subject)
                  ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
+                 ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
                  <br> <br> Sincerely, <br> EG-CI")
                  ->send();
                  usleep(2000);
-            }
+        }
 
-            $recipient_ids=array_column($admins, 'id');
-            Yii::$app->db->createCommand()->insert('email', [
+        Yii::$app->db->createCommand()->insert('email', [
                     'recipient_ids' => $recipient_ids,
                     'type'=>$email_type,
                     'sent_at' => 'NOW()',
                     'message' => $message,
                     'project_id' => $project_id,
               ])->execute();
-        }
         
     }
 
@@ -246,6 +142,8 @@ class EmailEvents extends \yii\db\ActiveRecord
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;
         $decrypted_password= base64_decode($encrypted_password);
+        $project=Project::find()->where(['id'=>$project_id])->one();
+        $project_name=$project->name;
 
         $mailer = Yii::$app->mailer->setTransport([
         'class' => 'Swift_SmtpTransport',
@@ -260,73 +158,114 @@ class EmailEvents extends \yii\db\ActiveRecord
         
         if($email_type=='expires_30')
         {
-            $project=Project::find()->where(['id'=>$project_id])->one();
-            $project_request_id=$project->latest_project_request_id;
-            $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
+            $moderators=self::getModerators($email_type);
+            $project_users=self::getProjectUsers($project_id);
+            $subject='Expiration of '. $project_name;
+            $all_users=$moderators+$project_users;
+            $moderator_ids=array_keys($moderators);
+            $project_users_ids=array_keys($project_users);
+            $recipient_ids=array_unique(array_merge($moderator_ids, $project_users_ids));
 
-
-            $project_users=Userw::find()->where(['id'=>$project_request->user_list])
-                ->andWhere(['not', ['email' => null]])
-                ->all();
-            $project_users_emails=array_column($project_users, 'email');
-
-            foreach ($project_users_emails as $user) 
-            {
-                Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('Project ending')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
-            }
-
-            $recipient_ids=array_column($project_users, 'id');
-
-           
-            Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
         }
-        else
+        elseif($email_type=='expires_15')
         {
-            $project=Project::find()->where(['id'=>$project_id])->one();
-            $project_request_id=$project->latest_project_request_id;
-            $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
+            $moderators=self::getModerators($email_type);
+            $project_users=self::getProjectUsers($project_id);
+            $subject='Expiration of '. $project_name;
+            $all_users=$moderators+$project_users;
+            $moderator_ids=array_keys($moderators);
+            $project_users_ids=array_keys($project_users);
+            $recipient_ids=array_unique(array_merge($moderator_ids, $project_users_ids));
+        }
 
-            $project_users=Userw::find()->where(['id'=>$project_request->user_list])
-                ->andWhere(['not', ['email' => null]])
-                ->all();
-            $project_users_emails=array_column($project_users, 'email');
-            foreach ($project_users_emails as $user) 
-            {
+        foreach ($all_users as $user) 
+        {
                 Yii::$app->mailer->compose()
                  ->setFrom("$smtp->username")
-                 ->setTo("$user")
-                 ->setSubject('Project ending')
+                 ->setTo($user['email'])
+                 ->setSubject($subject)
                  ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> $message 
+                 ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
                  <br> <br> Sincerely, <br> EG-CI")
                  ->send();
                  usleep(2000);
-            }
+        }
 
-            $recipient_ids=array_column($project_users, 'id');
-            Yii::$app->db->createCommand()->insert('email', [
+        Yii::$app->db->createCommand()->insert('email', [
                     'recipient_ids' => $recipient_ids,
                     'type'=>$email_type,
                     'sent_at' => 'NOW()',
                     'message' => $message,
                     'project_id' => $project_id,
               ])->execute();
+
+        
+    }
+
+
+
+    public static function getModerators($email_event)
+    {
+        $moderat=new Query;
+        $moderat=$moderat->select(['u.id', 'u.email', 'u.username'])
+            ->from('auth_assignment as p')
+            ->innerJoin('user as u', 'u.id=p.user_id')
+            ->innerJoin('email_events as e', 'e.user_id=u.id')
+            ->where(['p.item_name'=>'Moderator'])
+            ->andWhere(["e.$email_event"=>1])
+            ->andWhere(['not',['u.email'=>null]])
+            ->all();
+
+        $moderator_emails=[];        
+        foreach($moderat as $mod)
+        {
+            $moderator_emails[$mod['id']]=['email'=>$mod['email'], 'username'=>$mod['username']];
+        }
+
+        return $moderator_emails;
+
+    }
+
+    public static function getAdmins($email_event)
+    {
+        $query=new Query;
+        $result=$query->select(['u.id', 'u.email','u.username'])
+            ->from('auth_assignment as p')
+            ->innerJoin('user as u', 'u.id=p.user_id')
+            ->innerJoin('email_events as e', 'e.user_id=u.id')
+            ->where(['p.item_name'=>'Admin'])
+            ->andWhere(["e.$email_event"=>1])
+            ->andWhere(['not',['u.email'=>null]])
+            ->all();
+
+        $admin_emails=[];        
+        foreach($result as $res)
+        {
+            $admin_emails[$res['id']]=['email'=>$res['email'], 'username'=>$res['username']];
         }
         
+        return $admin_emails;
+
+    }
+
+    public static function getProjectUsers($project_id)
+    {
+        $project=Project::find()->where(['id'=>$project_id])->one();
+        $project_request_id=$project->latest_project_request_id;
+        $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
+        $project_users_all=Userw::find()->where(['id'=>$project_request->user_list])
+                    ->andWhere(['not', ['email' => null]])
+                    ->all();
+
+        $project_users=[];
+        foreach($project_users_all as $user)
+        {
+                $project_users[$user->id]=['email'=>$user->email, 'username'=>$user->username];
+        }
+
+        return $project_users;
+
+
     }
 
 
