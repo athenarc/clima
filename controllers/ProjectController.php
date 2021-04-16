@@ -26,6 +26,7 @@ use app\models\ServiceVmCredentials;
 use app\models\Notification;
 use app\models\User;
 use app\models\Vm;
+use yii\db\Query;
 use app\models\Smtp;
 use app\models\EmailEvents;
 use app\models\Email;
@@ -95,10 +96,7 @@ class ProjectController extends Controller
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
                     2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user'];
 
-        //ProjectRequest::invalidateExpiredProjects();
-       // $active_projects=Project::getAllActiveProjects();
-		$deleted=Project::getDeletedProjects();
-       
+       	$deleted=Project::getDeletedProjects();
         $owner=Project::getActiveProjectsOwner();
         $participant=Project::getActiveProjectsParticipant();
         $expired_owner=Project::getExpiredProjects();
