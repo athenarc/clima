@@ -12,4 +12,11 @@ use yii\helpers\Html;
 
 $this->title = 'EG-CI';
 
-echo $page->content;
+if(empty($page->content))
+{
+	echo "";
+}
+else
+{
+	echo $page->content;
+}
