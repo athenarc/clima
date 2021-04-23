@@ -9,6 +9,7 @@ use yii\httpclient\Client;
 use app\models\ProjectRequest;
 use yii\helpers\Url;
 use app\models\Notification;
+use app\models\Configuration;
 /**
  * This is the model class for table "service".
  *
@@ -78,17 +79,36 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $this->limits->storage=10000000;
         }
         
-        
-        $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
+        $config=Configuration::find()->one();
+        // $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
+        $creds=[
+            "auth"=> 
+            [
+                "identity"=>
+                [
+                    "methods"=>
+                    [
+                        "application_credential"
+                    ],
+                
+                    "application_credential"=>
+                    [
+                        "id"=> $config->os_cred_id,
+                        "secret"=> $config->os_cred_secret
+                    ],
+                ]
+            ]
+        ];
+        $client = new Client(['baseUrl' => $config->os_keystone_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
                             ->setUrl('auth/tokens')
-                            ->setData(Yii::$app->params['openstackAuth'])
+                            ->setData($creds)
                             ->send();
         $token=$response->headers['x-subject-token'];
 
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => $config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -97,8 +117,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
                             ->send();
 
         $flavors=$response->data['flavors'];
-        // print_r($flavors);
-        // exit(0);
+
         foreach ($flavors as $flavor)
         {
             $name=$flavor['name'];
@@ -155,10 +174,6 @@ class ServiceRequest extends \yii\db\ActiveRecord
             [['num_of_vms', 'num_of_cores', 'num_of_ips'], 'default', 'value' => null],
             [['num_of_vms', 'num_of_cores', 'num_of_ips'], 'integer'],
             [['ram', 'storage'], 'number'],
-            // [['num_of_vms'], 'integer','max'=>$this->limits->vms,'min'=>0],
-            // [['num_of_cores'], 'integer','max'=>$this->limits->cores,'min'=>0],
-            // [['num_of_ips'], 'integer','max'=>$this->limits->ips,'min'=>0],
-            // [['ram'], 'number','max'=>$this->limits->ram,'min'=>0],
             [['storage'], 'number','max'=>$this->limits->storage,'min'=>0],
             [['name'], 'string', 'max' => 200],
             [['version'], 'string', 'max' => 50],
@@ -331,8 +346,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
         $success='';
         $warnings='';
 
-        // print_r($this->flavourID[$this->flavour]);
-        // exit(0);
+        
         $this->num_of_cores=$this->allFlavourCores[$this->flavour];
         $this->ram=$this->allFlavourRam[$this->flavour];
         $this->storage=empty($this->storage) ? 0 : $this->storage;
@@ -377,8 +391,6 @@ class ServiceRequest extends \yii\db\ActiveRecord
         }
 
 
-        // print_r($row);
-        // exit(0);
         if (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
             && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) )
         {
@@ -392,7 +404,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
              * Get project_request from request id in order to get the project_id 
              * in order to update the latest active request 
              */
-            // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
+            
             $message="Updates to project '$request->name' have been automatically approved.";
 
             

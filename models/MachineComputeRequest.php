@@ -43,16 +43,36 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
     {
         parent::init();
         
-        $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
+        $config=Configuration::find()->one();
+        // $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
+        $creds=[
+            "auth"=> 
+            [
+                "identity"=>
+                [
+                    "methods"=>
+                    [
+                        "application_credential"
+                    ],
+                
+                    "application_credential"=>
+                    [
+                        "id"=> $config->os_cred_id,
+                        "secret"=> $config->os_cred_secret
+                    ],
+                ]
+            ]
+        ];
+        $client = new Client(['baseUrl' => $config->os_keystone_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
                             ->setUrl('auth/tokens')
-                            ->setData(Yii::$app->params['openstackAuth'])
+                            ->setData($creds)
                             ->send();
         $token=$response->headers['x-subject-token'];
 
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => $config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)

@@ -116,15 +116,26 @@ class EmailEvents extends \yii\db\ActiveRecord
 
         foreach ($all_users as $user) 
         {
+            try
+            {
                 Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo($user['email'])
-                 ->setSubject($subject)
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
-                 usleep(2000);
+                     ->setFrom("$smtp->username")
+                     ->setTo($user['email'])
+                     ->setSubject($subject)
+                     ->setTextBody('Plain text content')
+                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
+                     <br> <br> Sincerely, <br> EG-CI")
+                     ->send();
+                     usleep(2000);
+            }
+            catch (Throwable $e)
+            {
+                ;
+            }
+            catch (\Swift_TransportException $e)
+            {
+                ;
+            }
         }
 
         Yii::$app->db->createCommand()->insert('email', [
@@ -180,15 +191,27 @@ class EmailEvents extends \yii\db\ActiveRecord
 
         foreach ($all_users as $user) 
         {
+            try
+            {    
                 Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo($user['email'])
-                 ->setSubject($subject)
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
-                 <br> <br> Sincerely, <br> EG-CI")
-                 ->send();
+                     ->setFrom("$smtp->username")
+                     ->setTo($user['email'])
+                     ->setSubject($subject)
+                     ->setTextBody('Plain text content')
+                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
+                     <br> <br> Sincerely, <br> EG-CI")
+                     ->send();
                  usleep(2000);
+            }
+            catch (Throwable $e)
+            {
+                ;
+
+            }
+            catch (\Swift_TransportException $e)
+            {
+                ;
+            }
         }
 
         Yii::$app->db->createCommand()->insert('email', [

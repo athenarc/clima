@@ -61,6 +61,18 @@ if (!empty($success))
 		<?= $form->field($general,'help_page')->dropDownList($pages,['prompt'=>'Please select a page', 'disabled'=>(empty($pages))? true : false ])?>
 		<?= Html::a('Manage pages', ['/administration/manage-pages'], ['class'=>'btn btn-secondary']) ?>
 		<div class="row">&nbsp;</div>
+		<div class="row"><h2 class="col-md-12">OpenStack API options</h2></div>
+		<?=$form->field($general, 'os_keystone_url') ?>
+		<?=$form->field($general, 'os_nova_url') ?>
+		<?=$form->field($general, 'os_glance_url') ?>
+		<?=$form->field($general, 'os_neutron_url') ?>
+		<?=$form->field($general, 'os_cinder_url') ?>
+		<?=$form->field($general, 'os_tenant_id') ?>
+		<?=$form->field($general, 'os_floating_net_id') ?>
+		<?=$form->field($general, 'os_cred_id') ?>
+		<?=$form->field($general, 'os_cred_secret') ?>
+
+
 	</div>
 
 	<div class="tab-ondemand-autoaccept tab <?=$activeTabs[1]?>">

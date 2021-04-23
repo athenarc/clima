@@ -5,27 +5,6 @@ return [
     'adminEmail' => 'admin@example.com',
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
-    'openstackAuth'=> 
-    [
-        "auth"=> 
-        [
-            "identity"=>
-            [
-                "methods"=>
-                [
-                    "application_credential"
-                ],
-            
-                "application_credential"=>
-                [
-                    "id"=> "ID of the OpenStack application credentials",
-                    "secret"=> "secret of the OpenStack application credentials"
-                ],
-            ]
-        ]
-    ],
-    'openstackProjectID' => 'ID of the OpenStack project',
-    'openstackFloatNetID' => 'ID of the OpenStack network providing floating IP addresses to the VMs',
     'windowsImageIDs' =>
     [
         //Fill this if you have Windows OS VM images

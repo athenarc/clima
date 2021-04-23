@@ -46,6 +46,8 @@ if (!empty($errors))
 <div class="row"> <div class="col-md-12">* All fields marked with asterisk are mandatory</div></div>
 
     <?php $form = ActiveForm::begin($form_params); ?>
+    <?= $form->errorSummary($project) ?>
+    <?= $form->errorSummary($service) ?>
 
         <div class="row box">
             <div class="col-md-6">

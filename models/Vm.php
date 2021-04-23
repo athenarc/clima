@@ -22,6 +22,7 @@ class Vm extends \yii\db\ActiveRecord
 {
     public $keyFile,$consoleLink;
     private $name, $token, $port_id;
+    public static $config,$creds;
 
 
     private $create_errors=[
@@ -47,6 +48,30 @@ class Vm extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
+    public function init()
+    {
+        parent::init();
+        self::$config=Configuration::find()->one();
+        self::$creds=[
+            "auth"=> 
+            [
+                "identity"=>
+                [
+                    "methods"=>
+                    [
+                        "application_credential"
+                    ],
+                
+                    "application_credential"=>
+                    [
+                        "id"=> self::$config->os_cred_id,
+                        "secret"=> self::$config->os_cred_secret
+                    ],
+                ]
+            ]
+        ];
+    }
+
     public static function tableName()
     {
         return 'vm';
@@ -86,7 +111,7 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -103,7 +128,7 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => 'https://glance-louros.cloud.grnet.gr:9292/v2']);
+        $client = new Client(['baseUrl' => self::$config->os_glance_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -137,12 +162,12 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Authenticate with the openstack api
          */
-        $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
+        $client = new Client(['baseUrl' => self::$config->os_keystone_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
                             ->setUrl('auth/tokens')
-                            ->setData(Yii::$app->params['openstackAuth'])
+                            ->setData(self::$creds)
                             ->send();
 
         $message='';
@@ -172,7 +197,7 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -205,12 +230,12 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => 'https://cinder-louros.cloud.grnet.gr:8776/v3']);
+        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(Yii::$app->params['openstackProjectID'] . '/volumes')
+                            ->setUrl(self::$config->os_tenant_id . '/volumes')
                             ->setData($volumedata)
                             ->send();
         
@@ -231,12 +256,12 @@ class Vm extends \yii\db\ActiveRecord
          * Check if volume is available
          */
 
-        $client = new Client(['baseUrl' => 'https://cinder-louros.cloud.grnet.gr:8776/v3']);
+        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(Yii::$app->params['openstackProjectID'] . '/volumes/' . $this->volume_id)
+                            ->setUrl(self::$config->os_tenant_id . '/volumes/' . $this->volume_id)
                             ->send();
         $volumeStatus=$response->data['volume']['status'];
         
@@ -244,12 +269,12 @@ class Vm extends \yii\db\ActiveRecord
         {
             sleep(10);
 
-            $client = new Client(['baseUrl' => 'https://cinder-louros.cloud.grnet.gr:8776/v3']);
+            $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
             $response = $client->createRequest()
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
                                 ->addHeaders(['X-Auth-Token'=>$this->token])
-                                ->setUrl(Yii::$app->params['openstackProjectID'] . '/volumes/' . $this->volume_id)
+                                ->setUrl(self::$config->os_tenant_id . '/volumes/' . $this->volume_id)
                                 ->send();
             $volumeStatus=$response->data['volume']['status'];
 
@@ -258,7 +283,7 @@ class Vm extends \yii\db\ActiveRecord
          * Check if VM is ready
          */
 
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -270,7 +295,7 @@ class Vm extends \yii\db\ActiveRecord
         while ($status!='ACTIVE')
         {
             sleep(10);
-            $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+            $client = new Client(['baseUrl' => self::$config->os_nova_url]);
             $response = $client->createRequest()
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
@@ -293,7 +318,7 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -317,7 +342,7 @@ class Vm extends \yii\db\ActiveRecord
          * Add a new ssh key
          */
 
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
@@ -340,12 +365,12 @@ class Vm extends \yii\db\ActiveRecord
          * Add a new ssh key
          */
 
-        $client = new Client(['baseUrl' => 'https://cinder-louros.cloud.grnet.gr:8776/v3']);
+        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(Yii::$app->params['openstackProjectID'] . '/volumes/' . $this->volume_id)
+                            ->setUrl(self::$config->os_tenant_id . '/volumes/' . $this->volume_id)
                             ->send();
         
         if (!$response->getIsOk())
@@ -360,7 +385,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function deleteKey($key_name)
     {
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
@@ -404,7 +429,7 @@ class Vm extends \yii\db\ActiveRecord
             ]
         ];
 
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -424,7 +449,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function getServerPort()
     {
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -444,7 +469,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function deleteServer()
     {
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
@@ -466,19 +491,19 @@ class Vm extends \yii\db\ActiveRecord
         [
             "floatingip"=>
             [
-                "project_id" => Yii::$app->params['openstackProjectID'],
-                "floating_network_id" =>  Yii::$app->params['openstackFloatNetID'],
+                "project_id" => self::$config->os_tenant_id,
+                "floating_network_id" =>  self::$config->os_floating_net_id,
                 "port_id" => $this->port_id,
                 "description" => $this->name
             ]
         ];
 
-        $client = new Client(['baseUrl' => 'https://net-louros.cloud.grnet.gr:9696']);
+        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl('v2.0/floatingips')
+                            ->setUrl('floatingips')
                             ->setData($ipdata)
                             ->send();
         if (!$response->getIsOk())
@@ -494,12 +519,12 @@ class Vm extends \yii\db\ActiveRecord
 
     public function deleteIP()
     {
-        $client = new Client(['baseUrl' => 'https://net-louros.cloud.grnet.gr:9696']);
+        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(["v2.0/floatingips/$this->ip_id"])
+                            ->setUrl(["floatingips/$this->ip_id"])
                             ->send();
 
         if (!$response->getIsOk())
@@ -518,7 +543,7 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
         $responseOK=false;
             while(!$responseOK)
         {
@@ -546,12 +571,12 @@ class Vm extends \yii\db\ActiveRecord
         $ram/=1024;
 
 
-        $client = new Client(['baseUrl' => 'https://net-louros.cloud.grnet.gr:9696']);
+        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl(['v2.0/floatingips'])
+                            ->setUrl(['floatingips'])
                             ->setData(['floating_network_id'=>'fa87edbd-b40c-4144-b317-5838aaf440db'])
                             ->send();
         
@@ -567,12 +592,12 @@ class Vm extends \yii\db\ActiveRecord
         }
         
         // print_r($token);
-        $client = new Client(['baseUrl' => 'https://net-louros.cloud.grnet.gr:9696']);
+        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl(['v2.0/quotas/8119419d2b294b5596c17a310f229fb9'])
+                            ->setUrl(['quotas/' . self::$config->os_tenant_id])
                             ->send();
 
 
@@ -584,12 +609,12 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Get available volume space
          */
-        $client = new Client(['baseUrl' => 'https://cinder-louros.cloud.grnet.gr:8776']);
+        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl(['v3/8119419d2b294b5596c17a310f229fb9/limits'])
+                            ->setUrl([self::$config->os_tenant_id .'/limits'])
                             ->send();
 
 
@@ -833,7 +858,7 @@ class Vm extends \yii\db\ActiveRecord
         $encrypted='';
         while ($passNotExists || empty($encrypted))
         {
-            $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1']);
+            $client = new Client(['baseUrl' => self::$config->os_nova_url]);
             $response = $client->createRequest()
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
@@ -883,7 +908,7 @@ class Vm extends \yii\db\ActiveRecord
         $consoleAvailable=false;
         while (!$consoleAvailable)
         {
-            $client = new Client(['baseUrl' => 'https://ncc-louros.cloud.grnet.gr:8774/v2.1/']);
+            $client = new Client(['baseUrl' => self::$config->os_nova_url]);
             $response = $client->createRequest()
                                 ->setMethod('POST')
                                 ->setFormat(Client::FORMAT_JSON)
