@@ -67,10 +67,10 @@ if (!empty($success))
 		<?=$form->field($general, 'os_glance_url') ?>
 		<?=$form->field($general, 'os_neutron_url') ?>
 		<?=$form->field($general, 'os_cinder_url') ?>
-		<?=$form->field($general, 'os_tenant_id') ?>
-		<?=$form->field($general, 'os_floating_net_id') ?>
-		<?=$form->field($general, 'os_cred_id') ?>
-		<?=$form->field($general, 'os_cred_secret') ?>
+		<?=$form->field($general, 'os_tenant_id')->passwordInput() ?>
+		<?=$form->field($general, 'os_floating_net_id')->passwordInput() ?>
+		<?=$form->field($general, 'os_cred_id')->passwordInput() ?>
+		<?=$form->field($general, 'os_cred_secret')->passwordInput() ?>
 
 
 	</div>

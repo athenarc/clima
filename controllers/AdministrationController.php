@@ -145,7 +145,10 @@ class AdministrationController extends Controller
             $encrypted_password=base64_encode($password);
             $smtp->password=$encrypted_password;
             $smtp->update();
-            
+            $general->os_cred_id=base64_encode($general->os_cred_id);
+            $general->os_cred_secret=base64_encode($general->os_cred_secret);
+            $general->os_tenant_id=base64_encode($general->os_tenant_id);
+            $general->os_floating_net_id=base64_encode($general->os_floating_net_id);
 
            
 
@@ -213,6 +216,12 @@ class AdministrationController extends Controller
 
             }
 
+            $smtp->password=base64_decode($smtp->password);
+            $general->os_cred_id=base64_decode($general->os_cred_id);
+            $general->os_cred_secret=base64_decode($general->os_cred_secret);
+            $general->os_tenant_id=base64_decode($general->os_tenant_id);
+            $general->os_floating_net_id=base64_decode($general->os_floating_net_id);
+
             return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'general'=>$general,
                                 'coldStorage'=>$coldStorage, 'success'=>'Configuration successfully updated!',
@@ -221,6 +230,11 @@ class AdministrationController extends Controller
                                 'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,'pages'=>$pages]);
         }
 
+        $smtp->password=base64_decode($smtp->password);
+        $general->os_cred_id=base64_decode($general->os_cred_id);
+        $general->os_cred_secret=base64_decode($general->os_cred_secret);
+        $general->os_tenant_id=base64_decode($general->os_tenant_id);
+        $general->os_floating_net_id=base64_decode($general->os_floating_net_id);
         return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,
