@@ -9,6 +9,7 @@ use yii\httpclient\Client;
 use app\models\ProjectRequest;
 use yii\helpers\Url;
 use app\models\Notification;
+use app\models\Openstack
 /**
  * This is the model class for table "service".
  *
@@ -43,7 +44,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
     {
         parent::init();
         
-        $config=Configuration::find()->one();
+        $openstack=Openstack::find()->one();
         // $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
         $creds=[
             "auth"=> 
@@ -57,13 +58,13 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
                 
                     "application_credential"=>
                     [
-                        "id"=> $config->os_cred_id,
-                        "secret"=> $config->os_cred_secret
+                        "id"=> base64_decode($openstack->os_cred_id),
+                        "secret"=> base64_decode($openstack->os_cred_secret)
                     ],
                 ]
             ]
         ];
-        $client = new Client(['baseUrl' => $config->os_keystone_url]);
+        $client = new Client(['baseUrl' => $openstack->os_keystone_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -72,7 +73,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
                             ->send();
         $token=$response->headers['x-subject-token'];
 
-        $client = new Client(['baseUrl' => $config->os_nova_url]);
+        $client = new Client(['baseUrl' => $openstack->os_nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)

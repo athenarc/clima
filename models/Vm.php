@@ -6,6 +6,7 @@ use Yii;
 use yii\httpclient\Client;
 use app\models\ProjectRequest;
 use webvimark\modules\UserManagement\models\User as Userw;
+use app\models\Openstack;
 
 /**
  * This is the model class for table "vm".
@@ -22,7 +23,7 @@ class Vm extends \yii\db\ActiveRecord
 {
     public $keyFile,$consoleLink;
     private $name, $token, $port_id;
-    public static $config,$creds;
+    public static $openstack,$creds;
 
 
     private $create_errors=[
@@ -51,7 +52,7 @@ class Vm extends \yii\db\ActiveRecord
     public function init()
     {
         parent::init();
-        self::$config=Configuration::find()->one();
+        self::$openstack=Openstack::find()->one();
         self::$creds=[
             "auth"=> 
             [
@@ -64,8 +65,8 @@ class Vm extends \yii\db\ActiveRecord
                 
                     "application_credential"=>
                     [
-                        "id"=> self::$config->os_cred_id,
-                        "secret"=> self::$config->os_cred_secret
+                        "id"=> base64_decode(self::$openstack->cred_id),
+                        "secret"=> base64_decode(self::$openstack->cred_secret)
                     ],
                 ]
             ]
@@ -111,7 +112,7 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -128,7 +129,7 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => self::$config->os_glance_url]);
+        $client = new Client(['baseUrl' => self::$openstack->glance_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -162,7 +163,7 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Authenticate with the openstack api
          */
-        $client = new Client(['baseUrl' => self::$config->os_keystone_url]);
+        $client = new Client(['baseUrl' => self::$openstack->keystone_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -197,7 +198,7 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -230,12 +231,12 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
+        $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(self::$config->os_tenant_id . '/volumes')
+                            ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes')
                             ->setData($volumedata)
                             ->send();
         
@@ -256,12 +257,12 @@ class Vm extends \yii\db\ActiveRecord
          * Check if volume is available
          */
 
-        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
+        $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(self::$config->os_tenant_id . '/volumes/' . $this->volume_id)
+                            ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
                             ->send();
         $volumeStatus=$response->data['volume']['status'];
         
@@ -269,12 +270,12 @@ class Vm extends \yii\db\ActiveRecord
         {
             sleep(10);
 
-            $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
+            $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
             $response = $client->createRequest()
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
                                 ->addHeaders(['X-Auth-Token'=>$this->token])
-                                ->setUrl(self::$config->os_tenant_id . '/volumes/' . $this->volume_id)
+                                ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
                                 ->send();
             $volumeStatus=$response->data['volume']['status'];
 
@@ -283,7 +284,7 @@ class Vm extends \yii\db\ActiveRecord
          * Check if VM is ready
          */
 
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -295,7 +296,7 @@ class Vm extends \yii\db\ActiveRecord
         while ($status!='ACTIVE')
         {
             sleep(10);
-            $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
             $response = $client->createRequest()
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
@@ -318,7 +319,7 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -342,7 +343,7 @@ class Vm extends \yii\db\ActiveRecord
          * Add a new ssh key
          */
 
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
@@ -365,12 +366,12 @@ class Vm extends \yii\db\ActiveRecord
          * Add a new ssh key
          */
 
-        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
+        $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(self::$config->os_tenant_id . '/volumes/' . $this->volume_id)
+                            ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
                             ->send();
         
         if (!$response->getIsOk())
@@ -385,7 +386,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function deleteKey($key_name)
     {
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
@@ -429,7 +430,7 @@ class Vm extends \yii\db\ActiveRecord
             ]
         ];
 
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -449,7 +450,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function getServerPort()
     {
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -469,7 +470,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function deleteServer()
     {
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
@@ -491,14 +492,14 @@ class Vm extends \yii\db\ActiveRecord
         [
             "floatingip"=>
             [
-                "project_id" => self::$config->os_tenant_id,
-                "floating_network_id" =>  self::$config->os_floating_net_id,
+                "project_id" => base64_decode(self::$openstack->tenant_id),
+                "floating_network_id" =>  base64_decode(self::$openstack->floating_net_id),
                 "port_id" => $this->port_id,
                 "description" => $this->name
             ]
         ];
 
-        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
+        $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -506,6 +507,7 @@ class Vm extends \yii\db\ActiveRecord
                             ->setUrl('floatingips')
                             ->setData($ipdata)
                             ->send();
+
         if (!$response->getIsOk())
         {
             return false;
@@ -519,7 +521,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function deleteIP()
     {
-        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
+        $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('DELETE')
                             ->setFormat(Client::FORMAT_JSON)
@@ -543,7 +545,7 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $responseOK=false;
             while(!$responseOK)
         {
@@ -571,7 +573,7 @@ class Vm extends \yii\db\ActiveRecord
         $ram/=1024;
 
 
-        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
+        $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -592,12 +594,12 @@ class Vm extends \yii\db\ActiveRecord
         }
         
         // print_r($token);
-        $client = new Client(['baseUrl' => self::$config->os_neutron_url]);
+        $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl(['quotas/' . self::$config->os_tenant_id])
+                            ->setUrl(['quotas/' . base64_decode(self::$openstack->tenant_id)])
                             ->send();
 
 
@@ -609,12 +611,12 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Get available volume space
          */
-        $client = new Client(['baseUrl' => self::$config->os_cinder_url]);
+        $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl([self::$config->os_tenant_id .'/limits'])
+                            ->setUrl([base64_decode(self::$openstack->tenant_id) .'/limits'])
                             ->send();
 
 
@@ -858,7 +860,7 @@ class Vm extends \yii\db\ActiveRecord
         $encrypted='';
         while ($passNotExists || empty($encrypted))
         {
-            $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
             $response = $client->createRequest()
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
@@ -908,7 +910,7 @@ class Vm extends \yii\db\ActiveRecord
         $consoleAvailable=false;
         while (!$consoleAvailable)
         {
-            $client = new Client(['baseUrl' => self::$config->os_nova_url]);
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
             $response = $client->createRequest()
                                 ->setMethod('POST')
                                 ->setFormat(Client::FORMAT_JSON)

@@ -10,7 +10,7 @@ $(document).ready(function()
 		var activeButtonId=$(this).attr('id');
 		$('#hidden_active_button').val(activeButtonId);
 
-		if (divClass=='.tab-general' || divClass=='.tab-email-configuration')
+		if (divClass=='.tab-general' || divClass=='.tab-email-configuration' || (divClass=='.tab-openstack-configuration') )
 		{
 			$('#typeDropdown').hide();
 		}

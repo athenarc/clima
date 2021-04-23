@@ -10,6 +10,7 @@ use app\models\ProjectRequest;
 use yii\helpers\Url;
 use app\models\Notification;
 use app\models\Configuration;
+use app\models\Openstack;
 /**
  * This is the model class for table "service".
  *
@@ -79,7 +80,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $this->limits->storage=10000000;
         }
         
-        $config=Configuration::find()->one();
+        $openstack=Openstack::find()->one();
         // $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
         $creds=[
             "auth"=> 
@@ -93,13 +94,13 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 
                     "application_credential"=>
                     [
-                        "id"=> $config->os_cred_id,
-                        "secret"=> $config->os_cred_secret
+                        "id"=> base64_decode($openstack->cred_id),
+                        "secret"=> base64_decode($openstack->cred_secret)
                     ],
                 ]
             ]
         ];
-        $client = new Client(['baseUrl' => $config->os_keystone_url]);
+        $client = new Client(['baseUrl' => $openstack->keystone_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -108,7 +109,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
                             ->send();
         $token=$response->headers['x-subject-token'];
 
-        $client = new Client(['baseUrl' => $config->os_nova_url]);
+        $client = new Client(['baseUrl' => $openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)

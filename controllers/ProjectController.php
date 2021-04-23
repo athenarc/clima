@@ -22,7 +22,6 @@ use app\models\OndemandAutoaccept;
 use app\models\ServiceLimits;
 use app\models\ServiceAutoaccept;
 use app\models\ColdStorageRequest;
-use app\models\ServiceVmCredentials;
 use app\models\Notification;
 use app\models\User;
 use app\models\Vm;
@@ -256,7 +255,6 @@ class ProjectController extends Controller
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
-                    // ServiceVmCredentials::createEmpty($requestId);
                 }
 
                 if (empty($errors))
@@ -349,7 +347,6 @@ class ProjectController extends Controller
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
-                    // ServiceVmCredentials::createEmpty($requestId);
                 }
 
                 if (empty($errors))
@@ -1649,7 +1646,6 @@ class ProjectController extends Controller
                         $errors.=$messages[0];
                         $success.=$messages[1];
                         $warnings.=$messages[2];
-                        // ServiceVmCredentials::createEmpty($requestId);
                     }
                 }
                 else
@@ -1877,7 +1873,6 @@ class ProjectController extends Controller
                         $errors.=$messages[0];
                         $success.=$messages[1];
                         $warnings.=$messages[2];
-                        // ServiceVmCredentials::createEmpty($requestId);
                     }
                 }
                 else

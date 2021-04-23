@@ -17,6 +17,7 @@ use app\models\ServiceLimits;
 use app\models\OndemandLimits;
 use app\models\ColdStorageLimits;
 use app\models\Configuration;
+use app\models\Openstack;
 use yii\helpers\Url;
 use app\models\ProjectRequest;
 use app\models\Project;
@@ -103,12 +104,13 @@ class AdministrationController extends Controller
         $ondemandLimits=OndemandLimits::find()->where(['user_type'=>$currentUser])->one();
         $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
         $smtp= Smtp::find()->one();
+        $openstack=Openstack::find()->one();
         
         $general=Configuration::find()->one();
         $pages=Page::getPagesDropdown();
         
-        $activeButtons=['','','','',''];
-        $activeTabs=['','','','',''];
+        $activeButtons=['','','','','',''];
+        $activeTabs=['','','','','',''];
 
         if (!isset($_POST['hidden-active-button']))
         {
@@ -138,17 +140,21 @@ class AdministrationController extends Controller
         if ( ($service->load(Yii::$app->request->post())) && ($general->load(Yii::$app->request->post())) 
             &&  ($ondemand->load(Yii::$app->request->post())) && ($coldStorage->load(Yii::$app->request->post()))
             && ($coldStorageLimits->load(Yii::$app->request->post())) && ($serviceLimits->load(Yii::$app->request->post())) 
-            && ($ondemandLimits->load(Yii::$app->request->post())) && ($smtp->load(Yii::$app->request->post())) )
+            && ($ondemandLimits->load(Yii::$app->request->post())) && ($smtp->load(Yii::$app->request->post())) 
+            && $openstack->load(Yii::$app->request->post())
+            )
         {
             
             $password=$smtp->password;
             $encrypted_password=base64_encode($password);
             $smtp->password=$encrypted_password;
             $smtp->update();
-            $general->os_cred_id=base64_encode($general->os_cred_id);
-            $general->os_cred_secret=base64_encode($general->os_cred_secret);
-            $general->os_tenant_id=base64_encode($general->os_tenant_id);
-            $general->os_floating_net_id=base64_encode($general->os_floating_net_id);
+
+            $openstack->cred_id=base64_encode($openstack->cred_id);
+            $openstack->cred_secret=base64_encode($openstack->cred_secret);
+            $openstack->tenant_id=base64_encode($openstack->tenant_id);
+            $openstack->floating_net_id=base64_encode($openstack->floating_net_id);
+            $openstack->save();
 
            
 
@@ -217,29 +223,31 @@ class AdministrationController extends Controller
             }
 
             $smtp->password=base64_decode($smtp->password);
-            $general->os_cred_id=base64_decode($general->os_cred_id);
-            $general->os_cred_secret=base64_decode($general->os_cred_secret);
-            $general->os_tenant_id=base64_decode($general->os_tenant_id);
-            $general->os_floating_net_id=base64_decode($general->os_floating_net_id);
+            $openstack->cred_id=base64_decode($openstack->cred_id);
+            $openstack->cred_secret=base64_decode($openstack->cred_secret);
+            $openstack->tenant_id=base64_decode($openstack->tenant_id);
+            $openstack->floating_net_id=base64_decode($openstack->floating_net_id);
 
             return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'general'=>$general,
                                 'coldStorage'=>$coldStorage, 'success'=>'Configuration successfully updated!',
                                 "hiddenUser" => $currentUser,'userTypes'=>$userTypes, 'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,
-                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,'pages'=>$pages]);
+                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,
+                                'openstack'=>$openstack,'pages'=>$pages]);
         }
 
         $smtp->password=base64_decode($smtp->password);
-        $general->os_cred_id=base64_decode($general->os_cred_id);
-        $general->os_cred_secret=base64_decode($general->os_cred_secret);
-        $general->os_tenant_id=base64_decode($general->os_tenant_id);
-        $general->os_floating_net_id=base64_decode($general->os_floating_net_id);
+        $openstack->cred_id=base64_decode($openstack->cred_id);
+        $openstack->cred_secret=base64_decode($openstack->cred_secret);
+        $openstack->tenant_id=base64_decode($openstack->tenant_id);
+        $openstack->floating_net_id=base64_decode($openstack->floating_net_id);
         return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,
                                 'userTypes'=>$userTypes, 'success'=>'',"hiddenUser" => $currentUser,
-                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,'pages'=>$pages]);
+                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,
+                                'openstack'=>$openstack,'pages'=>$pages]);
     }
 
 

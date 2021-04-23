@@ -42,6 +42,9 @@ if (!empty($success))
 		<div class="col-md-2 tab-button <?=$activeButtons[4]?>" data-controlling="tab-email-configuration" id='email-button'><div class="button-text"> SMTP configuration</div></div>
 
 	</div>
+	<div class="row category-tabs">
+		<div class="col-md-3 tab-button <?=$activeButtons[5]?>" data-controlling="tab-openstack-configuration" id='email-button'><div class="button-text"> OpenStack configuration</div></div>
+	</div>
 
 	<div class="row">&nbsp;</div>
 	
@@ -61,16 +64,7 @@ if (!empty($success))
 		<?= $form->field($general,'help_page')->dropDownList($pages,['prompt'=>'Please select a page', 'disabled'=>(empty($pages))? true : false ])?>
 		<?= Html::a('Manage pages', ['/administration/manage-pages'], ['class'=>'btn btn-secondary']) ?>
 		<div class="row">&nbsp;</div>
-		<div class="row"><h2 class="col-md-12">OpenStack API options</h2></div>
-		<?=$form->field($general, 'os_keystone_url') ?>
-		<?=$form->field($general, 'os_nova_url') ?>
-		<?=$form->field($general, 'os_glance_url') ?>
-		<?=$form->field($general, 'os_neutron_url') ?>
-		<?=$form->field($general, 'os_cinder_url') ?>
-		<?=$form->field($general, 'os_tenant_id')->passwordInput() ?>
-		<?=$form->field($general, 'os_floating_net_id')->passwordInput() ?>
-		<?=$form->field($general, 'os_cred_id')->passwordInput() ?>
-		<?=$form->field($general, 'os_cred_secret')->passwordInput() ?>
+		
 
 
 	</div>
@@ -131,6 +125,20 @@ if (!empty($success))
 		</div>
 
 	</div> 
+	<div class="row tab-openstack-configuration tab <?=$activeTabs[5]?>">
+		<h2 class="col-md-12">OpenStack API options</h2>
+			<div class='col-md-8'>
+				<?=$form->field($openstack, 'keystone_url') ?>
+				<?=$form->field($openstack, 'nova_url') ?>
+				<?=$form->field($openstack, 'glance_url') ?>
+				<?=$form->field($openstack, 'neutron_url') ?>
+				<?=$form->field($openstack, 'cinder_url') ?>
+				<?=$form->field($openstack, 'tenant_id')->passwordInput() ?>
+				<?=$form->field($openstack, 'floating_net_id')->passwordInput() ?>
+				<?=$form->field($openstack, 'cred_id')->passwordInput() ?>
+				<?=$form->field($openstack, 'cred_secret')->passwordInput() ?>
+			</div>
+	</div>
 
 	<div class="form-group">
         <?= Html::submitButton('<i class="fas fa-check"></i> Save', ['class' => 'btn btn-primary']) ?>
