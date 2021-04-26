@@ -16,6 +16,17 @@ $info_icon='<i class="fas fa-question-circle"></i>';
 $string = explode(" ", $model->image_name)[0];
 $username=strtolower($string);
 $consoleLink=$model->consoleLink;
+$disable_cons_btn='';
+$disable_del_btn='';
+if (empty($consoleLink))
+{
+	$disable_cons_btn=' disabled';
+}
+
+if (!$model->serverExists)
+{
+	$disable_del_btn=' disabled';
+}
 
 Headers::begin() ?>
 <?php echo Headers::widget(
@@ -23,9 +34,9 @@ Headers::begin() ?>
 	'buttons'=>
 	[
 		['fontawesome_class'=>$console_icon,'name'=> 'Console', 'action'=> $consoleLink, 
-		'options'=>['class'=>'btn btn-secondary', 'target'=>'_blank'], 'type'=>'a' ],
+		'options'=>['class'=>'btn btn-secondary'. $disable_cons_btn, 'target'=>'_blank'], 'type'=>'a' ],
 		['fontawesome_class'=>$x_icon,'name'=> 'Delete', 'button_name'=>"button", 'type'=>'tag', 
-		'options'=>['class'=>'btn btn-danger delete-vm-btn']] ,
+		'options'=>['class'=>'btn btn-danger delete-vm-btn' . $disable_del_btn]] ,
 		['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>['/project/index'], 'type'=>'a', 
 		'options'=>['class'=>'btn btn-default']] 
 	],

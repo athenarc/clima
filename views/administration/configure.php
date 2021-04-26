@@ -134,6 +134,7 @@ if (!empty($success))
 				<?=$form->field($openstack, 'neutron_url') ?>
 				<?=$form->field($openstack, 'cinder_url') ?>
 				<?=$form->field($openstack, 'tenant_id')->passwordInput() ?>
+				<?=$form->field($openstack, 'internal_net_id')->passwordInput() ?>
 				<?=$form->field($openstack, 'floating_net_id')->passwordInput() ?>
 				<?=$form->field($openstack, 'cred_id')->passwordInput() ?>
 				<?=$form->field($openstack, 'cred_secret')->passwordInput() ?>

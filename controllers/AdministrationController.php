@@ -154,6 +154,7 @@ class AdministrationController extends Controller
             $openstack->cred_secret=base64_encode($openstack->cred_secret);
             $openstack->tenant_id=base64_encode($openstack->tenant_id);
             $openstack->floating_net_id=base64_encode($openstack->floating_net_id);
+            $openstack->internal_net_id=base64_encode($openstack->internal_net_id);
             $openstack->save();
 
            
@@ -227,6 +228,7 @@ class AdministrationController extends Controller
             $openstack->cred_secret=base64_decode($openstack->cred_secret);
             $openstack->tenant_id=base64_decode($openstack->tenant_id);
             $openstack->floating_net_id=base64_decode($openstack->floating_net_id);
+            $openstack->internal_net_id=base64_decode($openstack->internal_net_id);
 
             return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'general'=>$general,
@@ -242,6 +244,7 @@ class AdministrationController extends Controller
         $openstack->cred_secret=base64_decode($openstack->cred_secret);
         $openstack->tenant_id=base64_decode($openstack->tenant_id);
         $openstack->floating_net_id=base64_decode($openstack->floating_net_id);
+        $openstack->internal_net_id=base64_decode($openstack->internal_net_id);
         return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,

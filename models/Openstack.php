@@ -34,7 +34,7 @@ class Openstack extends \yii\db\ActiveRecord
     {
         return [
             [['nova_url','neutron_url','cinder_url','keystone_url','glance_url'],'url'],
-            [['tenant_id','floating_net_id','cred_id','cred_secret'],'string']
+            [['tenant_id','floating_net_id','cred_id','cred_secret','internal_net_id'],'string']
         ];
     }
 
@@ -52,7 +52,8 @@ class Openstack extends \yii\db\ActiveRecord
             'tenant_id'=>'Tenant (project) ID',
             'floating_net_id'=>'Floating network ID',
             'cred_id'=>'Application credential ID',
-            'cred_secret'=>'Application credential secret'
+            'cred_secret'=>'Application credential secret',
+            'internal_net_id'=>'Internal network ID',
         ];
     }
 }

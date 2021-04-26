@@ -21,9 +21,10 @@ use app\models\Openstack;
  */
 class Vm extends \yii\db\ActiveRecord
 {
-    public $keyFile,$consoleLink;
+    public $keyFile,$consoleLink='';
     private $name, $token, $port_id;
     public static $openstack,$creds;
+    public $serverExists=true;
 
 
     private $create_errors=[
@@ -265,6 +266,8 @@ class Vm extends \yii\db\ActiveRecord
                             ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
                             ->send();
         $volumeStatus=$response->data['volume']['status'];
+        // print_r($volumeStatus);
+        // exit(0);
         
         while($volumeStatus!='available')
         {
@@ -413,7 +416,7 @@ class Vm extends \yii\db\ActiveRecord
                 "OS-DCF:diskConfig" => "AUTO",
                 "networks" =>
                 [
-                    ['uuid'=>'e50472dd-3cd0-4165-b171-f6aec3aa452f'],
+                    ['uuid'=>base64_decode(self::$openstack->internal_net_id)],
                 ],
                 "metadata" =>
                 [
@@ -544,7 +547,6 @@ class Vm extends \yii\db\ActiveRecord
         $result=self::authenticate();
         $token=$result[0];
         $message=$result[1];
-
         $client = new Client(['baseUrl' => self::$openstack->nova_url]);
         $responseOK=false;
             while(!$responseOK)
@@ -555,8 +557,6 @@ class Vm extends \yii\db\ActiveRecord
                                         ->addHeaders(['X-Auth-Token'=>$token])
                                         ->setUrl(['limits'])
                                         ->send();
-
-
 
                     if (($response->getIsOk()) && (isset($response->data['limits'])))
                     {
@@ -581,10 +581,6 @@ class Vm extends \yii\db\ActiveRecord
                             ->setUrl(['floatingips'])
                             ->setData(['floating_network_id'=>self::$openstack->floating_net_id])
                             ->send();
-        // print_r($response);
-        // print_r("<br /><br />");
-        // print_r(self::$openstack->neutron_url);
-        // exit(0);
         $ipRes=$response->data['floatingips'];
         
         if (empty($ipRes))
@@ -634,7 +630,7 @@ class Vm extends \yii\db\ActiveRecord
 
     public function createVM($requestId,$service,$images)
     {   
-        $keyFileName='/data/docker/tmp-keys/' . $this->keyFile->baseName . '.' . $this->keyFile->extension;
+        $keyFileName=Yii::$app->params['tmpKeyLocation'] . $this->keyFile->baseName . '.' . $this->keyFile->extension;
         $this->keyFile->saveAs($keyFileName);
         $this->windows_unique_id='';
         
@@ -903,11 +899,28 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+        $response = $client->createRequest()
+                            ->setMethod('GET')
+                            ->setFormat(Client::FORMAT_JSON)
+                            ->addHeaders(['X-Auth-Token'=>$token])
+                            ->setUrl('/servers/' . $this->vm_id)
+                            ->send();
+        // print_r($response);
+        // exit(0);
+        if (!$response->getIsOk())
+        {
+            $this->serverExists=false;
+            return;
+        }
+            
+
+        $counter=0;
         $consoleData=
         [
-            "os-getVNCConsole"=>
+            "os-getSPICEConsole"=>
             [
-                "type"=>"novnc"
+                "type"=>"spice-html5"
             ]
         ];
         $consoleAvailable=false;
@@ -922,12 +935,19 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl('/servers/' . $this->vm_id . '/action')
                                 ->setData($consoleData)
                                 ->send();
-            
+            // print_r($response);
+            // exit(0);
             if ($response->getIsOk() && (isset($response->data['console'])))
             {
                 $consoleAvailable=true;
             }
             sleep(2);
+            $counter++;
+            if ($counter>10)
+            {
+                $this->consoleLink='';
+                return;
+            }
         }
         $console=$response->data['console'];
         $this->consoleLink=$console['url'];

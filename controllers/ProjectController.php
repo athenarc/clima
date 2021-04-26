@@ -1103,6 +1103,8 @@ class ProjectController extends Controller
         }
 
         $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+        // print_r($existing);
+        // exit(0);
 
         //If vm is upgraded, then show message to user to delete past vm and create new
         if(!empty($existing))
@@ -1121,15 +1123,15 @@ class ProjectController extends Controller
             }
         }
         
-       
         if (empty($existing))
         {
             /*
              * Create new VM
              */
             $model=new Vm;
-
+            session_write_close();
             $avResources=VM::getOpenstackAvailableResources();
+            session_start();
             // print_r($avResources);
             // exit(0);
             $project=Project::find()->where(['id'=>$id])->one();
@@ -1165,7 +1167,9 @@ class ProjectController extends Controller
                 // exit(0);
                 if ($model->validate())
                 {
+                    session_write_close();
                     $result=$model->createVM($latest_project_request_id,$service, $imageDD);
+                    session_start();
                     $error=$result[0];
                     $message=$result[1];
                     $openstackMessage=$result[2];
@@ -1178,7 +1182,9 @@ class ProjectController extends Controller
                     else
                     {
                         $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+                        session_write_close();
                         $existing->getConsoleLink();
+                        session_start();
     
                         return $this->render('vm_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service]);
                     }
@@ -1189,8 +1195,10 @@ class ProjectController extends Controller
         }
         else
         {
-             $existing->getConsoleLink();
-             return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service]);
+            session_write_close();
+            $existing->getConsoleLink();
+            session_start();
+            return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service]);
         }
         
 
