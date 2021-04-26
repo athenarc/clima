@@ -579,9 +579,12 @@ class Vm extends \yii\db\ActiveRecord
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$token])
                             ->setUrl(['floatingips'])
-                            ->setData(['floating_network_id'=>'fa87edbd-b40c-4144-b317-5838aaf440db'])
+                            ->setData(['floating_network_id'=>self::$openstack->floating_net_id])
                             ->send();
-        
+        // print_r($response);
+        // print_r("<br /><br />");
+        // print_r(self::$openstack->neutron_url);
+        // exit(0);
         $ipRes=$response->data['floatingips'];
         
         if (empty($ipRes))
