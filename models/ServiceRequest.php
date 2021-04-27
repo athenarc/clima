@@ -126,7 +126,11 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $cpus=$flavor['vcpus'];
             $ram=$flavor['ram']/1024;
             $disk=$flavor['disk'];
-            
+            $io='';
+            if (str_contains($name,'io'))
+            {
+                $io=' / SSD: 40GB';
+            }
             /*
              * This is done due to users 
              * needing larger VMs than the respective limits
@@ -135,7 +139,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $this->allFlavourCores[$name]=$cpus;
             $this->allFlavourRam[$name]=$ram;
             $this->allFlavourDisk[$name]=$disk;
-            $this->allFlavours[$name]="Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB";
+            $this->allFlavours[$name]="Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
             $this->allFlavourID[$name]=$id;
             
             if ((($cpus > $this->limits->cores) || ($ram > $this->limits->ram)) && (!$isAdmin))
@@ -143,7 +147,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 continue;
             }
             $this->flavourID[$name]=$id;
-            $this->flavours[$name]="Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB";
+            $this->flavours[$name]="Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
             $this->flavourCores[$name]=$cpus;
             $this->flavourRam[$name]=$ram;
             $this->flavourDisk[$name]=$disk;
