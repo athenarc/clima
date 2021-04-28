@@ -10,7 +10,7 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 
-$this->title = 'EG-CI';
+$this->title = 'Hypatia';
 
 if(empty($page->content))
 {
