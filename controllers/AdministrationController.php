@@ -18,6 +18,7 @@ use app\models\OndemandLimits;
 use app\models\ColdStorageLimits;
 use app\models\Configuration;
 use app\models\Openstack;
+use app\models\OpenstackMachines;
 use yii\helpers\Url;
 use app\models\ProjectRequest;
 use app\models\Project;
@@ -105,12 +106,13 @@ class AdministrationController extends Controller
         $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
         $smtp= Smtp::find()->one();
         $openstack=Openstack::find()->one();
+        $openstackMachines=OpenstackMachines::find()->one();
         
         $general=Configuration::find()->one();
         $pages=Page::getPagesDropdown();
         
-        $activeButtons=['','','','','',''];
-        $activeTabs=['','','','','',''];
+        $activeButtons=['','','','','','',''];
+        $activeTabs=['','','','','','',''];
 
         if (!isset($_POST['hidden-active-button']))
         {
@@ -141,7 +143,7 @@ class AdministrationController extends Controller
             &&  ($ondemand->load(Yii::$app->request->post())) && ($coldStorage->load(Yii::$app->request->post()))
             && ($coldStorageLimits->load(Yii::$app->request->post())) && ($serviceLimits->load(Yii::$app->request->post())) 
             && ($ondemandLimits->load(Yii::$app->request->post())) && ($smtp->load(Yii::$app->request->post())) 
-            && $openstack->load(Yii::$app->request->post())
+            && ($openstack->load(Yii::$app->request->post())) && $openstackMachines->load(Yii::$app->request->post())
             )
         {
             
@@ -150,12 +152,12 @@ class AdministrationController extends Controller
             $smtp->password=$encrypted_password;
             $smtp->update();
 
-            $openstack->cred_id=base64_encode($openstack->cred_id);
-            $openstack->cred_secret=base64_encode($openstack->cred_secret);
-            $openstack->tenant_id=base64_encode($openstack->tenant_id);
-            $openstack->floating_net_id=base64_encode($openstack->floating_net_id);
-            $openstack->internal_net_id=base64_encode($openstack->internal_net_id);
+            $openstack->encode();
             $openstack->save();
+
+            $openstackMachines->encode();
+            $openstackMachines->save();
+
 
            
 
@@ -224,11 +226,8 @@ class AdministrationController extends Controller
             }
 
             $smtp->password=base64_decode($smtp->password);
-            $openstack->cred_id=base64_decode($openstack->cred_id);
-            $openstack->cred_secret=base64_decode($openstack->cred_secret);
-            $openstack->tenant_id=base64_decode($openstack->tenant_id);
-            $openstack->floating_net_id=base64_decode($openstack->floating_net_id);
-            $openstack->internal_net_id=base64_decode($openstack->internal_net_id);
+            $openstack->decode();
+            $openstackMachines->decode();
 
             return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'general'=>$general,
@@ -236,21 +235,17 @@ class AdministrationController extends Controller
                                 "hiddenUser" => $currentUser,'userTypes'=>$userTypes, 'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,
                                 'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,
-                                'openstack'=>$openstack,'pages'=>$pages]);
+                                'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
         }
 
         $smtp->password=base64_decode($smtp->password);
-        $openstack->cred_id=base64_decode($openstack->cred_id);
-        $openstack->cred_secret=base64_decode($openstack->cred_secret);
-        $openstack->tenant_id=base64_decode($openstack->tenant_id);
-        $openstack->floating_net_id=base64_decode($openstack->floating_net_id);
-        $openstack->internal_net_id=base64_decode($openstack->internal_net_id);
+        $openstackMachines->decode();
         return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,
                                 'userTypes'=>$userTypes, 'success'=>'',"hiddenUser" => $currentUser,
                                 'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,
-                                'openstack'=>$openstack,'pages'=>$pages]);
+                                'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
     }
 
 

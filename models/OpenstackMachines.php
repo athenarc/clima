@@ -17,14 +17,14 @@ use Yii;
  * @property string|null $cred_id
  * @property string|null $cred_secret
  */
-class Openstack extends \yii\db\ActiveRecord
+class OpenstackMachines extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'openstack';
+        return 'openstack_machines';
     }
 
     /**
