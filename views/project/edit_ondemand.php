@@ -101,7 +101,7 @@ Headers::begin() ?>
         </div>
         <div class="row">
             <div class="col-md-12">
-                <h5>(Note that prototype resource limits are not indicative of the limits to be applied to the final, production-ready EG-CI.)</h5>
+                <h5>(Note that prototype resource limits are not indicative of the limits to be applied to the final, production-ready <?=$name=Yii::$app->params['name']?>.)</h5>
             </div>
         </div>
         <div class="row">&nbsp;</div>

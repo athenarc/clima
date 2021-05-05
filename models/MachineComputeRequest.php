@@ -9,7 +9,7 @@ use yii\httpclient\Client;
 use app\models\ProjectRequest;
 use yii\helpers\Url;
 use app\models\Notification;
-use app\models\Openstack
+use app\models\Openstack;
 /**
  * This is the model class for table "service".
  *

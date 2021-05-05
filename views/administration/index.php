@@ -18,6 +18,8 @@ Headers::begin() ?>
 <?Headers::end()?>
 
 <?php
+$name=Yii::$app->params['name'];
+
 if (empty($errors))
 {
 	if (!empty($success))
@@ -54,7 +56,7 @@ else
 
 <?= ToolButton::createButton("Mass notification", "",['/site/mass-notification']) ?>
 <br />
-<?= ToolButton::createButton("Current EG-CI statistics", "",['/administration/period-statistics']) ?>
+<?= ToolButton::createButton("Current $name statistics", "",['/administration/period-statistics']) ?>
 <br />
 <?= ToolButton::createButton("Ticket support administration", "",['/ticket-admin/index']) ?>
 <br />
