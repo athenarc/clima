@@ -10,7 +10,10 @@ use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 
+
 $this->title = Yii::$app->params['name'];
+
+
 
 if(empty($page->content))
 {

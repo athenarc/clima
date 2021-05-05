@@ -44,6 +44,7 @@ if (!empty($success))
 	</div>
 	<div class="row category-tabs">
 		<div class="col-md-3 tab-button <?=$activeButtons[5]?>" data-controlling="tab-openstack-configuration" id='email-button'><div class="button-text"> OpenStack configuration</div></div>
+		<div class="col-md-3 tab-button <?=$activeButtons[6]?>" data-controlling="tab-openstack-machines-configuration" id='email-button'><div class="button-text"> OpenStack Machines configuration</div></div>
 	</div>
 
 	<div class="row">&nbsp;</div>
@@ -138,6 +139,21 @@ if (!empty($success))
 				<?=$form->field($openstack, 'floating_net_id')->passwordInput() ?>
 				<?=$form->field($openstack, 'cred_id')->passwordInput() ?>
 				<?=$form->field($openstack, 'cred_secret')->passwordInput() ?>
+			</div>
+	</div>
+	<div class="row tab-openstack-machines-configuration tab <?=$activeTabs[6]?>">
+		<h2 class="col-md-12">Machine Projects OpenStack API options</h2>
+			<div class='col-md-8'>
+				<?=$form->field($openstackMachines, 'keystone_url') ?>
+				<?=$form->field($openstackMachines, 'nova_url') ?>
+				<?=$form->field($openstackMachines, 'glance_url') ?>
+				<?=$form->field($openstackMachines, 'neutron_url') ?>
+				<?=$form->field($openstackMachines, 'cinder_url') ?>
+				<?=$form->field($openstackMachines, 'tenant_id')->passwordInput() ?>
+				<?=$form->field($openstackMachines, 'internal_net_id')->passwordInput() ?>
+				<?=$form->field($openstackMachines, 'floating_net_id')->passwordInput() ?>
+				<?=$form->field($openstackMachines, 'cred_id')->passwordInput() ?>
+				<?=$form->field($openstackMachines, 'cred_secret')->passwordInput() ?>
 			</div>
 	</div>
 

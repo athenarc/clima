@@ -10,6 +10,8 @@ use app\models\ProjectRequest;
 use yii\helpers\Url;
 use app\models\Notification;
 use app\models\Openstack;
+use app\models\OpenstackMachines;
+
 /**
  * This is the model class for table "service".
  *
@@ -44,7 +46,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
     {
         parent::init();
         
-        $openstack=Openstack::find()->one();
+        $openstack=OpenstackMachines::find()->one();
         // $client = new Client(['baseUrl' => 'https://keystone-louros.cloud.grnet.gr:5000/v3']);
         $creds=[
             "auth"=> 
@@ -58,13 +60,13 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
                 
                     "application_credential"=>
                     [
-                        "id"=> base64_decode($openstack->os_cred_id),
-                        "secret"=> base64_decode($openstack->os_cred_secret)
+                        "id"=> base64_decode($openstack->cred_id),
+                        "secret"=> base64_decode($openstack->cred_secret)
                     ],
                 ]
             ]
         ];
-        $client = new Client(['baseUrl' => $openstack->os_keystone_url]);
+        $client = new Client(['baseUrl' => $openstack->keystone_url]);
         $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
@@ -73,7 +75,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
                             ->send();
         $token=$response->headers['x-subject-token'];
 
-        $client = new Client(['baseUrl' => $openstack->os_nova_url]);
+        $client = new Client(['baseUrl' => $openstack->nova_url]);
         $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
@@ -91,13 +93,19 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             $cpus=$flavor['vcpus'];
             $ram=$flavor['ram']/1024;
             $disk=$flavor['disk'];
+            $ephemeral=$flavor['OS-FLV-EXT-DATA:ephemeral'];
+            $io='';
+            if ($ephemeral>0)
+            {
+                $io=" / SSD: " . $ephemeral . "GB";
+            }
             
             
             $this->flavourIdNameLimitless[$id]=$name;
             
            
             $this->flavourID[$name]=$id;
-            $this->flavours[$name]="Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB";
+            $this->flavours[$name]="$name: Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
             $this->flavourCores[$name]=$cpus;
             $this->flavourRam[$name]=$ram;
             $this->flavourDisk[$name]=$disk;
