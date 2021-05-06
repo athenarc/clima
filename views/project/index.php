@@ -112,6 +112,7 @@ foreach ($active as $res)
 	$button_link=$button_links[$res['project_type']];
 	$update_icon='<i class="fas fa-pencil-alt"></i>';
 	$edit_button_class='';
+	$triangle_icon='';
 
 	if ($res['project_type']==0)
 	{
@@ -130,10 +131,12 @@ foreach ($active as $res)
 		if($res['louros']==true)
 		{
 			$edit_button_class="disabled";
+			$triangle_icon='<i class="fa fa-exclamation-triangle" aria-hidden="true" title="This project cannot be updated right now since it has been transferred from the old infrastructure to HYPATIA. This is a temporary issue and it will be resolved in a while. In the meantime, if a modification is required, please contact HYPATIA administrators."></i>';
 		}
 		else
 		{
 			$edit_button_class='';
+			$triangle_icon='';
 		}
 	}
 	else if ($res['project_type']==3) 
@@ -155,7 +158,7 @@ foreach ($active as $res)
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-2" style="vertical-align: middle!important;"><?=$res['name']?></td>
+				<td class="col-md-2" style="vertical-align: middle!important;"><?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
 				<td class="col-md-2" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
