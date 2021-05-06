@@ -23,5 +23,5 @@ Headers::begin() ?>
 <?Headers::end()?>
 
 <div class="row">
-	<div class="col-md-12"><h3><?=$message?> Please contact an administrator with the following error code: <?= $error ?>.</h3></div>
+	<div class="col-md-12"><h3><?=$message?> Please contact an administrator with the following error code: <?= $error?>, <?=$openstackMessage?>.</h3></div>
 </div>
