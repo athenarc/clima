@@ -309,6 +309,7 @@ class AdministrationController extends Controller
     public function actionTestSmtpConfiguration()
     {
         $user_email=Userw::getCurrentUser()['email'];
+        $name=Yii::$app->params['name'];
 
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;
@@ -333,7 +334,7 @@ class AdministrationController extends Controller
                  ->setSubject('Test')
                  ->setTextBody('Plain text content')
                  ->setHtmlBody("Dear Mr/Mrs,  <br> <br> This email is send as a test to the SMTP configuration. 
-                 <br> <br> Sincerely, <br> EG-CI")
+                 <br> <br> Sincerely, <br> $name")
                  ->send();
                  Yii::$app->session->setFlash('success', "SMTP is configured properly. A test email has been sent to you.");
         }

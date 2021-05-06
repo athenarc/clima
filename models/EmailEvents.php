@@ -65,6 +65,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         $encrypted_password=$smtp->password;
         $decrypted_password= base64_decode($encrypted_password);
         $project=Project::find()->where(['id'=>$project_id])->one();
+        $name=Yii::$app->params['name'];
         if(!empty($project))
         {
             $project_name=$project->name;
@@ -124,7 +125,7 @@ class EmailEvents extends \yii\db\ActiveRecord
                      ->setSubject($subject)
                      ->setTextBody('Plain text content')
                      ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
-                     <br> <br> Sincerely, <br> EG-CI")
+                     <br> <br> Sincerely, <br> $name")
                      ->send();
                      usleep(2000);
             }
@@ -152,6 +153,7 @@ class EmailEvents extends \yii\db\ActiveRecord
     {
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;
+        $name=Yii::$app->params['name'];
         $decrypted_password= base64_decode($encrypted_password);
         $project=Project::find()->where(['id'=>$project_id])->one();
         $project_name=$project->name;
@@ -199,7 +201,7 @@ class EmailEvents extends \yii\db\ActiveRecord
                      ->setSubject($subject)
                      ->setTextBody('Plain text content')
                      ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
-                     <br> <br> Sincerely, <br> EG-CI")
+                     <br> <br> Sincerely, <br> $name")
                      ->send();
                  usleep(2000);
             }

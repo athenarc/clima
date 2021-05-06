@@ -11,7 +11,8 @@
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
 
-$this->title="Current EG-CI statistics";
+$name=Yii::$app->params['name'];
+$this->title="Current $name statistics";
 
 echo Html::cssFile('@web/css/project/project_details.css');
 
