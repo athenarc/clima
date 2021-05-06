@@ -1325,10 +1325,11 @@ class ProjectController extends Controller
         $result=$vm->deleteVM();
         $error=$result[0];
         $message=$result[1];
+        $openstackMessage=$result[2];
 
         if ($error!=0)
         {
-            return $this->render('error_vm_deletion',['error' => $error,'message'=>$message]);
+            return $this->render('error_vm_deletion',['error' => $error,'message'=>$message, 'openstackMessage'=>$openstackMessage]);
         }
 
         /*
