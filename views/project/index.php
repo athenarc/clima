@@ -111,7 +111,7 @@ foreach ($active as $res)
 	$access_icon='<i class="fas fa-external-link-square-alt"></i>';
 	$button_link=$button_links[$res['project_type']];
 	$update_icon='<i class="fas fa-pencil-alt"></i>';
-	
+	$edit_button_class='';
 
 	if ($res['project_type']==0)
 	{
@@ -127,6 +127,14 @@ foreach ($active as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='24/7 Service';
+		if($res['louros']==true)
+		{
+			$edit_button_class="disabled";
+		}
+		else
+		{
+			$edit_button_class='';
+		}
 	}
 	else if ($res['project_type']==3) 
 	{
@@ -152,7 +160,7 @@ foreach ($active as $res)
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
 				<td class="col-md-3 text-right">
-					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>'btn btn-secondary btn-md'])?>
+					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>"btn btn-secondary btn-md $edit_button_class"])?>
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
 					<?=Html::a("$access_icon Access", $projectLink,['class'=>'btn btn-success btn-md','target'=>$projectTarget])?>
 				</td>	
