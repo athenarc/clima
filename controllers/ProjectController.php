@@ -150,7 +150,7 @@ class ProjectController extends Controller
 		}
 
 
-        $number_of_active=count($owner);
+        $number_of_active=count($active);
         $number_of_expired=count($expired);
         
         
