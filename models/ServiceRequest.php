@@ -100,63 +100,105 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 ]
             ]
         ];
-        $client = new Client(['baseUrl' => $openstack->keystone_url]);
-        $response = $client->createRequest()
-                            ->setMethod('POST')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->setUrl('auth/tokens')
-                            ->setData($creds)
-                            ->send();
-        $token=$response->headers['x-subject-token'];
 
-        $client = new Client(['baseUrl' => $openstack->nova_url]);
-        $response = $client->createRequest()
-                            ->setMethod('GET')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl(['flavors/detail'])
-                            ->send();
-
-        $flavors=$response->data['flavors'];
-
-        foreach ($flavors as $flavor)
+        $flag=true;
+        try
         {
-            $name=$flavor['name'];
-            $id=$flavor['id'];
-            $cpus=$flavor['vcpus'];
-            $ram=$flavor['ram']/1024;
-            $disk=$flavor['disk'];
-            $ephemeral=$flavor['OS-FLV-EXT-DATA:ephemeral'];
-            $io='';
-            if ($ephemeral>0)
-            {
-                $io=" / SSD: " . $ephemeral . "GB";
-            }
-            /*
-             * This is done due to users 
-             * needing larger VMs than the respective limits
-             */
-            $this->flavourIdNameLimitless[$id]=$name;
-            $this->allFlavourCores[$name]=$cpus;
-            $this->allFlavourRam[$name]=$ram;
-            $this->allFlavourDisk[$name]=$disk;
-            $this->allFlavours[$name]="$name: Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
-            $this->allFlavourID[$name]=$id;
-            
-            if ((($cpus > $this->limits->cores) || ($ram > $this->limits->ram)) && (!$isAdmin))
-            {
-                continue;
-            }
-            $this->flavourID[$name]=$id;
-            $this->flavours[$name]="$name: Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
-            $this->flavourCores[$name]=$cpus;
-            $this->flavourRam[$name]=$ram;
-            $this->flavourDisk[$name]=$disk;
-            $this->flavourIdName[$id]=$name;
+            $client = new Client(['baseUrl' => $openstack->keystone_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->setUrl('auth/tokens')
+                                ->setData($creds)
+                                ->send();
             
         }
-        // $this->flavour=(!empty($this->vm_flavour)) ? $this->flavourIdName[$this->vm_flavour] : '';
-        asort($this->flavours);
+        catch(Exception $e)
+        {
+            $flag=false;
+            $this->flavours=["There was an error with the OpenStack configuration."];
+        }
+        if(!$response->getIsOK())
+        {
+            $flag=false;
+            $this->flavours=["There was an error with the OpenStack configuration."];
+        }
+        if(!$flag)
+        {
+            $token="";
+        }
+        else
+        {
+            $token=$response->headers['x-subject-token'];
+
+        }
+        
+
+        try
+        {
+            $client = new Client(['baseUrl' => $openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('GET')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->setUrl(['flavors/detail'])
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+            $flag=false;
+            $this->flavours=["There was an error with the OpenStack configuration."];
+        }
+        if(!$response->getIsOK())
+        {
+            $flag=false;
+            $this->flavours=["There was an error with the OpenStack configuration."];        
+        }
+        
+        if($flag)
+        {
+            $flavors=$response->data['flavors'];
+
+            foreach ($flavors as $flavor)
+            {
+                $name=$flavor['name'];
+                $id=$flavor['id'];
+                $cpus=$flavor['vcpus'];
+                $ram=$flavor['ram']/1024;
+                $disk=$flavor['disk'];
+                $ephemeral=$flavor['OS-FLV-EXT-DATA:ephemeral'];
+                $io='';
+                if ($ephemeral>0)
+                {
+                    $io=" / SSD: " . $ephemeral . "GB";
+                }
+                /*
+                 * This is done due to users 
+                 * needing larger VMs than the respective limits
+                 */
+                $this->flavourIdNameLimitless[$id]=$name;
+                $this->allFlavourCores[$name]=$cpus;
+                $this->allFlavourRam[$name]=$ram;
+                $this->allFlavourDisk[$name]=$disk;
+                $this->allFlavours[$name]="$name: Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
+                $this->allFlavourID[$name]=$id;
+                
+                if ((($cpus > $this->limits->cores) || ($ram > $this->limits->ram)) && (!$isAdmin))
+                {
+                    continue;
+                }
+                $this->flavourID[$name]=$id;
+                $this->flavours[$name]="$name: Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
+                $this->flavourCores[$name]=$cpus;
+                $this->flavourRam[$name]=$ram;
+                $this->flavourDisk[$name]=$disk;
+                $this->flavourIdName[$id]=$name;
+                
+            }
+            // $this->flavour=(!empty($this->vm_flavour)) ? $this->flavourIdName[$this->vm_flavour] : '';
+
+            asort($this->flavours);
+        }
         // print_r($this->vm_flavour);
         // print_r($this->flavour);
         // exit(0);

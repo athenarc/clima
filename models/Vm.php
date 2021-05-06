@@ -113,15 +113,33 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
-                            ->setMethod('GET')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl(['flavors/detail'])
-                            ->send();
+        $flag=true;
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('GET')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->setUrl(['flavors/detail'])
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+            $flag=false;
+            return "There was an error contacting OpenStack API";
+        }
+        if(!$response->getIsOK())
+        {
+            $flag=false;
+            return "There was an error contacting OpenStack API";
+        }
 
-        return $response->data['flavors'];
+        if($flag)
+        {
+            return $response->data['flavors'];
+        }
+        
     }
 
     public function getOpenstackImages()
@@ -130,32 +148,49 @@ class Vm extends \yii\db\ActiveRecord
         $token=$result[0];
         $message=$result[1];
 
-        $client = new Client(['baseUrl' => self::$openstack->glance_url]);
-        $response = $client->createRequest()
-                            ->setMethod('GET')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$token])
-                            ->setUrl(['images'])
-                            ->send();
-
-        $dropdown=[];
-        $isAdmin=Userw::hasRole('Admin',$superadminAllowed=false);
-        foreach ($response->data['images'] as $image)
+        $flag=true;
+        try
         {
-            $id=$image['id'];
-            $name=$image['name'];
-            /*
-             * Do not show windows image for people other than admins
-             */
-            // if ((!$isAdmin) && ($id=='189b93db-ab73-42fc-82b9-77be716f687e'))
-            // {
-            //     continue;
-            // }
-
-            $dropdown[$id]=$name;
+            $client = new Client(['baseUrl' => self::$openstack->glance_url]);
+            $response = $client->createRequest()
+                                ->setMethod('GET')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->setUrl(['images'])
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+            $flag=false;
+            return ["There was an error contacting OpenStack API"];
+        }
+        if(!$response->getIsOK())
+        {
+            $flag=false;
+            return ["There was an error contacting OpenStack API"];
         }
 
-        return $dropdown;
+        if($flag)
+        {
+            $dropdown=[];
+            $isAdmin=Userw::hasRole('Admin',$superadminAllowed=false);
+            foreach ($response->data['images'] as $image)
+            {
+                $id=$image['id'];
+                $name=$image['name'];
+                /*
+                 * Do not show windows image for people other than admins
+                 */
+                // if ((!$isAdmin) && ($id=='189b93db-ab73-42fc-82b9-77be716f687e'))
+                // {
+                //     continue;
+                // }
+
+                $dropdown[$id]=$name;
+            }
+
+            return $dropdown;
+        }
 
     }
 
@@ -164,24 +199,35 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Authenticate with the openstack api
          */
-        $client = new Client(['baseUrl' => self::$openstack->keystone_url]);
-        $response = $client->createRequest()
-                            ->setMethod('POST')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->setUrl('auth/tokens')
-                            ->setData(self::$creds)
-                            ->send();
-
+        $flag=true;
         $message='';
-        if (!$response->getIsOk())
+        try
         {
+            $client = new Client(['baseUrl' => self::$openstack->keystone_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->setUrl('auth/tokens')
+                                ->setData(self::$creds)
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+            $flag=false;
+            $token='';
+            $message="There was an error contacting OpenStack API";
+        }
+        if(!$response->getIsOK())
+        {
+            $flag=false;
             $token='';
             $message=$response->data['error']['message'];
         }
-        
-        $token=$response->headers['x-subject-token'];
 
-
+        if($flag)
+        {
+            $token=$response->headers['x-subject-token'];
+        }
         return [$token,$message];
     }
 
@@ -199,21 +245,32 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
-                            ->setMethod('POST')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl('os-keypairs')
-                            ->setData($keydata)
-                            ->send();
-        
+
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl('os-keypairs')
+                                ->setData($keydata)
+                                ->send();
+
+        }
+        catch(Exception $e)
+        {
+           
+            return [false,"There was an error contacting OpenStack API"];
+        }
         if (!$response->getIsOk())
         {
             return [false,$response->data['conflictingRequest']['message']];
         }
 
+        
         return [true,''];
+    
 
     }
 
@@ -232,23 +289,32 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
-        $response = $client->createRequest()
-                            ->setMethod('POST')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes')
-                            ->setData($volumedata)
-                            ->send();
+
         
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes')
+                                ->setData($volumedata)
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+           
+            return [false, "There was an error contacting OpenStack API"];
+        }
         if (!$response->getIsOk())
         {
-            return false;
+            return [false, ""];
         }
 
         $this->volume_id=$response->data['volume']['id'];
 
-        return true;
+        return [true, ""];
 
     }
 
@@ -257,22 +323,8 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Check if volume is available
          */
-
-        $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
-        $response = $client->createRequest()
-                            ->setMethod('GET')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
-                            ->send();
-        $volumeStatus=$response->data['volume']['status'];
-        // print_r($volumeStatus);
-        // exit(0);
-        
-        while($volumeStatus!='available')
+        try
         {
-            sleep(10);
-
             $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
             $response = $client->createRequest()
                                 ->setMethod('GET')
@@ -280,32 +332,99 @@ class Vm extends \yii\db\ActiveRecord
                                 ->addHeaders(['X-Auth-Token'=>$this->token])
                                 ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
                                 ->send();
+            
+        }
+        catch(Exception $e)
+        {
+           
+            return [false, "There was an error contacting OpenStack API"];
+        }
+        if (!$response->getIsOk())
+        {
+            return [false, ""];
+        }
+
+        $volumeStatus=$response->data['volume']['status'];
+        // print_r($volumeStatus);
+        // exit(0);
+        
+        while($volumeStatus!='available')
+        {
+            sleep(10);
+            try
+            {
+                $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
+                $response = $client->createRequest()
+                                    ->setMethod('GET')
+                                    ->setFormat(Client::FORMAT_JSON)
+                                    ->addHeaders(['X-Auth-Token'=>$this->token])
+                                    ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
+                                    ->send();
+                
+            }
+            catch(Exception $e)
+            {
+               
+                return [false, "There was an error contacting OpenStack API"];
+            }
+            if (!$response->getIsOk())
+            {
+                return [false, ""];
+            }
+
             $volumeStatus=$response->data['volume']['status'];
 
         }
         /*
          * Check if VM is ready
          */
-
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
                             ->setUrl('/servers/' . $this->vm_id)
                             ->send();
+        
+        }
+        catch(Exception $e)
+        {
+           
+            return [false, "There was an error contacting OpenStack API"];
+        }
+        if (!$response->getIsOk())
+        {
+            return [false, ""];
+        }
+        
         $status=$response->data['server']['status'];
+        
 
         while ($status!='ACTIVE')
         {
             sleep(10);
-            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-            $response = $client->createRequest()
-                                ->setMethod('GET')
-                                ->setFormat(Client::FORMAT_JSON)
-                                ->addHeaders(['X-Auth-Token'=>$this->token])
-                                ->setUrl('/servers/' . $this->vm_id)
-                                ->send();
+            try
+            {
+                $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+                $response = $client->createRequest()
+                                    ->setMethod('GET')
+                                    ->setFormat(Client::FORMAT_JSON)
+                                    ->addHeaders(['X-Auth-Token'=>$this->token])
+                                    ->setUrl('/servers/' . $this->vm_id)
+                                    ->send();
+                
+            }
+            catch(Exception $e)
+            {
+               
+                return [false, "There was an error contacting OpenStack API"];
+            }
+            if (!$response->getIsOk())
+            {
+                return [false, ""];
+            }
             $status=$response->data['server']['status'];
         }
 
@@ -322,21 +441,29 @@ class Vm extends \yii\db\ActiveRecord
 
             ],
         ];
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
+
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
                             ->addHeaders(['X-Auth-Token'=>$this->token])
                             ->setUrl('/servers/' . $this->vm_id . '/os-volume_attachments' )
                             ->setData($volumedata)
                             ->send();
-
+        }
+        catch(Exception $e)
+        {
+           
+            return [false, "There was an error contacting OpenStack API"];
+        }
         if (!$response->getIsOk())
         {
-            return false;
+            return [false, "There was an error contacting OpenStack API"];
         }
 
-        return true;
+        return [true,""];
 
     }
 
@@ -345,21 +472,35 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Add a new ssh key
          */
-
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
-                            ->setMethod('DELETE')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl('/servers/' . $this->vm_id . '/os-volume_attachments/' . $this->volume_id)
-                            ->send();
-        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('DELETE')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl('/servers/' . $this->vm_id . '/os-volume_attachments/' . $this->volume_id)
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+           
+            return false;
+        }
         if (!$response->getIsOk())
         {
             return false;
         }
-
         return true;
+
+
+        
+        // if (!$response->getIsOk())
+        // {
+        //     return false;
+        // }
+
+        // return true;
 
     }
 
@@ -368,15 +509,21 @@ class Vm extends \yii\db\ActiveRecord
         /*
          * Add a new ssh key
          */
-
-        $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
-        $response = $client->createRequest()
-                            ->setMethod('DELETE')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
-                            ->send();
-        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
+            $response = $client->createRequest()
+                                ->setMethod('DELETE')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+           
+            return false;
+        }
         if (!$response->getIsOk())
         {
             return false;
@@ -389,18 +536,25 @@ class Vm extends \yii\db\ActiveRecord
 
     public function deleteKey($key_name)
     {
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
-                            ->setMethod('DELETE')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(["os-keypairs/$key_name"])
-                            ->send();
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('DELETE')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl(["os-keypairs/$key_name"])
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+           
+            return false;
+        }
         if (!$response->getIsOk())
         {
             return false;
         }
-
         return true;
     }
 
@@ -433,18 +587,26 @@ class Vm extends \yii\db\ActiveRecord
             ]
         ];
 
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
-                            ->setMethod('POST')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl('servers')
-                            ->setData($vmdata)
-                            ->send();
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl('servers')
+                                ->setData($vmdata)
+                                ->send();
+        }
+        catch(Exception $e)
+        {
+           return [false,"There was an error contacting Ope";
+        }
         if (!$response->getIsOk())
         {
-            return [false,$response->data['badRequest']['message']];
+            return false;
         }
+        return true;
 
         $this->vm_id=$response->data['server']['id'];
 
@@ -453,14 +615,17 @@ class Vm extends \yii\db\ActiveRecord
 
     public function getServerPort()
     {
-        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
-        $response = $client->createRequest()
-                            ->setMethod('GET')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl(["servers/$this->vm_id/os-interface"])
-                            ->send();
-        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('GET')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl(["servers/$this->vm_id/os-interface"])
+                                ->send();
+        }
+
         if (!$response->getIsOk())
         {
             return false;
@@ -502,15 +667,21 @@ class Vm extends \yii\db\ActiveRecord
             ]
         ];
 
-        $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
-        $response = $client->createRequest()
-                            ->setMethod('POST')
-                            ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$this->token])
-                            ->setUrl('floatingips')
-                            ->setData($ipdata)
-                            ->send();
-
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl('floatingips')
+                                ->setData($ipdata)
+                                ->send();
+        }
+        catch (Exception $e)
+        {
+            return false;
+        }
         if (!$response->getIsOk())
         {
             return false;
@@ -709,20 +880,26 @@ class Vm extends \yii\db\ActiveRecord
          * Get server port but sleep for 15 seconds to ensure that the VM is up and running
          */
         sleep(15);
-        $portRetrieved=$this->getServerPort();
+        $result=$this->getServerPort();
+        $portRetrieved=$result[0];
+        $message=$result[1];
+
 
         if (!$portRetrieved)
         {
             $this->deleteServer();
             $this->deleteKey($this->name);
-            return [4,$this->create_errors[4],''];
+            return [4,$this->create_errors[4],$message];
         }
 
         /*
          * Create floating ip
          */
 
-        $ipCreated=$this->createIP();
+        $result=$this->createIP();
+        $ipCreated=$result[0];
+        $message=$result[1];
+
         if (!$ipCreated)
         {
             $this->deleteServer();
@@ -732,27 +909,31 @@ class Vm extends \yii\db\ActiveRecord
 
         if ($service->storage>0)
         {
-
-            $volumeCreated=$this->createVolume($service->storage);
+            $result=$this->createVolume($service->storage)
+            $volumeCreated=$result[0];
+            $message=$result[1];
             
             if (!$volumeCreated)
             {
                 $this->deleteIP();
                 $this->deleteServer();
                 $this->deleteKey($this->name);
-                return [6,$this->create_errors[6],''];
+                return [6,$this->create_errors[6],$message];
             }
 
             // sleep(15);
+            $result=$this->attachVolume();
+            $volumeAttached=$result[0];
+            $message=$result[1];
 
-            $volumeAttached=$this->attachVolume();
+            
             if (!$volumeAttached)
             {
                 $this->deleteVolume();
                 $this->deleteIP();
                 $this->deleteServer();
                 $this->deleteKey($this->name);
-                return [7,$this->create_errors[7],''];
+                return [7,$this->create_errors[7],$message];
             }
             
         }
