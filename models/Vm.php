@@ -643,7 +643,6 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(["servers/$this->vm_id"])
                                 ->send();
         }
-        }
         catch(Exception $e)
         {
            return [false, "There was an error contacting OpenStack API"];
@@ -960,7 +959,7 @@ class Vm extends \yii\db\ActiveRecord
 
         if ($service->storage>0)
         {
-            $result=$this->createVolume($service->storage)
+            $result=$this->createVolume($service->storage);
             $volumeCreated=$result[0];
             $message=$result[1];
             
@@ -1048,7 +1047,7 @@ class Vm extends \yii\db\ActiveRecord
                 sleep(15);
                 $result=$this->deleteVolume();
                 $volumeDeleted=$result[0];
-                $message=$resut[1];
+                $message=$result[1];
 
                 if (!$volumeDeleted)
                 {

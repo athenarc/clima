@@ -33,38 +33,31 @@ $this->title = "Email notifications";
 <div class="col-md-5 col-md-offset-4"><h3>Send an email notification when:</h3></div>
 <?php
 if($smtp_config==false)
-{?>
-
-<div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'new_project')->checkBox(['label'=>'', 'disabled'=>true])->label('New project request') ?>
-</div>
-<div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'project_decision')->checkBox(['label'=>'', 'disabled'=>true])->label('Project decision') ?>
-</div>
-<div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'expires_30')->checkBox(['label'=>'', 'disabled'=>true])->label('Project expires in 30 days') ?>
-</div>
-<div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'expires_15')->checkBox(['label'=>'', 'disabled'=>true])->label('Project expires in 15 days') ?>
-</div> 
-<?php
+{
+	$disabled=true;
 }
 else
-{?>
+{
+	$disabled=false;
+}
+?>
 
 <div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'new_project')->checkBox(['label'=>''])->label('New project request') ?>
+	<?= $form->field($user_notifications, 'new_project')->checkBox(['label'=>'','disabled'=>$disabled])->label('New project request') ?>
 </div>
 <div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'project_decision')->checkBox(['label'=>''])->label('Project decision') ?>
+	<?= $form->field($user_notifications, 'edit_project')->checkBox(['label'=>'','disabled'=>$disabled])->label('Project modification') ?>
 </div>
 <div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'expires_30')->checkBox(['label'=>''])->label('Project expires in 30 days') ?>
+	<?= $form->field($user_notifications, 'project_decision')->checkBox(['label'=>'','disabled'=>$disabled])->label('Project decision') ?>
 </div>
 <div class="col-md-5 col-md-offset-4">
-	<?= $form->field($user_notifications, 'expires_15')->checkBox(['label'=>''])->label('Project expires in 15 days') ?>
+	<?= $form->field($user_notifications, 'expires_30')->checkBox(['label'=>'','disabled'=>$disabled])->label('Project expires in 30 days') ?>
 </div>
-<?php
-}?>	
+<div class="col-md-5 col-md-offset-4">
+	<?= $form->field($user_notifications, 'expires_15')->checkBox(['label'=>'','disabled'=>$disabled])->label('Project expires in 15 days') ?>
+</div>
+
+
 <?php ActiveForm::end(); ?>
 

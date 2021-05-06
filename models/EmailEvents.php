@@ -38,7 +38,7 @@ class EmailEvents extends \yii\db\ActiveRecord
     {
         return [
             [['id', 'user_id'], 'integer'],
-            [['user_creation', 'new_project', 'expires_30','expires_15', 'project_decision', 'new_ticket'], 'boolean'],
+            [['user_creation', 'new_project', 'expires_30','expires_15', 'project_decision', 'new_ticket','edit_project'], 'boolean'],
             [['user_id'], 'unique'],
         ];
     }
@@ -50,12 +50,13 @@ class EmailEvents extends \yii\db\ActiveRecord
     {
         return [
             'user_id' => 'User ID',
-            'user_creation' => 'User Creation',
-            'new_project' => 'New Project',
+            'user_creation' => 'New Users',
+            'new_project' => 'New project',
             'expires_30' => 'Project expires in 30 days',
             'expires_15' => 'Project expires in 15 days',
-            'project_decision' => 'Project Decision',
+            'project_decision' => 'Project decision',
             'new_ticket' => 'New Ticket',
+            'edit_project' => 'Project modification'
         ];
     }
 
@@ -72,12 +73,12 @@ class EmailEvents extends \yii\db\ActiveRecord
         }
         $mailer = Yii::$app->mailer->setTransport([
 
-        'class' => 'Swift_SmtpTransport',
-        'host' => $smtp->host,
-        'username' => $smtp->username,
-        'password' => $decrypted_password,
-        'port' => $smtp->port,
-        'encryption' => $smtp->encryption,
+            'class' => 'Swift_SmtpTransport',
+            'host' => $smtp->host,
+            'username' => $smtp->username,
+            'password' => $decrypted_password,
+            'port' => $smtp->port,
+            'encryption' => $smtp->encryption,
 
         ]);
 
@@ -86,7 +87,7 @@ class EmailEvents extends \yii\db\ActiveRecord
             
             $moderators=self::getModerators($email_type);
             $project_users=self::getProjectUsers($project_id);
-            $subject='Decision on '. $project_name;
+            $subject='Decision on project '. $project_name;
             $all_users=$moderators+$project_users;
             $moderator_ids=array_keys($moderators);
             $project_users_ids=array_keys($project_users);
@@ -96,21 +97,28 @@ class EmailEvents extends \yii\db\ActiveRecord
         elseif($email_type=='user_creation')
         {
             $all_users=self::getAdmins($email_type);
-            $subject='User creation';
+            $subject='New ' . $name . ' user';
             $recipient_ids=array_keys($all_users);
         }
 
         elseif($email_type=='new_project')
         {
             $all_users=self::getModerators($email_type);
-            $subject='New project';
+            $subject='New ' . $name . ' project';
+            $recipient_ids=array_keys($all_users);
+
+        }
+        elseif($email_type=='edit_project')
+        {
+            $all_users=self::getModerators($email_type);
+            $subject='Project ' . $project_name . ' modification';
             $recipient_ids=array_keys($all_users);
 
         }
         elseif($email_type=='new_ticket')
         {
             $all_users=self::getAdmins($email_type);
-            $subject='New ticket';
+            $subject='New ' . $name . ' ticket';
             $recipient_ids=array_keys($all_users);
 
         }
@@ -124,8 +132,8 @@ class EmailEvents extends \yii\db\ActiveRecord
                      ->setTo($user['email'])
                      ->setSubject($subject)
                      ->setTextBody('Plain text content')
-                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
-                     <br> <br> Sincerely, <br> $name")
+                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0] . ",  <br /> <br /> $message 
+                     <br /> <br /> Sincerely, <br /> the $name team.")
                      ->send();
                      usleep(2000);
             }
@@ -173,7 +181,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         {
             $moderators=self::getModerators($email_type);
             $project_users=self::getProjectUsers($project_id);
-            $subject='Expiration of '. $project_name;
+            $subject='Expiration of project '. $project_name;
             $all_users=$moderators+$project_users;
             $moderator_ids=array_keys($moderators);
             $project_users_ids=array_keys($project_users);
@@ -184,7 +192,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         {
             $moderators=self::getModerators($email_type);
             $project_users=self::getProjectUsers($project_id);
-            $subject='Expiration of '. $project_name;
+            $subject='Expiration of project '. $project_name;
             $all_users=$moderators+$project_users;
             $moderator_ids=array_keys($moderators);
             $project_users_ids=array_keys($project_users);
@@ -200,8 +208,8 @@ class EmailEvents extends \yii\db\ActiveRecord
                      ->setTo($user['email'])
                      ->setSubject($subject)
                      ->setTextBody('Plain text content')
-                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br> <br> $message 
-                     <br> <br> Sincerely, <br> $name")
+                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br /> <br /> $message 
+                     <br /> <br /> Sincerely, <br /> the $name team.")
                      ->send();
                  usleep(2000);
             }

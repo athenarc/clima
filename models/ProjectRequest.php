@@ -181,7 +181,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$project_id'")->execute();
 
-            $message="A new project with name '$this->name' has been submitted";
+            $message="A new project named '$this->name' has been submitted and is pending moderator approval.";
             EmailEvents::NotifyByEmail('new_project', $project_id,$message);
         }
 
@@ -255,6 +255,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 $old_request->status=-3;
                 $old_request->save();
             }
+            $message="Project '$this->name' has been modified and is pending approval.";
+            EmailEvents::NotifyByEmail('edit_project', $this->project_id,$message);
             
         }
 
@@ -350,7 +352,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         // Yii::$app->db->createCommand()->update('project',['latest_project_request_id'=>$this->id,'pending_request_id'=>null, 'status'=>1,''],"id=$this->project_id")->execute();
 
         // $request=ProjectRequest::find()->where(['id'=>$id])->one();
-        $message="Project '$this->name' has been approved.";  
+        $message="We are happy to inform you that project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
 
         foreach ($this->user_list as $user) 
         {
@@ -378,7 +380,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $project->status=-1;
         $project->save(false);
 
-        $message="Project '$this->name' has been rejected";
+        $message="We are sorry to inform you that your request for project '$this->name' has been rejected by the Resource Allocation Committee.";
         
         foreach ($this->user_list as $user) 
         {
