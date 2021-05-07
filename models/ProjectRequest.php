@@ -576,7 +576,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $client = new Client();
         $response = $client->createRequest()
                 ->setMethod('GET')
-                ->setUrl("https://schema.imsi.athenarc.gr/index.php?r=api/project-usage")
+                ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/project-usage")
                 // ->setUrl("http://83.212.72.66/schema/web/index.php?r=api/project-usage")
                 ->setData($data)
                 ->send();
@@ -600,7 +600,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $client = new Client();
         $response = $client->createRequest()
                 ->setMethod('GET')
-                ->setUrl("https://schema.imsi.athenarc.gr/index.php?r=api/period-statistics")
+                ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/period-statistics")
                 // ->setUrl("http://83.212.72.66/schema/web/index.php?r=api/project-usage")
                 // ->setData($data)
                 ->send();
