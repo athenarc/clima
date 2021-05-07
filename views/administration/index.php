@@ -9,6 +9,16 @@ echo Html::CssFile('@web/css/personal-account-settings.css');
 $this->title = "New Request";
 
 
+$icon_tickets='<i class="fas fa-ticket-alt" aria-hidden="true"></i>';
+$email_icon='<i class="fa fa-envelope" aria-hidden="true"></i>';
+$projects_icon='<i class="fa fa-briefcase" aria-hidden="true"></i>';
+$statistics_icon='<i class="fas fa-chart-line"></i>';
+$users_icon='<i class="fa fa-users" aria-hidden="true"></i>';
+$vm_history_icon='<i class="fa fa-history" aria-hidden="true"></i>';
+$configuration_icon='<i class="fa fa-cogs" aria-hidden="true"></i>';
+$static_pages_icon='<i class="fas fa-file-alt"></i>';
+$notifications_icon='<i class="fa fa-bell" aria-hidden="true"></i>';
+
 
 Headers::begin() ?>
 <?php echo Headers::widget(
@@ -54,21 +64,21 @@ else
  	</div>
  </div> -->
 
-<?= ToolButton::createButton("Mass notification", "",['/site/mass-notification']) ?>
+<?= ToolButton::createButton("$notifications_icon Mass notification", "",['/site/mass-notification']) ?>
 <br />
-<?= ToolButton::createButton("Current $name statistics", "",['/administration/period-statistics']) ?>
+<?= ToolButton::createButton("$statistics_icon Current $name statistics", "",['/administration/period-statistics']) ?>
 <br />
-<?= ToolButton::createButton("Ticket support administration", "",['/ticket-admin/index']) ?>
+<?= ToolButton::createButton("$icon_tickets Ticket support administration", "",['/ticket-admin/index']) ?>
 <br />
-<?= ToolButton::createButton("User administration", "",['/personal/superadmin-actions']) ?>
+<?= ToolButton::createButton("$users_icon User administration", "",['/personal/superadmin-actions']) ?>
 <br />
-<?= ToolButton::createButton("VM history", "",['/project/vm-list']) ?>
+<?= ToolButton::createButton("$vm_history_icon  VM history", "",['/project/vm-list']) ?>
 <br />
-<?= ToolButton::createButton("View all projects", "",['administration/all-projects']) ?>
+<?= ToolButton::createButton("$projects_icon  View all projects", "",['administration/all-projects']) ?>
 <br />
-<?= ToolButton::createButton("System configuration", "",['administration/configure']) ?>
+<?= ToolButton::createButton("$configuration_icon System configuration", "",['administration/configure']) ?>
 <br />
-<?= ToolButton::createButton("Email notifications", "",['administration/email-notifications']) ?>
+<?= ToolButton::createButton("$email_icon Email notifications", "",['administration/email-notifications']) ?>
 <br />
-<?= ToolButton::createButton("Manage static pages", "",['administration/manage-pages']) ?>
+<?= ToolButton::createButton("$static_pages_icon Manage static pages", "",['administration/manage-pages']) ?>
 <br />
