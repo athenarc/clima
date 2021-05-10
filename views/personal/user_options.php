@@ -8,6 +8,11 @@ use app\components\Headers;
 echo Html::CssFile('@web/css/personal-account-settings.css');
 $this->title = "New Request";
 
+
+$icon_tickets='<i class="fas fa-ticket-alt" aria-hidden="true"></i>';
+$email_icon='<i class="fa fa-envelope" aria-hidden="true"></i>';
+
+
 ?>
 <?php
 Headers::begin() ?>
@@ -40,6 +45,8 @@ else
 
 }
 
+
+
 ?>
 
 <!--  <div class="text-center container-fluid">
@@ -50,7 +57,7 @@ else
  	</div>
  </div> -->
 
-<?= ToolButton::createButton("View my tickets", "",['/ticket-user/index']) ?>
+<?= ToolButton::createButton("$icon_tickets View my tickets", "",['/ticket-user/index']) ?>
 <br />
-<?= ToolButton::createButton("Email notifications", "",['/personal/email-notifications']) ?>
+<?= ToolButton::createButton("$email_icon Email notifications", "",['/personal/email-notifications']) ?>
 <br />
