@@ -93,10 +93,6 @@ Headers::begin() ?>
 				<td class="col-md-6 text-left" scope="col"><div class="col-md-3" style="padding-left: 0px;"><?= $remaining_jobs?> (out of <?=$details->num_of_jobs ?>)</div><div class="col-md-9"><div class="progress"><div class="progress-bar <?=$bar_class?>" role="progressbar" style="width:<?=$bar_percentage?>%" aria-valuenow="$bar_percentage" aria-valuemin="0" aria-valuemax="100"></div></div></div></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Time/job:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->time_per_job ?> min (used <?=round($usage['avg_time'])?> min/job οn average)</td>
-			</tr>
-			<tr>
 				<th class="col-md-6 text-right" scope="col">CPU cores for job:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->cores ?> (used <?=round($usage['cpu']/1000,2)?> cores/job οn average)</td>
 			</tr>
@@ -104,10 +100,6 @@ Headers::begin() ?>
 				<th class="col-md-6 text-right" scope="col">RAM for jobs:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?> GBs (used <?=round($usage['ram'],2)?> GBs/job οn average)</td>
 			</tr>
-			<!-- <tr>
-				<th class="col-md-6 text-right" scope="col">Allocated storage</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?> GBs</td>
-			</tr> -->
 		</tbody>
 	</table>
 </div>
@@ -115,14 +107,6 @@ Headers::begin() ?>
 <div class="table-responsive">
 	<table class="table table-striped">
 		<tbody>		
-			<!-- <tr>
-				<th class="col-md-6 text-right" scope="col">Backup service available:</th>
-				<td class="col-md-6 text-left" scope="col"><?=($project->backup_services=='t')? 'Yes' : 'No'?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Type of software:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->containerized ?></td>
-			</tr> -->
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Analysis type:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->analysis_type ?></td>
@@ -144,77 +128,7 @@ Headers::begin() ?>
 </div>
 <div class="row">&nbsp;</div>
 
-<!-- <div class="row">&nbsp;</div>
 
-<div class="table-responsive">
-	<table class="table table-striped">
-		<tbody>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Name</th>
-				<td class="col-md-6 text-left" scope="col"><?= $project->name ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Duration (in months)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $project->duration ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Maximum number of participating users</th>
-				<td class="col-md-6 text-left" scope="col"><?= $project->user_num ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Participating users</th>
-				<td class="col-md-6 text-left" scope="col"><?= $user_list ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Backup service available</th>
-				<td class="col-md-6 text-left" scope="col"><?=($project->backup_services=='t')? 'Yes' : 'No'?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Type of software</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->containerized ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Type of analysis</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->analysis_type ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Maturity</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->maturity ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Project description</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->description ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Number of jobs</th>
-				<td class="col-md-6 text-left" scope="col"><div class="col-md-3"><?= $usage['count']?>/<?=$details->num_of_jobs ?></div><div class="col-md-9"><div class="progress"><div class="progress-bar <?=$bar_class?>" role="progressbar" style="width:<?=$bar_percentage?>%" aria-valuenow="$bar_percentage" aria-valuemin="0" aria-valuemax="100"></div></div></div></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">CPU cores</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->cores ?> (used <?=round($usage['cpu']/1000,2)?> per job, οn average)</td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Time per job (in minutes)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->time_per_job ?> (took <?=$usage['avg_time']?> per job, οn average)</td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Requested memory (RAM) amount (in GBs)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?> (used <?=round($usage['ram'],2)?> GBs per job, οn average)</td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Requested storage amount (in GBs)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Submitted by</th>
-				<td class="col-md-6 text-left" scope="col"><?=$submitted->username ?></td>
-			</tr>
-			
-		</body>
-	</table>
-</div>
-<div class="row">&nbsp;</div>
- -->
 <?php
 if ($project->status==0)
 {

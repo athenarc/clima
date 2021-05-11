@@ -129,10 +129,6 @@ else
 				<td class="col-md-6 text-left" scope="col"><div class="col-md-3" style="padding-left: 0px;"><?= $remaining_jobs?> (out of <?=$details->num_of_jobs ?>)</div><div class="col-md-9"><div class="progress"><div class="progress-bar <?=$bar_class?>" role="progressbar" style="width:<?=$bar_percentage?>%" aria-valuenow="$bar_percentage" aria-valuemin="0" aria-valuemax="100"></div></div></div></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Time/job:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->time_per_job ?> min (used <?=round($usage['avg_time'])?> min/job οn average)</td>
-			</tr>
-			<tr>
 				<th class="col-md-6 text-right" scope="col">CPU cores for job:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->cores ?> (used <?=round($usage['cpu']/1000,2)?> cores/job οn average)</td>
 			</tr>
@@ -140,10 +136,6 @@ else
 				<th class="col-md-6 text-right" scope="col">RAM for jobs:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?> GBs (used <?=round($usage['ram'],2)?> GBs/job οn average)</td>
 			</tr>
-			<!-- <tr>
-				<th class="col-md-6 text-right" scope="col">Allocated storage</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?> GBs</td>
-			</tr> -->
 		</tbody>
 	</table>
 </div>
@@ -151,14 +143,6 @@ else
 <div class="table-responsive">
 	<table class="table table-striped">
 		<tbody>		
-			<!-- <tr>
-				<th class="col-md-6 text-right" scope="col">Backup service available:</th>
-				<td class="col-md-6 text-left" scope="col"><?=($project->backup_services=='t')? 'Yes' : 'No'?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Type of software:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->containerized ?></td>
-			</tr> -->
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Analysis type:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->analysis_type ?></td>

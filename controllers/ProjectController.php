@@ -421,6 +421,7 @@ class ProjectController extends Controller
         $user_split=explode('@',$username)[0];
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
 
+
         
         if ( ($coldStorageModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
