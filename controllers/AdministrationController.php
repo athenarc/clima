@@ -239,6 +239,7 @@ class AdministrationController extends Controller
         }
 
         $smtp->password=base64_decode($smtp->password);
+        $openstack->decode();
         $openstackMachines->decode();
         return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
