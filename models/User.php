@@ -178,7 +178,7 @@ class User extends UserIdentity
 
         $userId=Yii::$app->db->getLastInsertID();
 
-        Userw::assignRole($userId, 'Temporary');
+        Userw::assignRole($userId, 'Bronze');
         
 
     }
@@ -228,7 +228,7 @@ class User extends UserIdentity
         }
         else
         {
-            return 'temporary';
+            return 'bronze';
         }
     }
 

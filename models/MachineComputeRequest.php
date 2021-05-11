@@ -221,7 +221,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             ])->execute();
 
        
-        $warnings='Your request will be examined by the RAC.';
+        $warnings='Your request will be reviewed.';
         
 
             
@@ -266,7 +266,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
         
-        $warnings='Your request will be examined by the RAC.';
+        $warnings='Your request will be reviewed.';
         $success="Successfully modified project '$request->name'.";
 
         return [$errors,$success,$warnings];

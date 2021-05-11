@@ -28,7 +28,7 @@ $this->title="Dashboard";
  */
 $history_icon='<i class="fas fa-history"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
-$roles=['temporary'=>'Temporary','gold'=>'Gold','silver'=>'Silver'];
+$roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
 
 Headers::begin() ?>
 <?php echo Headers::widget(

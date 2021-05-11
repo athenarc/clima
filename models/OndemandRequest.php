@@ -18,9 +18,7 @@ use app\models\Notification;
  * @property string $maturity
  * @property string $analysis_type
  * @property bool $containerized
- * @property double $storage
  * @property int $num_of_jobs
- * @property double $time_per_job
  * @property double $ram
  * @property int $cores
  */
@@ -49,7 +47,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
         }
         else
         {
-            $this->role='temporary';
+            $this->role='bronze';
         }
 
         $this->limits=OndemandLimits::find()->where(['user_type'=>$this->role])->one();
@@ -72,16 +70,14 @@ class OndemandRequest extends \yii\db\ActiveRecord
             [['request_id', 'num_of_jobs', 'cores'], 'integer'],
             [['description', 'maturity'], 'string'],
             [['num_of_jobs'], 'integer','max'=>$this->limits->num_of_jobs,'min'=>0],
-            [['time_per_job'], 'integer','max'=>$this->limits->time_per_job,'min'=>0],
             [['ram'], 'number','max'=>$this->limits->ram,'min'=>0],
-            [['storage'], 'number','max'=>$this->limits->storage,'min'=>0],
             [['cores'], 'integer','max'=>$this->limits->cores,'min'=>0],
             [['containerized'], 'boolean'],
-            [['storage', 'time_per_job', 'ram'], 'number'],
+            [['ram'], 'number'],
             [['analysis_type'], 'string', 'max' => 200],
             [['additional_resources'],'string'],
-            [['description','num_of_jobs','time_per_job','cores','ram',
-              'analysis_type','maturity','storage','containerized'],'required'],
+            [['description','num_of_jobs','cores','ram',
+              'analysis_type','maturity','containerized'],'required'],
 
 
         ];
@@ -103,9 +99,6 @@ class OndemandRequest extends \yii\db\ActiveRecord
         $autoaccept=OndemandAutoaccept::find()->where(['user_type'=>$this->role])->one();
         
 
-        $maxstorage=$this->limits->storage;
-        $autoacceptstorage=$autoaccept->storage;
-
         $maxram=$this->limits->ram;
         $autoacceptram=$autoaccept->ram;
 
@@ -115,10 +108,6 @@ class OndemandRequest extends \yii\db\ActiveRecord
         $maxjobs=$this->limits->num_of_jobs;
         $autoacceptjobs=$autoaccept->num_of_jobs;
         
-        
-
-        $maxtime=$this->limits->time_per_job;
-        $autoaccepttime=$autoaccept->time_per_job;
 
         
 
@@ -131,9 +120,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
             'maturity' => 'Maturity',
             'analysis_type' => 'Type of analysis *',
             'containerized' => 'Project codes are based on containers',                                                
-            'storage' => "" ,
             'num_of_jobs' => "",
-            'time_per_job' => "",
             'ram' => "",
             'cores' => "",
         ];
@@ -156,9 +143,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
                 'maturity' => $this->maturity,
                 'analysis_type' => $this->analysis_type,
                 'containerized' => $this->containerized,
-                'storage' => $this->storage,
                 'num_of_jobs' => $this->num_of_jobs,
-                'time_per_job' => $this->time_per_job,
                 'ram' => $this->ram,
                 'cores' => $this->cores,
                 'additional_resources'=>$this->additional_resources,
@@ -172,7 +157,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
 
         $query= new Query;
-        $query->select(['num_of_jobs','time_per_job','ram','cores', 'storage'])
+        $query->select(['num_of_jobs','ram','cores'])
               ->from('ondemand_autoaccept')
               ->where(['user_type'=>$this->role]);
          
@@ -193,8 +178,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
             $autoaccept_allowed=false;
         }
 
-        if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
-            && ($this->num_of_jobs <=$row['num_of_jobs']) && ($this->time_per_job <=$row['time_per_job']) && $autoaccept_allowed)
+        if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
         {
             // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
             $request->status=2;
@@ -228,7 +212,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         else
         {
-            $warnings='Your request will be examined by the RAC.';
+            $warnings='Your request will be reviewed.';
         }
 
             
@@ -251,9 +235,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
                 'maturity' => $this->maturity,
                 'analysis_type' => $this->analysis_type,
                 'containerized' => $this->containerized,
-                'storage' => $this->storage,
                 'num_of_jobs' => $this->num_of_jobs,
-                'time_per_job' => $this->time_per_job,
                 'ram' => $this->ram,
                 'cores' => $this->cores,
                 'additional_resources'=>$this->additional_resources,
@@ -266,7 +248,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
 
         $query= new Query;
-        $query->select(['num_of_jobs','time_per_job','ram','cores', 'storage'])
+        $query->select(['num_of_jobs','ram','cores'])
               ->from('ondemand_autoaccept')
               ->where(['user_type'=>$this->role]);
          
@@ -287,8 +269,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
             $autoaccept_allowed=false;
         }
 
-        if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
-            && ($this->num_of_jobs <=$row['num_of_jobs']) && ($this->time_per_job <=$row['time_per_job']) && $autoaccept_allowed)
+        if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
         {
             // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
             $request->status=2;
@@ -325,7 +306,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         else
         {
-            $warnings='Your request will be examined by the RAC.';
+            $warnings='Your request will be reviewed.';
         }
 
             

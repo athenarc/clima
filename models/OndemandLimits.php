@@ -34,7 +34,7 @@ class OndemandLimits extends \yii\db\ActiveRecord
         return [
             [['num_of_jobs', 'cores', 'duration'], 'default', 'value' => null],
             [['num_of_jobs', 'cores', 'duration'], 'integer'],
-            [['time_per_job', 'ram', 'storage'], 'number'],
+            [['ram'], 'number'],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -46,10 +46,8 @@ class OndemandLimits extends \yii\db\ActiveRecord
     {
         return [
             'num_of_jobs' => 'Number of jobs',
-            'time_per_job' => 'Time per job (in minutes)',
             'cores' => 'Number of CPU cores per job',
             'ram' => 'Memory (RAM) amount (in GBs) per job',
-            'storage' => 'Storage (in GBs)',
             'user_type'=>'User category',
         ];
     }
@@ -58,6 +56,6 @@ class OndemandLimits extends \yii\db\ActiveRecord
     public function updateDB($user_type)
     {
         
-        Yii::$app->db->createCommand()->update('ondemand_limits',['num_of_jobs'=>$this->num_of_jobs, 'storage'=>$this->storage, 'time_per_job'=>$this->time_per_job, 'ram'=>$this->ram, 'cores'=>$this->cores], "user_type='$user_type'")->execute();
+        Yii::$app->db->createCommand()->update('ondemand_limits',['num_of_jobs'=>$this->num_of_jobs, 'ram'=>$this->ram, 'cores'=>$this->cores], "user_type='$user_type'")->execute();
     }
 }

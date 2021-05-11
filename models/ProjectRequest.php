@@ -242,19 +242,21 @@ class ProjectRequest extends \yii\db\ActiveRecord
                         'project_id' => $this->project_id,
                     ])->execute();
             
-            
+           
           
             $success='';
             $request_id=$id = Yii::$app->db->getLastInsertID();
 
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$this->project_id'")->execute();
             //invalidate old request if it is a modification
-            if (!empty($modify_req_id))
+            if ((!empty($modify_req_id)) && ($old_request->status==0))
             {
-                // $old_request=ProjectRequest::find()->where(['id'=>$modify_req_id])->one();
+                
                 $old_request->status=-3;
                 $old_request->save();
             }
+            
+
             $message="Project '$this->name' has been modified and is pending approval.";
             EmailEvents::NotifyByEmail('edit_project', $this->project_id,$message);
             

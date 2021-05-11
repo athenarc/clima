@@ -27,7 +27,7 @@ Headers::begin() ?>
 <?php
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
-$storage_label="Maximum allowed storage (in GBs) * <span class='limits-label'> [upper limits: $autoacceptlimits->storage (automatically accepted), $upperlimits->storage (with RAC review)] </span>";
+$storage_label="Maximum allowed storage (in GBs) * <span class='limits-label'> [upper limits: $autoacceptlimits->storage (automatically accepted), $upperlimits->storage (with review)] </span>";
 
 if (!empty($errors))
 {
@@ -106,7 +106,7 @@ if (!empty($errors))
             {
             ?>
 
-            <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active cold storage project that was automatically accepted. <br />Your current project request will need to be examined and approved by the RAC.</div>
+            <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active cold storage project that was automatically accepted. <br />Your current project request will need to be examined and approved.</div>
             
             <?php
             }

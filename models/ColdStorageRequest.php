@@ -39,7 +39,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
         }
         else
         {
-            $this->role='temporary';
+            $this->role='bronze';
         }
 
 
@@ -150,7 +150,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
              
         else
         {
-            $warnings='Your request will be examined by the RAC.';
+            $warnings='Your request will be reviewed.';
         }
 
             
@@ -238,7 +238,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
              
         else
         {
-            $warnings='Your request will be examined by the RAC.';
+            $warnings='Your request will be reviewed.';
         }
 
             

@@ -24,8 +24,8 @@ Headers::begin() ?>
 <?php
 $trl_label=" Technology readiness level (<a href='https://en.wikipedia.org/wiki/Technology_readiness_level' target='_blank'>TRL</a>)";
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
-$storage_label="Additional storage (in GBs) <span class=limits-label> [upper limits: $autoacceptlimits->storage (automatically accepted),  $upperlimits->storage (with RAC review)] </span>" ;
-$flavour_label="Select VM configuration * <span class=limits-label> [upper limits: $autoacceptlimits->cores cores/$autoacceptlimits->ram GBs RAM (automatically accepted), $upperlimits->cores cores/$upperlimits->ram GBs RAM (with RAC review)] </span>" ;
+$storage_label="Additional storage (in GBs) <span class=limits-label> [upper limits: $autoacceptlimits->storage (automatically accepted),  $upperlimits->storage (with review)] </span>" ;
+$flavour_label="Select VM configuration * <span class=limits-label> [upper limits: $autoacceptlimits->cores cores/$autoacceptlimits->ram GBs RAM (automatically accepted), $upperlimits->cores cores/$upperlimits->ram GBs RAM (with review)] </span>" ;
 
 if (!empty($errors))
 {
@@ -139,7 +139,7 @@ if (!empty($errors))
             {
             ?>
 
-            <div class="col-xs-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i>You already have an active 24/7 service project that was automatically accepted. <br />Your current project request will need to be examined and approved by the RAC.</div>
+            <div class="col-xs-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i>You already have an active 24/7 service project that was automatically accepted. <br />Your current project request will need to be examined and approved.</div>
             
             <?php
             }

@@ -94,7 +94,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
     //     // $menuItems[]=['label' => 'Account settings', 'url' => ['/personal/index']];
     // }
 
-    if(User::hasRole("Temporary", $superAdminAllowed = true) || User::hasRole("Silver", $superAdminAllowed = true) || User::hasRole("Gold", $superAdminAllowed = true))
+    if(User::hasRole("Bronze", $superAdminAllowed = true) || User::hasRole("Silver", $superAdminAllowed = true) || User::hasRole("Gold", $superAdminAllowed = true))
     {
         $menuItems[]=['label' => 'Dashboard', 'url' => ['/project/index']];
         $menuItems[]=['label' => 'User options', 'url' => ['/personal/user-options'],
