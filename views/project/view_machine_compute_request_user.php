@@ -25,7 +25,7 @@ $back_link=($return=='index') ? '/project/index' : '/project/user-request-list';
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
-$expired=$_GET['expired'];
+
 
 Headers::begin() ?>
 <?php

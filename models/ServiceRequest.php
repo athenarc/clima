@@ -64,7 +64,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
         }
         else
         {
-            $this->role='temporary';
+            $this->role='bronze';
         }
 
         if (!$isAdmin)
@@ -264,11 +264,11 @@ class ServiceRequest extends \yii\db\ActiveRecord
             'description' => ' Description *',
             'url' => 'Existing (old) service URL ',
             'trl' => ' Technology readiness level (TRL) ',
-            'num_of_vms' => "Maximum allowed number of VMs * [upper limits: $autoacceptvms (automatically accepted), $maxvms (requires RAC review)]",
-            'num_of_cores' => "Maximum allowed number of CPU cores * [upper limits: $autoacceptcores (automatically accepted), $maxcores (requires RAC review)]",
-            'num_of_ips' => "Maximum allowed number of public IP addresses * [upper limits: $autoacceptips (automatically accepted),  $maxips (requires RAC review)]",
-            'ram' => "Maximum allowed memory (in GBs) * [upper limits: $autoacceptram (automatically accepted), $maxram (requires RAC review)]",
-            'storage' => "Maximum allowed storage (in GBs) * [upper limits: $autoacceptstorage (automatically accepted),  $maxstorage (requires RAC review)]",
+            'num_of_vms' => "Maximum allowed number of VMs * [upper limits: $autoacceptvms (automatically accepted), $maxvms (requires review)]",
+            'num_of_cores' => "Maximum allowed number of CPU cores * [upper limits: $autoacceptcores (automatically accepted), $maxcores (requires review)]",
+            'num_of_ips' => "Maximum allowed number of public IP addresses * [upper limits: $autoacceptips (automatically accepted),  $maxips (requires review)]",
+            'ram' => "Maximum allowed memory (in GBs) * [upper limits: $autoacceptram (automatically accepted), $maxram (requires review)]",
+            'storage' => "Maximum allowed storage (in GBs) * [upper limits: $autoacceptstorage (automatically accepted),  $maxstorage (requires review)]",
             'request_id' => 'Project ID',
             'flavour' => 'Choose VM configuration',
         ];
@@ -376,7 +376,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
         }
         else
         {
-            $warnings='Your request will be examined by the RAC.';
+            $warnings='Your request will be reviewed.';
         }
 
             
@@ -483,7 +483,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
         }
         else
         {
-            $warnings='Your request will be examined by the RAC.';
+            $warnings='Your request will be reviewed.';
         }
 
             
