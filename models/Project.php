@@ -197,7 +197,7 @@ class Project extends \yii\db\ActiveRecord
           // print_r($user);
           // exit(0);
 
-        $query->select(['pr.name','pr.approval_date', 'pr.duration','pr.end_date','odr.num_of_jobs','odr.time_per_job','odr.ram','odr.cores'])
+        $query->select(['pr.name','pr.approval_date', 'pr.duration','pr.end_date','odr.num_of_jobs','odr.ram','odr.cores'])
                 ->from('project as p')
                 ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
                 ->innerJoin('ondemand_request as odr','pr.id=odr.request_id')
@@ -271,7 +271,7 @@ class Project extends \yii\db\ActiveRecord
           // print_r($user);
           // exit(0);
 
-        $query->select(['odr.num_of_jobs','odr.time_per_job','odr.ram','odr.cores'])
+        $query->select(['odr.num_of_jobs','odr.ram','odr.cores'])
                 ->from('project as p')
                 ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
                 ->innerJoin('ondemand_request as odr','pr.id=odr.request_id')
