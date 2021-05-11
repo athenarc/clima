@@ -94,8 +94,8 @@ class AdministrationController extends Controller
         
       
         
-        $userTypes=["gold"=>"Gold","silver"=>"Silver", "temporary"=>"Temporary"];
-        $currentUser=(!isset($_POST['currentUserType'])) ? "temporary": $_POST['currentUserType'] ;
+        $userTypes=["gold"=>"Gold","silver"=>"Silver", "bronze"=>"Bronze"];
+        $currentUser=(!isset($_POST['currentUserType'])) ? "bronze": $_POST['currentUserType'] ;
 
         //new models
         $service=ServiceAutoaccept::find()->where(['user_type'=>$currentUser])->one();
@@ -107,6 +107,7 @@ class AdministrationController extends Controller
         $smtp= Smtp::find()->one();
         $openstack=Openstack::find()->one();
         $openstackMachines=OpenstackMachines::find()->one();
+
         
         $general=Configuration::find()->one();
         $pages=Page::getPagesDropdown();

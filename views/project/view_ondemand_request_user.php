@@ -25,7 +25,7 @@ $bar_percentage=round(($usage['count'])/$details->num_of_jobs*100);
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
-$expired=$_GET['expired'];
+
 
 if ($bar_percentage<=25)
 {

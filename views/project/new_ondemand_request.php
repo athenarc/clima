@@ -17,11 +17,9 @@ $this->title="Submit a new on-demand computation project request";
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 
-$storage_label="Maximum allowed storage (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->storage (automatically accepted),  $upperlimits->storage (with RAC review)] </span>";
-$ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with RAC review)] </span>";
-$time_label="Maximum allowed time per job (in minutes) * <span class=limits-label> [upper limits: $autoacceptlimits->time_per_job (automatically accepted) ,  $upperlimits->time_per_job (with RAC review)] </span>";
-$jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits:  $autoacceptlimits->num_of_jobs (automatically accepted),  $upperlimits->num_of_jobs (with RAC review)] </span>";
-$cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with RAC review)] </span>" ;
+$ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with review)] </span>";
+$jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits:  $autoacceptlimits->num_of_jobs (automatically accepted),  $upperlimits->num_of_jobs (with review)] </span>";
+$cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with review)] </span>" ;
 
 if (!empty($errors))
 {
@@ -113,9 +111,7 @@ if (!empty($errors))
 
                 <?= $form->field($ondemand, "num_of_jobs")->label($jobs_label) ?>
                 <?= $form->field($ondemand, 'cores')->label($cores_label) ?>
-                <?= $form->field($ondemand, 'time_per_job')->label($time_label) ?>
                 <?= $form->field($ondemand, 'ram')->label($ram_label) ?>
-                <?= $form->field($ondemand, 'storage')->label($storage_label ) ?>
                 <?php
                 if($role=='gold')
                 {?>
@@ -138,7 +134,7 @@ if (!empty($errors))
             {
             ?>
 
-            <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active on-demand computation project that was automatically accepted. <br />Your current project request will need to be examined and approved by the RAC.</div>
+            <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active on-demand computation project that was automatically accepted. <br />Your current project request will need to be examined and approved.</div>
             
             <?php
             }

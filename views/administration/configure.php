@@ -60,6 +60,7 @@ if (!empty($success))
 	<div class="tab-general tab <?=$activeTabs[0]?>">
 		<div class="row"><h2 class="col-md-12">General request options</h2></div>
 		<?= $form->field($general, 'reviewer_num') ?>
+		<?= $form->field($general, 'schema_url') ?>
 		<?= $form->field($general,'home_page')->dropDownList($pages,['prompt'=>'Please select a page', 'disabled'=>(empty($pages))? true : false ])?>
 		<?= $form->field($general,'privacy_page')->dropDownList($pages,['prompt'=>'Please select a page', 'disabled'=>(empty($pages))? true : false ])?>
 		<?= $form->field($general,'help_page')->dropDownList($pages,['prompt'=>'Please select a page', 'disabled'=>(empty($pages))? true : false ])?>
@@ -71,26 +72,23 @@ if (!empty($success))
 	</div>
 
 	<div class="tab-ondemand-autoaccept tab <?=$activeTabs[1]?>">
-		<div class="row"><h2 class="col-md-12">Upper limits for approval without RAC review for on-demand computation projects</h2></div>
+		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for on-demand computation projects</h2></div>
 		<?= $form->field($ondemand, 'num_of_jobs') ?>
-		<?= $form->field($ondemand, 'time_per_job') ?>
 		<?= $form->field($ondemand, 'cores') ?>
 		<?= $form->field($ondemand, 'ram') ?>
-		<?= $form->field($ondemand, 'storage') ?>
+		
 		
 		
 
 	
 	<div class="row"><h2 class="col-md-12">Upper limits for resources for on-demand computation projects</h2></div>
 		<?= $form->field($ondemandLimits, 'num_of_jobs') ?>
-		<?= $form->field($ondemandLimits, 'time_per_job') ?>
 		<?= $form->field($ondemandLimits, 'cores') ?>
 		<?= $form->field($ondemandLimits, 'ram') ?>
-		<?= $form->field($ondemandLimits, 'storage') ?>
 	</div>
 
 	<div class="tab-service-autoaccept tab <?=$activeTabs[2]?>">
-		<div class="row"><h2 class="col-md-12">Upper limits for approval without RAC review for 24/7 service projects</h2></div>
+		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for 24/7 service projects</h2></div>
 		<?= $form->field($service, 'vms') ?>
 		<?= $form->field($service, 'cores') ?>
 		<?= $form->field($service, 'ips') ?>
@@ -107,7 +105,7 @@ if (!empty($success))
 	</div>
 	
 	<div class="tab-cold-storage-autoaccept tab <?=$activeTabs[3]?>">
-		<div class="row"><h2 class="col-md-12">Upper limits for approval without RAC review for cold storage projects</h2></div>
+		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for cold storage projects</h2></div>
 		<?= $form->field($coldStorage, 'storage') ?>
 		<div class="row"><h2 class="col-md-12">Upper limits for resources for cold storage projects</h2></div>
 		<?= $form->field($coldStorageLimits, 'storage') ?>

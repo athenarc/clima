@@ -100,6 +100,7 @@ class ProjectController extends Controller
         $participant=Project::getActiveProjectsParticipant();
         $expired_owner=Project::getExpiredProjects();
         $role=User::getRoleType();
+    
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
 		$all_projects=array_merge($owner,$participant);
@@ -667,174 +668,89 @@ class ProjectController extends Controller
     public function actionViewRequest($id,$filter='all')
     {
 
+        ProjectRequest::recordViewed($id);
+        $project_request=ProjectRequest::findOne($id);
+        
         if (!Userw::hasRole('Admin',$superadminAllowed=true) && (!Userw::hasRole('Moderator',$superadminAllowed=true)) )
         {
             return $this->render('//site/error_unauthorized');
         }
 
-        ProjectRequest::recordViewed($id);
+        if(is_null($project_request->approval_date))
+        {
+            $start = date('Y-m-d', strtotime($project_request->submission_date));
+        }
+        else
+        {
+            $start = date('Y-m-d', strtotime($project_request->approval_date));
+        }
+        if(is_null($project_request->end_date))
+        {
+            $ends=date('Y-m-d', strtotime($start. " + $project_request->duration months"));
+        }
+        else
+        {
+            $ends= explode(' ', $project_request->end_date)[0];
+        }
+        $now=date('Y-m-d');
+        $datetime1 = strtotime($now);
+        $datetime2 = strtotime($ends);
+        $secs = $datetime2 - $datetime1;
+        $remaining_time = $secs / 86400;
+        if($remaining_time<=0)
+        {    
+            $remaining_time=0;
+        }
 
-        $project=ProjectRequest::findOne($id);
+        $usage=[];
+        $remaining_jobs=0;
+        
+    
 
         //Request details must be retrieved by the project request id
-        if ($project->project_type==0)
+        if ($project_request->project_type==0)
         {
+            
             $details=OndemandRequest::findOne(['request_id'=>$id]);
             $view_file='view_ondemand_request';
-            $usage=ProjectRequest::getProjectSchemaUsage($project->name);
+            $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
             $type="On-demand batch computation";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
             $num_of_jobs=$details->num_of_jobs;
             $used_jobs=$usage['count'];
             $remaining_jobs=$num_of_jobs-$used_jobs;
 
         }
-        else if ($project->project_type==1)
+        else if ($project_request->project_type==1)
         {
             $details=ServiceRequest::findOne(['request_id'=>$id]);
             $view_file='view_service_request';
-            $usage=[];
             $type="24/7 Service";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-                // print_r($project->duration);
-                // exit(0);
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            // 
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
-            $remaining_jobs=0;
-            
-
+         
         }
-
-        else if ($project->project_type==3)
+        else if ($project_request->project_type==3)
         {
             $details=MachineComputeRequest::findOne(['request_id'=>$id]);
             $view_file='view_machine_compute_request';
-            $usage=[];
             $type="On-demand computation machines";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-                // print_r($project->duration);
-                // exit(0);
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            // 
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
-            $remaining_jobs=0;
-            
-
         }
-        else if ($project->project_type==2)
+        else if ($project_request->project_type==2)
         {
             $details=ColdStorageRequest::findOne(['request_id'=>$id]);
             $view_file='view_cold_request';
-            $usage=[];
             $type="Storage volumes";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
-            $remaining_jobs=0;
+           
         }
         
-
-        $users=User::find()->where(['IN','id',$project->user_list])->all();
-        $submitted=User::find()->where(['id'=>$project->submitted_by])->one();
+        $submitted=User::find()->where(['id'=>$project_request->submitted_by])->one();
         $project_owner= ($submitted->username==Userw::getCurrentUser()['username']);
         /*
          * Fix username so that it is shown without @
          */
+        $users=User::find()->where(['IN','id',$project_request->user_list])->all();
         $submitted->username=explode('@',$submitted->username)[0];
         // $users=User::returnList($project->user_list);
         $number_of_users=count($users);
-        $maximum_number_users=$project->user_num;
+        $maximum_number_users=$project_request->user_num;
 
         $user_list='';
         foreach ($users as $user)
@@ -851,10 +767,9 @@ class ProjectController extends Controller
         }
 
         $number_of_users=count($users);
-        
-        
         $expired=0;
-        return $this->render($view_file,['project'=>$project,'details'=>$details, 
+
+        return $this->render($view_file,['project'=>$project_request,'details'=>$details, 
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
             'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
 
@@ -864,163 +779,87 @@ class ProjectController extends Controller
     public function actionViewRequestUser($id,$filter='all',$return='')
     {
 
-        $owner=Project::userInProject($id);
+        ProjectRequest::recordViewed($id);
+        $project_request=ProjectRequest::findOne($id);
+        
 
-        if ( (!$owner) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        $users=User::find()->where(['IN','id',$project_request->user_list])->all();
+        $user_ids=array_column($users, 'id');
+        $current_user_id=Userw::getCurrentUser()['id'];
+
+        if ( (!in_array($current_user_id, $user_ids)) && (!Userw::hasRole('Moderator',$superadminAllowed=true))
+                && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
         }
 
-        ProjectRequest::recordViewed($id);
+      
 
-        $project=ProjectRequest::findOne($id);
+        if(is_null($project_request->approval_date))
+        {
+            $start = date('Y-m-d', strtotime($project_request->submission_date));
+        }
+        else
+        {
+            $start = date('Y-m-d', strtotime($project_request->approval_date));
+        }
+        if(is_null($project_request->end_date))
+        {
+            $ends=date('Y-m-d', strtotime($start. " + $project_request->duration months"));
+        }
+        else
+        {
+            $ends= explode(' ', $project_request->end_date)[0];
+        }
+        $now=date('Y-m-d');
+        $datetime1 = strtotime($now);
+        $datetime2 = strtotime($ends);
+        $secs = $datetime2 - $datetime1;
+        $remaining_time = $secs / 86400;
+        if($remaining_time<=0)
+        {    
+            $remaining_time=0;
+        }
+        $usage=[];
+        $remaining_jobs=0;
+        
 
         //Request details must be retrieved by the project request id
-        if ($project->project_type==0)
+        if ($project_request->project_type==0)
         {
             $details=OndemandRequest::findOne(['request_id'=>$id]);
             $view_file='view_ondemand_request_user';
-            $usage=ProjectRequest::getProjectSchemaUsage($project->name);
+            $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
             $type="On-demand batch computation";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
             $num_of_jobs=$details->num_of_jobs;
             $used_jobs=$usage['count'];
             $remaining_jobs=$num_of_jobs-$used_jobs;
         }
-        else if ($project->project_type==1)
+        else if ($project_request->project_type==1)
         {
             $details=ServiceRequest::findOne(['request_id'=>$id]);
             $view_file='view_service_request_user';
-            $usage=[];
             $type="24/7 Service";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            $ends= explode(' ', $project->end_date)[0];
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
-            $remaining_jobs=0;
-
-        }
-        else if ($project->project_type==3)
-        {
-            $details=MachineComputeRequest::findOne(['request_id'=>$id]);
-            $view_file='view_machine_compute_request_user';
-            $usage=[];
-            $type="On-demand computation machines";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-                // print_r($project->duration);
-                // exit(0);
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            // 
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
-            $remaining_jobs=0;
             
 
         }
-        else if ($project->project_type==2)
+        else if ($project_request->project_type==3)
+        {
+            $details=MachineComputeRequest::findOne(['request_id'=>$id]);
+            $view_file='view_machine_compute_request_user';
+            $type="On-demand computation machines";
+           
+        }
+        else if ($project_request->project_type==2)
         {
             $details=ColdStorageRequest::findOne(['request_id'=>$id]);
             $view_file='view_cold_request_user';
-            $usage=[];
             $type="Storage volumes";
-            if(is_null($project->approval_date))
-            {
-                $start = date('Y-m-d', strtotime($project->submission_date));
-            }
-            else
-            {
-                $start = date('Y-m-d', strtotime($project->approval_date));
-            }
-            if(is_null($project->end_date))
-            {
-                $ends=date('Y-m-d', strtotime($start. " + $project->duration months"));
-            }
-            else
-            {
-                $ends= explode(' ', $project->end_date)[0];
-            }
-            $now=date('Y-m-d');
-            $datetime1 = strtotime($now);
-            $datetime2 = strtotime($ends);
-            $secs = $datetime2 - $datetime1;
-            $remaining_time = $secs / 86400;
-            if($remaining_time<=0)
-            {    
-                $remaining_time=0;
-            }
             $remaining_jobs=0;
         }
         
 
-        $users=User::find()->where(['IN','id',$project->user_list])->all();
-        $submitted=User::find()->where(['id'=>$project->submitted_by])->one();
+        $submitted=User::find()->where(['id'=>$project_request->submitted_by])->one();
         $project_owner= ($submitted->username==Userw::getCurrentUser()['username']);
         /*
          * Fix username so that it is shown without @
@@ -1028,7 +867,7 @@ class ProjectController extends Controller
         $submitted->username=explode('@',$submitted->username)[0];
         // $users=User::returnList($project->user_list);
         $number_of_users=count($users);
-        $maximum_number_users=$project->user_num;
+        $maximum_number_users=$project_request->user_num;
 
         $user_list='';
         foreach ($users as $user)
@@ -1048,7 +887,7 @@ class ProjectController extends Controller
         
         $expired=0;
 
-        return $this->render($view_file,['project'=>$project,'details'=>$details, 'return'=>$return,
+        return $this->render($view_file,['project'=>$project_request,'details'=>$details, 'return'=>$return,
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
         	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
 

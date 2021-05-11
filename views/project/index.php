@@ -28,7 +28,9 @@ $this->title="Dashboard";
  */
 $history_icon='<i class="fas fa-history"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
-$roles=['temporary'=>'Temporary','gold'=>'Gold','silver'=>'Silver'];
+$roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
+
+
 
 Headers::begin() ?>
 <?php echo Headers::widget(
@@ -111,6 +113,7 @@ foreach ($active as $res)
 	$access_icon='<i class="fas fa-external-link-square-alt"></i>';
 	$button_link=$button_links[$res['project_type']];
 	$update_icon='<i class="fas fa-pencil-alt"></i>';
+	$access_button_class='';
 	$edit_button_class='';
 	$triangle_icon='';
 
@@ -131,12 +134,8 @@ foreach ($active as $res)
 		if($res['louros']==true)
 		{
 			$edit_button_class="disabled";
+			$access_button_class="disabled";
 			$triangle_icon='<i class="fa fa-exclamation-triangle" aria-hidden="true" title="This project cannot be updated right now since it has been transferred from the old infrastructure to HYPATIA. This is a temporary issue and it will be resolved in a while. In the meantime, if a modification is required, please contact the HYPATIA administrators."></i>';
-		}
-		else
-		{
-			$edit_button_class='';
-			$triangle_icon='';
 		}
 	}
 	else if ($res['project_type']==3) 
@@ -165,7 +164,7 @@ foreach ($active as $res)
 				<td class="col-md-3 text-right">
 					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>"btn btn-secondary btn-md $edit_button_class"])?>
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
-					<?=Html::a("$access_icon Access", $projectLink,['class'=>'btn btn-success btn-md','target'=>$projectTarget])?>
+					<?=Html::a("$access_icon Access", $projectLink,['class'=>"btn btn-success btn-md $access_button_class",'target'=>$projectTarget])?>
 				</td>	
 			</tr>
 

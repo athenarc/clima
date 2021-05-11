@@ -68,9 +68,9 @@ else
 <br />
 <?= ToolButton::createButton("$statistics_icon Current $name statistics", "",['/administration/period-statistics']) ?>
 <br />
-<?= ToolButton::createButton("$icon_tickets Ticket support administration", "",['/ticket-admin/index']) ?>
+<?= ToolButton::createButton("$icon_tickets Ticket management", "",['/ticket-admin/index']) ?>
 <br />
-<?= ToolButton::createButton("$users_icon User administration", "",['/personal/superadmin-actions']) ?>
+<?= ToolButton::createButton("$users_icon User management", "",['/personal/superadmin-actions']) ?>
 <br />
 <?= ToolButton::createButton("$vm_history_icon  VM history", "",['/project/vm-list']) ?>
 <br />
