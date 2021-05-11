@@ -15,12 +15,39 @@ $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\
 $this->title="Edit on-demand computation project request";
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
-
-
-$ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with review)] </span>";
-$jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits:  $autoacceptlimits->num_of_jobs (automatically accepted),  $upperlimits->num_of_jobs (with review)] </span>";
-$cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with review)] </span>" ;
 $cancel_icon='<i class="fas fa-times"></i>';
+
+if($autoacceptlimits->ram==$upperlimits->ram)
+{
+    $ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $upperlimits->ram] </span>";
+}
+else
+{
+    $ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with review)] </span>";
+}
+
+if($autoacceptlimits->num_of_jobs==$upperlimits->num_of_jobs)
+{
+    $jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits: $upperlimits->num_of_jobs] </span>";
+}
+else
+{
+    $jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits:  $autoacceptlimits->num_of_jobs (automatically accepted),  $upperlimits->num_of_jobs (with review)] </span>";
+}
+
+if($autoacceptlimits->cores==$upperlimits->cores)
+{
+    $cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores] </span>" ;
+}
+else
+{
+    $cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with review)] </span>" ;
+}
+
+
+
+
+
 
 if (!empty($errors))
 {

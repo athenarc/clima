@@ -126,7 +126,6 @@ foreach ($active as $res)
         {
             $ondemand_access_class='disabled';
         }
-		//$projectLink="http://62.217.82.57/schema_test/web/index.php?r=software%2Findex&selected_project=". $res['name'];
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand batch computation';

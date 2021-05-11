@@ -17,7 +17,15 @@ $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\
 
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
-$storage_label="Maximum allowed storage (in GBs) * <span class='limits-label'> [upper limits: $autoacceptlimits->storage (automatically accepted), $upperlimits->storage (with review)] </span>";
+
+if($autoacceptlimits->storage==$upperlimits->storage)
+{
+    $storage_label="Maximum allowed storage (in GBs) * <span class='limits-label'> [upper limits: $upperlimits->storage] </span>";
+}
+else
+{
+    $storage_label="Maximum allowed storage (in GBs) * <span class='limits-label'> [upper limits: $autoacceptlimits->storage (automatically accepted), $upperlimits->storage (with review)] </span>";
+}
 
 if (!empty($errors))
 {

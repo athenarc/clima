@@ -9,7 +9,6 @@ use Yii;
  * This is the model class for table "ondemand_limits".
  *
  * @property int $num_of_jobs
- * @property double $time_per_job
  * @property int $cores
  * @property double $ram
  * @property double $storage
