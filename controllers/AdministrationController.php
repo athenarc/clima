@@ -438,6 +438,9 @@ class AdministrationController extends Controller
 
     public function actionAllProjects()
     {
+        $configuration=Configuration::find()->one();
+        $schema_url=$configuration->schema_url;
+
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
                     2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user'];
@@ -500,6 +503,6 @@ class AdministrationController extends Controller
         
        
         return $this->render('all_projects',['button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
-            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired]);
+            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url]);
     }
 }

@@ -23,6 +23,7 @@ use app\models\ServiceLimits;
 use app\models\ServiceAutoaccept;
 use app\models\ColdStorageRequest;
 use app\models\Notification;
+use app\models\Configuration;
 use app\models\User;
 use app\models\Vm;
 use yii\db\Query;
@@ -91,6 +92,10 @@ class ProjectController extends Controller
      */
     public function actionIndex()
     {
+
+        $configuration=Configuration::find()->one();
+        $schema_url=$configuration->schema_url;
+
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
                     2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user'];
@@ -158,7 +163,7 @@ class ProjectController extends Controller
        
         return $this->render('index',['owner'=>$owner,'participant'=>$participant,
             'button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
-            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired]);
+            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url]);
 
     }
 
