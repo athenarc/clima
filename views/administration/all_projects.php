@@ -111,12 +111,19 @@ foreach ($active as $res)
 	$access_icon='<i class="fas fa-external-link-square-alt"></i>';
 	$button_link=$button_links[$res['project_type']];
 	$update_icon='<i class="fas fa-pencil-alt"></i>';
+	$access_button_class='';
+	$edit_button_class='';
+	$triangle_icon='';
+	$ondemand_access_class='';
 	
 
 	if ($res['project_type']==0)
 	{
-		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
-		//$projectLink="http://62.217.82.57/schema_test/web/index.php?r=software%2Findex&selected_project=". $res['name'];
+		$projectLink=$schema_url;
+		if(empty($schema_url))
+        {
+            $ondemand_access_class='disabled';
+        }
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand computation';
@@ -147,7 +154,7 @@ foreach ($active as $res)
 				<td class="col-md-3 text-right">
 					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>'btn btn-secondary btn-md'])?>
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
-					<?=Html::a("$access_icon Access", $projectLink,['class'=>'btn btn-success btn-md','target'=>$projectTarget])?>
+					<?=Html::a("$access_icon Access", $projectLink,['class'=>"btn btn-success btn-md $access_button_class $ondemand_access_class",'target'=>$projectTarget])?>
 				</td>	
 			</tr>
 
