@@ -247,14 +247,23 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $success='';
             $request_id=$id = Yii::$app->db->getLastInsertID();
 
-            Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$this->project_id'")->execute();
+           
             //invalidate old request if it is a modification
-            if ((!empty($modify_req_id)) && ($old_request->status==0))
+
+            $project=Project::find()->where(['id'=>$this->project_id])->one();
+
+            if(!empty($project->pending_request_id))
             {
-                
-                $old_request->status=-3;
-                $old_request->save();
+                $pending=ProjectRequest::find()->where(['id'=>$project->pending_request_id])->one();
+                $pending->status=-3;
+                $pending->save();
+
+
             }
+
+            $project->pending_request_id=$request_id;
+            $project->save();
+            
             
 
             $message="Project '$this->name' has been modified and is pending approval.";
@@ -364,9 +373,6 @@ class ProjectRequest extends \yii\db\ActiveRecord
         EmailEvents::NotifyByEmail('project_decision', $this->project_id,$message);
              
 
-        
-
-       
     }
     
     public function reject()
@@ -377,10 +383,20 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $this->save(false);
 
         $project=Project::find()->where(['id'=>$this->project_id])->one();
-        $project->latest_project_request_id=$this->id;
-        $project->pending_request_id=null;
-        $project->status=-1;
+        if(empty($project->latest_project_request_id))
+        {
+            $project->latest_project_request_id=$this->id;
+            $project->pending_request_id=null;
+            $project->status=-1;
+            
+        }
+        else
+        {
+            $project->pending_request_id=null;
+        }
+
         $project->save(false);
+        
 
         $message="We are sorry to inform you that your request for project '$this->name' has been rejected by the Resource Allocation Committee.";
         

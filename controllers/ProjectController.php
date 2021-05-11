@@ -1482,6 +1482,7 @@ class ProjectController extends Controller
 
                 if ($pchanged || $dchanged)
                 {
+                
                     $messages=$prequest->uploadNewEdit($participating,$prType,$id);
                     $errors.=$messages[0];
                     $success.=$messages[1];
