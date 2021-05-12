@@ -217,6 +217,18 @@ class AdministrationController extends Controller
                     $activeTabs[4]='tab-active';
                     $hiddenActiveButton='email-button';
                 }
+                else if ($activeButton=='openstack-button')
+                {
+                    $activeButtons[5]='button-active';
+                    $activeTabs[5]='tab-active';
+                    $hiddenActiveButton='openstack-button';
+                }
+                else if ($activeButton=='openstack-machines-button')
+                {
+                    $activeButtons[6]='button-active';
+                    $activeTabs[6]='tab-active';
+                    $hiddenActiveButton='openstack-machines-button';
+                }
                 else
                 {
                     $activeButtons[0]='button-active';

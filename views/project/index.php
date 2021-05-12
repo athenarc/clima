@@ -32,6 +32,8 @@ $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
 
 
 
+
+
 Headers::begin() ?>
 <?php echo Headers::widget(
 ['title'=>"Dashboard", 
@@ -118,6 +120,17 @@ foreach ($active as $res)
 	$triangle_icon='';
 	$ondemand_access_class='';
 
+	if($res['favorite']==false)
+	{
+		$favorite_icon='<i class="far fa-heart favorite" title="Make favorite"></i>';
+		$favorite_link=Url::to(['/project/make-favorite','project_id'=>$res['project_id']]);
+	}
+	else
+	{
+		$favorite_icon='<i class="fas fa-heart favorite" title="Remove favorite"></i>';
+		$favorite_link=Url::to(['/project/remove-favorite','project_id'=>$res['project_id']]);
+	}
+
 	if ($res['project_type']==0)
 	{
 		
@@ -162,7 +175,7 @@ foreach ($active as $res)
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-2" style="vertical-align: middle!important;"><?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
+				<td class="col-md-2" style="vertical-align: middle!important;"> <?=Html::a($favorite_icon, $favorite_link) ?> &nbsp;  <?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
 				<td class="col-md-2" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>

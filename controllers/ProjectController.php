@@ -26,6 +26,7 @@ use app\models\Notification;
 use app\models\Configuration;
 use app\models\User;
 use app\models\Vm;
+use app\models\VmMachines;
 use yii\db\Query;
 use app\models\Smtp;
 use app\models\EmailEvents;
@@ -123,16 +124,23 @@ class ProjectController extends Controller
             $remaining_months=round($remaining_days/30);
             if($username==$project['username'])
             {
-                    array_push($project,'<b>You</b>' );
-                    array_push($project, $remaining_days);
+                array_push($project,'<b>You</b>' );
+                array_push($project, $remaining_days);
+                array_push($project, ['favorite'=>$project['favorite']]);
             }
             else
            	{
                 array_push($project, "$project[username]");
                 array_push($project, $remaining_days);
+                array_push($project, ['favorite'=>$project['favorite']]);
              }
                 $active[]=$project;
         }
+
+        $favorite = array_column($active, 'favorite');
+        $submission_date = array_column($active, 'submission_date');
+        array_multisort($favorite, SORT_DESC, $submission_date, SORT_DESC, $active);
+        
         
 
         foreach ($expired_owner as $project) 
@@ -167,7 +175,23 @@ class ProjectController extends Controller
 
     }
 
-     public function actionNewRequest()
+    public function actionMakeFavorite($project_id)
+    {
+        $project=Project::find()->where(['id'=>$project_id])->one();
+        $project->favorite=true;
+        $project->update();
+        return $this->redirect(['project/index']);
+    }
+
+    public function actionRemoveFavorite($project_id)
+    {
+        $project=Project::find()->where(['id'=>$project_id])->one();
+        $project->favorite=false;
+        $project->update();
+        return $this->redirect(['project/index']);
+    }
+
+    public function actionNewRequest()
     {
 
         return $this->render('new_request');
@@ -186,9 +210,12 @@ class ProjectController extends Controller
 
 
         $role=User::getRoleType();
+        $service_autoaccept= ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
+        $service_autoaccept_number=$service_autoaccept->autoaccept_number;
+
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->andWhere(['>=','end_date', date("Y-m-d")])->count();
         
-        $autoaccept_allowed=($autoaccepted_num < 1) ? true :false; 
+        $autoaccept_allowed=($autoaccepted_num - $service_autoaccept_number < 0) ? true :false; 
 
 
         
@@ -392,8 +419,10 @@ class ProjectController extends Controller
         $autoacceptModel=new ColdStorageAutoaccept;
 
         $role=User::getRoleType();
+        $cold_autoaccept= ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
+        $cold_autoaccept_number=$cold_autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $autoaccept_allowed=($autoaccepted_num < 1) ? true :false; 
+        $autoaccept_allowed=($autoaccepted_num-$cold_autoaccept_number < 0) ? true :false; 
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
@@ -497,9 +526,13 @@ class ProjectController extends Controller
         $autoacceptModel=new OndemandAutoaccept;
 
         $role=User::getRoleType();
+        $ondemand_autoaccept= OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
+        $ondemand_autoaccept_number=$ondemand_autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
 
-        $autoaccept_allowed=($autoaccepted_num < 1) ? true :false; 
+        $autoaccept_allowed=($autoaccepted_num-$ondemand_autoaccept_number < 0) ? true :false; 
+
+    
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
@@ -1062,7 +1095,7 @@ class ProjectController extends Controller
             return $this->render('error_unauthorized');
         }
 
-        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
 
         //If vm is upgraded, then show message to user to delete past vm and create new
         if(!empty($existing))
@@ -1087,9 +1120,12 @@ class ProjectController extends Controller
             /*
              * Create new VM
              */
-            $model=new Vm;
+            $model=new VmMachines;
 
-            $avResources=VM::getOpenstackAvailableResources();
+            $avResources=VmMachines::getOpenstackAvailableResources();
+
+            // print_r($model);
+            // exit(0);
             // print_r($avResources);
             // exit(0);
             $project=Project::find()->where(['id'=>$id])->one();
@@ -1104,7 +1140,7 @@ class ProjectController extends Controller
                 return $this->render('service_unavailable_resources');
             }
             
-            $imageDD=Vm::getOpenstackImages();
+            $imageDD=VmMachines::getOpenstackImages();
 
             $form_params =
             [
@@ -1137,10 +1173,10 @@ class ProjectController extends Controller
 
                     else
                     {
-                        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+                        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
                         $existing->getConsoleLink();
     
-                        return $this->render('vm_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service]);
+                        return $this->render('vm_machines_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service]);
                     }
                 }
             }
@@ -1149,8 +1185,9 @@ class ProjectController extends Controller
         }
         else
         {
+        
              $existing->getConsoleLink();
-             return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service]);
+             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service]);
         }
         
 
@@ -1196,6 +1233,46 @@ class ProjectController extends Controller
 
     }
 
+    public function actionDeleteVmMachines($id)
+    {
+        $owner=Project::userInProject($id);
+
+        if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+
+        $vm=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+
+        $result=$vm->deleteVM();
+        $error=$result[0];
+        $message=$result[1];
+        $openstackMessage=$result[2];
+
+        if ($error!=0)
+        {
+            return $this->render('error_vm_deletion',['error' => $error,'message'=>$message, 'openstackMessage'=>$openstackMessage]);
+        }
+
+        /*
+         * If there are no errors, load the index page
+         */
+        
+        
+
+        $success='Successfully deleted VM.';
+
+        if(!empty($success))
+        {
+            Yii::$app->session->setFlash('success', "$success");
+        }
+        
+                    
+        return $this->redirect(['project/index']);
+        
+
+    }
+
     public function actionVmList($filter='all')
     {
 
@@ -1207,16 +1284,28 @@ class ProjectController extends Controller
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($res['end_date']);
             $remaining=$now-$end_project;
-            
+            if($res['project_type']==1)
+            {
+                $type='service';
+                $res['type']=$type;
+            }
+            else
+            {
+                $type='machines';
+                $res['type']=$type;
+            }
             if($remaining<0)
             {
                 $expired=0;
                 $res['expired']=$expired;
+                
+
             }    
             else
             {   
                 $expired=1;
                 $res['expired']=$expired;
+                
             }
             $new_results[]=$res;
         }
@@ -1251,11 +1340,33 @@ class ProjectController extends Controller
         $projectOwner=User::returnUsernameById($project_request->submitted_by);
         $projectOwner=explode('@', $projectOwner)[0];
         $service=ServiceRequest::find()->where(['request_id'=>$project_request->id])->one();
-        if(empty($service))
-        {
-             $service=MachineComputeRequest::find()->where(['request_id'=>$project_request->id])->one();
-        }
         $vm=VM::find()->where(['id'=>$id])->one();
+        $createdBy=User::returnUsernameById($vm->created_by);
+        $createdBy=explode('@', $createdBy)[0];
+        $deletedBy=(!empty($vm->deleted_by)) ? User::returnUsernameById($vm->deleted_by): '';
+        $deletedBy=explode('@', $deletedBy)[0];
+
+
+        
+        return $this->render('vm_admin_details',['project'=>$project,'service'=>$service,
+                                'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
+                                'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
+    }
+
+    public function actionAdminVmMachinesDetails($id,$project_id,$filter)
+    {
+        
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
+        {
+            return $this->render('error_unauthorized');
+        }
+        $project=Project::find()->where(['id'=>$project_id])->one();
+        $project_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+       // $project_request=ProjectRequest::find()->where(['id'=>$request_id])->one();
+        $projectOwner=User::returnUsernameById($project_request->submitted_by);
+        $projectOwner=explode('@', $projectOwner)[0];
+        $service=MachineComputeRequest::find()->where(['request_id'=>$project_request->id])->one();
+        $vm=VmMachines::find()->where(['id'=>$id])->one();
         $createdBy=User::returnUsernameById($vm->created_by);
         $createdBy=explode('@', $createdBy)[0];
         $deletedBy=(!empty($vm->deleted_by)) ? User::returnUsernameById($vm->deleted_by): '';

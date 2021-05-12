@@ -43,8 +43,8 @@ if (!empty($success))
 
 	</div>
 	<div class="row category-tabs">
-		<div class="col-md-3 tab-button <?=$activeButtons[5]?>" data-controlling="tab-openstack-configuration" id='email-button'><div class="button-text"> OpenStack configuration</div></div>
-		<div class="col-md-3 tab-button <?=$activeButtons[6]?>" data-controlling="tab-openstack-machines-configuration" id='email-button'><div class="button-text"> OpenStack Machines configuration</div></div>
+		<div class="col-md-3 tab-button <?=$activeButtons[5]?>" data-controlling="tab-openstack-configuration" id='openstack-button'><div class="button-text"> OpenStack configuration</div></div>
+		<div class="col-md-3 tab-button <?=$activeButtons[6]?>" data-controlling="tab-openstack-machines-configuration" id='openstack-machines-button'><div class="button-text"> OpenStack Machines configuration</div></div>
 	</div>
 
 	<div class="row">&nbsp;</div>
@@ -52,7 +52,7 @@ if (!empty($success))
 	<div class="row">
 
 		<div class="col-md-3"><?=Html::dropDownList('currentUserType',$hiddenUser,$userTypes,
-		['id'=>'typeDropdown', 'class'=>(empty($activeTabs[0]) && empty($activeTabs[4]) ? '' : 'dropdown-hidden'), ])?>
+		['id'=>'typeDropdown', 'class'=>(empty($activeTabs[0]) && empty($activeTabs[4]) && empty($activeTabs[5]) && empty($activeTabs[6])? '' : 'dropdown-hidden'), ])?>
 		<?=Html::hiddenInput('previousUserType', $hiddenUser,['id'=>'hidden_user_type'])?> 
 		<?=Html::hiddenInput('hidden-active-button', $hiddenActiveButton,['id'=>'hidden_active_button'])?> 
 		</div>
@@ -72,6 +72,10 @@ if (!empty($success))
 	</div>
 
 	<div class="tab-ondemand-autoaccept tab <?=$activeTabs[1]?>">
+
+		<div class="row"><h2 class="col-md-12">Automatically accepted projects</h2></div>
+		<?= $form->field($ondemand, 'autoaccept_number')->label("") ?>
+
 		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for on-demand computation projects</h2></div>
 		<?= $form->field($ondemand, 'num_of_jobs') ?>
 		<?= $form->field($ondemand, 'cores') ?>
@@ -88,6 +92,10 @@ if (!empty($success))
 	</div>
 
 	<div class="tab-service-autoaccept tab <?=$activeTabs[2]?>">
+
+		<div class="row"><h2 class="col-md-12">Automatically accepted projects</h2></div>
+		<?= $form->field($service, 'autoaccept_number')->label("") ?>
+
 		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for 24/7 service projects</h2></div>
 		<?= $form->field($service, 'vms') ?>
 		<?= $form->field($service, 'cores') ?>
@@ -105,6 +113,10 @@ if (!empty($success))
 	</div>
 	
 	<div class="tab-cold-storage-autoaccept tab <?=$activeTabs[3]?>">
+
+		<div class="row"><h2 class="col-md-12">Automatically accepted projects</h2></div>
+		<?= $form->field($coldStorage, 'autoaccept_number')->label("") ?>
+
 		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for cold storage projects</h2></div>
 		<?= $form->field($coldStorage, 'storage') ?>
 		<div class="row"><h2 class="col-md-12">Upper limits for resources for cold storage projects</h2></div>

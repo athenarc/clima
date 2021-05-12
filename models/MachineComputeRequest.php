@@ -130,7 +130,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['description', 'url'], 'string'],
+            [['description'], 'string'],
             [['num_of_vms', 'num_of_cores', 'num_of_ips'], 'default', 'value' => null],
             [['num_of_vms', 'num_of_cores', 'num_of_ips'], 'integer'],
             [['ram', 'storage'], 'number'],
@@ -140,8 +140,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             [['ram'], 'number','min'=>0],
             [['storage'], 'number','min'=>0],
             [['name'], 'string', 'max' => 200],
-            [['version'], 'string', 'max' => 50],
-            [['name','version','description',],'required'],
+            [['name','description',],'required'],
             [['flavour'],'required'],
             [['additional_resources'],'string'],
             [['disk'], 'integer'],
@@ -160,9 +159,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Name *', 
-            'version' => 'Version *',
             'description' => ' Description *',
-            'url' => 'Existing (old) service URL ',
             'num_of_vms' => "Νumber of VMs ",
             'num_of_cores' => "Νumber of CPU cores",
             'num_of_ips' => "Νumber of public IP addresses ",
@@ -206,9 +203,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         Yii::$app->db->createCommand()->insert('machine_compute_request', [
 
                 'name' => $this->name,
-                'version' => $this->version,
                 'description' => $this->description,
-                'url' => $this->url,
                 'num_of_vms' => 1,
                 'num_of_cores' => $this->num_of_cores,
                 'num_of_ips' => 1,
@@ -247,9 +242,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         Yii::$app->db->createCommand()->insert('machine_compute_request', [
 
                 'name' => $this->name,
-                'version' => $this->version,
                 'description' => $this->description,
-                'url' => $this->url,
                 'num_of_vms' => 1,
                 'num_of_cores' => $this->num_of_cores,
                 'num_of_ips' => 1,

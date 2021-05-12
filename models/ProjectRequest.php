@@ -481,7 +481,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         
         $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
-                        'u1.username as created_by', 'u2.username as deleted_by', 
+                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
                         'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
               ->from('project_request as pr')
               ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')

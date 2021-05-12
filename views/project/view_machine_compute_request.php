@@ -109,16 +109,8 @@ Headers::begin() ?>
 				<td class="col-md-6 text-left" scope="col"><?= $details->name ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Service version:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->version ?></td>
-			</tr>
-			<tr>
 				<th class="col-md-6 text-right" scope="col">Service description:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->description ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Service URL:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->url ?></td>
 			</tr>
 			</body>
 		</table>

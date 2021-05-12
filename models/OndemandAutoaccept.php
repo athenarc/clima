@@ -31,6 +31,7 @@ class OndemandAutoaccept extends \yii\db\ActiveRecord
             [['num_of_jobs', 'cores'], 'default', 'value' => null],
             [['num_of_jobs', 'cores'], 'integer'],
             [['ram',], 'number'],
+            [['autoaccept_number'], 'integer'],
         ];
     }
 
@@ -44,6 +45,7 @@ class OndemandAutoaccept extends \yii\db\ActiveRecord
             'cores' => 'Number of CPU cores per job',
             'ram' => 'Memory (RAM) amount (in GBs) per job',
             'user_type'=>'User category',
+            'autoaccept_number'=>'Number of projects automatically accepted',
         ];
     }
 
@@ -52,7 +54,7 @@ class OndemandAutoaccept extends \yii\db\ActiveRecord
     public function updateDB($user_type)
     {
 
-        Yii::$app->db->createCommand()->update('ondemand_autoaccept',['num_of_jobs'=>$this->num_of_jobs,'ram'=>$this->ram, 'cores'=>$this->cores], "user_type='$user_type'")->execute();
+        Yii::$app->db->createCommand()->update('ondemand_autoaccept',['num_of_jobs'=>$this->num_of_jobs,'ram'=>$this->ram, 'cores'=>$this->cores, 'autoaccept_number'=>$this->autoaccept_number], "user_type='$user_type'")->execute();
 
         // print_r($sql);
         // exit(0);

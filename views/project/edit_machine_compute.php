@@ -84,9 +84,7 @@ Headers::begin() ?>
         <h3> Service details</h3>
 
         <?= $form->field($details, 'name') ?>
-        <?= $form->field($details, 'version') ?>
         <?= $form->field($details, 'description')->textarea(['rows'=>6]); ?>
-        <?= $form->field($details, 'url') ?>
     </div>
  </div>   
         <div class="row">

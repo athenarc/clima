@@ -80,7 +80,14 @@ if (!empty($results))
 
 		$view_icon='<i class="fas fa-eye"></i>';
 		$exclamation_icon='<i class="fas fa-exclamation-triangle" style="color:orange" title="The Vm belongs to an expired project"></i>';
-		$button_link='project/admin-vm-details';
+		if($res['type']=='machines')
+		{
+			$button_link='project/admin-vm-machines-details';
+		}
+		else
+		{
+			$button_link='project/admin-vm-details';
+		}
 		$userc=explode('@', $res['created_by'])[0];
 		$userd=explode('@', $res['deleted_by'])[0];
 		$status=($res['active'])? 'Active': 'Deleted';
