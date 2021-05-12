@@ -122,39 +122,40 @@ class EmailEvents extends \yii\db\ActiveRecord
             $recipient_ids=array_keys($all_users);
 
         }
-
-        foreach ($all_users as $user) 
+        if (!isset(Yii::$app->params['disableEmail']))
         {
-            try
+            foreach ($all_users as $user) 
             {
-                Yii::$app->mailer->compose()
-                     ->setFrom("$smtp->username")
-                     ->setTo($user['email'])
-                     ->setSubject($subject)
-                     ->setTextBody('Plain text content')
-                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0] . ",  <br /> <br /> $message 
-                     <br /> <br /> Sincerely, <br /> the $name team.")
-                     ->send();
-                     usleep(2000);
+                try
+                {
+                    Yii::$app->mailer->compose()
+                         ->setFrom("$smtp->username")
+                         ->setTo($user['email'])
+                         ->setSubject($subject)
+                         ->setTextBody('Plain text content')
+                         ->setHtmlBody("Dear ". explode('@',$user['username'])[0] . ",  <br /> <br /> $message 
+                         <br /> <br /> Sincerely, <br /> the $name team.")
+                         ->send();
+                         usleep(2000);
+                }
+                catch (Throwable $e)
+                {
+                    ;
+                }
+                catch (\Swift_TransportException $e)
+                {
+                    ;
+                }
             }
-            catch (Throwable $e)
-            {
-                ;
-            }
-            catch (\Swift_TransportException $e)
-            {
-                ;
-            }
-        }
 
-        Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
-        
+            Yii::$app->db->createCommand()->insert('email', [
+                        'recipient_ids' => $recipient_ids,
+                        'type'=>$email_type,
+                        'sent_at' => 'NOW()',
+                        'message' => $message,
+                        'project_id' => $project_id,
+                  ])->execute();
+        }
     }
 
     public static function NotifyByEmailDate($email_type, $project_id, $message, $date)
@@ -199,38 +200,41 @@ class EmailEvents extends \yii\db\ActiveRecord
             $recipient_ids=array_unique(array_merge($moderator_ids, $project_users_ids));
         }
 
-        foreach ($all_users as $user) 
-        {
-            try
-            {    
-                Yii::$app->mailer->compose()
-                     ->setFrom("$smtp->username")
-                     ->setTo($user['email'])
-                     ->setSubject($subject)
-                     ->setTextBody('Plain text content')
-                     ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br /> <br /> $message 
-                     <br /> <br /> Sincerely, <br /> the $name team.")
-                     ->send();
-                 usleep(2000);
-            }
-            catch (Throwable $e)
+        if (!isset(Yii::$app->params['disableEmail']))
+        {   
+            foreach ($all_users as $user)
             {
-                ;
+                try
+                {    
+                    Yii::$app->mailer->compose()
+                         ->setFrom("$smtp->username")
+                         ->setTo($user['email'])
+                         ->setSubject($subject)
+                         ->setTextBody('Plain text content')
+                         ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br /> <br /> $message 
+                         <br /> <br /> Sincerely, <br /> the $name team.")
+                         ->send();
+                     usleep(2000);
+                }
+                catch (Throwable $e)
+                {
+                    ;
 
+                }
+                catch (\Swift_TransportException $e)
+                {
+                    ;
+                }
             }
-            catch (\Swift_TransportException $e)
-            {
-                ;
-            }
+
+            Yii::$app->db->createCommand()->insert('email', [
+                        'recipient_ids' => $recipient_ids,
+                        'type'=>$email_type,
+                        'sent_at' => 'NOW()',
+                        'message' => $message,
+                        'project_id' => $project_id,
+                  ])->execute();
         }
-
-        Yii::$app->db->createCommand()->insert('email', [
-                    'recipient_ids' => $recipient_ids,
-                    'type'=>$email_type,
-                    'sent_at' => 'NOW()',
-                    'message' => $message,
-                    'project_id' => $project_id,
-              ])->execute();
 
         
     }
