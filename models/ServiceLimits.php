@@ -34,6 +34,7 @@ class ServiceLimits extends \yii\db\ActiveRecord
             [['vms', 'cores', 'ips', 'duration'], 'default', 'value' => null],
             [['vms', 'cores', 'ips', 'duration'], 'integer'],
             [['ram', 'storage'], 'number'],
+            [['number_of_projects'], 'integer'],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -56,6 +57,6 @@ class ServiceLimits extends \yii\db\ActiveRecord
 
     public function updateDB($user_type)
     {
-        Yii::$app->db->createCommand()->update('service_limits',['vms'=>$this->vms, 'storage'=>$this->storage, 'ips'=>$this->ips, 'ram'=>$this->ram, 'cores'=>$this->cores], "user_type='$user_type'")->execute();
+        Yii::$app->db->createCommand()->update('service_limits',['vms'=>$this->vms, 'storage'=>$this->storage, 'ips'=>$this->ips, 'ram'=>$this->ram, 'cores'=>$this->cores, 'number_of_projects'=>$this->number_of_projects], "user_type='$user_type'")->execute();
     }
 }

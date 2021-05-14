@@ -30,6 +30,7 @@ class ColdStorageLimits extends \yii\db\ActiveRecord
             [['storage'], 'number'],
             [['duration'], 'default', 'value' => null],
             [['duration'], 'integer'],
+            [['number_of_projects'], 'integer'],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -43,6 +44,7 @@ class ColdStorageLimits extends \yii\db\ActiveRecord
             'storage' => 'Storage (in GB)',
             'user_type' => 'User Type',
             'duration' => 'Duration',
+            'number_of_projects'=>"Number of Projects",
         ];
     }
 
@@ -51,6 +53,6 @@ class ColdStorageLimits extends \yii\db\ActiveRecord
     {
         // print_r($user_type);
         // exit(0);
-        Yii::$app->db->createCommand()->update('cold_storage_limits',['storage'=>$this->storage], "user_type='$user_type'")->execute();
+        Yii::$app->db->createCommand()->update('cold_storage_limits',['storage'=>$this->storage, 'number_of_projects'=>$this->number_of_projects], "user_type='$user_type'")->execute();
     }
 }
