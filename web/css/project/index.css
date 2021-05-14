@@ -29,3 +29,9 @@
 {
 	color:#E6833B!important;
 }
+
+.favorite
+{
+	cursor: pointer;
+	color:red;
+}

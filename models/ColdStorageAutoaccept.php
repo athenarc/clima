@@ -26,6 +26,7 @@ class ColdStorageAutoaccept extends \yii\db\ActiveRecord
     {
         return [
             [['storage'], 'number'],
+            [['autoaccept_number'], 'integer'],
         ];
     }
 
@@ -37,13 +38,14 @@ class ColdStorageAutoaccept extends \yii\db\ActiveRecord
         return [
             'storage' => 'Storage (in GB)',
             'user_type'=>'User category',
+            'autoaccept_number'=>'Number of projects automatically accepted',
         ];
     }
 
 
     public function updateDB($user_type)
     {
-        Yii::$app->db->createCommand()->update('cold_storage_autoaccept',['storage'=>$this->storage], "user_type='$user_type'")->execute();
+        Yii::$app->db->createCommand()->update('cold_storage_autoaccept',['storage'=>$this->storage, 'autoaccept_number'=>$this->autoaccept_number], "user_type='$user_type'")->execute();
     }
 
     

@@ -92,9 +92,7 @@ if (!empty($errors))
             <div class="col-md-6">
                 <h3> Service details</h3>
                 <?= $form->field($service, 'name') ?>
-                <?= $form->field($service, 'version') ?>
                 <?= $form->field($service, 'description')->textarea(['rows'=>6]); ?>
-                <?= $form->field($service, 'url') ?>
             </div>
         </div>   
         <div class="row">

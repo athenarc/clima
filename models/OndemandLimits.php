@@ -34,6 +34,7 @@ class OndemandLimits extends \yii\db\ActiveRecord
             [['num_of_jobs', 'cores', 'duration'], 'default', 'value' => null],
             [['num_of_jobs', 'cores', 'duration'], 'integer'],
             [['ram'], 'number'],
+            [['number_of_projects'], 'integer'],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -55,6 +56,6 @@ class OndemandLimits extends \yii\db\ActiveRecord
     public function updateDB($user_type)
     {
         
-        Yii::$app->db->createCommand()->update('ondemand_limits',['num_of_jobs'=>$this->num_of_jobs, 'ram'=>$this->ram, 'cores'=>$this->cores], "user_type='$user_type'")->execute();
+        Yii::$app->db->createCommand()->update('ondemand_limits',['num_of_jobs'=>$this->num_of_jobs, 'ram'=>$this->ram, 'cores'=>$this->cores, 'number_of_projects'=>$this->number_of_projects], "user_type='$user_type'")->execute();
     }
 }

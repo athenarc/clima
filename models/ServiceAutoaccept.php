@@ -32,6 +32,8 @@ class ServiceAutoaccept extends \yii\db\ActiveRecord
             [['vms', 'cores', 'ips'], 'default', 'value' => null],
             [['vms', 'cores', 'ips'], 'integer'],
             [['ram', 'storage'], 'number'],
+            [['autoaccept_number'], 'integer'],
+            
         ];
     }
 
@@ -47,13 +49,14 @@ class ServiceAutoaccept extends \yii\db\ActiveRecord
             'ram' => 'Memory (RAM) amount (in GBs)',
             'storage' => 'Storage (in GBs)',
             'user_type'=>'User category',
+            'autoaccept_number'=>'Number of projects automatically accepted',
         ];
     }
 
     public function updateDB($user_type)
     {
     
-        Yii::$app->db->createCommand()->update('service_autoaccept',['vms'=>$this->vms, 'storage'=>$this->storage, 'ips'=>$this->ips, 'ram'=>$this->ram, 'cores'=>$this->cores], "user_type='$user_type'")->execute();
+        Yii::$app->db->createCommand()->update('service_autoaccept',['vms'=>$this->vms, 'storage'=>$this->storage, 'ips'=>$this->ips, 'ram'=>$this->ram, 'cores'=>$this->cores, 'autoaccept_number'=>$this->autoaccept_number], "user_type='$user_type'")->execute();
 
     }
 }
