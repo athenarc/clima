@@ -156,7 +156,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
                                 ->addHeaders(['X-Auth-Token'=>$token])
-                                ->setUrl(['images'])
+                                ->setUrl(['images?visibility=public'])
                                 ->send();
         }
         catch(Exception $e)
@@ -189,6 +189,7 @@ class Vm extends \yii\db\ActiveRecord
                 $dropdown[$id]=$name;
             }
 
+            arsort($dropdown);
             return $dropdown;
         }
 
