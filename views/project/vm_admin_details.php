@@ -114,7 +114,7 @@ Headers::begin() ?>
 				<strong>Created by:</strong>
 			</div>
 			<div class="col-md-7">
-				<?=$createdBy?> on <?=empty($vm->created_by)? '' : date("F j, Y, H:i:s",strtotime($vm->created_by))?>
+				<?=$createdBy?> on <?=empty($vm->created_by)? '' : date("F j, Y, H:i:s",strtotime($vm->created_at))?>
 			</div>
 		</div>
 		<div class="row">
@@ -122,7 +122,7 @@ Headers::begin() ?>
 				<strong>Deleted by:</strong>
 			</div>
 			<div class="col-md-7">
-				<?=empty($deletedBy) ?  '' : $deletedBy . ' at ' . date("F j, Y, H:i:s",strtotime($vm->deleted_by))?>
+				<?=empty($deletedBy) ?  '' : $deletedBy . ' at ' . date("F j, Y, H:i:s",strtotime($vm->deleted_at))?>
 			</div>
 		</div>
 	</div>
@@ -149,7 +149,7 @@ if ($vm->active)
 			<div class="modal-loading"><b>Deleting <i class="fas fa-spinner fa-spin"></i></b></div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
-				<?=Html::a("$x_icon Delete",['/project/delete-vm-machines','id'=>$project_id],['class'=>"btn btn-danger confirm-delete"])?>
+				<?=Html::a("$x_icon Delete",['/project/delete-vm','id'=>$project_id],['class'=>"btn btn-danger confirm-delete"])?>
 			</div>
 		</div>
 	</div>

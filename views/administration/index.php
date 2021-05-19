@@ -72,7 +72,9 @@ else
 <br />
 <?= ToolButton::createButton("$users_icon User management", "",['/personal/superadmin-actions']) ?>
 <br />
-<?= ToolButton::createButton("$vm_history_icon  VM history", "",['/project/vm-list']) ?>
+<?= ToolButton::createButton("$vm_history_icon  VM 24/7 history", "",['/project/vm-list']) ?>
+<br />
+<?= ToolButton::createButton("$vm_history_icon  VM machines history", "",['/project/vm-machines-list']) ?>
 <br />
 <?= ToolButton::createButton("$projects_icon  View all projects", "",['administration/all-projects']) ?>
 <br />

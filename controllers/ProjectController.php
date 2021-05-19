@@ -1377,6 +1377,61 @@ class ProjectController extends Controller
                                 'sideItems'=>$sidebarItems,'filter'=>$filter]);
     }
 
+    public function actionVmMachinesList($filter='all')
+    {
+
+        $results=ProjectRequest::getVmMachinesList($filter);
+
+        $new_results=[];
+        foreach ($results[1] as $res) 
+        {
+            $now = strtotime(date("Y-m-d"));
+            $end_project = strtotime($res['end_date']);
+            $remaining=$now-$end_project;
+            if($res['project_type']==3)
+            {
+                $type='service';
+                $res['type']=$type;
+            }
+            else
+            {
+                $type='machines';
+                $res['type']=$type;
+            }
+            if($remaining<0)
+            {
+                $expired=0;
+                $res['expired']=$expired;
+                
+
+            }    
+            else
+            {   
+                $expired=1;
+                $res['expired']=$expired;
+                
+            }
+            $new_results[]=$res;
+        }
+
+        $pages=$results[0];
+        $results=$new_results;
+      
+        $sidebarItems=[];
+        $filters=['all', 'active', 'deleted'];
+        $filter_names=['all'=>'All','active'=>'Active','deleted'=>'Deleted'];
+
+        foreach ($filters as $f)
+        {
+            $active=($f==$filter) ? 'active' : '';
+            $sidebarItems[]=['link'=>Url::to(['project/vm-machines-list', 'filter'=>$f]), 'class'=>"list-group-item $active",'text'=>$filter_names[$f]];
+        }
+
+        return $this->render('vm_machines_list',['results'=>$results,'pages'=>$pages,
+                                'sideItems'=>$sidebarItems,'filter'=>$filter]);
+    }
+
+
     public function actionAdminVmDetails($id,$project_id,$filter)
     {
         
@@ -1403,6 +1458,8 @@ class ProjectController extends Controller
                                 'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
     }
 
+    
+
     public function actionAdminVmMachinesDetails($id,$project_id,$filter)
     {
         
@@ -1424,7 +1481,7 @@ class ProjectController extends Controller
 
 
         
-        return $this->render('vm_admin_details',['project'=>$project,'service'=>$service,
+        return $this->render('vm_machines_admin_details',['project'=>$project,'service'=>$service,
                                 'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
                                 'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
     }
