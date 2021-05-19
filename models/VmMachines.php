@@ -9,7 +9,7 @@ use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\OpenstackMachines;
 
 /**
- * This is the model class for table "vm".
+ * This is the model class for table "vm_machines".
  *
  * @property int $id
  * @property string $ip_address
@@ -76,7 +76,7 @@ class VmMachines extends \yii\db\ActiveRecord
 
     public static function tableName()
     {
-        return 'vm';
+        return 'vm_machines';
     }
 
     /**
@@ -156,7 +156,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
                                 ->addHeaders(['X-Auth-Token'=>$token])
-                                ->setUrl(['images'])
+                                ->setUrl(['images?visibility=public'])
                                 ->send();
         }
         catch(Exception $e)
@@ -188,7 +188,7 @@ class VmMachines extends \yii\db\ActiveRecord
 
                 $dropdown[$id]=$name;
             }
-
+            arsort($dropdown);
             return $dropdown;
         }
 
@@ -995,7 +995,7 @@ class VmMachines extends \yii\db\ActiveRecord
             $this->volume_id='';
         }
         
-        Yii::$app->db->createCommand()->insert('vm', [
+        Yii::$app->db->createCommand()->insert('vm_machines', [
                 'request_id'=> $requestId,
                 'project_id' => $project_id,
                 'ip_address' => $this->ip_address,
@@ -1023,7 +1023,7 @@ class VmMachines extends \yii\db\ActiveRecord
         $vmid=$this->id;
         $user=Userw::getCurrentUser()['id'];
         Yii::$app->db->createCommand()
-                     ->update('vm',['deleted_by'=>$user,], "id=$this->id")
+                     ->update('vm_machines',['deleted_by'=>$user,], "id=$this->id")
                      ->execute();
 
         $result=self::authenticate();
@@ -1086,7 +1086,7 @@ class VmMachines extends \yii\db\ActiveRecord
         }
 
         Yii::$app->db->createCommand()
-                     ->update('vm',['active'=>false,'deleted_at'=>'NOW()'], "id=$this->id")
+                     ->update('vm_machines',['active'=>false,'deleted_at'=>'NOW()'], "id=$this->id")
                      ->execute();
 
         return [0,'',''];

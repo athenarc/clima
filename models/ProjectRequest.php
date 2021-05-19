@@ -488,8 +488,46 @@ class ProjectRequest extends \yii\db\ActiveRecord
               ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
               //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
               ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
-              ->where(['pr.project_type'=>1])
-              ->orWhere(['pr.project_type'=>3]);
+              ->where(['pr.project_type'=>1]);
+        if ($filter=='active')
+        {
+            $query->andWhere(['v.active'=>true]);
+        }
+        else if ($filter=='deleted')
+        {
+            $query->andWhere(['v.active'=>false]);
+        }
+        
+              
+        // print_r($query->createCommand()->getRawSql());
+        // exit(0);
+       
+
+        $pages = new Pagination(['totalCount' => $query->count()]);
+        $pages->setPageSize(10);
+        
+        $results = $query->orderBy('v.created_at DESC')->offset($pages->offset)->limit($pages->limit)->all();
+        
+        return [$pages,$results];
+    }
+
+
+    public static function getVmMachinesList($filter)
+    {
+        $query=new Query;
+        // print_r($filter);
+        // exit(0);
+
+        
+        $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
+                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
+                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
+              ->from('project_request as pr')
+              ->join('LEFT JOIN','vm_machines as v', 'pr.id=v.request_id')
+              ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+              //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
+              ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
+              ->where(['pr.project_type'=>3]);
         if ($filter=='active')
         {
             $query->andWhere(['v.active'=>true]);

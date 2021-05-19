@@ -19,6 +19,7 @@ use app\models\ColdStorageLimits;
 use app\models\Configuration;
 use app\models\Openstack;
 use app\models\OpenstackMachines;
+use app\models\MachineComputeLimits;
 use yii\helpers\Url;
 use app\models\ProjectRequest;
 use app\models\Project;
@@ -103,6 +104,7 @@ class AdministrationController extends Controller
         $coldStorage=ColdStorageAutoaccept::find()->where(['user_type'=>$currentUser])->one();
         $serviceLimits=ServiceLimits::find()->where(['user_type'=>$currentUser])->one();
         $ondemandLimits=OndemandLimits::find()->where(['user_type'=>$currentUser])->one();
+        $machineComputationLimits=MachineComputeLimits::find()->where(['user_type'=>$currentUser])->one();
         $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
         $smtp= Smtp::find()->one();
         $openstack=Openstack::find()->one();
@@ -112,8 +114,8 @@ class AdministrationController extends Controller
         $general=Configuration::find()->one();
         $pages=Page::getPagesDropdown();
         
-        $activeButtons=['','','','','','',''];
-        $activeTabs=['','','','','','',''];
+        $activeButtons=['','','','','','','',''];
+        $activeTabs=['','','','','','','',''];
 
         if (!isset($_POST['hidden-active-button']))
         {
@@ -140,7 +142,7 @@ class AdministrationController extends Controller
           Yii::$app->session->setFlash('danger', "You must provide your email to receive email notifications.");
         }
 
-        if ( ($service->load(Yii::$app->request->post())) && ($general->load(Yii::$app->request->post())) 
+        if ( ($service->load(Yii::$app->request->post())) && ($machineComputationLimits->load(Yii::$app->request->post())) && ($general->load(Yii::$app->request->post())) 
             &&  ($ondemand->load(Yii::$app->request->post())) && ($coldStorage->load(Yii::$app->request->post()))
             && ($coldStorageLimits->load(Yii::$app->request->post())) && ($serviceLimits->load(Yii::$app->request->post())) 
             && ($ondemandLimits->load(Yii::$app->request->post())) && ($smtp->load(Yii::$app->request->post())) 
@@ -180,6 +182,7 @@ class AdministrationController extends Controller
                 $ondemandLimits->updateDB($previousUserType);
                 $serviceLimits->updateDB($previousUserType);
                 $coldStorageLimits->updateDB($previousUserType);
+                $machineComputationLimits->updateDB($previousUserType);
 
                 $service=ServiceAutoaccept::find()->where(['user_type'=>$currentUser])->one();
                 $ondemand=OndemandAutoaccept::find()->where(['user_type'=>$currentUser])->one();
@@ -187,6 +190,7 @@ class AdministrationController extends Controller
                 $serviceLimits=ServiceLimits::find()->where(['user_type'=>$currentUser])->one();
                 $ondemandLimits=OndemandLimits::find()->where(['user_type'=>$currentUser])->one();
                 $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
+                $machineComputationLimits=MachineComputeLimits::find()->where(['user_type'=>$currentUser])->one();
                 $general=Configuration::find()->one();
 
                 $activeButton=$_POST['hidden-active-button'];
@@ -204,29 +208,35 @@ class AdministrationController extends Controller
                     $activeTabs[2]='tab-active';
                     $hiddenActiveButton='service-button';
                 }
-                else if ($activeButton=='cold-button')
+                else if ($activeButton=='machines-button')
                 {
                     $activeButtons[3]='button-active';
                     $activeTabs[3]='tab-active';
+                    $hiddenActiveButton='machines-button';
+                }
+                else if ($activeButton=='cold-button')
+                {
+                    $activeButtons[4]='button-active';
+                    $activeTabs[4]='tab-active';
                     $hiddenActiveButton='cold-button';
                    
                 }
                 else if ($activeButton=='email-button')
                 {
-                    $activeButtons[4]='button-active';
-                    $activeTabs[4]='tab-active';
+                    $activeButtons[5]='button-active';
+                    $activeTabs[5]='tab-active';
                     $hiddenActiveButton='email-button';
                 }
                 else if ($activeButton=='openstack-button')
                 {
-                    $activeButtons[5]='button-active';
-                    $activeTabs[5]='tab-active';
+                    $activeButtons[6]='button-active';
+                    $activeTabs[6]='tab-active';
                     $hiddenActiveButton='openstack-button';
                 }
                 else if ($activeButton=='openstack-machines-button')
                 {
-                    $activeButtons[6]='button-active';
-                    $activeTabs[6]='tab-active';
+                    $activeButtons[7]='button-active';
+                    $activeTabs[7]='tab-active';
                     $hiddenActiveButton='openstack-machines-button';
                 }
                 else
@@ -247,7 +257,7 @@ class AdministrationController extends Controller
                                 'coldStorage'=>$coldStorage, 'success'=>'Configuration successfully updated!',
                                 "hiddenUser" => $currentUser,'userTypes'=>$userTypes, 'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,
-                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,
+                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,
                                 'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
         }
 
@@ -258,7 +268,7 @@ class AdministrationController extends Controller
                                 'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,
                                 'userTypes'=>$userTypes, 'success'=>'',"hiddenUser" => $currentUser,
-                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp,
+                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,
                                 'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
     }
 

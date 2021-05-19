@@ -18,7 +18,7 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/vm-list.css');
 
-$this->title="VM history";
+$this->title="VM machines history";
 
 
 /*
@@ -29,7 +29,7 @@ $this->title="VM history";
 
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>'VM history', 
+['title'=>'VM machines history', 
 ])
 ?>
 <?Headers::end()?>
@@ -80,7 +80,7 @@ if (!empty($results))
 
 		$view_icon='<i class="fas fa-eye"></i>';
 		$exclamation_icon='<i class="fas fa-exclamation-triangle" style="color:orange" title="The Vm belongs to an expired project"></i>';
-		$button_link='project/admin-vm-details';
+		$button_link='project/admin-vm-machines-details';
 		$userc=explode('@', $res['created_by'])[0];
 		$userd=explode('@', $res['deleted_by'])[0];
 		$status=($res['active'])? 'Active': 'Deleted';

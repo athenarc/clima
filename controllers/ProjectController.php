@@ -14,6 +14,7 @@ use app\models\ProjectRequest;
 use app\models\ProjectRequestCold;
 use app\models\ServiceRequest;
 use app\models\MachineComputeRequest;
+use app\models\MachineComputeLimits;
 use app\models\ColdStorageLimits;
 use app\models\ColdStorageAutoaccept;
 use app\models\OndemandRequest;
@@ -203,13 +204,22 @@ class ProjectController extends Controller
 
     public function actionNewServiceRequest()
     {
+        $role=User::getRoleType();
+        $service_limits= ServiceLimits::find()->where(['user_type'=>$role])->one();
+        $service_maximum_number=$service_limits->number_of_projects;
+        $number_of_user_projects=ProjectRequest::find()->where(['status'=>[1,2],'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $new_project_allowed=($number_of_user_projects-$service_maximum_number < 0) ? true :false;
+
+        if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)))
+        {
+            return $this->render('no_project_allowed', ['project'=>"24/7 service", 'user_type'=>$role]);
+        }
+
         $serviceModel=new ServiceRequest;
         $projectModel=new ProjectRequest;
         $limitsModel=new ServiceLimits;
         $autoacceptModel=new ServiceAutoaccept;
 
-
-        $role=User::getRoleType();
         $service_autoaccept= ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
         $service_autoaccept_number=$service_autoaccept->autoaccept_number;
 
@@ -217,7 +227,7 @@ class ProjectController extends Controller
         
         $autoaccept_allowed=($autoaccepted_num - $service_autoaccept_number < 0) ? true :false; 
 
-
+        
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
@@ -308,7 +318,7 @@ class ProjectController extends Controller
         
 
         return $this->render('new_service_request',['service'=>$serviceModel, 'project'=>$projectModel, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed]);
 
 
 
@@ -316,10 +326,22 @@ class ProjectController extends Controller
 
     public function actionNewMachineComputeRequest()
     {
+        
+       
+        $role=User::getRoleType();
+        $machineLimits=MachineComputeLimits::find()->where(['user_type'=>$role])->one();
+        $machine_maximum_number=$machineLimits->number_of_projects;
+        $number_of_user_projects=ProjectRequest::find()->where(['status'=>1,'project_type'=>3,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $new_project_allowed=($number_of_user_projects-$machine_maximum_number < 0) ? true :false;
+        $new_project_allowed=($machine_maximum_number==-1)? true : false;
+
+        if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)))
+        {
+            return $this->render('no_project_allowed', ['project'=>"On-demand computation machines", 'user_type'=>$role]);
+        }
+
         $serviceModel=new MachineComputeRequest;
         $projectModel=new ProjectRequest;
-       
-        
 
         $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'machine_compute'=>3];
 
@@ -399,7 +421,7 @@ class ProjectController extends Controller
         }
         
 
-        return $this->render('new_machine_compute_request',['service'=>$serviceModel, 'project'=>$projectModel,  'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, ]);
+        return $this->render('new_machine_compute_request',['service'=>$serviceModel, 'project'=>$projectModel,  'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'new_project_allowed'=>$new_project_allowed]);
 
 
 
@@ -409,6 +431,18 @@ class ProjectController extends Controller
 
     public function actionNewColdStorageRequest()
     {
+
+        $role=User::getRoleType();
+        $cold_storage_limits= ColdStorageLimits::find()->where(['user_type'=>$role])->one();
+        $cold_storage_maximum_number=$cold_storage_limits->number_of_projects;
+        $number_of_user_projects=ProjectRequest::find()->where(['status'=>[1,2],'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $new_project_allowed=($number_of_user_projects-$cold_storage_maximum_number < 0) ? true :false;
+
+        if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)) )
+        {
+            return $this->render('no_project_allowed', ['project'=>"Storage volume", 'user_type'=>$role]);
+        }
+
         $coldStorageModel=new ColdStorageRequest;
         $projectModel=new ProjectRequest;
         // $projectModel->duration=36;
@@ -418,11 +452,15 @@ class ProjectController extends Controller
         $limitsModel=new ColdStorageLimits;
         $autoacceptModel=new ColdStorageAutoaccept;
 
-        $role=User::getRoleType();
+        
         $cold_autoaccept= ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
         $cold_autoaccept_number=$cold_autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $autoaccept_allowed=($autoaccepted_num-$cold_autoaccept_number < 0) ? true :false; 
+        $autoaccept_allowed=($autoaccepted_num-$cold_autoaccept_number < 0) ? true :false;
+
+
+        
+ 
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
@@ -508,11 +546,10 @@ class ProjectController extends Controller
             }
         }
         
-
-        return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel, 
+        
+            return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel, 
                     'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
-                     'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role]);
-
+                     'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed]);
 
 
     }
@@ -520,18 +557,31 @@ class ProjectController extends Controller
 
     public function actionNewOndemandRequest()
     {
+
+        $role=User::getRoleType();
+        $ondemand_limits= OndemandLimits::find()->where(['user_type'=>$role])->one();
+        $ondemand_maximum_number=$ondemand_limits->number_of_projects;
+        $number_of_user_projects=ProjectRequest::find()->where(['status'=>[1,2],'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $new_project_allowed=($number_of_user_projects-$ondemand_maximum_number < 0) ? true :false;
+
+        if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)) )
+        {
+            return $this->render('no_project_allowed', ['project'=>"On-demand batch computations", 'user_type'=>$role]);
+        } 
+
         $ondemandModel=new OndemandRequest();
         $projectModel=new ProjectRequest;
         $limitsModel=new OndemandLimits;
         $autoacceptModel=new OndemandAutoaccept;
 
-        $role=User::getRoleType();
+        
         $ondemand_autoaccept= OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
         $ondemand_autoaccept_number=$ondemand_autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-
         $autoaccept_allowed=($autoaccepted_num-$ondemand_autoaccept_number < 0) ? true :false; 
 
+
+        
     
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
@@ -623,7 +673,7 @@ class ProjectController extends Controller
         
 
         return $this->render('new_ondemand_request',['ondemand'=>$ondemandModel, 'project'=>$projectModel, 
-                     'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role]);
+                     'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed]);
     }
 
 
@@ -1327,6 +1377,61 @@ class ProjectController extends Controller
                                 'sideItems'=>$sidebarItems,'filter'=>$filter]);
     }
 
+    public function actionVmMachinesList($filter='all')
+    {
+
+        $results=ProjectRequest::getVmMachinesList($filter);
+
+        $new_results=[];
+        foreach ($results[1] as $res) 
+        {
+            $now = strtotime(date("Y-m-d"));
+            $end_project = strtotime($res['end_date']);
+            $remaining=$now-$end_project;
+            if($res['project_type']==3)
+            {
+                $type='service';
+                $res['type']=$type;
+            }
+            else
+            {
+                $type='machines';
+                $res['type']=$type;
+            }
+            if($remaining<0)
+            {
+                $expired=0;
+                $res['expired']=$expired;
+                
+
+            }    
+            else
+            {   
+                $expired=1;
+                $res['expired']=$expired;
+                
+            }
+            $new_results[]=$res;
+        }
+
+        $pages=$results[0];
+        $results=$new_results;
+      
+        $sidebarItems=[];
+        $filters=['all', 'active', 'deleted'];
+        $filter_names=['all'=>'All','active'=>'Active','deleted'=>'Deleted'];
+
+        foreach ($filters as $f)
+        {
+            $active=($f==$filter) ? 'active' : '';
+            $sidebarItems[]=['link'=>Url::to(['project/vm-machines-list', 'filter'=>$f]), 'class'=>"list-group-item $active",'text'=>$filter_names[$f]];
+        }
+
+        return $this->render('vm_machines_list',['results'=>$results,'pages'=>$pages,
+                                'sideItems'=>$sidebarItems,'filter'=>$filter]);
+    }
+
+
     public function actionAdminVmDetails($id,$project_id,$filter)
     {
         
@@ -1353,6 +1458,8 @@ class ProjectController extends Controller
                                 'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
     }
 
+    
+
     public function actionAdminVmMachinesDetails($id,$project_id,$filter)
     {
         
@@ -1374,7 +1481,7 @@ class ProjectController extends Controller
 
 
         
-        return $this->render('vm_admin_details',['project'=>$project,'service'=>$service,
+        return $this->render('vm_machines_admin_details',['project'=>$project,'service'=>$service,
                                 'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
                                 'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
     }

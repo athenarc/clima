@@ -18,7 +18,7 @@ Headers::begin() ?>
 	'buttons'=>
 	[
 		
-		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/vm-list'],
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/vm-machines-list'],
 		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
 	],
 ])
@@ -114,7 +114,7 @@ Headers::begin() ?>
 				<strong>Created by:</strong>
 			</div>
 			<div class="col-md-7">
-				<?=$createdBy?> on <?=empty($vm->created_by)? '' : date("F j, Y, H:i:s",strtotime($vm->created_by))?>
+				<?=$createdBy?> on <?=empty($vm->created_by)? '' : date("F j, Y, H:i:s",strtotime($vm->created_at))?>
 			</div>
 		</div>
 		<div class="row">
@@ -122,7 +122,7 @@ Headers::begin() ?>
 				<strong>Deleted by:</strong>
 			</div>
 			<div class="col-md-7">
-				<?=empty($deletedBy) ?  '' : $deletedBy . ' at ' . date("F j, Y, H:i:s",strtotime($vm->deleted_by))?>
+				<?=empty($deletedBy) ?  '' : $deletedBy . ' at ' . date("F j, Y, H:i:s",strtotime($vm->deleted_at))?>
 			</div>
 		</div>
 	</div>
