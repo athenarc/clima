@@ -39,7 +39,7 @@ if (!empty($success))
 		<div class="col-md-3 tab-button <?=$activeButtons[1]?>" data-controlling="tab-ondemand-autoaccept"  id='ondemand-button' ><div class="button-text"> On-demand computation projects</div></div>
 		<div class="col-md-2 tab-button <?=$activeButtons[2]?>" data-controlling="tab-service-autoaccept"  id='service-button'><div class="button-text"> 24/7 service projects</div></div>
 		<div class="col-md-3 tab-button <?=$activeButtons[3]?>" data-controlling="tab-machines-autoaccept" id='machines-button'><div class="button-text"> On-demand computation machines</div></div>
-		<div class="col-md-2 tab-button <?=$activeButtons[4]?>" data-controlling="tab-cold-storage-autoaccept" id='cold-button'><div class="button-text"> Cold storage projects</div></div>
+		<div class="col-md-2 tab-button <?=$activeButtons[4]?>" data-controlling="tab-cold-storage-autoaccept" id='cold-button'><div class="button-text"> Storage volumes </div></div>
 	</div>
 	<div class="row category-tabs">
 		<div class="col-md-3 tab-button <?=$activeButtons[5]?>" data-controlling="tab-email-configuration" id='email-button'><div class="button-text"> SMTP configuration</div></div>
@@ -130,9 +130,9 @@ if (!empty($success))
 		<div class="row"><h2 class="col-md-12">Maximum number of accepted projects</h2></div>
 		<?= $form->field($coldStorageLimits, 'number_of_projects')->label("") ?>
 
-		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for cold storage projects</h2></div>
+		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for storage volumes</h2></div>
 		<?= $form->field($coldStorage, 'storage') ?>
-		<div class="row"><h2 class="col-md-12">Upper limits for resources for cold storage projects</h2></div>
+		<div class="row"><h2 class="col-md-12">Upper limits for resources for storage volumes</h2></div>
 		<?= $form->field($coldStorageLimits, 'storage') ?>
 	</div>
 

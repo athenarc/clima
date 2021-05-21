@@ -7,7 +7,7 @@ use app\components\MagicSearchBox;
 use kartik\date\DatePicker;
 use app\components\Headers;
 
-$this->title = "Edit cold storage project";
+$this->title = "Edit storage volume request";
 
 /* @var $this yii\web\View */
 /* @var $model app\models\ServiceRequest */
@@ -37,7 +37,7 @@ if (!empty($errors))
 
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>'Edit cold storage project',])
+['title'=>'Edit storage volume request',])
 ?>
 <?Headers::end()?>
 

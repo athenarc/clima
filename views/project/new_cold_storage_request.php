@@ -16,12 +16,12 @@ echo Html::CssFile('@web/css/project/project-request.css');
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 ?>
 
-$this->title="Submit a new cold storage request";
+$this->title="Submit a new storage volume request";
 
 
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>'Submit a new cold storage request',])
+['title'=>'Submit a new storage volume request',])
 ?>
 <?Headers::end()?>
 <?php
@@ -115,7 +115,7 @@ if (!empty($errors))
             {
             ?>
 
-            <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active cold storage project that was automatically accepted. <br />Your current project request will need to be examined and approved.</div>
+            <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active storage volume that was automatically accepted. <br />Your current project request will need to be examined and approved.</div>
             
             <?php
             }
