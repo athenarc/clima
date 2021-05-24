@@ -81,10 +81,8 @@ Headers::begin() ?>
         </div>
         
     <div class="col-md-6">
-        <h3> Service details</h3>
-
-        <?= $form->field($details, 'name') ?>
-        <?= $form->field($details, 'description')->textarea(['rows'=>6]); ?>
+        <h3> Analysis description</h3>
+        <?= $form->field($details, 'description')->textarea(['rows'=>6])->label(""); ?>
     </div>
  </div>   
         <div class="row">

@@ -90,9 +90,8 @@ if (!empty($errors))
         </div>
         
             <div class="col-md-6">
-                <h3> Service details</h3>
-                <?= $form->field($service, 'name') ?>
-                <?= $form->field($service, 'description')->textarea(['rows'=>6]); ?>
+                <h3> Analysis description</h3>
+                <?= $form->field($service, 'description')->textarea(['rows'=>6])->label(""); ?>
             </div>
         </div>   
         <div class="row">

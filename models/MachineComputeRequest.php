@@ -139,8 +139,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             [['num_of_ips'], 'integer','min'=>0],
             [['ram'], 'number','min'=>0],
             [['storage'], 'number','min'=>0],
-            [['name'], 'string', 'max' => 200],
-            [['name','description',],'required'],
+            [['description'],'required'],
             [['flavour'],'required'],
             [['additional_resources'],'string'],
             [['disk'], 'integer'],
@@ -202,7 +201,6 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
 
         Yii::$app->db->createCommand()->insert('machine_compute_request', [
 
-                'name' => $this->name,
                 'description' => $this->description,
                 'num_of_vms' => 1,
                 'num_of_cores' => $this->num_of_cores,
@@ -241,7 +239,6 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
 
         Yii::$app->db->createCommand()->insert('machine_compute_request', [
 
-                'name' => $this->name,
                 'description' => $this->description,
                 'num_of_vms' => 1,
                 'num_of_cores' => $this->num_of_cores,
