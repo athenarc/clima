@@ -45,32 +45,88 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
 				<td class="col-md-6 text-left" scope="col"><?= $usage['active_services'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">24/7 VMs</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['vms'] ?></td>
+				<th class="col-md-6 text-right" scope="col">Total 24/7 projects</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_services'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">24/7 Used virtual CPUs</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['s_cores'] ?></td>
+				<th class="col-md-6 text-right" scope="col"> Active 24/7 VMs</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['vms_services_active'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">24/7 Used RAM (GB)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['s_ram'] ?></td>
+				<th class="col-md-6 text-right" scope="col"> Total 24/7 VMs</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['vms_services_total'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">24/7 Used storage (TB)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['s_storage'] ?></td>
+				<th class="col-md-6 text-right" scope="col">Active 24/7 used virtual CPUs</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['active_services_cores'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Active on-demand projects</th>
+				<th class="col-md-6 text-right" scope="col"> Active 24/7 used RAM (GB)</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['active_services_ram'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Total 24/7 used virtual CPUs</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_services_cores'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col"> Total 24/7 used RAM (GB)</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_services_ram'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Active on-demand computation machines  projects</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['active_machines'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Total on-demand computation machines projects</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_machines'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col"> Active on-demand computation machines VMs</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['vms_machines_active'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col"> Total on-demand computation machines VMs</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['vms_machines_total'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Active on-demand computation machines used virtual CPUs</th>
+				<td class="col-md-6 text-left" scope="col"><?= empty($usage['active_machines_cores'])?'0': $usage['active_machines_cores'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col"> Active on-demand computation machines used RAM (GB)</th>
+				<td class="col-md-6 text-left" scope="col"><?= empty($usage['active_machines_ram'])?'0': $usage['active_machines_ram'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Total on-demand computation machines used virtual CPUs</th>
+				<td class="col-md-6 text-left" scope="col"><?= empty($usage['total_machines_cores'])?'0': $usage['total_machines_cores'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col"> Total on-demand computation machines used RAM (GB)</th>
+				<td class="col-md-6 text-left" scope="col"><?= empty($usage['total_machines_ram'])?'0': $usage['total_machines_ram'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Active on-demand batch computations projects</th>
 				<td class="col-md-6 text-left" scope="col"><?= $usage['active_ondemand'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">On-demand completed jobs</th>
+				<th class="col-md-6 text-right" scope="col">Total on-demand batch computations projects</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_ondemand'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">On-demand batch computations completed jobs</th>
 				<td class="col-md-6 text-left" scope="col"><?= $usage['o_jobs'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">On-demand total execution time</th>
+				<th class="col-md-6 text-right" scope="col">On-demand batch computations total execution time</th>
 				<td class="col-md-6 text-left" scope="col"><?= $usage['o_time'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Active used storage volumes (TB)</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['active_services_storage'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Total used storage volumes (TB)</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_services_storage'] ?></td>
 			</tr>
 		</body>
 	</table>
