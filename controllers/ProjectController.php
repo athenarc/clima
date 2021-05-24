@@ -111,8 +111,7 @@ class ProjectController extends Controller
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
 		$all_projects=array_merge($owner,$participant);
-		// print_r($active_projects);
-		// exit(0);
+		
         $active=[];
         $expired=[];
       

@@ -679,6 +679,29 @@ class ProjectRequest extends \yii\db\ActiveRecord
                         ->from('project_request as pr')
                         ->innerJoin('service_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['>','pr.end_date','NOW'])
+                        ->count();
+        $query=new Query;
+
+        $total_services=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('service_request as s','s.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->count();
+        $query=new Query;
+
+        $active_machines=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['>','pr.end_date','NOW'])
+                        ->count();
+        $query=new Query;
+
+        $total_machines=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
                         ->count();
         $query=new Query;
 
@@ -686,33 +709,113 @@ class ProjectRequest extends \yii\db\ActiveRecord
                         ->from('project_request as pr')
                         ->innerJoin('ondemand_request as o','o.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['>','pr.end_date','NOW'])
                         ->count();
 
         $query=new Query;
 
-        $vms=$query->select(['pr.id'])
+        $total_ondemand=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('ondemand_request as o','o.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->count();
+
+        $query=new Query;
+
+        $vms_services_active=$query->select(['pr.id'])
                         ->from('project_request as pr')
                         ->innerJoin('vm as v','v.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->andWhere(['v.active'=>true])
+                        ->andWhere(['>','pr.end_date','NOW'])
                         ->count();
         $query=new Query;
 
-        $vmstats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
+        $vms_services_total=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('vm as v','v.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        // ->andWhere(['v.active'=>true])
+                        ->count();
+        $query=new Query;
+
+        $vms_machines_active=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['v.active'=>true])
+                        ->andWhere(['>','pr.end_date','NOW'])
+                        ->count();
+        $query=new Query;
+
+        $vms_machines_total=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        // ->andWhere(['v.active'=>true])
+                        ->count();
+        $query=new Query;
+
+        $vm_active_services_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
                         ->from('project_request as pr')
                         ->innerJoin('vm as v','v.request_id=pr.id')
                         ->innerJoin('service_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->andWhere(['v.active'=>true])
+                        ->andWhere(['>','pr.end_date','NOW'])
                         ->one();
         
+        $query=new Query;
+
+        $vm_active_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
+                        ->from('project_request as pr')
+                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
+                        ->innerJoin('service_request as s','s.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['v.active'=>true])
+                        ->andWhere(['>','pr.end_date','NOW'])
+                        ->one();
+
+        $query=new Query;             
+        $vm_total_services_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
+                        ->from('project_request as pr')
+                        ->innerJoin('vm as v','v.request_id=pr.id')
+                        ->innerJoin('service_request as s','s.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->one();
+        
+        $query=new Query;
+
+        $vm_total_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
+                        ->from('project_request as pr')
+                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
+                        ->innerJoin('service_request as s','s.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->one();
+
         $final=[
             'active_services'=>$active_services,
+            'total_services'=>$total_services,
+            'active_machines'=>$active_machines,
+            'total_machines'=>$total_machines,
             'active_ondemand'=>$active_ondemand,
-            'vms'=>$vms,
-            's_cores'=>$vmstats['cores'],
-            's_ram'=>$vmstats['ram'],
-            's_storage'=>$vmstats['storage']/1000.0,
+            'total_ondemand'=>$total_ondemand,
+            'vms_services_active'=>$vms_services_active,
+            'vms_services_total'=>$vms_services_total,
+            'vms_machines_active'=>$vms_machines_active,
+            'vms_machines_total'=>$vms_machines_total,
+            'active_services_cores'=>$vm_active_services_stats['cores'],
+            'active_services_ram'=>$vm_active_services_stats['ram'],
+            'active_services_storage'=>$vm_active_services_stats['storage']/1000.0,
+            'total_services_cores'=>$vm_total_services_stats['cores'],
+            'total_services_ram'=>$vm_total_services_stats['ram'],
+            'total_services_storage'=>$vm_total_services_stats['storage']/1000.0,
+            'active_machines_cores'=>$vm_active_machines_stats['cores'],
+            'active_machines_ram'=>$vm_active_machines_stats['ram'],
+            'active_machines_storage'=>$vm_active_machines_stats['storage']/1000.0,
+            'total_machines_cores'=>$vm_total_machines_stats['cores'],
+            'total_machines_ram'=>$vm_total_machines_stats['ram'],
+            'total_machines_storage'=>$vm_total_machines_stats['storage']/1000.0,
 
         ];
         return $final;
