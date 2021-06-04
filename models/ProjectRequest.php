@@ -11,6 +11,8 @@ use yii\data\Pagination;
 use yii\helpers\Url;
 use yii\httpclient\Client;
 use app\models\Smtp;
+use app\models\ColdStorageRequest;
+use app\models\HotVolumes;
 use app\models\EmailEvents;
 
 /**
@@ -339,7 +341,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
     public function approve()
     {
-        // Yii::$app->db->createCommand()->update('project_request',['status'=>'1'], "id='$id'")->execute();
+        
         $this->status=1;
         $this->approval_date='NOW()';
         $this->approved_by=Userw::getCurrentUser()['id'];
@@ -360,9 +362,30 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $project->pending_request_id=null;
         $project_status=1;
         $project->save(false);
-        // Yii::$app->db->createCommand()->update('project',['latest_project_request_id'=>$this->id,'pending_request_id'=>null, 'status'=>1,''],"id=$this->project_id")->execute();
 
-        // $request=ProjectRequest::find()->where(['id'=>$id])->one();
+        if ($this->project_type==2)
+        {
+
+            $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$this->id])->one();
+            $vm_type=$cold_storage_request->vm_type;
+            $size=$cold_storage_request->storage;
+            $name=$this->name;
+            if($cold_storage_request->type=='hot')
+            {
+                $hotvolume=new HotVolumes;
+                $hotvolume->initialize($vm_type);
+                $authenticate=$hotvolume->authenticate();
+                $token=$authenticate[0];
+                $message=$authenticate[1];
+                if(!$token=='')
+                {
+                    $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$this->project_id);
+                }
+                
+            }
+
+        }
+
         $message="We are happy to inform you that project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
 
         foreach ($this->user_list as $user) 

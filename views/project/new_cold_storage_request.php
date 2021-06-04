@@ -14,9 +14,10 @@ use app\components\Headers;
 echo Html::CssFile('@web/css/project/project-request.css');
 
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->title="Submit a new storage volume request";
 ?>
 
-$this->title="Submit a new storage volume request";
+
 
 
 Headers::begin() ?>
@@ -25,6 +26,9 @@ Headers::begin() ?>
 ?>
 <?Headers::end()?>
 <?php
+
+$types=['hot'=>'Hot'];
+$vm_types=[1=>'24/7 service', 2=>'On-demand computation machines'];
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 
@@ -94,7 +98,8 @@ if (!empty($errors))
         <div class="row">&nbsp;</div>
 
         
-
+        <?= $form->field($coldStorage, 'type')->dropDownList($types)->label('Volume type') ?>
+        <?= $form->field($coldStorage, 'vm_type')->dropDownList($vm_types)->label('I want to use this volume for:') ?>
         <?= $form->field($coldStorage, 'storage')-> label($storage_label) ?>
         <?php
         if($role=='gold')

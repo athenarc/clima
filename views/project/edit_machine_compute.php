@@ -99,7 +99,6 @@ Headers::begin() ?>
 
       
             <?= $form->field($details,'flavour')->dropDownList($details->flavours)->label($flavour_label)?>
-            <?= $form->field($details, 'storage')->label($storage_label) ?>
            
         
         <div class="form-group">

@@ -11,6 +11,7 @@ use yii\helpers\Url;
 use app\models\Notification;
 use app\models\Openstack;
 use app\models\OpenstackMachines;
+use app\models\User;
 
 /**
  * This is the model class for table "service".

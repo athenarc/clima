@@ -11,6 +11,8 @@ use yii\helpers\Url;
 use app\models\Notification;
 use app\models\Configuration;
 use app\models\Openstack;
+use app\models\ServiceAutoaccept;
+use app\models\User;
 /**
  * This is the model class for table "service".
  *
@@ -330,21 +332,19 @@ class ServiceRequest extends \yii\db\ActiveRecord
          
         $row=$query->one();
 
-        $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>1])->count();
+        // $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>1])->count();
+        $role=User::getRoleType();
+        $service_autoaccept= ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
+        $service_autoaccept_number=$service_autoaccept->autoaccept_number;
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        
+        $autoaccept_allowed=($autoaccepted_num - $service_autoaccept_number < 0) ? true :false; 
 
         //get project request and project
         $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
-        if ($autoaccepted_num<1)
-        {
-            $autoaccept_allowed=true;
-        }
-        else
-        {
-            $autoaccept_allowed=false;
-        }
-
+        
 
         if (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
             && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) )
@@ -424,19 +424,17 @@ class ServiceRequest extends \yii\db\ActiveRecord
          
         $row=$query->one();
 
+        $role=User::getRoleType();
+        $service_autoaccept= ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
+        $service_autoaccept_number=$service_autoaccept->autoaccept_number;
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $autoaccept_allowed=($autoaccepted_num - $service_autoaccept_number < 0) ? true :false; 
 
         $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         $project=Project::find()->where(['id'=>$request->project_id])->one();
-        $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>1])->count();
+        // $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>1])->count();
 
-        if (($project->status==2) || ($autoaccepted_num<1))
-        {
-            $autoaccept_allowed=true;
-        }
-        else
-        {
-            $autoaccept_allowed=false;
-        }
+        
 
 
         if (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
