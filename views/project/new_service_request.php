@@ -11,9 +11,10 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/project-request.css');
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->title="Request a new 24/7 service project";
 ?>
 
-$this->title="Request a new 24/7 service project";
+
 
 Headers::begin() ?>
 <?php echo Headers::widget(
@@ -131,7 +132,6 @@ if (!empty($errors))
         <div class="row">&nbsp;</div>
 
         <?= $form->field($service,'flavour')->dropDownList($service->flavours)->label($flavour_label)?>
-        <?= $form->field($service, 'storage')->label($storage_label) ?>
 
         <?php
         if($role=='gold')

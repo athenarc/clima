@@ -35,6 +35,7 @@ use app\models\Email;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\web\UploadedFile;
+use app\models\HotVolumes;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 
@@ -2099,6 +2100,155 @@ class ProjectController extends Controller
             'smtp_config'=>$smtp_config]);
     }
 
+
+    public  function actionStorageVolumes($project_id)
+    {
+        $results=HotVolumes::getHotVolumesInfo($project_id);
+        $services=[];
+        $machines=[];
+        foreach ($results as $res) 
+        {
+            if($res['vm_type']==1)
+            {
+                $services[$res['id']]=$res;
+            }
+            else
+            {
+                $machines[$res['id']]=$res;
+            }
+
+        }
+        return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
+    }
+
+    public  function actionDeleteVolume($id)
+    {
+        $hotvolume=HotVolumes::find()->where(['id'=>$id])->one();
+        $project_id=$hotvolume->project_id;
+        $volume_id=$hotvolume->volume_id;
+        $authenticate=$hotvolume::authenticate();
+        $token=$authenticate[0];
+        $message=$authenticate[1];
+        if(!$token=='')
+        {
+            $deleted=HotVolumes::deleteVolume($volume_id,$token,$id);
+            $success=$deleted[0];
+            $message=$deleted[1];
+        }
+        if($success)
+        {
+            Yii::$app->session->setFlash('success', "Volume has been successfully deleted");
+        }
+        else
+        {
+            Yii::$app->session->setFlash('danger', "$message");
+        }
+        return $this->redirect(['storage-volumes', 'id'=>$project_id]);
+    }
+
+    public  function actionManageVolume($id,$service)
+    {
+        $user_id=Userw::getCurrentUser()['id'];
+        $hotvolume=HotVolumes::find()->where(['id'=>$id])->one();
+        $hotvolume->initialize($hotvolume->vm_type);
+        $project_id=$hotvolume->project_id;
+        $volume_id=$hotvolume->volume_id;
+        $vm_id=$hotvolume->vm_id;
+        $name=$hotvolume->name;
+        $project_name='';
+        $vms_dropdown=[];
+        if($vm_id==null)
+        {
+           
+            if($hotvolume->vm_type==1)
+            {
+                $vms=HotVolumes::getVolumeServices($hotvolume->volume_id,$user_id);
+               
+            }
+            else
+            {   
+                $vms=HotVolumes::getVolumeMachines($hotvolume->volume_id,$user_id);
+                
+            }
+
+            foreach ($vms as $vm) 
+            {
+                $vms_dropdown[$vm['id']]=$vm['name'];
+            }
+        }
+        else
+        {
+            if($hotvolume->vm_type==1)
+            {
+                $vm=Vm::find()->where(['id'=>$vm_id])->one();
+
+            }
+            else
+            {
+                $vm=VmMachines::find()->where(['id'=>$vm_id])->one();
+            }
+
+            $project_id=$vm->project_id;
+            $project=Project::find()->where(['id'=>$project_id])->one();
+            $project_name=$project->name;
+            $vms_dropdown[$vm_id]=$project_name;
+            
+        }
+        if($hotvolume->vm_id==null)
+        {
+            if($hotvolume->load(Yii::$app->request->post()))
+            {
+                $new_vm_id=$hotvolume->vm_id;
+                $vm_type=$hotvolume->vm_type;
+                $hotvolume->initialize($vm_type);
+                $authenticate=$hotvolume->authenticate();
+                $token=$authenticate[0];
+                $message=$authenticate[1];
+                if(!$token=='')
+                {
+                    $attach=$hotvolume->attachVolume($volume_id,$new_vm_id,$token,$vm_type);
+                    $hotvolume->mountpoint=$attach;
+                    $hotvolume->vm_id=$new_vm_id;
+                    
+                }
+                $hotvolume->update();
+                Yii::$app->session->setFlash('success', "Volume has been attached to Vm");
+                return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
+            }
+        }
+        
+        return $this->render('manage_volumes', ['hotvolume'=>$hotvolume, 'vms_dropdown'=>$vms_dropdown, 'name'=>$name, 'project_id'=>$project_id, 'volume_id'=>$volume_id, 'vm_id'=>$vm_id, 'project_name'=>$project_name]);
+    }
+
+    public function actionDetachVolumeFromVm($volume_id,$vm_id)
+    {
+        $hotvolume=HotVolumes::find()->where(['volume_id'=>$volume_id])->one();
+        $vm_type=$hotvolume->vm_type;
+        $hotvolume->initialize($vm_type);
+        $authenticate=$hotvolume->authenticate();
+        $token=$authenticate[0];
+        $message=$authenticate[1];
+        if(!$token=='')
+        {
+            $detach=$hotvolume->detachVolume($volume_id,$vm_id,$token,$vm_type);
+            if($detach[0])
+            {
+                Yii::$app->session->setFlash('success', "Volume has been detached from Vm");
+                return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
+            }
+            else
+            {
+                Yii::$app->session->setFlash('danger', $detach[1]);
+                return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
+            }
+        }
+        else
+        {
+            Yii::$app->session->setFlash('danger', $message);
+            return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
+        }
+
+    }
 
 }
 

@@ -15,6 +15,8 @@ $this->title = "Edit storage volume request";
 echo Html::CssFile('@web/css/project/project-request.css');
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
+$types=['hot'=>'Hot'];
+$vm_types=[1=>'24/7 service', 2=>'On-demand computation machines'];
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 
@@ -89,10 +91,11 @@ Headers::begin() ?>
         <div class="row">&nbsp;</div>
 
 
-        
-        <?= $form->field($details, 'storage')-> label($storage_label) ?>
+        <?= $form->field($details, 'type')->dropDownList($types, ['disabled'=>true])->label('Volume type') ?>
+        <?= $form->field($details, 'vm_type')->dropDownList($vm_types, ['disabled'=>true])->label('I want to use this volume for:') ?>
+        <?= $form->field($details, 'storage')->textInput(['disabled'=>true])-> label($storage_label) ?>
 
-        <?php
+        <!-- <?php
         if($role=='gold')
         {?>
             <input type="checkbox" id="additional" name="additional">
@@ -102,7 +105,7 @@ Headers::begin() ?>
             <?= $form->field($details, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
             </div>
         <?php
-        }?>
+        }?> -->
         
         
     

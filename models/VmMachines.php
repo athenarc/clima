@@ -960,40 +960,7 @@ class VmMachines extends \yii\db\ActiveRecord
             return [5,$this->create_errors[5],''];
         }
 
-        if ($service->storage>0)
-        {
-            $result=$this->createVolume($service->storage);
-            $volumeCreated=$result[0];
-            $message=$result[1];
-            
-            if (!$volumeCreated)
-            {
-                $this->deleteIP();
-                $this->deleteServer();
-                $this->deleteKey($this->name);
-                return [6,$this->create_errors[6],$message];
-            }
-
-            // sleep(15);
-            $result=$this->attachVolume();
-            $volumeAttached=$result[0];
-            $message=$result[1];
-
-            
-            if (!$volumeAttached)
-            {
-                $this->deleteVolume();
-                $this->deleteIP();
-                $this->deleteServer();
-                $this->deleteKey($this->name);
-                return [7,$this->create_errors[7],$message];
-            }
-            
-        }
-        else
-        {
-            $this->volume_id='';
-        }
+       
         
         Yii::$app->db->createCommand()->insert('vm_machines', [
                 'request_id'=> $requestId,
@@ -1007,7 +974,6 @@ class VmMachines extends \yii\db\ActiveRecord
                 'active' => true,
                 'keypair_name'=> $this->name,
                 'created_by'=> $user,
-                'volume_id'=> $this->volume_id,
                 'created_at'=>'NOW()',
                 'windows_unique_id' => $this->windows_unique_id,
             ])->execute();
@@ -1035,31 +1001,7 @@ class VmMachines extends \yii\db\ActiveRecord
             return [1,$this->$delete_errors[1],$message];
         }
 
-        if (!empty($this->volume_id))
-        {   
-            $result=$this->detachVolume();
-            $volumeDetached=$result[0];
-            $message=$result[1];
 
-            if (!$volumeDetached)
-            {
-                return [6,$this->delete_errors[6],$message];
-            }
-            if (!$this->do_not_delete_disk)
-            {
-                sleep(15);
-                $result=$this->deleteVolume();
-                $volumeDeleted=$result[0];
-                $message=$result[1];
-
-                if (!$volumeDeleted)
-                {
-                    return [5,$this->$delete_errors[5],$message];
-                }
-            }
-            
-
-        }
         $result=$this->deleteIP();
         $ipDeleted=$result[0];
         $message=$result[1];

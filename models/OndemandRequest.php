@@ -9,6 +9,8 @@ use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\ProjectRequest;
 use yii\helpers\Url;
 use app\models\Notification;
+use app\models\OndemandAutoaccept;
+use app\models\User;
 /**
  * This is the model class for table "ondemand_request".
  *
@@ -163,20 +165,19 @@ class OndemandRequest extends \yii\db\ActiveRecord
          
         $row=$query->one();
 
-        $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>0])->count();
+        // $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>0])->count();
+        $role=User::getRoleType();
+        $ondemand_autoaccept= OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
+        $ondemand_autoaccept_number=$ondemand_autoaccept->autoaccept_number;
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $autoaccept_allowed=($autoaccepted_num-$ondemand_autoaccept_number < 0) ? true :false;
 
         //get project request and project
         $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
-        if ($autoaccepted_num<1)
-        {
-            $autoaccept_allowed=true;
-        }
-        else
-        {
-            $autoaccept_allowed=false;
-        }
+        
+
 
         if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
         {
@@ -254,20 +255,17 @@ class OndemandRequest extends \yii\db\ActiveRecord
          
         $row=$query->one();
 
-        $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>0])->count();
+        // $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>0])->count();
+        $role=User::getRoleType();
+        $ondemand_autoaccept= OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
+        $ondemand_autoaccept_number=$ondemand_autoaccept->autoaccept_number;
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $autoaccept_allowed=($autoaccepted_num-$ondemand_autoaccept_number < 0) ? true :false; 
 
         //get project request and project
         $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
-        if (($project->status==2) || ($autoaccepted_num<1))
-        {
-            $autoaccept_allowed=true;
-        }
-        else
-        {
-            $autoaccept_allowed=false;
-        }
 
         if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
         {

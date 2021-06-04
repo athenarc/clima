@@ -165,7 +165,7 @@ foreach ($active as $res)
 	}
 	else
 	{
-		$projectLink=Url::to(['/site/under-construction']);
+		$projectLink=Url::to(['/project/storage-volumes', 'project_id'=>$res['project_id']]);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
 		$title="Cold-Storage";
