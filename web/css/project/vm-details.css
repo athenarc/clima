@@ -46,3 +46,8 @@
 {
 	display:none;
 }
+
+.instructions-for-volume
+{
+	cursor:pointer;
+}

@@ -40,9 +40,7 @@ Headers::begin() ?>
 <div class="row">
 	<div class="col-md-2 tab-label"><b>Operating system disk:</b></div><div class="col-md-1 tab-value"><?=$service->disk?> GB</div>
 </div>
-<div class="row">
-	<div class="col-md-2 tab-label"><b>Additional storage:</b></div><div class="col-md-10 tab-value"><?=$service->storage?> GB</div>
-</div>
+ 
 
 <?php $form=ActiveForm::begin($form_params);
 ?>
@@ -63,3 +61,23 @@ Headers::begin() ?>
 <?php
 	ActiveForm::end();
 ?>
+
+
+<div class="modal instructions fade"  tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+   			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLongTitle"><strong>Create additional storage</strong></h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true" class="btn-cancel-modal">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+				<li>Add a request for a storage volume. Select hot in the volume type dropdown.</li>
+				<li>Upon approval of the request, the volume with specified size is created.</li>
+				<li>You may then manage the storage volume by clicking the 'Access' button of the created colume in the main page. </li>
+				<li> The 'Access' button opens a page, where storage volumes can be attached to active VMs. </li>
+			</div>
+		</div>
+	</div>
+</div>

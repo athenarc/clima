@@ -17,12 +17,7 @@ $this->title="Additional Storage";
 $back_icon='<i class="fas fa-arrow-left"></i>';
 
  echo Headers::widget(
-['title'=>$this->title, 
-	'buttons'=>
-	[
-		
-		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>', 'name'=>'Back', 'action'=>['project/index'], 'type'=>'a', 'options'=>['class'=>'btn btn-default']]
-	]
+['title'=>$this->title
 ])
 
 ?>
