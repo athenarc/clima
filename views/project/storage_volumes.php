@@ -30,7 +30,9 @@ Headers::begin() ?>
 	[
 		
 		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/index'],
-		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
+		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'],
+		['fontawesome_class'=>'<i class="far fa-question-circle"></i>','name'=> 'Volume guide', 'action'=>['site/additional-storage-tutorial'],
+		 'options'=>['class'=>'btn btn-primary', 'title'=>'Guide to partition, format and mount a volume, which is attached to a VM', 'target'=>'_blank'], 'type'=>'a']  
 	],
 ])
 ?>
@@ -49,8 +51,7 @@ if(!empty($services))
 			<tr>
 				<th class="col-md-2" scope="col">Volume name</th>
 				<th class="col-md-1" scope="col">Created at</th>
-				<th class="col-md-2 text-center" scope="col">Deleted at</th>
-				<th class="col-md-2 text-center" scope="col">Vm Name</th>
+				<th class="col-md-2 text-center" scope="col">Attached project VM</th>
 				<th class="col-md-2 text-center" scope="col">Mountpoint</th>
 				<th class="col-md-3" scope="col">&nbsp;</th>
 			</tr>
@@ -69,8 +70,7 @@ if(!empty($services))
 			<tr class="active">
 			<td class="col-md-2"><?=$res['name']?> </td>
 			<td class="col-md-1"><?=explode(' ',$res['accepted_at'])[0]?></td>
-			<td class="col-md-2 text-center"><?=$res['deleted_at']?></td>
-			<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'No Vm attached': $res['project_name']?></td>
+			<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'No VM attached': $res['24/7 name']?></td>
 			<td class="col-md-2 text-center"><?=empty($res['mountpoint'])?'No mountpoint attached': $res['mountpoint']?></td>
 			<td class="col-md-3 text-right">
 				<?=Html::a("$manage_icon Manage attachment",['/project/manage-volume','id'=>$res['id'], 'service'=>$res['vm_type']],['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
@@ -93,7 +93,7 @@ if(!empty($services))
 else
 {?>
 	<div class="row"><div class="col-md-12">
-		<h2> No active Vms for on-demand computation machines </h2>
+		<h2> No active VMs for on-demand computation machines </h2>
 	</div></div>	
 <?php
 }?>
@@ -108,8 +108,7 @@ if(!empty($machines))
 				<tr>
 					<th class="col-md-2" scope="col">Volume name</th>
 					<th class="col-md-1" scope="col">Created at</th>
-					<th class="col-md-2 text-center" scope="col">Deleted at</th>
-					<th class="col-md-2 text-center" scope="col">Vm Name</th>
+					<th class="col-md-2 text-center" scope="col">Attached project VM</th>
 					<th class="col-md-2 text-center" scope="col">Mountpoint</th>
 					<th class="col-md-3" scope="col">&nbsp;</th>
 				</tr>
@@ -127,8 +126,7 @@ if(!empty($machines))
 				<tr class="active">
 				<td class="col-md-2"><?=$res['name']?> </td>
 				<td class="col-md-1"><?=explode(' ',$res['accepted_at'])[0]?></td>
-				<td class="col-md-2 text-center"><?=$res['deleted_at']?></td>
-				<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'No Vm attached': $res['project_name']?></td>
+				<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'No VM attached': $res['project_name']?></td>
 				<td class="col-md-2 text-center"><?=empty($res['mountpoint'])?'No mountpoint attached': $res['mountpoint']?></td>
 				<td class="col-md-3 text-right">
 					<?=Html::a("$manage_icon Manage attachment",['/project/manage-volume','id'=>$res['id'], 'service'=>$res['vm_type']],['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
@@ -179,3 +177,18 @@ foreach ($results as $res)
 	</div>
 <?php
 }?>
+
+<div class="modal guide fade" id="<?=$res['name']?>" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+	   			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLongTitle">Instructions for additional storage</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true" class="btn-cancel-modal">&times;</span>
+				</button>
+				</div>
+				<div class="modal-body">In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide',['site/additional-storage-tutorial'], ['target'=>'_blank'])?>.</div>
+				</div>
+		</div>
+	</div>
+

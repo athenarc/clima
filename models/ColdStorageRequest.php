@@ -124,13 +124,11 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
 
         if (($this->storage<=$row['storage']) && $autoaccept_allowed)
         {
-            // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
+            $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
             $request->status=2;
             $request->approval_date='NOW()';
             $request->approved_by=0;
             $request->save(false);
-            // print_r($request);
-            // exit(0);
             
             $message="Project '$request->name' has been automatically approved.";
 
@@ -140,7 +138,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             }
 
 
-            // $project=Project::find()->where(['id'=>$request->project_id])->one();
+            $project=Project::find()->where(['id'=>$request->project_id])->one();
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
             $project->status=2;
@@ -154,24 +152,17 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             if($cold_storage_request->type=='hot')
             {
                 $hotvolume=new HotVolumes;
-                $authenticate=$hotvolume::authenticate();
+                $hotvolume->initialize($vm_type);
+                $authenticate=$hotvolume->authenticate();
                 $token=$authenticate[0];
                 $message=$authenticate[1];
                 if(!$token=='')
                 {
-                    $volume_id=HotVolumes::createVolume($size,$name,$token,$vm_type,$project->id);
+                    $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id);
                 }
                
             }
 
-            Yii::$app->db->createCommand()->insert('hot_volumes', [
-                            'name' => $name . '-volume',
-                            'accepted_at'=>'NOW()',
-                            'project_id' => $project->id,
-                            'volume_id'=>$volume_id,
-                            'vm_type'=>$vm_type,
-                            'active'=>true,
-                        ])->execute();
         }
              
         else
@@ -262,31 +253,31 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             $project->save();
             // Yii::$app->db->createCommand()->update('project',['latest_project_request_id'=>$request->id, 'pending_request_id'=>null,'status'=>2],"id=$request->project_id")->execute();
 
-            $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
-            $vm_type=$cold_storage_request->vm_type;
-            $size=$cold_storage_request->storage;
-            $name=$project->name;
-            if($cold_storage_request->type=='hot')
-            {
-                $hotvolume=new HotVolumes;
-                $authenticate=$hotvolume::authenticate();
-                $token=$authenticate[0];
-                $message=$authenticate[1];
-                if(!$token=='')
-                {
-                    $volume_id=HotVolumes::createVolume($size,$name,$token);
-                }
+            // $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+            // $vm_type=$cold_storage_request->vm_type;
+            // $size=$cold_storage_request->storage;
+            // $name=$project->name;
+            // if($cold_storage_request->type=='hot')
+            // {
+            //     $hotvolume=HotVolumes::find()->where();
+            //     $authenticate=$hotvolume->authenticate();
+            //     $token=$authenticate[0];
+            //     $message=$authenticate[1];
+            //     if(!$token=='')
+            //     {
+            //         $volume_id=$hotvolume->createVolume($size,$name,$token);
+            //     }
                
-            }
+            // }
 
-            Yii::$app->db->createCommand()->insert('hot_volumes', [
-                            'name' => $name . '-volume',
-                            'accepted_at'=>'NOW()',
-                            'project_id' => $project->id,
-                            'volume_id'=>$volume_id,
-                            'vm_type'=>$vm_type,
-                            'active'=>true,
-                        ])->execute();
+            // Yii::$app->db->createCommand()->update('hot_volumes', [
+            //                 'name' => $name . '-volume',
+            //                 'accepted_at'=>'NOW()',
+            //                 'project_id' => $project->id,
+            //                 'volume_id'=>$volume_id,
+            //                 'vm_type'=>$vm_type,
+            //                 'active'=>true,
+            //             ], "id='$project_id'")->execute();
         }
              
         else

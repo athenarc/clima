@@ -1031,6 +1031,22 @@ class ProjectController extends Controller
         }
 
         $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+
+        $project=Project::find()->where(['id'=>$id])->one();
+        $project_id=$project->id;
+        $hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
+        $additional_storage=[];
+        if(!empty($hotvolume))
+        {
+            foreach ($hotvolume as $hot) 
+            {
+                $project=Project::find()->where(['id'=>$project_id])->one();
+                $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage];
+            }
+        }
+        // print_r($additional_storage);
+        // exit(0);
         // print_r($existing);
         // exit(0);
 
@@ -1123,10 +1139,12 @@ class ProjectController extends Controller
         }
         else
         {
+            
+           
             session_write_close();
             $existing->getConsoleLink();
             session_start();
-            return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service]);
+            return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage]);
         }
         
 
@@ -2111,10 +2129,22 @@ class ProjectController extends Controller
             if($res['vm_type']==1)
             {
                 $services[$res['id']]=$res;
+                if(!empty($res['vm_id']))
+                {
+                    $vm=Vm::find()->where(['id'=>$res['vm_id']])->one();
+                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
+                    $services[$res['id']]['24/7 name']=$project_request->name;
+                }
             }
             else
             {
                 $machines[$res['id']]=$res;
+                if(!empty($res['vm_id']))
+                {
+                    $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
+                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
+                    $services[$res['id']]['24/7 name']=$project_request->name;
+                }
             }
 
         }

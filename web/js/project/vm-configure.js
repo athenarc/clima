@@ -13,4 +13,8 @@ $(document).ready(function(){
 		$('.btn-default').removeAttr('disabled');
 
 	});
+
+	$(".instructions-for-volume").click(function(){
+		$('.instructions').modal();
+	});
 })

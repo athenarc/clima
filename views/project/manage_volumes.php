@@ -45,7 +45,7 @@ Headers::begin() ?>
         $form = ActiveForm::begin(); 
     ?>
         <div class="row">
-            <div class="col-md-offset-3 col-md-7"> <h2> Select Vm to attach the volume</h2>
+            <div class="col-md-offset-3 col-md-7"> <h2> Select VM to attach the volume</h2>
                 <?= $form->field($hotvolume, 'vm_id')->dropDownList($vms_dropdown)->label('') ?>
             </div>
         </div>
@@ -58,7 +58,7 @@ Headers::begin() ?>
     else
     {?>
         <div class="row">
-            <div class="col-md-offset-3 col-md-7"> <h2> Detach the volume from the Vm</h2>
+            <div class="col-md-offset-3 col-md-7"> <h2> Detach the volume from the VM</h2>
                 <?= Html::textInput('detach',$project_name,['class'=>'form-control', 'disabled'=>true])?>
             </div>
         </div>

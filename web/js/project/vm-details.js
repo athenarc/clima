@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
 	$(".delete-vm-btn").click(function(){
-		$('.modal').modal();
+		$('.delete').modal();
 	});
 
 	$(".confirm-delete").click(function (){
@@ -28,5 +28,9 @@ $(document).ready(function(){
             },
             retries: 2,
         });
+	});
+
+	$(".instructions-for-volume").click(function(){
+		$('.instructions').modal();
 	});
 })
