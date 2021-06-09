@@ -1034,38 +1034,7 @@ class ProjectController extends Controller
 
         $project=Project::find()->where(['id'=>$id])->one();
         $project_id=$project->id;
-        $hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
-        $additional_storage=[];
-        if(!empty($hotvolume))
-        {
-            foreach ($hotvolume as $hot) 
-            {
-                $project=Project::find()->where(['id'=>$project_id])->one();
-                $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
-                $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage];
-            }
-        }
-        // print_r($additional_storage);
-        // exit(0);
-        // print_r($existing);
-        // exit(0);
-
-        //If vm is upgraded, then show message to user to delete past vm and create new
-        if(!empty($existing))
-        {
-            $service_old=ServiceRequest::find()->where(['request_id'=>$existing->request_id])->one();
-            $service_old_id=$service_old->id;
-            $project=Project::find()->where(['id'=>$id])->one();
-            $latest_service_request_id=$project->latest_project_request_id;
-            $service=ServiceRequest::find()->where(['request_id'=>$latest_service_request_id])->one();
-            if($service_old_id<$latest_service_request_id)
-            {
-                if($service_old->vm_flavour != $service->vm_flavour)
-                {
-                    Yii::$app->session->setFlash('success', "Due to an accepted project update, you have the option to create a larger machine. If you want to create it, backup any data stored in your current machine and then destroy it. After that you will be able to create a larger machine");
-                }
-            }
-        }
+        
         
         if (empty($existing))
         {
@@ -1140,7 +1109,30 @@ class ProjectController extends Controller
         else
         {
             
-           
+            $hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
+            $additional_storage=[];
+            if(!empty($hotvolume))
+            {
+                foreach ($hotvolume as $hot) 
+                {
+                    $project=Project::find()->where(['id'=>$project_id])->one();
+                    $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                    $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage];
+                }
+            }
+
+            $service_old=ServiceRequest::find()->where(['request_id'=>$existing->request_id])->one();
+            $service_old_id=$service_old->id;
+            $project=Project::find()->where(['id'=>$id])->one();
+            $latest_service_request_id=$project->latest_project_request_id;
+            $service=ServiceRequest::find()->where(['request_id'=>$latest_service_request_id])->one();
+            if($service_old_id<$latest_service_request_id)
+            {
+                if($service_old->vm_flavour != $service->vm_flavour)
+                {
+                    Yii::$app->session->setFlash('success', "Due to an accepted project update, you have the option to create a larger machine. If you want to create it, backup any data stored in your current machine and then destroy it. After that you will be able to create a larger machine");
+                }
+            }
             session_write_close();
             $existing->getConsoleLink();
             session_start();

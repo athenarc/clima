@@ -59,3 +59,5 @@ tests/_support/_generated
 /web/index-test.php
 /web/index.php
 /web/robots.txt
+.htaccess
+web/.htaccess
