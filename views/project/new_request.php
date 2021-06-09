@@ -44,7 +44,7 @@ Headers::begin() ?>
 <?= ToolButton::createButton("$ondemand_icon  On-demand batch computations", "",['/project/new-ondemand-request']) ?>
 </div>
 <?php
-if (Userw::hasRole('Admin',$superAdminAllowed=true))
+if (Userw::hasRole('Gold',$superAdminAllowed=true))
 {
 ?>
 <div class="col-md-12 project">
@@ -58,17 +58,11 @@ if (Userw::hasRole('Admin',$superAdminAllowed=true))
 </div>
 
 <?php
-/*
- * To be changed later
- */
-// if (Userw::hasRole('Gold',$superadminAllowed=false) || Userw::hasRole("Silver", $superAdminAllowed = false)) 
-if (Userw::hasRole('Admin',$superAdminAllowed=true))
-{
+
 ?>
 <div class="col-md-12 project">
 	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-cold-storage-request']) ?>
 </div>
 <?php
-}
 ?>
  
