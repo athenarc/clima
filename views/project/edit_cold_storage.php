@@ -58,7 +58,7 @@ Headers::begin() ?>
            
         <?= $form->field($project, 'name') ?>
         <?= $form->field($project, 'user_num') ?>
-        <?= $form->field($project, 'end_date')->textInput(['disabled'=>true]) ?>
+        
         <?= Html::label($participating_label, 'user_search_box', ['class'=>'blue-label']) ?>
         <br/>
         <?= MagicSearchBox::widget(
