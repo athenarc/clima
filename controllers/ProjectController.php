@@ -1115,9 +1115,11 @@ class ProjectController extends Controller
             {
                 foreach ($hotvolume as $hot) 
                 {
-                    $project=Project::find()->where(['id'=>$project_id])->one();
+                    $project=Project::find()->where(['id'=>$hot->project_id])->one();
+                    // print_r($hot);
+                    // exit(0);
                     $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
-                    $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage];
+                    $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
                 }
             }
 

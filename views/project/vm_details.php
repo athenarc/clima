@@ -96,7 +96,7 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 		{
 			foreach($additional_storage as $storage)
 			{?>
-				<span><?=$storage['name']?> (<?=$storage['size']?> GB)</span> <br>
+				<span><?=$storage['name']?> (<?=$storage['size']?> GB) on <?=$storage['mountpoint']?></span> <br>
 			<?php
 			}
 		}
