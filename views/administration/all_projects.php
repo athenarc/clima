@@ -30,6 +30,10 @@ $history_icon='<i class="fas fa-history"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
 $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
 
+
+
+
+
 Headers::begin() ?>
 <?php echo Headers::widget(
 ['title'=>"Dashboard", 
@@ -115,10 +119,11 @@ foreach ($active as $res)
 	$edit_button_class='';
 	$triangle_icon='';
 	$ondemand_access_class='';
-	
+
 
 	if ($res['project_type']==0)
 	{
+		
 		$projectLink=$schema_url;
 		if(empty($schema_url))
         {
@@ -126,7 +131,7 @@ foreach ($active as $res)
         }
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand computation';
+		$title='On-demand batch computation';
 	}
 	else if ($res['project_type']==1) 
 	{
@@ -134,10 +139,23 @@ foreach ($active as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='24/7 Service';
+		if($res['louros']==true)
+		{
+			$edit_button_class="disabled";
+			$access_button_class="disabled";
+			$triangle_icon='<i class="fa fa-exclamation-triangle" aria-hidden="true" title="This project cannot be updated right now since it has been transferred from the old infrastructure to HYPATIA. This is a temporary issue and it will be resolved in a while. In the meantime, if a modification is required, please contact the HYPATIA administrators."></i>';
+		}
 	}
-	else
+	else if ($res['project_type']==3) 
 	{
-		$projectLink=Url::to(['/site/under-construction']);
+		$projectLink=Url::to(['/project/machine-compute-configure-vm','id'=>$res['project_id']]);
+		$projectTarget='_self';
+		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
+		$title='On-demand computation machines';
+	}
+	else if ($res['project_type']==2) 
+	{
+		$projectLink=Url::to(['/project/storage-volumes-admin']);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
 		$title="Cold-Storage";
@@ -147,12 +165,12 @@ foreach ($active as $res)
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-2" style="vertical-align: middle!important;"><?=$res['name']?></td>
+				<td class="col-md-2" style="vertical-align: middle!important;"> <?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
 				<td class="col-md-2" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
-				<td class="col-md-3 text-right">
-					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>'btn btn-secondary btn-md'])?>
+				<td class="col-md-4 text-right">
+					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>"btn btn-secondary btn-md $edit_button_class"])?>
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
 					<?=Html::a("$access_icon Access", $projectLink,['class'=>"btn btn-success btn-md $access_button_class $ondemand_access_class",'target'=>$projectTarget])?>
 				</td>	
@@ -226,7 +244,7 @@ foreach ($expired as $res)
 		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand computation';
+		$title='On-demand batch computation';
 		
 	}
 	else if ($res['project_type']==1) 
@@ -235,6 +253,14 @@ foreach ($expired as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='24/7 Service';
+
+	}
+	else if ($res['project_type']==3) 
+	{
+		$projectLink=Url::to(['/project/machine-compute-configure-vm','id'=>$res['id']]);
+		$projectTarget='_self';
+		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
+		$title='On-demand computation machines';
 
 	}
 	else
