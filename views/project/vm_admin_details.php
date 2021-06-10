@@ -136,7 +136,7 @@ if ($vm->active)
 <div class="row"><div class="col-md-12 text-center">&nbsp;</div></div>
 <div class="row"><div class="col-md-12 text-center"><?= Html::tag("button","Delete VM", ['class'=>'btn btn-danger delete-vm-btn'])?></div></div>
 
-<div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
+<div class="modal delete fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
    			<div class="modal-header">

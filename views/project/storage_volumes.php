@@ -108,8 +108,8 @@ if(!empty($machines))
 				<tr>
 					<th class="col-md-2" scope="col">Volume name</th>
 					<th class="col-md-1" scope="col">Created at</th>
-					<th class="col-md-2 text-center" scope="col">Attached project VM</th>
-					<th class="col-md-2 text-center" scope="col">Mountpoint</th>
+					<th class="col-md-2 text-center" scope="col">Attached to</th>
+					<th class="col-md-2 text-center" scope="col">On</th>
 					<th class="col-md-3" scope="col">&nbsp;</th>
 				</tr>
 			</thead>
@@ -124,21 +124,21 @@ if(!empty($machines))
 				}?>
 			
 				<tr class="active">
-				<td class="col-md-2"><?=$res['name']?> </td>
-				<td class="col-md-1"><?=explode(' ',$res['accepted_at'])[0]?></td>
-				<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'No VM attached': $res['project_name']?></td>
-				<td class="col-md-2 text-center"><?=empty($res['mountpoint'])?'No mountpoint attached': $res['mountpoint']?></td>
-				<td class="col-md-3 text-right">
-					<?=Html::a("$manage_icon Manage attachment",['/project/manage-volume','id'=>$res['id'], 'service'=>$res['vm_type']],['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
-					<!-- <?php
-					if($res['active']==true)
-					{?>
-						<?=Html::a("$delete_icon Delete",null,['class'=>"btn btn-danger btn-md delete-volume-btn",
-						'id'=>$res['name']])?>
-					<?php
-					}?> -->
-				</td>	
-				</tr>
+			<td class="col-md-2"><?=$res['name']?> </td>
+			<td class="col-md-1"><?=explode(' ',$res['accepted_at'])[0]?></td>
+			<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'-': $res['machine name']?></td>
+			<td class="col-md-2 text-center"><?=empty($res['mountpoint'])?'-': $res['mountpoint']?></td>
+			<td class="col-md-3 text-right">
+				<?=Html::a("$manage_icon Manage attachment",['/project/manage-volume','id'=>$res['id'], 'service'=>$res['vm_type']],['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
+				<!-- <?php
+				if($res['active']==true)
+				{?>
+					<?=Html::a("$delete_icon Delete",null,['class'=>"btn btn-danger btn-md delete-volume-btn",
+					'id'=>$res['name']])?>
+				<?php
+				}?> -->
+			</td>	
+			</tr>
 			<?php
 			}?>
 		</tbody>
