@@ -1019,12 +1019,8 @@ class ProjectController extends Controller
 
     public function actionConfigureVm($id)
     {
-    	// $project=Project::find()->where(['id'=>$id])->one();
-    	// $latest_project_request_id=$project->latest_project_request_id;
         $owner=Project::userInProject($id);
 
-        // print_r($owner);
-        // exit(0);
         if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
@@ -2135,9 +2131,41 @@ class ProjectController extends Controller
     }
 
 
-    public  function actionStorageVolumes($project_id)
+    public  function actionStorageVolumes()
     {
-        $results=HotVolumes::getHotVolumesInfo($project_id);
+        $results=HotVolumes::getHotVolumesInfo();
+        $services=[];
+        $machines=[];
+        foreach ($results as $res) 
+        {
+            if($res['vm_type']==1)
+            {
+                $services[$res['id']]=$res;
+                if(!empty($res['vm_id']))
+                {
+                    $vm=Vm::find()->where(['id'=>$res['vm_id']])->one();
+                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
+                    $services[$res['id']]['24/7 name']=$project_request->name;
+                }
+            }
+            else
+            {
+                $machines[$res['id']]=$res;
+                if(!empty($res['vm_id']))
+                {
+                    $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
+                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
+                    $services[$res['id']]['24/7 name']=$project_request->name;
+                }
+            }
+
+        }
+        return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
+    }
+
+    public  function actionStorageVolumesAdmin()
+    {
+        $results=HotVolumes::getHotVolumesInfoAdmin();
         $services=[];
         $machines=[];
         foreach ($results as $res) 
@@ -2194,8 +2222,20 @@ class ProjectController extends Controller
 
     public  function actionManageVolume($id,$service)
     {
-        $user_id=Userw::getCurrentUser()['id'];
         $hotvolume=HotVolumes::find()->where(['id'=>$id])->one();
+        if (empty($hotvolume))
+        {
+            return $this->render('error_unauthorized');
+        }
+        $participant=Project::userInProject($hotvolume->project_id);
+
+        if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+
+        $user_id=Userw::getCurrentUser()['id'];
+        
         $hotvolume->initialize($hotvolume->vm_type);
         $project_id=$hotvolume->project_id;
         $volume_id=$hotvolume->volume_id;
@@ -2269,6 +2309,17 @@ class ProjectController extends Controller
     public function actionDetachVolumeFromVm($volume_id,$vm_id)
     {
         $hotvolume=HotVolumes::find()->where(['volume_id'=>$volume_id])->one();
+        if (empty($hotvolume))
+        {
+            return $this->render('error_unauthorized');
+        }
+
+        $participant=Project::userInProject($hotvolume->project_id);
+        if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+
         $vm_type=$hotvolume->vm_type;
         $hotvolume->initialize($vm_type);
         $authenticate=$hotvolume->authenticate();

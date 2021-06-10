@@ -105,19 +105,37 @@ class HotVolumes extends \yii\db\ActiveRecord
     }
 
 
-    public static function getHotVolumesInfo($project_id)
+    public static function getHotVolumesInfo()
     {
         $query=new Query;
 
+        $userID=Userw::getCurrentUser()['id'];
+        $query->select(['ht.id','ht.name','ht.volume_id','p.id as project_id','p.latest_project_request_id as request_id','ht.accepted_at','cs.vm_type', 'ht.active', 'ht.deleted_at', 'ht.deleted_by', 'ht.vm_id','ht.mountpoint', 'p.name as project_name'])
+              ->from('hot_volumes as ht')
+              ->innerJoin('project as p','p.id=ht.project_id')
+              ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
+              ->innerJoin('cold_storage_request as cs', 'pr.id=cs.request_id')
+              ->where("$userID = ANY(pr.user_list)");
+              
+              // ->where(['p.status'=>[1,2]]);
+              // ->andWhere(['pr.project_type'=>2]);
 
+
+        $results = $query->orderBy('ht.accepted_at DESC')->all();
+        
+        return $results;
+    }
+
+    public static function getHotVolumesInfoAdmin()
+    {
+        $query=new Query;
+
+        $userID=Userw::getCurrentUser()['id'];
         $query->select(['ht.id','ht.name','ht.volume_id','p.id as project_id','p.latest_project_request_id as request_id','ht.accepted_at','cs.vm_type', 'ht.active', 'ht.deleted_at', 'ht.deleted_by', 'ht.vm_id','ht.mountpoint', 'p.name as project_name'])
               ->from('hot_volumes as ht')
               ->innerJoin('project as p','p.id=ht.project_id')
               ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
               ->innerJoin('cold_storage_request as cs', 'pr.id=cs.request_id');
-              
-              // ->where(['p.status'=>[1,2]]);
-              // ->andWhere(['pr.project_type'=>2]);
 
 
         $results = $query->orderBy('ht.accepted_at DESC')->all();

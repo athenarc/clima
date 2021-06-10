@@ -305,12 +305,8 @@ class Project extends \yii\db\ActiveRecord
               ->where(['or', ['pr.submitted_by'=>$user],"$user = ANY(pr.user_list)"])
               ->andWhere(['pr.project_id'=>$projectId])
               ->orderBy('pr.submission_date DESC');
-        // print_r($query->createCommand()->getRawSql());
-        // exit(0);
         
         $results=$query->all();
-        // print_r($results);
-        // exit(0);
 
         return $results;
 
@@ -458,7 +454,7 @@ class Project extends \yii\db\ActiveRecord
         $date=date("Y-m-d");
         $status=[1,2];
         $query->select(['pr.id','pr.name', 'p.id as project_id', 'pr.duration','pr.status','pr.viewed','pr.end_date', 'pr.approval_date','pr.project_type', 
-            'pr.submission_date', 'pr.submitted_by','u.username'
+            'pr.submission_date', 'pr.submitted_by','u.username', 'pr.louros'
           ])
               ->from('project as p')
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
