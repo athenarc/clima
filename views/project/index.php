@@ -142,6 +142,7 @@ foreach ($active as $res)
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand batch computation';
+		$days=$res[1]. " days";
 	}
 	else if ($res['project_type']==1) 
 	{
@@ -155,6 +156,7 @@ foreach ($active as $res)
 			$access_button_class="disabled";
 			$triangle_icon='<i class="fa fa-exclamation-triangle" aria-hidden="true" title="This project cannot be updated right now since it has been transferred from the old infrastructure to HYPATIA. This is a temporary issue and it will be resolved in a while. In the meantime, if a modification is required, please contact the HYPATIA administrators."></i>';
 		}
+		$days=$res[1]. " days";
 	}
 	else if ($res['project_type']==3) 
 	{
@@ -162,6 +164,7 @@ foreach ($active as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand computation machines';
+		$days=$res[1]. " days";
 	}
 	else
 	{
@@ -169,6 +172,7 @@ foreach ($active as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
 		$title="Cold-Storage";
+		$days='N/A';
 	}
 
 
@@ -178,7 +182,7 @@ foreach ($active as $res)
 				<td class="col-md-2" style="vertical-align: middle!important;"> <?=Html::a($favorite_icon, $favorite_link) ?> &nbsp;  <?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
 				<td class="col-md-2" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
-				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
+				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$days?></td>
 				<td class="col-md-3 text-right">
 					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>"btn btn-secondary btn-md $edit_button_class"])?>
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 

@@ -104,7 +104,6 @@ Headers::begin() ?>
         <br />
 
         
-        <?= $form->field($project, 'backup_services')->checkbox() ?>
 
         </div>
             <div class="col-md-6">
@@ -135,17 +134,6 @@ Headers::begin() ?>
                 <?= $form->field($details, "num_of_jobs")->label($jobs_label) ?>
                 <?= $form->field($details, 'cores')->label($cores_label) ?>
                 <?= $form->field($details, 'ram')->label($ram_label) ?>
-                <?php
-                if($role=='gold')
-                {?>
-                    <input type="checkbox" id="additional" name="additional">
-                    <label for="additional"> I need more resources than the maximum provided. </label><br>
-                    <div id='textarea' style="display: none;">
-                    <div class="row">&nbsp;</div>
-                    <?= $form->field($details, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
-                    </div>
-                <?php
-                }?>
         
         
     

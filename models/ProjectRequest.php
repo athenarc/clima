@@ -184,10 +184,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$project_id'")->execute();
 
             $message="A new project named '$this->name' has been submitted and is pending moderator approval.";
-            EmailEvents::NotifyByEmail('new_project', $project_id,$message);
+           
         }
 
-        return [$errors,$success,$warnings,$request_id];
+        return [$errors,$success,$warnings,$request_id, $message, $project_id];
     }
 
     public function uploadNewEdit($participating,$project_type,$modify_req_id='')

@@ -77,7 +77,6 @@ Headers::begin() ?>
         ?>
         <br />
         
-        <?= $form->field($project, 'backup_services')->checkbox() ?>
         </div>
         
     <div class="col-md-6">

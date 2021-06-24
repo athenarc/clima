@@ -99,6 +99,13 @@ class ProjectController extends Controller
         $configuration=Configuration::find()->one();
         $schema_url=$configuration->schema_url;
 
+        // $role=User::getRoleType();
+        // $service_autoaccept= ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
+        // $service_autoaccept_number=$service_autoaccept->autoaccept_number;
+        // $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        // print_r($service_autoaccept_number);
+        // exit(0);
+
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
                     2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user'];
@@ -292,12 +299,16 @@ class ProjectController extends Controller
                 $success.=$messages[1];
                 $warnings.=$messages[2];
                 $requestId=$messages[3];
+                $submitted_email=$messages[4];
+                $project_id=$messages[5];
+
                 if ($requestId!=-1)
                 {
                     $messages=$serviceModel->uploadNew($requestId);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
+                    $message_autoaccept=$messages[3];
                 }
 
                 if (empty($errors))
@@ -309,6 +320,15 @@ class ProjectController extends Controller
                     if(!empty($warnings))
                     {
                         Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+
+                    if(empty($message_autoaccept))
+                    {
+                    	EmailEvents::NotifyByEmail('new_project', $project_id,$submitted_email);
+                    }
+                    else
+                    {
+                    	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
                     return $this->redirect(['project/index']);
@@ -396,12 +416,14 @@ class ProjectController extends Controller
                 $success.=$messages[1];
                 $warnings.=$messages[2];
                 $requestId=$messages[3];
+                
                 if ($requestId!=-1)
                 {
                     $messages=$serviceModel->uploadNew($requestId);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
+                   
                 }
 
                 if (empty($errors))
@@ -414,6 +436,8 @@ class ProjectController extends Controller
                     {
                         Yii::$app->session->setFlash('warning', "$warnings");
                     }
+
+                    
                     
                     return $this->redirect(['project/index']);
                 }
@@ -520,12 +544,15 @@ class ProjectController extends Controller
                 $success.=$messages[1];
                 $warnings.=$messages[2];
                 $requestId=$messages[3];
+                $submitted_email=$messages[4];
+                $project_id=$messages[5];
                 if ($requestId!=-1)
                 {
                     $messages=$coldStorageModel->uploadNew($requestId);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
+                    $message_autoaccept=$messages[4];
                 }
 
                 if (empty($errors))
@@ -538,6 +565,15 @@ class ProjectController extends Controller
                     if(!empty($warnings))
                     {
                         Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+
+                    if(empty($message_autoaccept))
+                    {
+                    	EmailEvents::NotifyByEmail('new_project', $project_id,$submitted_email);
+                    }
+                    else
+                    {
+                    	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
                     return $this->redirect(['project/index']);
@@ -646,6 +682,8 @@ class ProjectController extends Controller
                 $success.=$messages[1];
                 $warnings.=$messages[2];
                 $requestId=$messages[3];
+                $submitted_email=$messages[4];
+                $project_id=$messages[5];
 
                 if ($requestId!=-1)
                 {
@@ -653,6 +691,7 @@ class ProjectController extends Controller
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
+                    $message_autoaccept=$messages[3];
                 }
 
                 if (empty($errors))
@@ -664,6 +703,15 @@ class ProjectController extends Controller
                     if(!empty($warnings))
                     {
                         Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+
+                    if(empty($message_autoaccept))
+                    {
+                    	EmailEvents::NotifyByEmail('new_project', $project_id,$submitted_email);
+                    }
+                    else
+                    {
+                    	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
                     return $this->redirect(['project/index']);
@@ -1104,7 +1152,10 @@ class ProjectController extends Controller
         }
         else
         {
-            
+            $user_id=Userw::getCurrentUser()['id'];
+            $volume_exists=HotVolumes::getCreatedVolumesServicesUser($user_id);
+           
+
             $hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
             $additional_storage=[];
             if(!empty($hotvolume))
@@ -1118,6 +1169,14 @@ class ProjectController extends Controller
                     $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
                 }
             }
+            $attached_volumes_ids=array_column($hotvolume, 'id');
+            $not_attached_volumes=HotVolumes::find()
+            ->where(['NOT',['id'=>$attached_volumes_ids]])
+            ->andWhere(['active'=>true])
+            ->andWhere(['vm_type'=>1])
+            ->all();
+            // print_r($not_attached_volumes);
+            // exit(0);
 
             $service_old=ServiceRequest::find()->where(['request_id'=>$existing->request_id])->one();
             $service_old_id=$service_old->id;
@@ -1243,9 +1302,23 @@ class ProjectController extends Controller
         }
         else
         {
+        	$hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
+            $additional_storage=[];
+            if(!empty($hotvolume))
+            {
+                foreach ($hotvolume as $hot) 
+                {
+                    $project=Project::find()->where(['id'=>$hot->project_id])->one();
+                    $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                    $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
+                }
+            }
+
+
+
         
              $existing->getConsoleLink();
-             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service]);
+             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage]);
         }
         
 
@@ -2133,7 +2206,7 @@ class ProjectController extends Controller
                 {
                     $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
                     $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
-                    $services[$res['id']]['24/7 name']=$project_request->name;
+                    $machines[$res['id']]['machine name']=$project_request->name;
                 }
             }
 
@@ -2165,7 +2238,7 @@ class ProjectController extends Controller
                 {
                     $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
                     $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
-                    $services[$res['id']]['24/7 name']=$project_request->name;
+                    $machines[$res['id']]['machine name']=$project_request->name;
                 }
             }
 

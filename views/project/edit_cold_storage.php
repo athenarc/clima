@@ -95,17 +95,7 @@ Headers::begin() ?>
         <?= $form->field($details, 'vm_type')->dropDownList($vm_types, ['disabled'=>true])->label('I want to use this volume for:') ?>
         <?= $form->field($details, 'storage')->textInput(['disabled'=>true])-> label($storage_label) ?>
 
-        <!-- <?php
-        if($role=='gold')
-        {?>
-            <input type="checkbox" id="additional" name="additional">
-            <label for="additional"> I need more resources than the maximum provided. </label><br>
-            <div id='textarea' style="display: none;">
-            <div class="row">&nbsp;</div>
-            <?= $form->field($details, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
-            </div>
-        <?php
-        }?> -->
+        
         
         
     
@@ -115,4 +105,4 @@ Headers::begin() ?>
         </div>
     <?php ActiveForm::end(); ?>
 
-</div><!-- new_ondemand_project -->
+</div>

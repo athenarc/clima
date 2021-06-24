@@ -14,6 +14,8 @@ $x_icon='<i class="fas fa-times"></i>';
 $console_icon='<i class="fas fa-external-link-square-alt"></i>';
 $info_icon='<i class="fas fa-question-circle"></i>';
 $string = explode(" ", $model->image_name)[0];
+$unlink_icon='<i class="fas fa-unlink"></i>';
+$link_icon='<i class="fas fa-link"></i>';
 // $username=strtolower($string);
 $username='ubuntu';
 $consoleLink=$model->consoleLink;
@@ -89,7 +91,31 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 	<div class="col-md-2 tab-label"><b>Operating system disk:</b></div><div class="col-md-1 tab-value"><?=$service->disk?> GB</div>
 </div>
 <div class="row">
-	<div class="col-md-2 tab-label"><b>Additional storage:</b></div><div class="col-md-10 tab-value"><?=$service->storage?> GB</div>
+	<div class="col-md-2 tab-label"><b>Additional storage:</b></div>
+	<div class="col-md-10 tab-value">
+		<?php 
+		if(!empty($additional_storage))
+		{
+			foreach($additional_storage as $storage)
+			{?>
+				<span>
+					<?=$storage['name']?> (<?=$storage['size']?> GB) on <?=$storage['mountpoint']?> &nbsp;
+					<!-- <?=Html::a("$unlink_icon",['project/detach'], ['class'=>'btn btn-danger btn-sm','title'=>'Detach' ])?> -->	
+				</span> 
+				<br>
+			<?php
+			}
+		}
+		else
+		{?>
+			<span>
+				No volume attached <?=Html::a("$info_icon",null, ['class'=>'instructions-for-volume'])?>
+				<!-- <?=Html::a("$link_icon Attach",['project/detach'], ['class'=>'btn btn-danger'])?> -->
+			</span>
+			<br>
+		<?php
+		}?>
+	</div>
 </div>
 
 <div class="row">&nbsp;</div>
@@ -105,14 +131,6 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 				In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide',['site/additional-storage-tutorial'], ['target'=>'_blank'])?>.
 				</div>
 				<div class="row">&nbsp;</div>
-				<div class="row">
-					<div class="col-md-6">
-						<strong>Additional storage:</strong>
-					</div>
-					<div class="col-md-2">
-						/dev/vdb
-					</div>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -199,6 +217,25 @@ if (isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
 				<?=Html::a("$x_icon Delete",['/project/delete-vm-machines','id'=>$requestId],['class'=>"btn btn-danger confirm-delete"])?>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal instructions fade" tabindex="-1" role="dialog"  aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+		<div class="modal-content">
+   			<div class="modal-header">
+			<h5 class="modal-title" id="exampleModalLongTitle"><strong>Create additional storage</strong></h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true" class="btn-cancel-modal">&times;</span>
+			</button>
+			</div>
+			<div class="modal-body">
+				<li>Add a request for a storage volume.</li>
+				<li>Upon approval of the request, the volume with the specified size is created.</li>
+				<li>You may then manage the storage volume by clicking the 'Access' button of the created colume in the main page. </li>
+				<li> The 'Access' button opens a page, where storage volumes can be attached to active VMs. </li>
 			</div>
 		</div>
 	</div>

@@ -177,6 +177,102 @@ class HotVolumes extends \yii\db\ActiveRecord
         return $results;
     }
 
+    public static function getCreatedVolumesServicesUser($user_id)
+    {
+        $query=new Query;
+
+        $query->select(['user_list'])
+              ->from('project_request')
+              ->where(['>', 'end_date','NOW'])
+              ->andWhere(['project_type'=>2])
+              ->andWhere(['status'=>[1,2]])
+              ->andWhere(['vm_type'=>1]);
+     
+        $results = $query->all();
+       
+        if(str_contains($results[0]['user_list'], $user_id))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
+    public static function getCreatedVolumesMachinesUser($user_id)
+    {
+        $query=new Query;
+
+        $query->select(['user_list'])
+              ->from('project_request')
+              ->where(['>', 'end_date','NOW'])
+              ->andWhere(['project_type'=>2])
+              ->andWhere(['status'=>[1,2]])
+              ->andWhere(['vm_type'=>2]);
+     
+        $results = $query->all();
+       
+        if(str_contains($results[0]['user_list'], $user_id))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
+    public static function getAdditionalStorageServices($vm_id)
+    {
+        $query=new Query;
+
+        $query->select(['*'])
+              ->from('hot_volumes')
+              ->where(['vm_id'=>$vm_id])
+              ->andWhere(['active'=>true]);
+     
+        $results = $query->all();
+
+        $additional_storage=[];
+        if(!empty($results))
+        {
+            foreach ($hotvolume as $hot) 
+            {
+                $project=Project::find()->where(['id'=>$hot->project_id])->one();
+                $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
+            }
+        }
+        return $additinal_storage;
+    }
+
+    public static function getAdditionalStorageMachines($vm_id)
+    {
+        $query=new Query;
+
+        $query->select(['*'])
+              ->from('hot_volumes')
+              ->where(['vm_id'=>$vm_id])
+              ->andWhere(['active'=>true]);
+     
+        $results = $query->all();
+
+        $additional_storage=[];
+        if(!empty($results))
+        {
+            foreach ($hotvolume as $hot) 
+            {
+                $project=Project::find()->where(['id'=>$hot->project_id])->one();
+                $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
+            }
+        }
+        return $additinal_storage;
+    }
+
     public function authenticate()
     {
         /*
