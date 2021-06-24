@@ -182,11 +182,12 @@ class HotVolumes extends \yii\db\ActiveRecord
         $query=new Query;
 
         $query->select(['user_list'])
-              ->from('project_request')
-              ->where(['>', 'end_date','NOW'])
-              ->andWhere(['project_type'=>2])
-              ->andWhere(['status'=>[1,2]])
-              ->andWhere(['vm_type'=>1]);
+              ->from('project_request as p')
+              ->innerJoin('cold_storage_request as c','p.id=c.request_id')
+              ->where(['>', 'p.end_date','NOW'])
+              ->andWhere(['p.project_type'=>2])
+              ->andWhere(['p.status'=>[1,2]])
+              ->andWhere(['c.vm_type'=>1]);
      
         $results = $query->all();
        
@@ -206,11 +207,12 @@ class HotVolumes extends \yii\db\ActiveRecord
         $query=new Query;
 
         $query->select(['user_list'])
-              ->from('project_request')
-              ->where(['>', 'end_date','NOW'])
-              ->andWhere(['project_type'=>2])
-              ->andWhere(['status'=>[1,2]])
-              ->andWhere(['vm_type'=>2]);
+              ->from('project_request as p')
+              ->innerJoin('cold_storage_request as c','p.id=c.request_id')
+              ->where(['>', 'p.end_date','NOW'])
+              ->andWhere(['p.project_type'=>2])
+              ->andWhere(['p.status'=>[1,2]])
+              ->andWhere(['c.vm_type'=>1]);
      
         $results = $query->all();
        
