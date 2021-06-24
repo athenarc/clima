@@ -2349,7 +2349,7 @@ class ProjectController extends Controller
                     
                 }
                 $hotvolume->update();
-                Yii::$app->session->setFlash('success', "Volume has been attached to Vm");
+                Yii::$app->session->setFlash('success', "Volume has been attached to VM");
                 return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
             }
         }
@@ -2381,7 +2381,7 @@ class ProjectController extends Controller
             $detach=$hotvolume->detachVolume($volume_id,$vm_id,$token,$vm_type);
             if($detach[0])
             {
-                Yii::$app->session->setFlash('success', "Volume has been detached from Vm");
+                Yii::$app->session->setFlash('success', "Volume has been detached from VM");
                 return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
             }
             else
