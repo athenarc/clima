@@ -11,6 +11,7 @@ use yii\helpers\Url;
 use app\models\Notification;
 use app\models\OndemandAutoaccept;
 use app\models\User;
+use app\models\EmailEvents;
 /**
  * This is the model class for table "ondemand_request".
  *
@@ -178,7 +179,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         
 
-
+        $message_autoaccept='';
         if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
         {
             // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
@@ -197,18 +198,15 @@ class OndemandRequest extends \yii\db\ActiveRecord
             
                 Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
             }
-            // $result=$query->select(['project_id'])
-            //           ->from('project_request')
-            //           ->where(['id'=>$requestId])
-            //           ->one();
-            // $projectId=$result['project_id'];
-
-
-            // $project=Project::find()->where(['id'=>$request->project_id])->one();
+            
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
             $project->status=2;
             $project->save(false);
+
+            $message_autoaccept="We are happy to inform you that project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website"; 
+
+            
         }
 
         else
@@ -220,7 +218,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         $success='Successfully added project request!';
     
-        return [$errors,$success,$warnings];
+        return [$errors,$success,$warnings,$message_autoaccept,$project->id];
     }
 
     public function uploadNewEdit($requestId)

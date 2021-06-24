@@ -89,10 +89,6 @@ Headers::begin() ?>
 				<th class="col-md-6 text-right" scope="col">RAM:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?> GBs</td>
 			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Additional storage amount:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?> GBs</td>
-			</tr>
 			</body>
 		</table>
 	</div>
@@ -100,10 +96,6 @@ Headers::begin() ?>
 	<div class="table-responsive">
 		<table class="table table-striped">
 			<tbody>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Backup service available:</th>
-				<td class="col-md-6 text-left" scope="col"><?=($project->backup_services=='t')? 'Yes' : 'No'?></td>
-			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Service name:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->name ?></td>
@@ -123,10 +115,6 @@ Headers::begin() ?>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Service TRL:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->trl ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col" style="color:#E6833B">Request for additional resources:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->additional_resources?></td>
 			</tr>
 			</body>
 		</table>

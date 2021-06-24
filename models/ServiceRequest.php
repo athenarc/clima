@@ -13,6 +13,7 @@ use app\models\Configuration;
 use app\models\Openstack;
 use app\models\ServiceAutoaccept;
 use app\models\User;
+use app\models\EmailEvents;
 /**
  * This is the model class for table "service".
  *
@@ -345,7 +346,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
         
-
+        $message_autoaccept='';
         if (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
             && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) )
         {
@@ -373,6 +374,11 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $project->pending_request_id=null;
             $project->status=2;
             $project->save();
+
+            $message_autoaccept="We are happy to inform you that project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
+        
+
+            
         }
         else
         {
@@ -384,7 +390,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
        
        $success='Successfully added project request!';
 
-       return [$errors,$success,$warnings];
+       return [$errors,$success,$warnings,$message_autoaccept,$project->id];
     
     }
 

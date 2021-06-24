@@ -94,7 +94,7 @@ Headers::begin() ?>
         ?>
         <br />
         
-        <?= $form->field($project, 'backup_services')->checkbox() ?>
+        
         </div>
         
             <div class="col-md-6">
@@ -123,17 +123,6 @@ Headers::begin() ?>
 
       
             <?= $form->field($details,'flavour')->dropDownList($details->flavours)->label($flavour_label)?>
-            <?php
-            if($role=='gold')
-            {?>
-                <input type="checkbox" id="additional" name="additional">
-                <label for="additional"> I need more resources than the maximum provided. </label><br>
-                <div id='textarea' style="display: none;">
-                <div class="row">&nbsp;</div>
-                <?= $form->field($details, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
-                </div>
-            <?php
-            }?>
         
         <div class="form-group">
             <?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?>

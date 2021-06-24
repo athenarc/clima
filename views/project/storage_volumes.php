@@ -93,7 +93,7 @@ if(!empty($services))
 else
 {?>
 	<div class="row"><div class="col-md-12">
-		<h2> No active VMs for on-demand computation machines </h2>
+		<h2> No active volumes for on-demand computation machines </h2>
 	</div></div>	
 <?php
 }?>
@@ -149,7 +149,7 @@ if(!empty($machines))
 else
 {?>
 	<div class="row"><div class="col-md-12">
-		<h2> No active Vms for on-demand computation machines </h2>
+		<h2> No active volumes for on-demand computation machines </h2>
 	</div></div>	
 <?php
 }?>

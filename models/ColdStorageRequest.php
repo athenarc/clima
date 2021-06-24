@@ -12,6 +12,7 @@ use app\models\Notification;
 use app\models\ColdStorageAutoaccept;
 use app\models\HotVolumes;
 use app\models\User;
+use app\models\EmailEvents;
 
 /**
  * This is the model class for table "cold_storage_request".
@@ -121,7 +122,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
         $autoaccept_allowed=($autoaccepted_num-$cold_autoaccept_number < 0) ? true :false;
 
-
+        $message_autoaccept='';
         if (($this->storage<=$row['storage']) && $autoaccept_allowed)
         {
             $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
@@ -137,6 +138,8 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
                 Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
             }
 
+            
+
 
             $project=Project::find()->where(['id'=>$request->project_id])->one();
             $project->latest_project_request_id=$request->id;
@@ -144,6 +147,8 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             $project->status=2;
             $project->save();
 
+
+            $message_autoaccept="We are happy to inform you that project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
 
             $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
             $vm_type=$cold_storage_request->vm_type;
@@ -172,7 +177,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
 
             
         $success='Successfully added project request!';
-        return [$errors, $success, $warnings];
+        return [$errors, $success, $warnings, $message_autoaccept];
     
 
     }

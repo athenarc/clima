@@ -101,17 +101,7 @@ if (!empty($errors))
         <?= $form->field($coldStorage, 'type')->dropDownList($types)->label('Volume type') ?>
         <?= $form->field($coldStorage, 'vm_type')->dropDownList($vm_types)->label('I want to use this volume for:') ?>
         <?= $form->field($coldStorage, 'storage')-> label($storage_label) ?>
-        <?php
-        if($role=='gold')
-        {?>
-            <input type="checkbox" id="additional" name="additional">
-            <label for="additional"> I need more resources than the maximum provided. </label><br>
-            <div id='textarea' style="display: none;">
-            <div class="row">&nbsp;</div>
-            <?= $form->field($coldStorage, 'additional_resources')->textArea(['column'=>6,])-> label('Describe your requirements and the reason you need them.') ?>
-            </div>
-        <?php
-        }?>
+    
         <div class="row">
             <div class="col-md-1"><?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?></div>
             <div class="col-md-1"><?= Html::a('<i class="fas fa-times"></i> Cancel', ['/project/index'], ['class'=>'btn btn-default']) ?></div>

@@ -6,7 +6,7 @@ use webvimark\modules\UserManagement\models\User;
 use app\components\Headers;
 
 echo Html::CssFile('@web/css/personal-account-settings.css');
-$this->title = "New Request";
+$this->title = "Administration";
 
 
 $icon_tickets='<i class="fas fa-ticket-alt" aria-hidden="true"></i>';
