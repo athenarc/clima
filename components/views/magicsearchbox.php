@@ -58,8 +58,6 @@ echo "<div class='magic_search_box_wrapper'>";
             . '     selected_elements=' . $field . ' + selected_elements; '
             . '     $(".hidden_element_box").html(selected_elements); '
             
-            // . '     $(this).val(ui.item.value); '
-            // . '     $(".magic_search_box_wrapper).append(ui.item.value);''
             .   '$(".fas.fa-times").click(function(){$(this).parent().remove();}); '
             .   '} ',
             'close' => 'function( event, ui ) {$("#user_search_box").val("");}',
@@ -82,44 +80,10 @@ echo "<div class='magic_search_box_wrapper'>";
         {
             
         }
-        echo "$part<input type='hidden' id='hidden_selected_element_input' name='participating[]' value='$part'>";
+        echo " $part<input type='hidden' id='hidden_selected_element_input' name='participating[]' value='$part'>";
         echo "</div>";
     }
     echo "</div>";
-    /*
-     * Print hidden inputs with same name for all selected elements, 
-     * in order to resend them as parameters on new submits!
-     */
-    // $tag = Html::tag('i', "", ['class' => 'fa fa-times',]);  
-    // /*
-    //  * First three results should be displayed
-    //  */
-    // foreach(array_slice($this->context->selected_elements, 0, 3) as $element)
-    // {
-    //     echo Html::beginTag('div', ['class' => 'hidden_element_box']);
-    //     echo Html::tag('div', $element . $tag , ['class' => 'hidden_selected_element']);
-    //     echo Html::hiddenInput($this->context->html_params["name"] . "[]", $element); 
-    //     echo Html::endTag('div');
-    // }
-    // /*
-    //  * Remaining results should be hidden
-    //  */
-    // foreach(array_slice($this->context->selected_elements, 3) as $element)
-    // {
-    //     echo Html::beginTag('div', ['class' => 'hidden_element_box non-display']);
-    //     echo Html::tag('div', $element . $tag , ['class' => 'hidden_selected_element']);
-    //     echo Html::hiddenInput($this->context->html_params["name"] . "[]", $element); 
-    //     echo Html::endTag('div');        
-    // }
-    // if(count($this->context->selected_elements) > 3)
-    // {
-    //     echo Html::a("Show all", null, ['class'=> 'magic_search_box_reveal']);
-    // }
-
-    // //show "clear all" button when more than one element exists
-    // if(count($this->context->selected_elements) > 1){
-    //     echo Html::a("Clear all", null, ['class'=> 'magic_search_box_clear_all']);
-    // }
     
 echo "</div>";
 

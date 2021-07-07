@@ -1619,8 +1619,6 @@ class ProjectController extends Controller
 
         $prequest->end_date=$ends;
 
-
-
         if ($prType==0)
         {
             $drequest=OndemandRequest::find()->where(['request_id'=>$id])->one();
@@ -1701,9 +1699,6 @@ class ProjectController extends Controller
             'method' => 'POST'
         ];
 
-        
-        
-
         $errors='';
         $success='';
         $warnings='';
@@ -1712,9 +1707,8 @@ class ProjectController extends Controller
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : $prequest->usernameList;
         $pold=clone $prequest;
         $dold=clone $drequest;
+        $attr=$pold->getAttributes();
 
-
-        
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
 
@@ -1745,13 +1739,11 @@ class ProjectController extends Controller
             }
             
             $prequest->user_list=new yii\db\ArrayExpression($participant_ids, 'int4');
-            // print_r($prequest->user_list);
-            // print_r("<br /><br />");
-            // print_r($pold->user_list);
-            // exit(0);
-            $pchanged= ProjectRequest::modelChanged($pold,$prequest);
+            $pchanged_tmp= ProjectRequest::ProjectModelChanged($pold,$prequest);
+            $pchanged=$pchanged_tmp[0];
+            $uchanged=$pchanged_tmp[1];
             $dchanged= ProjectRequest::modelChanged($dold,$drequest);
-            // exit(0);
+            
             $project_id=$prequest->project_id;
             $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
             
@@ -1769,10 +1761,6 @@ class ProjectController extends Controller
 
             if ($isValid)
             {   
-                // print_r("ok");
-                // exit(0);
-                // print_r($prType);
-                // exit(0);
                 if ($prType==2)
                 {
                   //  $prequest->end_date='2100-1-1';
@@ -1788,18 +1776,41 @@ class ProjectController extends Controller
                 if ($pchanged || $dchanged)
                 {
                 
-                    $messages=$prequest->uploadNewEdit($participating,$prType,$id);
+                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
                     $requestId=$messages[3];
                     if ($requestId!=-1)
                     {
-                       
-                        $messages=$drequest->uploadNewEdit($requestId);
-                        $errors.=$messages[0];
-                        $success.=$messages[1];
-                        $warnings.=$messages[2];
+                        /*
+                         * If the only the user list was changed
+                         * we should not create a new record. However,
+                         * in order to keep a complete history,
+                         * we will create a new record regardless
+                         *
+                         * Also, if the drequest details where changed,
+                         * then only take into account the new details
+                         * and not the fact that the user list was
+                         * changed in the project request. If not,
+                         * autoapprove based on the user list change.
+                         */
+
+                        if ($dchanged)
+                        {
+                            $messages=$drequest->uploadNewEdit($requestId,false);
+                            $errors.=$messages[0];
+                            $success.=$messages[1];
+                            $warnings.=$messages[2];
+                        }
+                        else
+                        {
+                            $messages=$drequest->uploadNewEdit($requestId,$uchanged);
+                            $errors.=$messages[0];
+                            $success.=$messages[1];
+                            $warnings.=$messages[2];
+                        }
+                        
                     }
                 }
                 else

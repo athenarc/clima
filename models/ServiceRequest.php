@@ -394,7 +394,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
     
     }
 
-    public function uploadNewEdit($requestId)
+    public function uploadNewEdit($requestId,$uchanged)
     {
         $errors='';
         $success='';
@@ -443,8 +443,8 @@ class ServiceRequest extends \yii\db\ActiveRecord
         
 
 
-        if (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
-            && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) )
+        if ( (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
+            && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) ) || $uchanged)
         {
             $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
             $request->status=2;
@@ -458,19 +458,11 @@ class ServiceRequest extends \yii\db\ActiveRecord
              */
             
             $message="Updates to project '$request->name' have been automatically approved.";
-
-            
-            
-            
             
             foreach ($request->user_list as $user) 
             {
                 Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
-            }// $result=$query->select(['project_id'])
-            //           ->from('project_request')
-            //           ->where(['id'=>$requestId])
-            //           ->one();
-            // $projectId=$result['project_id'];
+            }
 
             //set status for old request to -3 (modified)
             $old_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();

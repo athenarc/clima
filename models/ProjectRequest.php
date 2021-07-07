@@ -190,7 +190,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return [$errors,$success,$warnings,$request_id, $message, $project_id];
     }
 
-    public function uploadNewEdit($participating,$project_type,$modify_req_id='')
+    public function uploadNewEdit($participating,$project_type,$modify_req_id='',$uchanged)
     {
         $errors='';
         $success='';
@@ -247,7 +247,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
            
           
             $success='';
-            $request_id=$id = Yii::$app->db->getLastInsertID();
+            $request_id=Yii::$app->db->getLastInsertID();
 
            
             //invalidate old request if it is a modification
@@ -259,16 +259,18 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 $pending=ProjectRequest::find()->where(['id'=>$project->pending_request_id])->one();
                 $pending->status=-3;
                 $pending->save();
-
-
             }
 
             $project->pending_request_id=$request_id;
             $project->save();
-            
-            
-
-            $message="Project '$this->name' has been modified and is pending approval.";
+            if (!$uchanged)
+            {
+                $message="Project '$this->name' has been modified and is pending approval.";
+            }
+            else
+            {
+                $message="Project '$this->name' has been modified.";   
+            }
             EmailEvents::NotifyByEmail('edit_project', $this->project_id,$message);
             
         }
@@ -620,6 +622,66 @@ class ProjectRequest extends \yii\db\ActiveRecord
             }
         }
         return true;
+    }
+
+    public static function projectModelChanged($model1, $model2)
+    {
+        $attr1=$model1->getAttributes();
+        $attr2=$model2->getAttributes();
+
+        $changed=false;
+        $listChanged=false;
+
+        /*
+         * Check if any of the attributes except user_list where changed
+         */
+        foreach ($attr1 as $name => $value)
+        {
+            if ($name=='user_list')
+            {
+                continue;
+            }
+            if ($name=='user_num')
+            {
+                continue;
+            }
+            if ($value!=$attr2[$name])
+            {
+                $changed=true;
+            }
+        }
+
+        /*
+         * Check if the user list was changed
+         */
+        $ulist1=$attr1['user_list']->getValue();
+        $ulist2=$attr2['user_list']->getValue();
+
+        sort($ulist1);
+        sort($ulist2);
+        
+        if ($ulist1!=$ulist2)
+        {
+            $listChanged=true;
+        }
+        /*
+         * Check if only the user list was changed and return appropriate values
+         */
+        if ($changed)
+        {
+            return [true,false];
+        }
+        else
+        {
+            if ($listChanged)
+            {
+                return [true,true];
+            }
+            else
+            {
+                return [false,false];
+            }
+        }
     }
 
     public static function modelChanged($model1, $model2)

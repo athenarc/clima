@@ -67,16 +67,6 @@ class MagicSearchBox extends Widget
          * Set the selected elements array in order to print 
          * hidden inputs containing all these elements
          */
-        // if(array_key_exists($this->html_params["name"], $_GET))
-        // {
-        //     //Remove empty elements!
-        //     $this->selected_elements = array_unique(array_filter($_GET[$this->html_params["participants"]]));
-        // }
-        // //TODO: force an automatic name of sorts, or return an error
-        // else
-        // {
-        //     ;
-        // }
     }
     
     /*
