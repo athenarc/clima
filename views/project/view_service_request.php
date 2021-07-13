@@ -27,7 +27,7 @@ $modify_icon='<i class="fas fa-pencil-alt"></i>';
  */
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>'Project details', 
+['title'=>'Project details', 'subtitle'=>$project->name,
 	'buttons'=>
 	[
 		
