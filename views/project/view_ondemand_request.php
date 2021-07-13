@@ -42,7 +42,7 @@ else if (($bar_percentage>75) && ($bar_percentage<=100))
 
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>'Project details', 
+['title'=>'Project details', 'subtitle'=>$project->name,
 	'buttons'=>
 	[
 		
