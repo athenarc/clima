@@ -267,7 +267,6 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
         {
-            // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
             $request->status=2;
             $request->approval_date='NOW()';
             $request->approved_by=0;

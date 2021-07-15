@@ -254,10 +254,10 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             ])->execute();
 
 
-
+        $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         if ($uchanged)
         {
-            $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
+            
             $project=Project::find()->where(['id'=>$request->project_id])->one();
             /*
              * Get project_request from request id in order to get the project_id 

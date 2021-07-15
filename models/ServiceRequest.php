@@ -446,7 +446,6 @@ class ServiceRequest extends \yii\db\ActiveRecord
         if ( (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
             && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) ) || $uchanged)
         {
-            $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
             $request->status=2;
             $request->approval_date='NOW()';
             $request->approved_by=0;
