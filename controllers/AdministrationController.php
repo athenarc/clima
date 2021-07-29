@@ -161,7 +161,6 @@ class AdministrationController extends Controller
             $openstackMachines->encode();
             $openstackMachines->save();
 
-
            
 
             $isValid = $general->validate();
@@ -176,13 +175,100 @@ class AdministrationController extends Controller
                 
                 $previousUserType=$_POST['previousUserType'];
                 $general->updateDB();
-                $ondemand->updateDB($previousUserType);
-                $service->updateDB($previousUserType);
-                $coldStorage->updateDB($previousUserType);
-                $ondemandLimits->updateDB($previousUserType);
-                $serviceLimits->updateDB($previousUserType);
-                $coldStorageLimits->updateDB($previousUserType);
-                $machineComputationLimits->updateDB($previousUserType);
+                $success='Configuration successfully updated';
+
+                $max_autoaccepted_services=Project::getMaximumActiveAcceptedProjects(1,$currentUser,2);
+                $max_accepted_services=Project::getMaximumActiveAcceptedProjects(1,$currentUser,[1,2]);
+                if(($service->autoaccept_number > $serviceLimits->number_of_projects))
+                {
+                    Yii::$app->session->setFlash('danger', "The maximum number of 24/7 service projects should be greater than the number of autoaccepted projects");
+                    $success='';
+                }
+                elseif($max_autoaccepted_services>$service->autoaccept_number)
+                {
+                    
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_services active autoaccepted 24/7 service projects");
+                    $success='';
+                }
+                elseif($max_accepted_services>$serviceLimits->number_of_projects)
+                {
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_services active 24/7 service projects");
+                    $success='';
+                }
+                else
+                {
+                    $service->updateDB($previousUserType);
+                    $serviceLimits->updateDB($previousUserType);
+                }
+
+                $max_autoaccepted_ondemand=Project::getMaximumActiveAcceptedProjects(0,$currentUser,2);
+                $max_accepted_ondemand=Project::getMaximumActiveAcceptedProjects(0,$currentUser,[1,2]);
+
+                if(($ondemand->autoaccept_number > $ondemandLimits->number_of_projects))
+                {
+                    Yii::$app->session->setFlash('danger', "The maximum number of on-demand batch computation projects should be greater than the number of autoaccepted projects");
+                    $success='';
+                }
+                elseif($max_autoaccepted_ondemand>$ondemand->autoaccept_number)
+                {
+                    
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_ondemand active autoaccepted on-demand batch computation projects");
+                    $success='';
+                }
+                elseif($max_accepted_ondemand>$ondemandLimits->number_of_projects)
+                {
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_ondemand active on-demand batch computation projects");
+                    $success='';
+                }
+                else
+                {
+                    $ondemand->updateDB($previousUserType);
+                    $ondemandLimits->updateDB($previousUserType);
+                }
+
+                $max_autoaccepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$currentUser,2);
+                $max_accepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$currentUser,[1,2]);
+
+                if(($coldStorage->autoaccept_number > $coldStorageLimits->number_of_projects))
+                {
+                    Yii::$app->session->setFlash('danger', "The maximum number of storage volumes projects should be greater than the number of autoaccepted projects");
+                    $success='';
+                }
+                elseif($max_autoaccepted_volumes>$coldStorage->autoaccept_number)
+                {
+                    
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_volumes storage volumes active projects");
+                    $success='';
+                }
+                elseif($max_accepted_volumes>$coldStorageLimits->number_of_projects)
+                {
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_volumes active storage volumes projects");
+                    $success='';
+                }
+                else
+                {
+                    $coldStorage->updateDB($previousUserType);
+                    $coldStorageLimits->updateDB($previousUserType);
+                }
+
+
+                $max_accepted_machines=Project::getMaximumActiveAcceptedProjects(3,$currentUser,[1,2]);
+                if($machineComputationLimits->number_of_projects==-1 && $currentUser=='gold')
+                {
+                    
+                    $machineComputationLimits->updateDB($previousUserType);
+                }
+                elseif($max_accepted_machines>$machineComputationLimits->number_of_projects)
+                {
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_machines active on-demand computation machines projects");
+                     $success='';
+                }
+                else
+                {
+                    $machineComputationLimits->updateDB($previousUserType);
+                }
+                
+                
 
                 $service=ServiceAutoaccept::find()->where(['user_type'=>$currentUser])->one();
                 $ondemand=OndemandAutoaccept::find()->where(['user_type'=>$currentUser])->one();
@@ -192,6 +278,8 @@ class AdministrationController extends Controller
                 $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
                 $machineComputationLimits=MachineComputeLimits::find()->where(['user_type'=>$currentUser])->one();
                 $general=Configuration::find()->one();
+
+                
 
                 $activeButton=$_POST['hidden-active-button'];
                
@@ -254,7 +342,7 @@ class AdministrationController extends Controller
 
             return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'general'=>$general,
-                                'coldStorage'=>$coldStorage, 'success'=>'Configuration successfully updated!',
+                                'coldStorage'=>$coldStorage, 'success'=>$success,
                                 "hiddenUser" => $currentUser,'userTypes'=>$userTypes, 'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,
                                 'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,

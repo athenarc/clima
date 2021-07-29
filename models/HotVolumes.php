@@ -115,7 +115,8 @@ class HotVolumes extends \yii\db\ActiveRecord
               ->innerJoin('project as p','p.id=ht.project_id')
               ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
               ->innerJoin('cold_storage_request as cs', 'pr.id=cs.request_id')
-              ->where("$userID = ANY(pr.user_list)");
+              ->where("$userID = ANY(pr.user_list)")
+              ->andWhere(["not", ['ht.volume_id'=>null]]);
               
               // ->where(['p.status'=>[1,2]]);
               // ->andWhere(['pr.project_type'=>2]);
@@ -135,7 +136,8 @@ class HotVolumes extends \yii\db\ActiveRecord
               ->from('hot_volumes as ht')
               ->innerJoin('project as p','p.id=ht.project_id')
               ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
-              ->innerJoin('cold_storage_request as cs', 'pr.id=cs.request_id');
+              ->innerJoin('cold_storage_request as cs', 'pr.id=cs.request_id')
+              ->andWhere(["not", ['ht.volume_id'=>null]]);
 
 
         $results = $query->orderBy('ht.accepted_at DESC')->all();

@@ -34,7 +34,7 @@ class OndemandLimits extends \yii\db\ActiveRecord
             [['num_of_jobs', 'cores', 'duration'], 'default', 'value' => null],
             [['num_of_jobs', 'cores', 'duration'], 'integer'],
             [['ram'], 'number'],
-            [['number_of_projects'], 'integer'],
+            [['number_of_projects'], 'integer', 'min'=>0],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -49,6 +49,7 @@ class OndemandLimits extends \yii\db\ActiveRecord
             'cores' => 'Number of CPU cores per job',
             'ram' => 'Memory (RAM) amount (in GBs) per job',
             'user_type'=>'User category',
+            'number_of_projects'=>"Maximum number of projects",
         ];
     }
 

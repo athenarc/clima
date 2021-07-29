@@ -208,7 +208,6 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
                 'num_of_cores' => $this->num_of_cores,
                 'num_of_ips' => 1,
                 'ram' => $this->ram,
-                'additional_resources'=>$this->additional_resources,
                 'storage' => $this->storage,
                 'request_id' => $requestId,
                 'vm_flavour' => $this->flavourID[$this->flavour],
@@ -248,7 +247,6 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
                 'ram' => $this->ram,
                 'storage' => $this->storage,
                 'request_id' => $requestId,
-                'additional_resources'=>$this->additional_resources,
                 'vm_flavour' => $this->flavourID[$this->flavour],
                 'disk' => $this->flavourDisk[$this->flavour]
             ])->execute();
@@ -263,10 +261,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
              * Get project_request from request id in order to get the project_id 
              * in order to update the latest active request 
              */
-            $request->status=2;
-            $request->approval_date='NOW()';
-            $request->approved_by=0;
-            $request->save();
+            
             
             $message="Updates to project '$request->name' have been automatically approved.";
 
@@ -285,10 +280,15 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
                 $old_request->status=-3;
                 $old_request->save(false);
             }
+            $request->status=$old_request->status;
+            $request->approval_date='NOW()';
+            $request->approved_by=$old_request->approved_by;
+            $request->save();
             
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
-            $project->status=2;
+
+            $project->$old_request->status;
             $project->save();
             $warnings='';
         }

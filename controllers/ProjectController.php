@@ -99,11 +99,9 @@ class ProjectController extends Controller
         $configuration=Configuration::find()->one();
         $schema_url=$configuration->schema_url;
 
-        // $role=User::getRoleType();
-        // $service_autoaccept= ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
-        // $service_autoaccept_number=$service_autoaccept->autoaccept_number;
-        // $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        // print_r($service_autoaccept_number);
+
+        // $maxnumber=Project::getMaximumActiveAcceptedProjects(2,'silver',2);
+        // print_r($maxnumber);
         // exit(0);
 
         $project_types=Project::TYPES;
@@ -328,6 +326,7 @@ class ProjectController extends Controller
                     }
                     else
                     {
+                        Yii::$app->session->setFlash('success', "$message_autoaccept");
                     	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
@@ -552,7 +551,7 @@ class ProjectController extends Controller
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
-                    $message_autoaccept=$messages[4];
+                    $message_autoaccept=$messages[3];
                 }
 
                 if (empty($errors))
@@ -573,6 +572,7 @@ class ProjectController extends Controller
                     }
                     else
                     {
+                        Yii::$app->session->setFlash('success', "$message_autoaccept");
                     	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
@@ -711,6 +711,7 @@ class ProjectController extends Controller
                     }
                     else
                     {
+                        Yii::$app->session->setFlash('success', "$message_autoaccept");
                     	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
@@ -1994,13 +1995,21 @@ class ProjectController extends Controller
                 $participant_ids[]=$pid;
             }
 
+            
             $prequest->user_list=new yii\db\ArrayExpression($participant_ids, 'int4');
+            $pchanged_tmp= ProjectRequest::ProjectModelChanged($pold,$prequest);
+            $pchanged=$pchanged_tmp[0];
+            $uchanged=$pchanged_tmp[1];
+            $dchanged= ProjectRequest::modelChanged($dold,$drequest);
+            
+            $project_id=$prequest->project_id;
+            $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
             // print_r($prequest->user_list);
             // print_r("<br /><br />");
             // print_r($pold->user_list);
             // exit(0);
-            $pchanged= ProjectRequest::modelChanged($pold,$prequest);
-            $dchanged= ProjectRequest::modelChanged($dold,$drequest);
+           // $pchanged= ProjectRequest::modelChanged($pold,$prequest);
+           // $dchanged= ProjectRequest::modelChanged($dold,$drequest);
             // exit(0);
 
             
@@ -2027,14 +2036,14 @@ class ProjectController extends Controller
                 {
                     // print_r($id);
                     // exit(0);
-                    $messages=$prequest->uploadNewEdit($participating,$prType,$id);
+                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
                     $requestId=$messages[3];
                     if ($requestId!=-1)
                     {
-                        $messages=$drequest->uploadNewEdit($requestId);
+                        $messages=$drequest->uploadNewEdit($requestId,$uchanged);
                         $errors.=$messages[0];
                         $success.=$messages[1];
                         $warnings.=$messages[2];

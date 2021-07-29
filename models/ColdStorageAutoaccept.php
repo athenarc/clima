@@ -26,7 +26,7 @@ class ColdStorageAutoaccept extends \yii\db\ActiveRecord
     {
         return [
             [['storage'], 'number'],
-            [['autoaccept_number'], 'integer'],
+            [['autoaccept_number'], 'integer', 'min'=>0],
         ];
     }
 
