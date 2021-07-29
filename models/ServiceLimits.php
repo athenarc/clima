@@ -34,7 +34,7 @@ class ServiceLimits extends \yii\db\ActiveRecord
             [['vms', 'cores', 'ips', 'duration'], 'default', 'value' => null],
             [['vms', 'cores', 'ips', 'duration'], 'integer'],
             [['ram', 'storage'], 'number'],
-            [['number_of_projects'], 'integer'],
+            [['number_of_projects'], 'integer','min'=>0],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -52,6 +52,7 @@ class ServiceLimits extends \yii\db\ActiveRecord
             'storage' => 'Storage (in GBs)',
             'user_type' => 'User Type',
             'duration' => 'Duration',
+            'number_of_projects'=>"Maximum number of projects",
         ];
     }
 

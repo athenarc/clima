@@ -30,7 +30,7 @@ class ColdStorageLimits extends \yii\db\ActiveRecord
             [['storage'], 'number'],
             [['duration'], 'default', 'value' => null],
             [['duration'], 'integer'],
-            [['number_of_projects'], 'integer'],
+            [['number_of_projects'], 'integer', 'min'=>0],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -44,7 +44,7 @@ class ColdStorageLimits extends \yii\db\ActiveRecord
             'storage' => 'Storage (in GB)',
             'user_type' => 'User Type',
             'duration' => 'Duration',
-            'number_of_projects'=>"Number of Projects",
+            'number_of_projects'=>"Maximum number of projects",
         ];
     }
 

@@ -31,7 +31,7 @@ class OndemandAutoaccept extends \yii\db\ActiveRecord
             [['num_of_jobs', 'cores'], 'default', 'value' => null],
             [['num_of_jobs', 'cores'], 'integer'],
             [['ram',], 'number'],
-            [['autoaccept_number'], 'integer'],
+            [['autoaccept_number'], 'integer', 'min'=>0],
         ];
     }
 

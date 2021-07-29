@@ -469,7 +469,85 @@ class Project extends \yii\db\ActiveRecord
 
     }
 
-    
-    
-    
+
+    public static function getMaximumActiveAcceptedProjects($project_type, $requested_role, $status)
+    {
+        
+        $date=date("Y-m-d");
+        $all_projects=ProjectRequest::find()->all();
+        $project_owners=[];
+        $roles_per_owner=[];
+        foreach($all_projects as $project)
+        {
+            $user=User::find()->where(['id'=>$project->submitted_by])->one();
+            $query=new Query;
+            $query->select(['item_name'])
+              ->from('auth_assignment')
+              ->where(['user_id'=>$project->submitted_by]);
+            $roles=$query->all();
+
+            $roles_per_owner[$project->submitted_by]=$roles;
+        }
+
+        
+        $max_gold=0;
+        $max_silver=0;
+        $max_bronze=0;        
+        $max_per_role=['gold'=>$max_gold, 'silver'=>$max_silver, 'bronze'=>$max_bronze];
+        foreach($roles_per_owner as $id=>$role)
+        {
+            $user_role='bronze';
+            foreach($role as $rol)
+            {
+                if(in_array("Gold",$rol))
+                {
+                    $user_role='gold';
+                }
+                elseif(in_array("Silver",$rol))
+                {
+                    $user_role='silver';
+                }
+            }
+            $roles_per_owner[$project->submitted_by]=$user_role;
+            $user_projects=ProjectRequest::find()->where(['submitted_by'=>$id])
+            ->andWhere(['>=','end_date',$date])
+            ->andWhere(['project_type'=>$project_type])->andWhere(['in','status',$status])->count();
+
+            if($user_role=='gold')
+            {
+                $current_gold=$max_per_role['gold'];
+                if($user_projects>$current_gold)
+                {
+                    $max_gold=$user_projects;
+                    $max_per_role['gold']=$user_projects;
+
+                }
+            }
+            if($user_role=='silver')
+            {
+                $current_silver=$max_per_role['silver'];
+                if($user_projects>$current_silver)
+                {
+                    $max_silver=$user_projects;
+                    $max_per_role['silver']=$user_projects;
+
+                }
+            }
+            if($user_role=='bronze')
+            {
+                $current_bronze=$max_per_role['bronze'];
+                if($user_projects>$current_bronze)
+                {
+                    $max_bronze=$user_projects;
+                    $max_per_role['bronze']=$user_projects;
+
+                }
+            }
+            
+
+        }
+        
+        return $max_per_role[$requested_role];
+    }
+
 }

@@ -26,7 +26,7 @@ class MachineComputeLimits extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['number_of_projects'], 'integer'],
+            [['number_of_projects'], 'integer', 'min'=>-1],
             [['user_type'], 'string', 'max' => 15],
         ];
     }
@@ -39,6 +39,7 @@ class MachineComputeLimits extends \yii\db\ActiveRecord
         return [
         
             'user_type' => 'User Type',
+            'number_of_projects'=>"Maximum number of projects",
            
         ];
     }

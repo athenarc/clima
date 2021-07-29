@@ -32,7 +32,7 @@ class ServiceAutoaccept extends \yii\db\ActiveRecord
             [['vms', 'cores', 'ips'], 'default', 'value' => null],
             [['vms', 'cores', 'ips'], 'integer'],
             [['ram', 'storage'], 'number'],
-            [['autoaccept_number'], 'integer'],
+            [['autoaccept_number'], 'integer','min'=>0],
             
         ];
     }
