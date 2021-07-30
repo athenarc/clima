@@ -255,7 +255,13 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         $project=Project::find()->where(['id'=>$request->project_id])->one();
         $old_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
-        if ($uchanged || $old_request->status==1)
+        $old_request_status=0;
+        if(!empty($old_request))
+        {
+            $old_request_status=1;
+        }
+
+        if ($uchanged || $old_request_status==1)
         {
             
             
@@ -292,7 +298,6 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
-
             $project->status=$old_request->status;
             $project->save();
             $warnings='';

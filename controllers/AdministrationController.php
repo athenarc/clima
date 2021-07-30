@@ -177,22 +177,22 @@ class AdministrationController extends Controller
                 $general->updateDB();
                 $success='Configuration successfully updated';
 
-                $max_autoaccepted_services=Project::getMaximumActiveAcceptedProjects(1,$currentUser,2);
-                $max_accepted_services=Project::getMaximumActiveAcceptedProjects(1,$currentUser,[1,2]);
+                $max_autoaccepted_services=Project::getMaximumActiveAcceptedProjects(1,$previousUserType,2);
+                $max_accepted_services=Project::getMaximumActiveAcceptedProjects(1,$previousUserType,[1,2]);
                 if(($service->autoaccept_number > $serviceLimits->number_of_projects))
                 {
                     Yii::$app->session->setFlash('danger', "The maximum number of 24/7 service projects should be greater than the number of autoaccepted projects");
                     $success='';
                 }
-                elseif($max_autoaccepted_services>$service->autoaccept_number)
+                elseif($max_autoaccepted_services > $service->autoaccept_number)
                 {
                     
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_services active autoaccepted 24/7 service projects");
+                    Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_autoaccepted_services active autoaccepted 24/7 service projects");
                     $success='';
                 }
-                elseif($max_accepted_services>$serviceLimits->number_of_projects)
+                elseif($max_accepted_services > $serviceLimits->number_of_projects)
                 {
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_services active 24/7 service projects");
+                    Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_accepted_services active 24/7 service projects");
                     $success='';
                 }
                 else
@@ -201,23 +201,23 @@ class AdministrationController extends Controller
                     $serviceLimits->updateDB($previousUserType);
                 }
 
-                $max_autoaccepted_ondemand=Project::getMaximumActiveAcceptedProjects(0,$currentUser,2);
-                $max_accepted_ondemand=Project::getMaximumActiveAcceptedProjects(0,$currentUser,[1,2]);
+                $max_autoaccepted_ondemand=Project::getMaximumActiveAcceptedProjects(0,$previousUserType,2);
+                $max_accepted_ondemand=Project::getMaximumActiveAcceptedProjects(0,$previousUserType,[1,2]);
 
                 if(($ondemand->autoaccept_number > $ondemandLimits->number_of_projects))
                 {
                     Yii::$app->session->setFlash('danger', "The maximum number of on-demand batch computation projects should be greater than the number of autoaccepted projects");
                     $success='';
                 }
-                elseif($max_autoaccepted_ondemand>$ondemand->autoaccept_number)
+                elseif($max_autoaccepted_ondemand > $ondemand->autoaccept_number)
                 {
                     
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_ondemand active autoaccepted on-demand batch computation projects");
+                    Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_autoaccepted_ondemand active autoaccepted on-demand batch computation projects");
                     $success='';
                 }
-                elseif($max_accepted_ondemand>$ondemandLimits->number_of_projects)
+                elseif($max_accepted_ondemand > $ondemandLimits->number_of_projects)
                 {
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_ondemand active on-demand batch computation projects");
+                    Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_accepted_ondemand active on-demand batch computation projects");
                     $success='';
                 }
                 else
@@ -226,23 +226,23 @@ class AdministrationController extends Controller
                     $ondemandLimits->updateDB($previousUserType);
                 }
 
-                $max_autoaccepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$currentUser,2);
-                $max_accepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$currentUser,[1,2]);
+                $max_autoaccepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$previousUserType,2);
+                $max_accepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$previousUserType,[1,2]);
 
                 if(($coldStorage->autoaccept_number > $coldStorageLimits->number_of_projects))
                 {
                     Yii::$app->session->setFlash('danger', "The maximum number of storage volumes projects should be greater than the number of autoaccepted projects");
                     $success='';
                 }
-                elseif($max_autoaccepted_volumes>$coldStorage->autoaccept_number)
+                elseif($max_autoaccepted_volumes > $coldStorage->autoaccept_number)
                 {
                     
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_volumes autoaccepted active storage volumes");
+                    Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_autoaccepted_volumes autoaccepted active storage volumes");
                     $success='';
                 }
-                elseif($max_accepted_volumes>$coldStorageLimits->number_of_projects)
+                elseif($max_accepted_volumes > $coldStorageLimits->number_of_projects)
                 {
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_volumes active storage volumes");
+                    Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_accepted_volumes active storage volumes");
                     $success='';
                 }
                 else
@@ -252,16 +252,17 @@ class AdministrationController extends Controller
                 }
 
 
-                $max_accepted_machines=Project::getMaximumActiveAcceptedProjects(3,$currentUser,[1,2]);
-                if((($machineComputationLimits->number_of_projects==-1) && ($currentUser=='gold')) || 
-                    ($max_accepted_machines<=$machineComputationLimits->number_of_projects))
+                $max_accepted_machines=Project::getMaximumActiveAcceptedProjects(3,$previousUserType,[1,2]);
+                if((($machineComputationLimits->number_of_projects==-1) && ($previousUserType=='gold')) || 
+                    ($max_accepted_machines <= $machineComputationLimits->number_of_projects))
                 {
-                        
+                        // print_r($max_accepted_machines);
+                        // exit(0);
                         $machineComputationLimits->updateDB($previousUserType);
                 }
                 else
                 {
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_machines active on-demand computation machines projects");
+                    Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_accepted_machines active on-demand computation machines projects");
                      $success='';
                 }
                 
