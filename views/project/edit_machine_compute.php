@@ -97,7 +97,7 @@ Headers::begin() ?>
         <div class="row">&nbsp;</div>
 
       
-            <?= $form->field($details,'flavour')->dropDownList($details->flavours)->label($flavour_label)?>
+            <?= $form->field($details,'flavour')->dropDownList($details->flavours, ['disabled'=>true])->label($flavour_label)?>
            
         
         <div class="form-group">

@@ -122,73 +122,7 @@ Headers::begin() ?>
 </div>
 <div class="row">&nbsp;</div>
 
-<!-- <div class="row">&nbsp;</div>
 
-<div class="table-responsive">
-	<table class="table table-striped">
-		<tbody>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Name</th>
-				<td class="col-md-6 text-left" scope="col"><?= $project->name ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Duration (in months)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $project->duration ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Maximum number of participating users</th>
-				<td class="col-md-6 text-left" scope="col"><?= $project->user_num ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Participating users</th>
-				<td class="col-md-6 text-left" scope="col"><?= $user_list ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Backup service available</th>
-				<td class="col-md-6 text-left" scope="col"><?=($project->backup_services=='t')? 'Yes' : 'No'?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Service Name</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->name ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Service Version</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->version ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Service description</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->description ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Service URL</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->url ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Service TRL</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->trl ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Number of requested CPU cores</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_cores ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Requested memory (RAM) amount (in GBs)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Requested additional storage amount (in GBs)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?></td>
-			</tr>
-			<tr>
-				<th class="col-md-6 text-right" scope="col">Submitted by</th>
-				<td class="col-md-6 text-left" scope="col"><?=$submitted->username ?></td>
-			</tr>
-			
-		</body>
-	</table>
-</div>
-<div class="row">&nbsp;</div>
- -->
 <?php
 if ($project->status==0)
 {
@@ -199,6 +133,15 @@ if ($project->status==0)
             <?= Html::a("$approve_icon Approve",['/project/approve', 'id'=>$request_id], ['class' => 'btn btn-success']) ?>&nbsp;&nbsp;&nbsp;&nbsp;
             <?= Html::a("$modify_icon Modify", ['/project/modify-request', 'id'=>$request_id], ['class'=>'btn btn-secondary']) ?>&nbsp;&nbsp;&nbsp;&nbsp;
             <?= Html::a("$reject_icon Reject", ['/project/reject', 'id'=>$request_id], ['class'=>'btn btn-danger']) ?>
+    	</div>
+	</div>
+<?php
+}
+elseif(($project->status==1) ||($project->status==2))
+{?>
+<div class="row">
+		<div class="col-md-12 text-center">
+            <?= Html::a("$modify_icon Modify", ['/project/modify-request', 'id'=>$request_id], ['class'=>'btn btn-secondary']) ?>&nbsp;&nbsp;&nbsp;&nbsp;
     	</div>
 	</div>
 <?php

@@ -226,10 +226,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
              * Get project_request from request id in order to get the project_id 
              * in order to update the latest active request 
              */
-            $request->status=2;
-            $request->approval_date='NOW()';
-            $request->approved_by=0;
-            $request->save();
+            
             
             $message="Updates to project '$request->name' have been automatically approved.";
 
@@ -242,16 +239,25 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             // $project=Project::find()->where(['id'=>$request->project_id])->one();
 
             //set status for old request to -3 (modified)
+            
             $old_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+
+            $request->status=$old_request->status;
+            $request->approval_date='NOW()';
+            $request->approved_by=$old_request->approved_by;
+            $request->save(false);
+
+
             if (!empty($old_request))
             {
-                $old_request->status=-3;
-                $old_request->save(false);
+                    $old_request->status=-3;
+                    $old_request->save(false);
             }
+            
             
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
-            $project->status=2;
+            $project->status=$old_request->status;
             $project->save();
         }
              

@@ -446,10 +446,6 @@ class ServiceRequest extends \yii\db\ActiveRecord
         if ( (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
             && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) ) || $uchanged)
         {
-            $request->status=2;
-            $request->approval_date='NOW()';
-            $request->approved_by=0;
-            $request->save(false);
 
             /*
              * Get project_request from request id in order to get the project_id 
@@ -465,6 +461,12 @@ class ServiceRequest extends \yii\db\ActiveRecord
 
             //set status for old request to -3 (modified)
             $old_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+            
+            $request->status=$old_request->status;
+            $request->approval_date='NOW()';
+            $request->approved_by=$old_request->approved_by;
+            $request->save(false);
+
             if (!empty($old_request))
             {
                 $old_request->status=-3;
@@ -473,7 +475,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
-            $project->status=2;
+            $project->$old_request->status;
             $project->save(false);
         }
         else

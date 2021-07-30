@@ -100,6 +100,15 @@ if ($project->status==0)
 	</div>
 <?php
 }
+elseif(($project->status==1) ||($project->status==2))
+{?>
+<div class="row">
+		<div class="col-md-12 text-center">
+            <?= Html::a("$modify_icon Modify", ['/project/modify-request', 'id'=>$request_id], ['class'=>'btn btn-secondary']) ?>&nbsp;&nbsp;&nbsp;&nbsp;
+    	</div>
+	</div>
+<?php
+}
 ?>
 
 <div class="row">&nbsp;</div>
