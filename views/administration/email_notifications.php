@@ -38,6 +38,9 @@ if($smtp_config==false)
 <div class="col-md-5 col-md-offset-4">
 	<?= $form->field($user_notifications, 'new_ticket')->checkBox(['label'=>'', 'disabled'=>true])->label('New ticket') ?>
 </div>
+<div class="col-md-5 col-md-offset-4">
+	<?= $form->field($user_notifications, 'expires_1')->checkBox(['label'=>'', 'disabled'=>true])->label('Project expires in one day') ?>
+</div>
 <?php
 }
 else
@@ -47,6 +50,9 @@ else
 </div>
 <div class="col-md-5 col-md-offset-4">
 	<?= $form->field($user_notifications, 'new_ticket')->checkBox(['label'=>'',])->label('New ticket') ?>
+</div>
+<div class="col-md-5 col-md-offset-4">
+	<?= $form->field($user_notifications, 'expires_1')->checkBox(['label'=>''])->label('Project expires in one day') ?>
 </div>
 <?php
 }?>

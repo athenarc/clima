@@ -265,12 +265,9 @@ class OndemandRequest extends \yii\db\ActiveRecord
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
 
-        if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
+        if ((($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed) || $uchanged)
         {
-            $request->status=2;
-            $request->approval_date='NOW()';
-            $request->approved_by=0;
-            $request->save(false);
+            
             
             
             $message="Updates to project '$request->name' have been automatically approved.";
@@ -287,6 +284,13 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
             //set status for old request to -3 (modified)
             $old_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+            
+
+            $request->status=$old_request->status;
+            $request->approval_date='NOW()';
+            $request->approved_by=$old_request->approved_by;
+            $request->save(false);
+
             if (!empty($old_request))
             {
                 $old_request->status=-3;
@@ -295,7 +299,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
             
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
-            $project->status=2;
+            $project->status=$old_request->status;
             $project->save(false);
         }
 

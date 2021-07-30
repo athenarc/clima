@@ -38,7 +38,7 @@ class EmailEvents extends \yii\db\ActiveRecord
     {
         return [
             [['id', 'user_id'], 'integer'],
-            [['user_creation', 'new_project', 'expires_30','expires_15', 'project_decision', 'new_ticket','edit_project'], 'boolean'],
+            [['user_creation', 'new_project', 'expires_30','expires_15','expires_1', 'project_decision', 'new_ticket','edit_project'], 'boolean'],
             [['user_id'], 'unique'],
         ];
     }
@@ -198,6 +198,12 @@ class EmailEvents extends \yii\db\ActiveRecord
             $moderator_ids=array_keys($moderators);
             $project_users_ids=array_keys($project_users);
             $recipient_ids=array_unique(array_merge($moderator_ids, $project_users_ids));
+        }
+        elseif($email_type=='expires_1')
+        {
+            $all_users=self::getAdmins($email_type);
+            $subject='Expiration of project '. $project_name;
+            $recipient_ids=array_keys($all_users);
         }
 
         if (!isset(Yii::$app->params['disableEmail']))

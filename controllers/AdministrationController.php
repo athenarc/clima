@@ -237,12 +237,12 @@ class AdministrationController extends Controller
                 elseif($max_autoaccepted_volumes>$coldStorage->autoaccept_number)
                 {
                     
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_volumes storage volumes active projects");
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_autoaccepted_volumes autoaccepted active storage volumes");
                     $success='';
                 }
                 elseif($max_accepted_volumes>$coldStorageLimits->number_of_projects)
                 {
-                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_volumes active storage volumes projects");
+                    Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_volumes active storage volumes");
                     $success='';
                 }
                 else
@@ -253,20 +253,18 @@ class AdministrationController extends Controller
 
 
                 $max_accepted_machines=Project::getMaximumActiveAcceptedProjects(3,$currentUser,[1,2]);
-                if($machineComputationLimits->number_of_projects==-1 && $currentUser=='gold')
+                if((($machineComputationLimits->number_of_projects==-1) && ($currentUser=='gold')) || 
+                    ($max_accepted_machines<=$machineComputationLimits->number_of_projects))
                 {
-                    
-                    $machineComputationLimits->updateDB($previousUserType);
+                        
+                        $machineComputationLimits->updateDB($previousUserType);
                 }
-                elseif($max_accepted_machines>$machineComputationLimits->number_of_projects)
+                else
                 {
                     Yii::$app->session->setFlash('danger', "There is a $currentUser user with $max_accepted_machines active on-demand computation machines projects");
                      $success='';
                 }
-                else
-                {
-                    $machineComputationLimits->updateDB($previousUserType);
-                }
+                
                 
                 
 
