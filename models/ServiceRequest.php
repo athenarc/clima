@@ -475,7 +475,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
-            $project->$old_request->status;
+            $project->status=$old_request->status;
             $project->save(false);
         }
         else
