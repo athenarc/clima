@@ -20,7 +20,7 @@ $this->registerJsFile('@web/js/project/view-request-user.js', ['depends' => [\yi
 $approve_icon='<i class="fas fa-check"></i>';
 $reject_icon='<i class="fas fa-times"></i>';
 $back_icon='<i class="fas fa-arrow-left"></i>';
-$back_link=($return=='index') ? '/project/index' : '/project/user-request-list';
+$back_link=($return=='index') ? '/project/index' : '/administration/all-projects';
 $bar_percentage=round(($usage['count'])/$details->num_of_jobs*100);
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
