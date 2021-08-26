@@ -19,7 +19,7 @@ use app\components\Headers;
 echo Html::CssFile('@web/css/project/index.css');
 $this->registerJsFile('@web/js/project/index.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->title="Dashboard";
+$this->title="All projects";
 
 
 /*
@@ -36,18 +36,18 @@ $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
 
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>"Dashboard", 
-	'buttons'=>
-	[
-		['fontawesome_class'=>$history_icon,'name'=> 'Project requests', 'action'=> ['/project/user-request-list'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
-		['fontawesome_class'=>$new_icon,'name'=> 'New project', 'action'=>['/project/new-request'], 'type'=>'a', 
-		'options'=>['class'=>'btn btn-success']] 
-	],
-	'special_content'=>'<div class="col-md-12 text-right">
-							<h5><span class='.$role.'-user><i class="fa fa-certificate fa-xs" aria-hidden="true"></i>
-							</span> <span>'. $roles[$role]. ' user &nbsp;</span><span title="Type of user"><i class="fa fa-question-circle" aria-hidden="true"></i></h5>
-							</span>
-						</div>'
+['title'=>"All projects", 
+	// 'buttons'=>
+	// [
+	// 	['fontawesome_class'=>$history_icon,'name'=> 'Project requests', 'action'=> ['/project/user-request-list'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
+	// 	['fontawesome_class'=>$new_icon,'name'=> 'New project', 'action'=>['/project/new-request'], 'type'=>'a', 
+	// 	'options'=>['class'=>'btn btn-success']] 
+	//],
+	// 'special_content'=>'<div class="col-md-12 text-right">
+	// 						<h5><span class='.$role.'-user><i class="fa fa-certificate fa-xs" aria-hidden="true"></i>
+	// 						</span> <span>'. $roles[$role]. ' user &nbsp;</span><span title="Type of user"><i class="fa fa-question-circle" aria-hidden="true"></i></h5>
+	// 						</span>
+	// 					</div>'
 ])
 ?>
 <?Headers::end()?>
@@ -88,9 +88,9 @@ if (!empty($active))
     <table class="table table-striped col-md-12">
 		<thead>
 			<tr>
-				<th class="col-md-2" scope="col">Project</th>
+				<th class="col-md-3" scope="col">Project</th>
 				<th class="col-md-2" scope="col">Type</th>
-				<th class="col-md-2 text-center" scope="col">Owner</th>
+				<th class="col-md-3 text-center" scope="col">Owner</th>
 				<th class="col-md-2 text-center" scope="col">Expires in</th>
 				<th class="col-md-3" scope="col">&nbsp;</th>
 			</tr>
@@ -165,14 +165,12 @@ foreach ($active as $res)
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-2" style="vertical-align: middle!important;"> <?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
+				<td class="col-md-3" style="vertical-align: middle!important;"> <?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
 				<td class="col-md-2" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
-				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
+				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
-				<td class="col-md-4 text-right">
-					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>"btn btn-secondary btn-md $edit_button_class"])?>
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
-					<?=Html::a("$access_icon Access", $projectLink,['class'=>"btn btn-success btn-md $access_button_class $ondemand_access_class",'target'=>$projectTarget])?>
+				<td class="col-md-2 text-right">
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'admin','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
 				</td>	
 			</tr>
 
@@ -218,9 +216,9 @@ if (!empty($expired))
    	<table class="table table-striped">
 		<thead>
 			<tr>
-				<th class="col-md-2" scope="col">Project</th>
+				<th class="col-md-3" scope="col">Project</th>
 				<th class="col-md-2" scope="col">Type</th>
-				<th class="col-md-2 text-center" scope="col">Owner</th>
+				<th class="col-md-3 text-center" scope="col">Owner</th>
 				<th class="col-md-2 text-center" scope="col">Expired on</th>
 				<th class="col-md-3" scope="col">&nbsp;</th>
 			</tr>
@@ -275,11 +273,11 @@ foreach ($expired as $res)
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-2" style="vertical-align: middle!important;"> <?=$res['name']?></td>
+				<td class="col-md-3" style="vertical-align: middle!important;"> <?=$res['name']?></td>
 				<td class="col-md-2" style="padding-left: 20px;vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon?></td>
-				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
+				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?></td>
-				<td class="col-md-3 text-right">
+				<td class="col-md-2 text-right">
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>1],['class'=>'btn btn-secondary btn-md'])?> 
 					
 				</td>
