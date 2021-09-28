@@ -161,7 +161,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             'id' => 'ID',
             'name' => 'Name *', 
             'description' => ' Description *',
-            'num_of_vms' => "Νumber of VMs ",
+            'num_of_vms' => "Νumber of VMs",
             'num_of_cores' => "Νumber of CPU cores",
             'num_of_ips' => "Νumber of public IP addresses ",
             'ram' => "Μemory (in GBs)",
@@ -200,11 +200,12 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         $this->num_of_cores=$this->flavourCores[$this->flavour];
         $this->ram=$this->flavourRam[$this->flavour];
         $this->storage=empty($this->storage) ? 0 : $this->storage;
+        $this->num_of_vms=intval($this->num_of_vms);
 
         Yii::$app->db->createCommand()->insert('machine_compute_request', [
 
                 'description' => $this->description,
-                'num_of_vms' => 1,
+                'num_of_vms' => $this->num_of_vms,
                 'num_of_cores' => $this->num_of_cores,
                 'num_of_ips' => 1,
                 'ram' => $this->ram,
@@ -237,11 +238,12 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         $this->num_of_cores=$this->flavourCores[$this->flavour];
         $this->ram=$this->flavourRam[$this->flavour];
         $this->storage=empty($this->storage) ? 0 : $this->storage;
+        $this->num_of_vms=intval($this->num_of_vms);
 
         Yii::$app->db->createCommand()->insert('machine_compute_request', [
 
                 'description' => $this->description,
-                'num_of_vms' => 1,
+                'num_of_vms' => $this->num_of_vms,
                 'num_of_cores' => $this->num_of_cores,
                 'num_of_ips' => 1,
                 'ram' => $this->ram,

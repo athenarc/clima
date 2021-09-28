@@ -56,10 +56,11 @@ else
 <?Headers::end()?>
 
 
-<div class="col-md-12 text-center"><h3 style="font-weight:bold;">Basic info </h3></tr></div>
+<div class="col-md-12 text-center"><h3 style="font-weight:bold;">Basic info </h3></div>
 	<div class="table-responsive">
 		<table class="table table-striped">
 			<tbody>
+			<tr>
 				<th class="col-md-6 text-right" scope="col">Type:</th>
 				<td class="col-md-6 text-left" scope="col"><?=$type?></td>
 			</tr>
@@ -95,10 +96,15 @@ else
 			</body>
 		</table>
 	</div>
-<div class="col-md-12 text-center"><h3 style="font-weight:bold;">Resources </h3></tr></div>
+<div class="col-md-12 text-center"><h3 style="font-weight:bold;">Resources </h3></div>
 	<div class="table-responsive">
 		<table class="table table-striped">
 			<tbody>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Number of VMs:</th>
+				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_vms ?></td>
+			</tr>
+			<tr>
 				<th class="col-md-6 text-right" scope="col">CPU cores:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_cores ?></td>
 			</tr>

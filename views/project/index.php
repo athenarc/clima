@@ -160,7 +160,7 @@ foreach ($active as $res)
 	}
 	else if ($res['project_type']==3) 
 	{
-		$projectLink=Url::to(['/project/machine-compute-configure-vm','id'=>$res['project_id']]);
+		$projectLink=Url::to(['/project/machine-compute-access-project','id'=>$res['project_id']]);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand computation machines';

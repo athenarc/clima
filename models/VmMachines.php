@@ -22,7 +22,7 @@ use app\models\OpenstackMachines;
 class VmMachines extends \yii\db\ActiveRecord
 {
     public $keyFile,$consoleLink='';
-    private $name, $token, $port_id;
+    private $token, $port_id;
     public static $openstack,$creds;
     public $serverExists=true;
 
@@ -285,7 +285,7 @@ class VmMachines extends \yii\db\ActiveRecord
             "volume"=>
             [  
                 "size"=> $size,
-                "name" => $this->name . '-volume',
+                "name" => $this->name,
 
             ],
         ];
@@ -566,7 +566,7 @@ class VmMachines extends \yii\db\ActiveRecord
                 ],
                 "metadata" =>
                 [
-                    "My Server Name" => $this->name
+                    "My Server Name" => $this->name,
                 ],
                 "security_groups" =>
                 [
@@ -854,7 +854,7 @@ class VmMachines extends \yii\db\ActiveRecord
 
     public function createVM($requestId,$service,$images)
     {   
-        $keyFileName=Yii::$app->params['tmpKeyLocation'] . $this->keyFile->baseName . '.' . $this->keyFile->extension;
+        $keyFileName=Yii::$app->params['tmpKeyLocation'] . $this->keyFile->baseName . '_' . $this->project_multiple_order. '.' . $this->keyFile->extension;
         $this->keyFile->saveAs($keyFileName);
         $this->windows_unique_id='';
         
@@ -884,7 +884,7 @@ class VmMachines extends \yii\db\ActiveRecord
         $project=Project::find()->where(['id'=>$project_id])->one();
         $this->image_name=$images[$this->image_id];
 
-        $this->name=$project->name;
+        $this->name=$project->name . '_' . $this->project_multiple_order;
         
         
         $flavour=$service->vm_flavour;
@@ -976,6 +976,8 @@ class VmMachines extends \yii\db\ActiveRecord
                 'created_by'=> $user,
                 'created_at'=>'NOW()',
                 'windows_unique_id' => $this->windows_unique_id,
+                'project_multiple_order'=>$this->project_multiple_order,
+                'name'=>$this->name,
             ])->execute();
 
         return [0,'',''];
@@ -1105,8 +1107,7 @@ class VmMachines extends \yii\db\ActiveRecord
                 return;
         }
 
-        // print_r($response);
-        // exit(0);
+
         if (!$response->getIsOk())
         {
             $this->serverExists=false;

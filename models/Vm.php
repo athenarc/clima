@@ -22,7 +22,7 @@ use app\models\Openstack;
 class Vm extends \yii\db\ActiveRecord
 {
     public $keyFile,$consoleLink='';
-    private $name, $token, $port_id;
+    private $token, $port_id;
     public static $openstack,$creds;
     public $serverExists=true;
 
@@ -973,6 +973,7 @@ class Vm extends \yii\db\ActiveRecord
                 'keypair_name'=> $this->name,
                 'created_by'=> $user,
                 'created_at'=>'NOW()',
+                'name'=> $this->name,
                 'windows_unique_id' => $this->windows_unique_id,
             ])->execute();
 

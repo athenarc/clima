@@ -54,7 +54,7 @@ if (!empty($errors))
 ?>
 
 
-<?Headers::begin() ?>
+<?php Headers::begin(); ?>
 <?php echo Headers::widget(
 ['title'=>'Request a new on-demand computation project', 
 ])

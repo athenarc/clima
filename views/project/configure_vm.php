@@ -13,6 +13,8 @@ $this->registerJsFile('@web/js/project/vm-configure.js', ['depends' => [\yii\web
 $helpLink=Html::a('&nbsp;guide&nbsp;','https://confluence.atlassian.com/bitbucketserver/creating-ssh-keys-776639788.html',["target"=>'_blank']);
 $info='<i class="fas fa-info-circle"></i>';
 
+$back_action=($backTarget=='m')?['/project/machine-compute-access-project','id'=>$project_id]:['project/index'];
+
 Headers::begin() ?>
 <?php echo Headers::widget(
 ['title'=>'Machine Creation', 
@@ -20,7 +22,7 @@ Headers::begin() ?>
 	[
 		['fontawesome_class'=>'<i class="fas fa-check"></i>','name'=> 'Create',
 		'options'=>['class'=>'btn btn-primary create-vm-btn'], 'type'=>'submitButton' ],
-		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/index'],
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>$back_action,
 		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
 	],
 ])

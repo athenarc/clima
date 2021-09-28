@@ -68,7 +68,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             [['request_id'], 'default', 'value' => null],
             [['request_id', 'vm_type'], 'integer'],
             [['description', 'type'], 'string'],
-            [['storage','description', 'type', 'vm_type'],'required'],
+            [['storage','description', 'type', 'vm_type','num_of_volumes'],'required'],
             [['additional_resources'],'string'],
             [['storage'], 'number','max'=>$this->limits->storage,'min'=>0],
         ];
@@ -85,6 +85,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             'id' => 'ID',
             'request_id' => 'Request ID',
             'description' => 'Project description * ',
+            'num_of_volumes' => 'Number of volumes',
             'storage'=>"",
         ];
     }
@@ -104,6 +105,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
                 'additional_resources'=>$this->additional_resources,
                 'request_id' => $requestId,
                 'type'=>$this->type,
+                'num_of_volumes'=>$this->num_of_volumes,
                 'vm_type'=>$this->vm_type,
             ])->execute();
 
@@ -121,6 +123,13 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
         $cold_autoaccept_number=$cold_autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
         $autoaccept_allowed=($autoaccepted_num-$cold_autoaccept_number < 0) ? true :false;
+        /*
+         * Volumes for machine VMs should not be auto-accepted
+         */
+        if ($this->vm_type=='2')
+        {
+            $autoaccept_allowed=false;
+        }
 
         $message_autoaccept='';
         if (($this->storage<=$row['storage']) && $autoaccept_allowed)
@@ -163,7 +172,13 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
                 $message=$authenticate[1];
                 if(!$token=='')
                 {
-                    $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id);
+                    /*
+                     * Create multiple volumes (if applicable)
+                     */
+                    for ($i=1; $i<=$this->num_of_volumes; $i++)
+                    {
+                        $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id,$i);
+                    }
                 }
                
             }

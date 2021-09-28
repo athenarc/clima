@@ -89,7 +89,7 @@ if (!empty($errors))
         </div>
         
             <div class="col-md-6">
-                <h3> Analysis description</h3>
+                <h3> Analysis description *</h3>
                 <?= $form->field($service, 'description')->textarea(['rows'=>6])->label(""); ?>
             </div>
         </div>   
@@ -106,6 +106,7 @@ if (!empty($errors))
         <div class="row">&nbsp;</div>
 
         <?= $form->field($service,'flavour')->dropDownList($service->flavours)->label($flavour_label)?>
+        <?= $form->field($service,'num_of_vms')->dropDownList($num_vms_dropdown)?>
 
     
         <div class="row">

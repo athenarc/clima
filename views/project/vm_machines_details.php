@@ -21,6 +21,9 @@ $username='ubuntu';
 $consoleLink=$model->consoleLink;
 $disable_cons_btn='';
 $disable_del_btn='';
+
+$back_action=($backTarget=='m')?['/project/machine-compute-access-project','id'=>$model->project_id]:['project/index'];
+
 if (empty($consoleLink))
 {
 	$disable_cons_btn=' disabled';
@@ -40,7 +43,7 @@ Headers::begin() ?>
 		'options'=>['class'=>'btn btn-secondary'. $disable_cons_btn, 'target'=>'_blank'], 'type'=>'a' ],
 		['fontawesome_class'=>$x_icon,'name'=> 'Delete', 'button_name'=>"button", 'type'=>'tag', 
 		'options'=>['class'=>'btn btn-danger delete-vm-btn' . $disable_del_btn]] ,
-		['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>['/project/index'], 'type'=>'a', 
+		['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>$back_action, 'type'=>'a', 
 		'options'=>['class'=>'btn btn-default']] 
 	],
 ])

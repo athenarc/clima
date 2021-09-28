@@ -20,7 +20,7 @@ $this->title="Submit a new storage volume request";
 
 
 
-Headers::begin() ?>
+<?php Headers::begin(); ?>
 <?php echo Headers::widget(
 ['title'=>'Submit a new storage volume request',])
 ?>
@@ -28,7 +28,7 @@ Headers::begin() ?>
 <?php
 
 $types=['hot'=>'Hot'];
-$vm_types=[1=>'24/7 service', 2=>'On-demand computation machines'];
+
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 
@@ -49,6 +49,7 @@ if (!empty($errors))
     echo '</div>';
 
 }
+
 ?>
 
 
@@ -101,6 +102,7 @@ if (!empty($errors))
         <?= $form->field($coldStorage, 'type')->dropDownList($types)->label('Volume type') ?>
         <?= $form->field($coldStorage, 'vm_type')->dropDownList($vm_types)->label('I want to use this volume for:') ?>
         <?= $form->field($coldStorage, 'storage')-> label($storage_label) ?>
+        <span class="hidden num_of_volumes_dropdown"><?= $form->field($coldStorage, 'num_of_volumes')->dropDownList($multiple) ?></span>
     
         <div class="row">
             <div class="col-md-1"><?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?></div>
@@ -110,7 +112,7 @@ if (!empty($errors))
             {
             ?>
 
-            <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active storage volume that was automatically accepted. <br />Your current project request will need to be examined and approved.</div>
+                <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> You already have an active storage volume that was automatically accepted. <br />Your current project request will need to be examined and approved.</div>
             
             <?php
             }

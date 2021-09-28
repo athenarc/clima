@@ -382,15 +382,18 @@ class ProjectController extends Controller
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
+        $num_vms_dropdown=[];
+        /*
+         * Create dropdown for the number of VMs
+         */
+        for ($i=1; $i<31; $i++)
+            $num_vms_dropdown[$i]=$i;
+
         
         if ( ($serviceModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
-            
             $isValid = $projectModel->validate();
             $isValid = $serviceModel->validate() && $isValid;
-
-            // print_r($serviceModel->validate());
-            // exit(0);
 
             if ($isValid)
             {   
@@ -444,7 +447,7 @@ class ProjectController extends Controller
         }
         
 
-        return $this->render('new_machine_compute_request',['service'=>$serviceModel, 'project'=>$projectModel,  'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'new_project_allowed'=>$new_project_allowed]);
+        return $this->render('new_machine_compute_request',['service'=>$serviceModel, 'project'=>$projectModel,  'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'new_project_allowed'=>$new_project_allowed,'num_vms_dropdown'=>$num_vms_dropdown]);
 
 
 
@@ -482,7 +485,21 @@ class ProjectController extends Controller
         $autoaccept_allowed=($autoaccepted_num-$cold_autoaccept_number < 0) ? true :false;
 
 
-        
+        if (($role=='gold') || (Userw::hasRole('Admin', $superadminAllowed=true)) )
+        {
+            $vm_types=[1=>'24/7 service', 2=>'On-demand computation machines'];
+
+        }
+        else
+        {
+            $vm_types=[1=>'24/7 service'];
+        }
+
+        $multiple=[];
+        for ($i=1; $i<=30; $i++)
+        {
+            $multiple[$i]=$i;
+        }
  
         
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
@@ -518,14 +535,12 @@ class ProjectController extends Controller
             $isValid = $projectModel->validate();
             $isValid = $coldStorageModel->validate() && $isValid;
             $projectModel->end_date='2100-1-1';
+
             if ($isValid)
             {    
                 $participant_ids_tmp=[];
                 foreach ($participating as $participant)
                 {
-                    // $name_exp=explode(' ',$participant);
-                    // $name=$name_exp[0];
-                    // $surname=$name_exp[1];
                     $username=$participant . '@elixir-europe.org';
                     $pid=User::findByUsername($username)->id;
                     $participant_ids_tmp[$pid]=null;
@@ -583,9 +598,10 @@ class ProjectController extends Controller
         }
         
         
-            return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel, 
-                    'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
-                     'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed]);
+        return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel, 
+                'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
+                 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 
+                 'new_project_allowed'=>$new_project_allowed, 'vm_types'=>$vm_types, 'multiple' => $multiple]);
 
 
     }
@@ -1200,20 +1216,90 @@ class ProjectController extends Controller
 
     }
 
-    public function actionMachineComputeConfigureVm($id)
+    public function actionMachineComputeAccessProject($id)
     {
-        // $project=Project::find()->where(['id'=>$id])->one();
-        // $latest_project_request_id=$project->latest_project_request_id;
         $owner=Project::userInProject($id);
 
-        // print_r($owner);
-        // exit(0);
+        /*
+         * Check that someone is not trying to do something funny via urls
+         */
+        if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+        $project=Project::find()->where(['id'=>$id])->one();
+        $details=MachineComputeRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+
+        /*
+         * if project has only one vm
+         * then redirect to the appropriate 
+         * configure vm action
+         */
+        if ($details->num_of_vms == 1 )
+        {
+            $this->redirect(['/project/machine-compute-configure-vm','id'=>$id]);
+        }
+        /*
+         * I'm not writing an else action here
+         * because if there is a redirect you
+         * certainly go away from here
+         */
+        /*
+         * Get available VMs if any
+         */
+        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->all();
+        $vms=[];
+        $vm_ids=[];
+        $vm_match=[];
+        foreach ($existing as $vm)
+        {
+            $vm_ids[]=$vm->id;
+            if (!isset($vm_match[$vm->id]))
+            {
+                $vm_match[$vm->id]=[];
+            }
+            $vm_match[$vm->id][]=$vm->project_multiple_order;
+            $vms[$vm->project_multiple_order]=$vm;
+        }
+        $volumes=HotVolumes::find()->where(['vm_id'=>$vm_ids])->all();
+        $storage=[];
+
+        foreach ($volumes as $volume)
+        {
+
+            $vmorder=$vm_match[$volume->vm_id];
+
+            foreach ($vmorder as $ord)
+            {
+                if (!isset($storage[$ord]))
+                {
+                    $storage[$ord]=[];
+                }
+                $storage[$ord][]=['name'=>$volume->name,'mountpoint'=>$volume->mountpoint];
+            }
+                
+        }
+
+
+        return $this->render('machines_multiple',['num_of_vms'=>$details->num_of_vms,'vms'=>$vms, 'project_id'=>$project->id,'storage' => $storage]);
+
+
+    }
+
+    public function actionMachineComputeConfigureVm($id,$multOrder=1,$backTarget='s')
+    {
+        /*
+         * Check that someone is not trying to do something illegal
+         * by "hacking" at URLs 
+         */
+        $owner=Project::userInProject($id);
+
         if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
         }
 
-        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->andWhere(['project_multiple_order'=>$multOrder])->one();
 
         //If vm is upgraded, then show message to user to delete past vm and create new
         if(!empty($existing))
@@ -1241,17 +1327,19 @@ class ProjectController extends Controller
             $model=new VmMachines;
 
             $avResources=VmMachines::getOpenstackAvailableResources();
-
-            // print_r($model);
-            // exit(0);
-            // print_r($avResources);
-            // exit(0);
             $project=Project::find()->where(['id'=>$id])->one();
             $latest_project_request_id=$project->latest_project_request_id;
             $service=MachineComputeRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
 
-            // print_r($avResources);
-            // exit(0);
+            /*
+             * If someone is trying to do something fishy with the 
+             * parameters in the URL to create more VMs than allowed,
+             * stop them.
+             */
+            if ($service->num_of_vms < $multOrder)
+            {
+                return $this->render('error_unauthorized');
+            }
             
             if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
             {
@@ -1262,7 +1350,7 @@ class ProjectController extends Controller
 
             $form_params =
             [
-                'action' => URL::to(['project/machine-compute-configure-vm','id'=>$id]),
+                'action' => URL::to(['project/machine-compute-configure-vm','id'=>$id,'multOrder'=>$multOrder,'backTarget'=>'m']),
                 'options' => 
                 [
                     'class' => 'vm__form',
@@ -1275,10 +1363,9 @@ class ProjectController extends Controller
             {
 
                 $model->keyFile = UploadedFile::getInstance($model, 'keyFile');
-                // print_r($model->keyFile->extension);
-                // exit(0);
                 if ($model->validate())
                 {
+                    $model->project_multiple_order=$multOrder;
                     $result=$model->createVM($latest_project_request_id,$service, $imageDD);
                     $error=$result[0];
                     $message=$result[1];
@@ -1294,12 +1381,12 @@ class ProjectController extends Controller
                         $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
                         $existing->getConsoleLink();
     
-                        return $this->render('vm_machines_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service]);
+                        return $this->render('vm_machines_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service,'backTarget'=>$backTarget]);
                     }
                 }
             }
             
-            return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service]);
+            return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service,'backTarget'=>$backTarget,'project_id'=>$project->id]);
         }
         else
         {
@@ -1319,7 +1406,7 @@ class ProjectController extends Controller
 
         
              $existing->getConsoleLink();
-             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage]);
+             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage,'backTarget'=>$backTarget]);
         }
         
 
@@ -1335,6 +1422,18 @@ class ProjectController extends Controller
         }
 
         $vm=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+        /*
+         * Remove all volume attachments from the database before deleting.
+         * No point in detaching from the actual VM, OpenStack will take care of it
+         */
+
+        $volumes=HotVolumes::find()->where(['vm_id'=>$vm->id])->all();
+        foreach ($volumes as $volume)
+        {
+            $volume->vm_id=null;
+            $volume->mountpoint=null;
+            $volume->save();
+        }
 
         $result=$vm->deleteVM();
         $error=$result[0];
@@ -1375,6 +1474,19 @@ class ProjectController extends Controller
         }
 
         $vm=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+
+        /*
+         * Remove all volume attachments from the database before deleting.
+         * No point in detaching from the actual VM, OpenStack will take care of it
+         */
+
+        $volumes=HotVolumes::find()->where(['vm_id'=>$vm->id])->all();
+        foreach ($volumes as $volume)
+        {
+            $volume->vm_id=null;
+            $volume->mountpoint=null;
+            $volume->save();
+        }
 
         $result=$vm->deleteVM();
         $error=$result[0];
@@ -1668,6 +1780,11 @@ class ProjectController extends Controller
             $autoacceptlimits='';
             $project_id=$prequest->project_id;
             $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
+            /*
+             * Create dropdown for the number of VMs
+             */
+            for ($i=1; $i<31; $i++)
+                $num_vms_dropdown[$i]=$i;
             if (!empty($vm))
             {
                 // return $this->render('error_service_vm_exist');
@@ -1839,7 +1956,7 @@ class ProjectController extends Controller
         // exit(0);
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown]);
 
 
     }
@@ -2330,7 +2447,7 @@ class ProjectController extends Controller
 
             foreach ($vms as $vm) 
             {
-                $vms_dropdown[$vm['id']]=$vm['name'];
+                $vms_dropdown[$vm['id']]=$vm['vm_name'];
             }
         }
         else

@@ -150,7 +150,7 @@ class HotVolumes extends \yii\db\ActiveRecord
         $query=new Query;
 
 
-        $query->select(['v.id','p.id as project_id','p.name'])
+        $query->select(['v.id','p.id as project_id','v.name as vm_name','p.name'])
               ->from('vm as v')
               ->innerJoin('project as p','p.id=v.project_id')
               ->where(['v.active'=>true])
@@ -167,7 +167,7 @@ class HotVolumes extends \yii\db\ActiveRecord
         $query=new Query;
 
 
-        $query->select(['v.id','p.id as project_id','p.name'])
+        $query->select(['v.id','p.id as project_id','v.name as vm_name', 'p.name'])
               ->from('vm_machines as v')
               ->innerJoin('project as p','p.id=v.project_id')
               ->where(['v.active'=>true])
@@ -315,18 +315,18 @@ class HotVolumes extends \yii\db\ActiveRecord
     }
 
 
-    public function createVolume($size,$name,$token,$vm_type,$project_id)
+    public function createVolume($size,$name,$token,$vm_type,$project_id,$multOrder)
     {
         /*
          * Add a new ssh key
          */
-
+        
         $volumedata=
         [
             "volume"=>
             [  
                 "size"=> $size,
-                "name" => $name . '-volume',
+                "name" => $name . '_' . $multOrder,
 
             ],
         ];
@@ -356,7 +356,7 @@ class HotVolumes extends \yii\db\ActiveRecord
         $volume_id=$response->data['volume']['id'];
 
         Yii::$app->db->createCommand()->insert('hot_volumes', [
-                            'name' => $name . '-volume',
+                            'name' => $name . '_' . $multOrder,
                             'accepted_at'=>'NOW()',
                             'project_id' => $project_id,
                             'volume_id'=>$volume_id,

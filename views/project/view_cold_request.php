@@ -67,7 +67,11 @@ Headers::begin() ?>
 	<table class="table table-striped">
 		<tbody>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Allocated storage</th>
+				<th class="col-md-6 text-right" scope="col">Number of volumes:</th>
+				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_volumes ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Allocated storage:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?> GBs</td>
 			</tr>
 		</tbody>
@@ -78,8 +82,8 @@ Headers::begin() ?>
 	<table class="table table-striped">
 		<tbody>
 			<tr>		
-			<th class="col-md-6 text-right" scope="col">Description</th>
-			<td class="col-md-6 text-left" scope="col"><?= $details->description ?></td>
+				<th class="col-md-6 text-right" scope="col">Description:</th>
+				<td class="col-md-6 text-left" scope="col"><?= $details->description ?></td>
 			</tr>
 		</body>
 	</table>

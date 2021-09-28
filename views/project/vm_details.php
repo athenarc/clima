@@ -21,6 +21,7 @@ $username='ubuntu';
 $consoleLink=$model->consoleLink;
 $disable_cons_btn='';
 $disable_del_btn='';
+
 if (empty($consoleLink))
 {
 	$disable_cons_btn=' disabled';

@@ -98,6 +98,7 @@ Headers::begin() ?>
 
       
             <?= $form->field($details,'flavour')->dropDownList($details->flavours, ['disabled'=>true])->label($flavour_label)?>
+            <?= $form->field($details,'num_of_vms')->dropDownList($num_vms_dropdown,['disabled'=>true])?>
            
         
         <div class="form-group">

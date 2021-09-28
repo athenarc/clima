@@ -140,9 +140,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                // $name_exp=explode(' ',$participant);
-                // $name=$name_exp[0];
-                // $surname=$name_exp[1];
+
                 $username=$participant . '@elixir-europe.org';
                 $id=User::findByUsername($username)->id;
                 $participant_ids_tmp[$id]=null;
@@ -153,10 +151,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             {
                 $participant_ids[]=$id;
             }
-            // print_r($participant_ids);
-            // exit(0);
-            // print_r(User::findByUsername(Userw::getCurrentUser())->id);
-            // exit(0);
+            
             $submitted_by=User::findByUsername(Userw::getCurrentUser()['username'])->id;
 
             Yii::$app->db->createCommand()->insert('project', ['name' => $this->name,'project_type'=> $project_type])->execute();
@@ -381,7 +376,13 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 $message=$authenticate[1];
                 if(!$token=='')
                 {
-                    $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$this->project_id);
+                    /*
+                     * Create multiple volumes (if applicable)
+                     */
+                    for ($i=1; $i<=$cold_storage_request->num_of_volumes; $i++)
+                    {
+                        $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id,$i);
+                    }
                 }
                 
             }
