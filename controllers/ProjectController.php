@@ -1820,6 +1820,7 @@ class ProjectController extends Controller
         $errors='';
         $success='';
         $warnings='';
+        $num_vms_dropdown=[];
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : $prequest->usernameList;
@@ -1952,8 +1953,6 @@ class ProjectController extends Controller
             }
         }
 
-        // print_r($prequest);
-        // exit(0);
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
                     'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown]);
