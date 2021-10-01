@@ -1987,6 +1987,7 @@ class ProjectController extends Controller
         }
 
         $prequest->end_date=$ends;
+        $num_vms_dropdown=[];
 
         $vm_exists=0;
         
@@ -2037,6 +2038,11 @@ class ProjectController extends Controller
             $upperlimits='';
             $autoacceptlimits='';
             $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
+            /*
+             * Create dropdown for the number of VMs
+             */
+            for ($i=1; $i<31; $i++)
+                $num_vms_dropdown[$i]=$i;
             if (!empty($vm))
             {
                 // return $this->render('error_service_vm_exist');
@@ -2187,7 +2193,7 @@ class ProjectController extends Controller
         }
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown]);
 
 
     }
