@@ -21,7 +21,7 @@ use app\models\Openstack;
  */
 class Vm extends \yii\db\ActiveRecord
 {
-    public $keyFile,$consoleLink='';
+    public $keyFile,$consoleLink='', $status;
     private $token, $port_id;
     public static $openstack,$creds;
     public $serverExists=true;
@@ -124,7 +124,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(['flavors/detail'])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
             $flag=false;
             return "There was an error contacting OpenStack API";
@@ -159,7 +159,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(['images?visibility=public'])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
             $flag=false;
             return ["There was an error contacting OpenStack API"];
@@ -212,7 +212,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setData(self::$creds)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
             $flag=false;
             $token='';
@@ -259,7 +259,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->send();
 
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false,"There was an error contacting OpenStack API"];
@@ -303,7 +303,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setData($volumedata)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false, "There was an error contacting OpenStack API"];
@@ -335,7 +335,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->send();
             
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false, "There was an error contacting OpenStack API"];
@@ -363,7 +363,7 @@ class Vm extends \yii\db\ActiveRecord
                                     ->send();
                 
             }
-            catch(Exception $e)
+            catch(yii\httpclient\Exception $e)
             {
                
                 return [false, "There was an error contacting OpenStack API"];
@@ -390,7 +390,7 @@ class Vm extends \yii\db\ActiveRecord
                             ->send();
         
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false, "There was an error contacting OpenStack API"];
@@ -417,7 +417,7 @@ class Vm extends \yii\db\ActiveRecord
                                     ->send();
                 
             }
-            catch(Exception $e)
+            catch(yii\httpclient\Exception $e)
             {
                
                 return [false, "There was an error contacting OpenStack API"];
@@ -454,7 +454,7 @@ class Vm extends \yii\db\ActiveRecord
                             ->setData($volumedata)
                             ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false, "There was an error contacting OpenStack API"];
@@ -483,7 +483,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl('/servers/' . $this->vm_id . '/os-volume_attachments/' . $this->volume_id)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false, "There was an error contacting OpenStack API"];
@@ -512,7 +512,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false, "There was an error contacting OpenStack API"];
@@ -539,7 +539,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(["os-keypairs/$key_name"])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            
             return [false, "There was an error contacting OpenStack API"];
@@ -591,7 +591,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setData($vmdata)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            return [false,"There was an error contacting OpenStack API"];
         }
@@ -617,7 +617,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(["servers/$this->vm_id/os-interface"])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            return [false, "There was an error contacting OpenStack API"];
         }
@@ -644,7 +644,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(["servers/$this->vm_id"])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            return [false, "There was an error contacting OpenStack API"];
         }
@@ -681,7 +681,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setData($ipdata)
                                 ->send();
         }
-        catch (Exception $e)
+        catch (yii\httpclient\Exception $e)
         {
             return [false, "There was an error contacting OpenStack API"];
         }
@@ -708,7 +708,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(["floatingips/$this->ip_id"])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
            return [false, "There was an error contacting OpenStack API"];
         }
@@ -742,7 +742,7 @@ class Vm extends \yii\db\ActiveRecord
                                     ->setUrl(['limits'])
                                     ->send();
             }
-            catch(Exception $e)
+            catch(yii\httpclient\Exception $e)
             {
                $responseOK=false;
             }
@@ -772,7 +772,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setData(['floating_network_id'=>self::$openstack->floating_net_id])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
             return ['','','',''];
         }
@@ -803,7 +803,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl(['quotas/' . base64_decode(self::$openstack->tenant_id)])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
             return ['','','',''];
         }
@@ -831,7 +831,7 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl([base64_decode(self::$openstack->tenant_id) .'/limits'])
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
             return ['','','',''];
         }
@@ -1052,7 +1052,7 @@ class Vm extends \yii\db\ActiveRecord
                                     ->setUrl('/servers/' . $this->vm_id . '/os-server-password')
                                     ->send();
             }
-            catch(Exception $e)
+            catch(yii\httpclient\Exception $e)
             {
                 $passNotExists=true;
                 $encrypted='';
@@ -1097,14 +1097,13 @@ class Vm extends \yii\db\ActiveRecord
                                 ->setUrl('/servers/' . $this->vm_id)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(yii\httpclient\Exception $e)
         {
                 $this->serverExists=false;
                 return;
         }
 
-        // print_r($response);
-        // exit(0);
+        
         if (!$response->getIsOk())
         {
             $this->serverExists=false;
@@ -1135,14 +1134,13 @@ class Vm extends \yii\db\ActiveRecord
                                     ->setData($consoleData)
                                     ->send();
             }
-            catch(Exception $e)
+            catch(yii\httpclient\Exception $e)
             {
                 $consoleAvailable=false;
                 return;
             }
 
-            // print_r($response);
-            // exit(0);
+            
             if ($response->getIsOk() && (isset($response->data['console'])))
             {
                 $consoleAvailable=true;
@@ -1157,5 +1155,143 @@ class Vm extends \yii\db\ActiveRecord
         }
         $console=$response->data['console'];
         $this->consoleLink=$console['url'];
+    }
+
+    public function getServerStatus()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return '';
+        }
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('GET')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return '';
+        }
+        $this->status=$response->data['server']['status'];
+        
+        return $this->status;
+
+    }
+
+    public function startVM()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return 'error';
+        }
+        $startData=
+        [
+            "os-start"=> null
+        ];
+        
+        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id . '/action')
+                                ->setData($startData)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return 'error';
+        }
+        return 'success';
+
+    }
+
+    public function stopVM()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return 'error';
+        }
+        $startData=
+        [
+            "os-stop"=> null
+        ];
+        
+        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id . '/action')
+                                ->setData($startData)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return 'error';
+        }
+        return 'success';
+
+    }
+
+    public function rebootVM()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return 'error';
+        }
+        $startData=
+        [
+            "reboot" => 
+            [
+                "type" => "SOFT"
+            ]
+        ];
+        
+        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id . '/action')
+                                ->setData($startData)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return 'error';
+        }
+        return 'success';
+
     }
 }

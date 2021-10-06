@@ -1082,7 +1082,7 @@ class ProjectController extends Controller
     }
 
 
-    public function actionConfigureVm($id)
+    public function actionConfigureVm($id,$backTarget='s')
     {
         $owner=Project::userInProject($id);
 
@@ -1112,8 +1112,6 @@ class ProjectController extends Controller
             $latest_project_request_id=$project->latest_project_request_id;
             $service=ServiceRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
 
-            // print_r($avResources);
-            // exit(0);
             
             if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
             {
@@ -1158,14 +1156,15 @@ class ProjectController extends Controller
                         $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
                         session_write_close();
                         $existing->getConsoleLink();
+                        $existing->getServerStatus();
                         session_start();
     
-                        return $this->render('vm_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service]);
+                        return $this->render('vm_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service,'backTarget'=>$backTarget]);
                     }
                 }
             }
             
-            return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service]);
+            return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service,'backTarget'=>$backTarget]);
         }
         else
         {
@@ -1180,8 +1179,6 @@ class ProjectController extends Controller
                 foreach ($hotvolume as $hot) 
                 {
                     $project=Project::find()->where(['id'=>$hot->project_id])->one();
-                    // print_r($hot);
-                    // exit(0);
                     $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
                     $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
                 }
@@ -1192,8 +1189,7 @@ class ProjectController extends Controller
             ->andWhere(['active'=>true])
             ->andWhere(['vm_type'=>1])
             ->all();
-            // print_r($not_attached_volumes);
-            // exit(0);
+
 
             $service_old=ServiceRequest::find()->where(['request_id'=>$existing->request_id])->one();
             $service_old_id=$service_old->id;
@@ -1209,6 +1205,7 @@ class ProjectController extends Controller
             }
             session_write_close();
             $existing->getConsoleLink();
+            $existing->getServerStatus();
             session_start();
             return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage]);
         }
@@ -1410,6 +1407,88 @@ class ProjectController extends Controller
         }
         
 
+    }
+
+    public function actionGetVmStatus($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            return $this->asJson('');
+        }
+
+        $vm = new Vm();
+        $vm->vm_id=$vm_id;
+        $status=empty($vm->getServerStatus($vm_id))? '' : $vm->status;
+        
+        return $this->asJson($status);
+
+    }
+
+    public function actionStartVm($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+        $vm=new Vm();
+        $vm->vm_id=$vm_id;
+        $ok=$vm->startVM();
+        // $ok='success';
+        if ($ok='success')
+        {
+            Yii::$app->response->statusCode = 200;
+            return;
+        }
+        else
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+    }
+
+    public function actionStopVm($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+        $vm=new Vm();
+        $vm->vm_id=$vm_id;
+        $ok=$vm->stopVM();
+        if ($ok='success')
+        {
+            Yii::$app->response->statusCode = 200;
+            return;
+        }
+        else
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+    }
+
+    public function actionRebootVm($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+        $vm=new Vm();
+        $vm->vm_id=$vm_id;
+        $ok=$vm->rebootVM();
+        if ($ok='success')
+        {
+            Yii::$app->response->statusCode = 200;
+            return;
+        }
+        else
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
     }
 
     public function actionDeleteVm($id)

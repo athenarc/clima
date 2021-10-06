@@ -5,10 +5,10 @@ use yii\helpers\Html;
 ?>
 
 <div class='row'>
-	<div class="col-md-8 headers">
+	<div class="col-md-5 headers">
 		<span><?=$title?></span><span class="subtitle"><?=empty($subtitle)?'':"/$subtitle"?>
 	</div>
-	<div class="col-md-4 header-buttons">
+	<div class="col-md-7 header-buttons text-right">
 		<?php
 		foreach ($buttons as $button) 
 		{

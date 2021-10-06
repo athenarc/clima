@@ -12,15 +12,20 @@ $this->title="VM details";
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $x_icon='<i class="fas fa-times"></i>';
 $console_icon='<i class="fas fa-external-link-square-alt"></i>';
+$start_icon='<i class="fas fa-play"></i>';
+$shutdown_icon='<i class="fas fa-stop"></i>';
+$reboot_icon='<i class="fas fa-power-off"></i>';
 $info_icon='<i class="fas fa-question-circle"></i>';
 $string = explode(" ", $model->image_name)[0];
 $unlink_icon='<i class="fas fa-unlink"></i>';
 $link_icon='<i class="fas fa-link"></i>';
-// $username=strtolower($string);
 $username='ubuntu';
 $consoleLink=$model->consoleLink;
 $disable_cons_btn='';
 $disable_del_btn='';
+$disable_start='';
+$disable_shutdown='';
+$disable_reboot='';
 
 if (empty($consoleLink))
 {
@@ -32,25 +37,40 @@ if (!$model->serverExists)
 	$disable_del_btn=' disabled';
 }
 
+if ($model->status=='ACTIVE')
+{
+	$disable_start=' disabled';
+}
+
+if ($model->status=='SHUTOFF')
+{
+	$disable_shutdown=' disabled';
+	$disable_reboot=' disabled';
+}
+
 Headers::begin() ?>
 <?php echo Headers::widget(
 ['title'=>'VM details', 
 	'buttons'=>
 	[
+		['fontawesome_class'=>$start_icon,'name'=> 'Start', 'action'=> 'javascript:void(0);', 
+			'options'=>['class'=>'btn btn-secondary start-btn' . $disable_start], 'type'=>'a' ],
+		['fontawesome_class'=>$shutdown_icon,'name'=> 'Shut down', 'action'=> 'javascript:void(0);', 
+			'options'=>['class'=>'btn btn-secondary shutdown-btn' . $disable_shutdown], 'type'=>'a' ],
+		['fontawesome_class'=>$reboot_icon,'name'=> 'Reboot', 'action'=> 'javascript:void(0);', 
+			'options'=>['class'=>'btn btn-secondary reboot-btn' . $disable_reboot], 'type'=>'a' ],
 		['fontawesome_class'=>$console_icon,'name'=> 'Console', 'action'=> $consoleLink, 
-		'options'=>['class'=>'btn btn-secondary'. $disable_cons_btn, 'target'=>'_blank'], 'type'=>'a' ],
+			'options'=>['class'=>'btn btn-secondary'. $disable_cons_btn, 'target'=>'_blank'], 'type'=>'a' ],
 		['fontawesome_class'=>$x_icon,'name'=> 'Delete', 'button_name'=>"button", 'type'=>'tag', 
-		'options'=>['class'=>'btn btn-danger delete-vm-btn' . $disable_del_btn]] ,
+			'options'=>['class'=>'btn btn-danger delete-vm-btn' . $disable_del_btn]] ,
 		['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>['/project/index'], 'type'=>'a', 
-		'options'=>['class'=>'btn btn-default']] 
+			'options'=>['class'=>'btn btn-default']] 
 	],
 ])
 ?>
 <?Headers::end()?>
 
-
-
-<div class="row">
+<div class="row first-info">
 	<span class="col-md-2">
 		<strong>Image:</strong>
 	</span>
@@ -80,6 +100,15 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 	</div>
 <?php
 }?>
+
+<div class="row">
+	<span class="col-md-2">
+		<strong>Status:</strong>
+	</span>
+	<span class="col-md-2" id='status-span'>
+		<?=$model->status?>
+	</span>
+</div>
 
 <div class="row"><div class="col-md-12"><h3>Machine specification:</h3></div></div>
 <div class="row">
@@ -118,10 +147,7 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 		}?>
 	</div>
 </div>
-<!-- <div class="row">
-	<div class="col-md-4 tab-label"><b>Select volume to attach:</b></div>
-	<div class="col-md-8 tab-value"></div>
-</div> -->
+<?=Html::hiddenInput('hidden_vm_id',$model->vm_id,['id'=>'hidden_vm_field']) ?>
 
 
 <div class="row">&nbsp;</div>
