@@ -263,7 +263,7 @@ class Project extends \yii\db\ActiveRecord
           // print_r($user);
           // exit(0);
 
-        $query->select(['odr.num_of_jobs','odr.ram','odr.cores'])
+        $query->select(['odr.num_of_jobs','odr.ram','odr.cores','end_date'])
                 ->from('project as p')
                 ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
                 ->innerJoin('ondemand_request as odr','pr.id=odr.request_id')
