@@ -263,7 +263,7 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             $old_request_status=1;
         }
 
-        if ($uchanged || $old_request_status==1)
+        if ($uchanged && $old_request_status==1)
         {
             
             

@@ -36,7 +36,6 @@ else
 
 
 
-
 if (!empty($errors))
 {
     echo '<div class="alert alert-danger row" role="alert">';
@@ -122,7 +121,7 @@ Headers::begin() ?>
         <div class="row">&nbsp;</div>
 
       
-            <?= $form->field($details,'flavour')->dropDownList($details->flavours, ['disabled'=>true])->label($flavour_label)?>
+            <?= $form->field($details,'flavour')->dropDownList($details->flavours, ['disabled'=>$vm_exists])->label($flavour_label)?>
         
         <div class="form-group">
             <?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?>

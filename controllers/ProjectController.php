@@ -1774,8 +1774,6 @@ class ProjectController extends Controller
         }
         $owner=($prequest->submitted_by==Userw::getCurrentUser()['id']);
 
-        // print_r($prequest->status);
-        // exit(0);
 
         if ( (!$owner) && (!Userw::hasRole('Admin',$superadminAllowed=true)) || (($prequest->status!=ProjectRequest::APPROVED) && ($prequest->status!=ProjectRequest::AUTOAPPROVED)) )
         {
@@ -1791,10 +1789,11 @@ class ProjectController extends Controller
         $project=Project::find()->where(['latest_project_request_id'=>$id])->one();
         $trls=[];
         $maturities=[];
+        $num_vms_dropdown=[];
 
         $role=User::getRoleType();
 
-        $vm_exists=0;
+        $vm_exists=false;
 
         $start=date('Y-m-d',strtotime($prequest->approval_date));
 
@@ -1824,7 +1823,8 @@ class ProjectController extends Controller
         else if ($prType==1)
         {
             $drequest=ServiceRequest::find()->where(['request_id'=>$id])->one();
-            $drequest->flavour=$drequest->flavourIdNameLimitless[$drequest->vm_flavour];
+            // $drequest->flavour=$drequest->flavourIdNameLimitless[$drequest->vm_flavour];
+            $drequest->flavour=isset($drequest->flavourIdNameLimitless[$drequest->vm_flavour])?$drequest->flavourIdNameLimitless[$drequest->vm_flavour]:'';
             if (!isset($drequest->flavours[$drequest->flavour]))
             {
                 $drequest->flavours[$drequest->flavour]=$drequest->allFlavours[$drequest->flavour];
@@ -1838,8 +1838,7 @@ class ProjectController extends Controller
             $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
             if (!empty($vm))
             {
-                // return $this->render('error_service_vm_exist');
-                $vm_exists=1;
+                $vm_exists=true;
             }
 
 
@@ -1851,14 +1850,19 @@ class ProjectController extends Controller
         }
         else if ($prType==3)
         {
+            /* Get request quotas */
             $drequest=MachineComputeRequest::find()->where(['request_id'=>$id])->one();
-            $drequest->flavour=$drequest->flavourIdNameLimitless[$drequest->vm_flavour];
+            /*
+             * If flavor has been changed from openstack allow system to continue, in order to 
+             * be able to update the flavor (provided that the VM does not exist).
+             */
+            $drequest->flavour=isset($drequest->flavourIdNameLimitless[$drequest->vm_flavour])?$drequest->flavourIdNameLimitless[$drequest->vm_flavour]:'';
             $view_file='edit_machine_compute';
             $prequest->end_date=$ends;
             $upperlimits='';
             $autoacceptlimits='';
             $project_id=$prequest->project_id;
-            $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
+            $vm=VMmachines::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
             /*
              * Create dropdown for the number of VMs
              */
@@ -1866,24 +1870,20 @@ class ProjectController extends Controller
                 $num_vms_dropdown[$i]=$i;
             if (!empty($vm))
             {
-                // return $this->render('error_service_vm_exist');
-                $vm_exists=1;
+                $vm_exists=true;
             }
         }
         else if ($prType==2)
         {
             $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
             $view_file='edit_cold_storage';
-            //$prequest->duration=0;
+            
             $prequest->end_date='2100-1-1';
-            //$prequest->update();
-            // print_r($prequest);
-            // exit(0);
+            
             $upperlimits=ColdStorageLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
         }
 
-        
 
         $form_params =
         [
@@ -1899,7 +1899,6 @@ class ProjectController extends Controller
         $errors='';
         $success='';
         $warnings='';
-        $num_vms_dropdown=[];
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : $prequest->usernameList;
@@ -1910,21 +1909,14 @@ class ProjectController extends Controller
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
 
-            // print_r($drequest);
-            // print_r($prequest->name);
-            // exit(0);
+            
             $isValid = $prequest->validate();
             $isValid = $drequest->validate() && $isValid;
 
-            // print_r($dold->flavour);
-            // print_r($drequest->flavour);
-            // exit(0);
+            
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                // $name_exp=explode(' ',$participant);
-                // $name=$name_exp[0];
-                // $surname=$name_exp[1];
                 $username=$participant . '@elixir-europe.org';
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
@@ -1969,6 +1961,7 @@ class ProjectController extends Controller
                     {
                         $dchanged=true;
                     }
+
                 }
 
                 if ($pchanged || $dchanged)
@@ -2068,7 +2061,7 @@ class ProjectController extends Controller
         $prequest->end_date=$ends;
         $num_vms_dropdown=[];
 
-        $vm_exists=0;
+        $vm_exists=false;
         
         $prequest->fillUsernameList();
 
@@ -2100,8 +2093,7 @@ class ProjectController extends Controller
             $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
             if (!empty($vm))
             {
-                // return $this->render('error_service_vm_exist');
-                $vm_exists=1;
+                $vm_exists=true;
             }
             $trls[0]='Unspecified';
             for ($i=1; $i<10; $i++)
@@ -2124,15 +2116,13 @@ class ProjectController extends Controller
                 $num_vms_dropdown[$i]=$i;
             if (!empty($vm))
             {
-                // return $this->render('error_service_vm_exist');
-                $vm_exists=1;
+                $vm_exists=true;
             }
         }
         else if ($prType==2)
         {
             $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
             $view_file='edit_cold_storage';
-            //$prequest->duration=36;
             $prequest->duration='2100-1-1';
             $upperlimits=ColdStorageLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
@@ -2182,9 +2172,6 @@ class ProjectController extends Controller
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                // $name_exp=explode(' ',$participant);
-                // $name=$name_exp[0];
-                // $surname=$name_exp[1];
                 $username=$participant . '@elixir-europe.org';
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
@@ -2205,22 +2192,11 @@ class ProjectController extends Controller
             
             $project_id=$prequest->project_id;
             $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
-            // print_r($prequest->user_list);
-            // print_r("<br /><br />");
-            // print_r($pold->user_list);
-            // exit(0);
-           // $pchanged= ProjectRequest::modelChanged($pold,$prequest);
-           // $dchanged= ProjectRequest::modelChanged($dold,$drequest);
-            // exit(0);
 
             
 
             if ($isValid)
             {   
-                // print_r("ok");
-                // exit(0);
-                // print_r($prType);
-                // exit(0);
                 if ($prType==2)
                 {
                     $prequest->end_date='2100-1-1';
@@ -2235,8 +2211,6 @@ class ProjectController extends Controller
 
                 if ($pchanged || $dchanged)
                 {
-                    // print_r($id);
-                    // exit(0);
                     $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
                     $errors.=$messages[0];
                     $success.=$messages[1];
