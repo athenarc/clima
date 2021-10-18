@@ -50,6 +50,8 @@ class CronJobController extends Controller {
                     $message1="Project '$project[name]' will end in 30 days.";
                     $message2="Project '$project[name]' will end in 15 days.";
                     $message3="Project '$project[name]' will end in 1 day.";
+                    $message4="Project '$project[name]' will end in 5 days.";
+                    
                     
                     
                     $notifications1=Notification::find()->where(['recipient_id'=>$user_id])
@@ -58,6 +60,8 @@ class CronJobController extends Controller {
                     ->andWhere(['message'=>$message2])->all();
                     $notifications3=Notification::find()->where(['recipient_id'=>$user_id])
                     ->andWhere(['message'=>$message3])->all();
+                    $notifications4=Notification::find()->where(['recipient_id'=>$user_id])
+                    ->andWhere(['message'=>$message4])->all();
 
                     if(empty($notifications1) && ($notification_remaining_days==30))
                     {
@@ -73,6 +77,11 @@ class CronJobController extends Controller {
                     if(empty($notifications3) && ($notification_remaining_days==1))
                     {
                        Notification::notifyDate($user_id,$message3,1,null, (string) $date);
+                    }
+
+                    if(empty($notifications4) && ($notification_remaining_days==5))
+                    {
+                       Notification::notifyDate($user_id,$message4,1,null, (string) $date);
                     }
 
                     $email_30=Email::find()->where(['project_id'=>$project['project_id']])
@@ -100,6 +109,14 @@ class CronJobController extends Controller {
                     if(empty($email_1) && ($notification_remaining_days==1))
                     {
                         EmailEvents::notifyByEmailDate('expires_1', $project['project_id'],$message3, (string) $date);
+                    }
+
+                    $email_5=Email::find()->where(['project_id'=>$project['project_id']])
+                    ->andWhere(['type'=>'expires_5'])
+                    ->one();
+                    if(empty($email_5) && ($notification_remaining_days==5))
+                    {
+                        EmailEvents::notifyByEmailDate('expires_5', $project['project_id'],$message4, (string) $date);
                     }
                 }
                        

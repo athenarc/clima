@@ -38,7 +38,7 @@ class EmailEvents extends \yii\db\ActiveRecord
     {
         return [
             [['id', 'user_id'], 'integer'],
-            [['user_creation', 'new_project', 'expires_30','expires_15','expires_1', 'project_decision', 'new_ticket','edit_project'], 'boolean'],
+            [['user_creation', 'new_project', 'expires_30','expires_15','expires_1','expires_5', 'project_decision', 'new_ticket','edit_project'], 'boolean'],
             [['user_id'], 'unique'],
         ];
     }
@@ -86,7 +86,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         {
             
             $moderators=self::getModerators($email_type);
-            $project_users=self::getProjectUsers($project_id);
+            $project_users=self::getProjectUsers($project_id,$email_type);
             $subject='Decision on project '. $project_name;
             $all_users=$moderators+$project_users;
             $moderator_ids=array_keys($moderators);
@@ -181,7 +181,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         if($email_type=='expires_30')
         {
             $moderators=self::getModerators($email_type);
-            $project_users=self::getProjectUsers($project_id);
+            $project_users=self::getProjectUsers($project_id,$email_type);
             $subject='Expiration of project '. $project_name;
             $all_users=$moderators+$project_users;
             $moderator_ids=array_keys($moderators);
@@ -192,7 +192,7 @@ class EmailEvents extends \yii\db\ActiveRecord
         elseif($email_type=='expires_15')
         {
             $moderators=self::getModerators($email_type);
-            $project_users=self::getProjectUsers($project_id);
+            $project_users=self::getProjectUsers($project_id,$email_type);
             $subject='Expiration of project '. $project_name;
             $all_users=$moderators+$project_users;
             $moderator_ids=array_keys($moderators);
@@ -201,7 +201,19 @@ class EmailEvents extends \yii\db\ActiveRecord
         }
         elseif($email_type=='expires_1')
         {
-            $all_users=self::getAdmins($email_type);
+            $admins=self::getAdmins($email_type);
+            $project_users=self::getProjectUsers($project_id,$email_type);
+            $moderators=self::getModerators($email_type);
+            $all_users=$moderators+$project_users+$admins;
+            $subject='Expiration of project '. $project_name;
+            $recipient_ids=array_keys($all_users);
+        }
+        elseif($email_type=='expires_5')
+        {
+            $admins=self::getAdmins($email_type);
+            $project_users=self::getProjectUsers($project_id,$email_type);
+            $moderators=self::getModerators($email_type);
+            $all_users=$moderators+$project_users+$admins;
             $subject='Expiration of project '. $project_name;
             $recipient_ids=array_keys($all_users);
         }
@@ -291,19 +303,25 @@ class EmailEvents extends \yii\db\ActiveRecord
 
     }
 
-    public static function getProjectUsers($project_id)
+    public static function getProjectUsers($project_id, $email_event)
     {
         $project=Project::find()->where(['id'=>$project_id])->one();
         $project_request_id=$project->latest_project_request_id;
         $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
-        $project_users_all=Userw::find()->where(['id'=>$project_request->user_list])
-                    ->andWhere(['not', ['email' => null]])
-                    ->all();
 
+        $query=new Query;
+        $users=$query->select(['u.id', 'u.email','u.username'])
+            ->from('user as u')
+            ->innerJoin('email_events as e', 'e.user_id=u.id')
+            ->where(['in','u.id',$project_request->user_list])
+            ->andWhere(["e.$email_event"=>1])
+            ->andWhere(['not',['u.email'=>null]])
+            ->all();
+    
         $project_users=[];
-        foreach($project_users_all as $user)
+        foreach($users as $user)
         {
-                $project_users[$user->id]=['email'=>$user->email, 'username'=>$user->username];
+                $project_users[$user['id']]=['email'=>$user['email'], 'username'=>$user['username']];
         }
 
         return $project_users;
