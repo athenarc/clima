@@ -58,6 +58,13 @@ else
 	<?= $form->field($user_notifications, 'expires_15')->checkBox(['label'=>'','disabled'=>$disabled])->label('Project expires in 15 days') ?>
 </div>
 
+<div class="col-md-5 col-md-offset-4">
+	<?= $form->field($user_notifications, 'expires_5')->checkBox(['label'=>'','disabled'=>$disabled])->label('Project expires in 5 days') ?>
+</div>
+<div class="col-md-5 col-md-offset-4">
+	<?= $form->field($user_notifications, 'expires_1')->checkBox(['label'=>'','disabled'=>$disabled])->label('Project expires in one day') ?>
+</div>
+
 
 <?php ActiveForm::end(); ?>
 
