@@ -357,7 +357,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $project->latest_project_request_id=$this->id;
         $project->pending_request_id=null;
-        $project_status=1;
+        $project->status=1;
+        $project->name=$this->name;
         $project->save(false);
 
         if ($this->project_type==2)

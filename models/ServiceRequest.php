@@ -373,6 +373,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
             $project->status=2;
+            $project->name=$request->name;
             $project->save();
 
             $message_autoaccept="We are happy to inform you that project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
@@ -476,6 +477,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
             $project->status=$old_request->status;
+            $project->name=$request->name;
             $project->save(false);
         }
         else

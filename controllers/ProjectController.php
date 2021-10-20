@@ -1106,13 +1106,11 @@ class ProjectController extends Controller
             session_write_close();
             $avResources=VM::getOpenstackAvailableResources();
             session_start();
-            // print_r($avResources);
-            // exit(0);
+            
             $project=Project::find()->where(['id'=>$id])->one();
             $latest_project_request_id=$project->latest_project_request_id;
             $service=ServiceRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
 
-            
             if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
             {
                 return $this->render('service_unavailable_resources');

@@ -154,6 +154,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
             $project->status=2;
+            $project->name=$request->name;
             $project->save();
 
 
@@ -273,6 +274,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             $project->latest_project_request_id=$request->id;
             $project->pending_request_id=null;
             $project->status=$old_request->status;
+            $project->name=$request->name;
             $project->save();
         }
              
