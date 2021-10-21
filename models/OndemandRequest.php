@@ -11,7 +11,8 @@ use yii\helpers\Url;
 use app\models\Notification;
 use app\models\OndemandAutoaccept;
 use app\models\User;
-use app\models\EmailEvents;
+use app\models\EmailEventsUser;
+use app\models\EmailEventsModerator;
 /**
  * This is the model class for table "ondemand_request".
  *

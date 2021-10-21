@@ -30,7 +30,8 @@ use app\models\Vm;
 use app\models\VmMachines;
 use yii\db\Query;
 use app\models\Smtp;
-use app\models\EmailEvents;
+use app\models\EmailEventsModerator;
+use app\models\EmailEventsUser;
 use app\models\Email;
 use yii\helpers\Url;
 use yii\helpers\Html;
@@ -322,12 +323,13 @@ class ProjectController extends Controller
 
                     if(empty($message_autoaccept))
                     {
-                    	EmailEvents::NotifyByEmail('new_project', $project_id,$submitted_email);
+                    	EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
                     }
                     else
                     {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                    	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                    	EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
                     return $this->redirect(['project/index']);
@@ -583,12 +585,13 @@ class ProjectController extends Controller
 
                     if(empty($message_autoaccept))
                     {
-                    	EmailEvents::NotifyByEmail('new_project', $project_id,$submitted_email);
+                        EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
                     }
                     else
                     {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                    	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
                     return $this->redirect(['project/index']);
@@ -723,12 +726,14 @@ class ProjectController extends Controller
 
                     if(empty($message_autoaccept))
                     {
-                    	EmailEvents::NotifyByEmail('new_project', $project_id,$submitted_email);
+                        EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
+
                     }
                     else
                     {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                    	EmailEvents::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
                     return $this->redirect(['project/index']);
@@ -2345,10 +2350,10 @@ class ProjectController extends Controller
 
         $user=Userw::getCurrentUser();
         $user_id=$user->id;
-        $user_notifications=EmailEvents::find()->where(['user_id'=>$user_id])->one();
+        $user_notifications=EmailEventsModerator::find()->where(['user_id'=>$user_id])->one();
         if(empty($user_notifications))
         {
-        		$user_notifications=new EmailEvents;
+        		$user_notifications=new EmailEventsModerator;
         		$user_notifications->user_id=$user_id;
         		$user_notifications->save();
         		

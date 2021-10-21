@@ -12,7 +12,8 @@ use app\models\Notification;
 use app\models\ColdStorageAutoaccept;
 use app\models\HotVolumes;
 use app\models\User;
-use app\models\EmailEvents;
+use app\models\EmailEventsUser;
+use app\models\EmailEventsModerator;
 
 /**
  * This is the model class for table "cold_storage_request".

@@ -16,7 +16,7 @@ use app\models\Notification;
 use app\models\TicketConfig;
 use app\models\User;
 use app\models\Smtp;
-use app\models\EmailEvents;
+use app\models\EmailEventsAdmin;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 /**
@@ -186,7 +186,7 @@ class TicketUserController extends Controller
                         Notification::notify($admin, $message, '0' ,$url);
                     }
                     
-                    EmailEvents::NotifyByEmail('new_ticket',-1, $message);
+                    EmailEventsAdmin::NotifyByEmail('new_ticket',-1, $message);
 
 
                     return $this->redirect(Url::previous());

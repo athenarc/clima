@@ -6,7 +6,9 @@ use Yii;
 use yii\console\ExitCode;
 use yii\console\Controller;
 use fedemotta\cronjob\models\CronJob;
-use app\models\EmailEvents;
+use app\models\EmailEventsAdmin;
+use app\models\EmailEventsModerator;
+use app\models\EmailEventsUser;
 use app\models\Project;
 use app\models\Notification;
 use app\models\User;
@@ -90,7 +92,8 @@ class CronJobController extends Controller {
                     if(empty($email_30) && ($notification_remaining_days==30))
                     {
                          
-                        EmailEvents::NotifyByEmailDate('expires_30', $project['project_id'],$message1, (string) $date);
+                        EmailEventsUser::NotifyByEmailDate('expires_30', $project['project_id'],$message1, (string) $date);
+                        EmailEventsModerator::NotifyByEmailDate('expires_30', $project['project_id'],$message1, (string) $date);
                         
                     }
                     
@@ -99,7 +102,8 @@ class CronJobController extends Controller {
                     ->one();
                     if(empty($email_15) && ($notification_remaining_days==15))
                     {
-                        EmailEvents::notifyByEmailDate('expires_15', $project['project_id'],$message2, (string) $date);
+                        EmailEventsUser::notifyByEmailDate('expires_15', $project['project_id'],$message2, (string) $date);
+                        EmailEventsModerator::notifyByEmailDate('expires_15', $project['project_id'],$message2, (string) $date);
                     }
 
 
@@ -108,7 +112,9 @@ class CronJobController extends Controller {
                     ->one();
                     if(empty($email_1) && ($notification_remaining_days==1))
                     {
-                        EmailEvents::notifyByEmailDate('expires_1', $project['project_id'],$message3, (string) $date);
+                        EmailEventsUser::notifyByEmailDate('expires_1', $project['project_id'],$message3, (string) $date);
+                        EmailEventsAdmin::notifyByEmailDate('expires_1', $project['project_id'],$message3, (string) $date);
+                        EmailEventsModerator::notifyByEmailDate('expires_1', $project['project_id'],$message3, (string) $date);
                     }
 
                     $email_5=Email::find()->where(['project_id'=>$project['project_id']])
@@ -116,7 +122,9 @@ class CronJobController extends Controller {
                     ->one();
                     if(empty($email_5) && ($notification_remaining_days==5))
                     {
-                        EmailEvents::notifyByEmailDate('expires_5', $project['project_id'],$message4, (string) $date);
+                        EmailEventsUser::notifyByEmailDate('expires_5', $project['project_id'],$message4, (string) $date);
+                        EmailEventsAdmin::notifyByEmailDate('expires_5', $project['project_id'],$message4, (string) $date);
+                        EmailEventsModerator::notifyByEmailDate('expires_5', $project['project_id'],$message4, (string) $date);
                     }
                 }
                        
