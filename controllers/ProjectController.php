@@ -2350,6 +2350,11 @@ class ProjectController extends Controller
 
         $user=Userw::getCurrentUser();
         $user_id=$user->id;
+        if (!Userw::hasRole('Moderator',$superadminAllowed=true))
+                
+        {
+            return $this->render('error_unauthorized');
+        }
         $user_notifications=EmailEventsModerator::find()->where(['user_id'=>$user_id])->one();
         if(empty($user_notifications))
         {
