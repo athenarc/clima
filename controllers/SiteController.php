@@ -17,7 +17,7 @@ use app\models\User;
 use yii\helpers\Url;
 use app\models\Notification;
 use webvimark\modules\UserManagement\models\User as Userw;
-use app\models\EmailEvents;
+use app\models\EmailEventsAdmin;
 use app\models\Page;
 
 class SiteController extends Controller
@@ -124,7 +124,7 @@ class SiteController extends Controller
                 User::createNewUser($username, $persistent_id);
                 $identity=User::findByUsername($username);
                 $message="A new user with username $username has been created";
-                EmailEvents::NotifyByEmail('user_creation', -1,$message);
+                EmailEventsAdmin::NotifyByEmail('user_creation', -1,$message);
             }
             else
             {

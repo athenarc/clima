@@ -24,7 +24,7 @@ use yii\helpers\Url;
 use app\models\ProjectRequest;
 use app\models\Project;
 use app\models\User;
-use app\models\EmailEvents;
+use app\models\EmailEventsAdmin;
 use app\models\Smtp;
 use app\models\Page;
 use app\components\LoukasMailer;
@@ -387,10 +387,10 @@ class AdministrationController extends Controller
         
         $user=Userw::getCurrentUser();
         $user_id=$user->id;
-        $user_notifications=EmailEvents::find()->where(['user_id'=>$user_id])->one();
+        $user_notifications=EmailEventsAdmin::find()->where(['user_id'=>$user_id])->one();
         if(empty($user_notifications))
         {
-                $user_notifications=new EmailEvents;
+                $user_notifications=new EmailEventsAdmin;
                 $user_notifications->user_id=$user_id;
                 $user_notifications->save();
                 

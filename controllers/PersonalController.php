@@ -7,7 +7,7 @@ use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\Smtp;
-use app\models\EmailEvents;
+use app\models\EmailEventsUser;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 
@@ -78,10 +78,10 @@ class PersonalController extends Controller
 
         $user=Userw::getCurrentUser();
         $user_id=$user->id;
-        $user_notifications=EmailEvents::find()->where(['user_id'=>$user_id])->one();
+        $user_notifications=EmailEventsUser::find()->where(['user_id'=>$user_id])->one();
         if(empty($user_notifications))
         {
-                $user_notifications=new EmailEvents;
+                $user_notifications=new EmailEventsUser;
                 $user_notifications->user_id=$user_id;
                 $user_notifications->save();
                 

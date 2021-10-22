@@ -13,7 +13,9 @@ use yii\httpclient\Client;
 use app\models\Smtp;
 use app\models\ColdStorageRequest;
 use app\models\HotVolumes;
-use app\models\EmailEvents;
+use app\models\EmailEventsUser;
+use app\models\EmailEventsModerator;
+
 
 /**
  * This is the model class for table "project".
@@ -266,7 +268,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             {
                 $message="Project '$this->name' has been modified.";   
             }
-            EmailEvents::NotifyByEmail('edit_project', $this->project_id,$message);
+            EmailEventsModerator::NotifyByEmail('edit_project', $this->project_id,$message);
             
         }
 
@@ -397,7 +399,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
         }
 
-        EmailEvents::NotifyByEmail('project_decision', $this->project_id,$message);
+        EmailEventsModerator::NotifyByEmail('project_decision', $this->project_id,$message);
+        EmailEventsUser::NotifyByEmail('project_decision', $this->project_id,$message);
              
 
     }
@@ -432,7 +435,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 
             Notification::notify($user,$message,-1,Url::to(['project/user-request-list','filter'=>'rejected']));
         }
-        EmailEvents::NotifyByEmail('project_decision', $this->project_id,$message);
+        EmailEventsUser::NotifyByEmail('project_decision', $this->project_id,$message);
+        EmailEventsModerator::NotifyByEmail('project_decision', $this->project_id,$message);
 
 
     }

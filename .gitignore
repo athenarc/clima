@@ -51,6 +51,7 @@ tests/_support/_generated
 /config/params.php
 /config/test-db.php
 /config/test.php
+/config/web.php
 /docker-compose.yml
 /mail/
 /requirements.php
