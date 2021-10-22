@@ -389,7 +389,7 @@ class AdministrationController extends Controller
         $user_id=$user->id;
         if (!Userw::hasRole('Admin',$superadminAllowed=true))      
         {
-            return $this->render('error_unauthorized');
+            return $this->render('//project/error_unauthorized');
         }
         $user_notifications=EmailEventsAdmin::find()->where(['user_id'=>$user_id])->one();
         if(empty($user_notifications))
