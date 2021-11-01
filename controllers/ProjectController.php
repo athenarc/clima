@@ -1143,7 +1143,7 @@ class ProjectController extends Controller
                 if ($model->validate())
                 {
                     session_write_close();
-                    $result=$model->createVM($latest_project_request_id,$service, $imageDD);
+                    $result=$model->createVM($latest_project_request_id,$service, $imageDD, $service->disk);
                     session_start();
                     $error=$result[0];
                     $message=$result[1];
@@ -1366,7 +1366,7 @@ class ProjectController extends Controller
                 if ($model->validate())
                 {
                     $model->project_multiple_order=$multOrder;
-                    $result=$model->createVM($latest_project_request_id,$service, $imageDD);
+                    $result=$model->createVM($latest_project_request_id,$service, $imageDD,$service->disk);
                     $error=$result[0];
                     $message=$result[1];
                     $openstackMessage=$result[2];

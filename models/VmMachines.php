@@ -550,7 +550,7 @@ class VmMachines extends \yii\db\ActiveRecord
         return [true,""];
     }
 
-    public function createServer($flavour)
+    public function createServer($flavour,$diskSize)
     {
         $vmdata=
         [
@@ -576,6 +576,17 @@ class VmMachines extends \yii\db\ActiveRecord
                 ],
 
                 "key_name"=>$this->name,
+                "block_device_mapping_v2"=>
+                [
+                    [
+                        "boot_index"=> "0",
+                        "uuid"=> $this->image_id,
+                        "source_type"=> "image",
+                        "volume_size"=> $diskSize,
+                        "destination_type"=> "volume",
+                        "delete_on_termination"=> true,
+                    ]
+                ]
             ]
         ];
 
@@ -852,7 +863,7 @@ class VmMachines extends \yii\db\ActiveRecord
         
     }
 
-    public function createVM($requestId,$service,$images)
+    public function createVM($requestId,$service,$images,$diskSize)
     {   
         $keyFileName=Yii::$app->params['tmpKeyLocation'] . $this->keyFile->baseName . '_' . $this->project_multiple_order. '.' . $this->keyFile->extension;
         $this->keyFile->saveAs($keyFileName);
@@ -918,7 +929,7 @@ class VmMachines extends \yii\db\ActiveRecord
          * Create VM
          */
         
-        $result=$this->createServer($flavour);
+        $result=$this->createServer($flavour,$diskSize);
         $serverCreated=$result[0];
         $message=$result[1];
 

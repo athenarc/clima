@@ -113,6 +113,8 @@ if (!empty($errors))
             <div class="col-md-1"><?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?></div>
             <div class="col-md-1"><?= Html::a('<i class="fas fa-times"></i> Cancel', ['/project/index'], ['class'=>'btn btn-default']) ?></div>
         </div>
+        <div class="row"><div class="col-md-12"><?= Html::errorSummary($project, ['encode' => false]) ?></div></div>
+        <div class="row"><div class="col-md-12"><?= Html::errorSummary($service, ['encode' => false]) ?></div></div>
     <?php ActiveForm::end(); ?>
 
 </div>
