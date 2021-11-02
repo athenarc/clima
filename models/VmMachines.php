@@ -552,6 +552,14 @@ class VmMachines extends \yii\db\ActiveRecord
 
     public function createServer($flavour,$diskSize)
     {
+        if (isset(Yii::$app->params['ioFlavors']) && isset(Yii::$app->params['ioFlavors'][$flavour]))
+        {
+            $blockDest='local';
+        }
+        else
+        {
+            $blockDest='volume';
+        }
         $vmdata=
         [
             "server" =>
@@ -583,7 +591,7 @@ class VmMachines extends \yii\db\ActiveRecord
                         "uuid"=> $this->image_id,
                         "source_type"=> "image",
                         "volume_size"=> $diskSize,
-                        "destination_type"=> "volume",
+                        "destination_type"=> $blockDest,
                         "delete_on_termination"=> true,
                     ]
                 ]

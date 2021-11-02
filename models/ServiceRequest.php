@@ -169,13 +169,16 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 $id=$flavor['id'];
                 $cpus=$flavor['vcpus'];
                 $ram=$flavor['ram']/1024;
-                $disk=$flavor['disk'];
-                $ephemeral=$flavor['OS-FLV-EXT-DATA:ephemeral'];
-                $io='';
-                if ($ephemeral>0)
+                $volume=$flavor['disk'];
+                if (isset(Yii::$app->params['ioFlavors']) && isset(Yii::$app->params['ioFlavors'][$id]))
                 {
-                    $io=" / SSD: " . $ephemeral . "GB";
+                    $label="$name: Virtual cores: $cpus / RAM: $ram GB / SSD: $volume GB";
                 }
+                else
+                {
+                    $label="$name: Virtual cores: $cpus / RAM: $ram GB / Volume: $volume GB";
+                }
+            
                 /*
                  * This is done due to users 
                  * needing larger VMs than the respective limits
@@ -183,8 +186,8 @@ class ServiceRequest extends \yii\db\ActiveRecord
                 $this->flavourIdNameLimitless[$id]=$name;
                 $this->allFlavourCores[$name]=$cpus;
                 $this->allFlavourRam[$name]=$ram;
-                $this->allFlavourDisk[$name]=$disk;
-                $this->allFlavours[$name]="$name: Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
+                $this->allFlavourDisk[$name]=$volume;
+                $this->allFlavours[$name]=$label;
                 $this->allFlavourID[$name]=$id;
                 
                 if ((($cpus > $this->limits->cores) || ($ram > $this->limits->ram)) && (!$isAdmin))
@@ -192,10 +195,10 @@ class ServiceRequest extends \yii\db\ActiveRecord
                     continue;
                 }
                 $this->flavourID[$name]=$id;
-                $this->flavours[$name]="$name: Virtual cores: $cpus / RAM: $ram GB / VM disk: $disk GB" . $io;
+                $this->flavours[$name]=$label;
                 $this->flavourCores[$name]=$cpus;
                 $this->flavourRam[$name]=$ram;
-                $this->flavourDisk[$name]=$disk;
+                $this->flavourDisk[$name]=$volume;
                 $this->flavourIdName[$id]=$name;
                 
             }
