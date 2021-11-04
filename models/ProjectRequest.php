@@ -100,6 +100,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
     	}
 	}
 
+    public function machinesDuration30()
+    {
+        if(strtotime($this->end_date) > (strtotime(date("Y-m-d")) + 2592000))
+        {
+            $this->addError('end_date','The maximum duration of the project  is 30 days');
+            return false;
+        }
+        return true;
+    }
+
 
     public function attributeLabels()
     {
@@ -268,7 +278,6 @@ class ProjectRequest extends \yii\db\ActiveRecord
             {
                 $message="Project '$this->name' has been modified.";   
             }
-            EmailEventsModerator::NotifyByEmail('edit_project', $this->project_id,$message);
             
         }
 

@@ -48,16 +48,13 @@ Headers::begin() ?>
                 <?= $form->field($project, 'name') ?>
                  <div style="margin-bottom: 20px;">
                 <?php echo '<label>  Project end date *  </label>';
-                    echo DatePicker::widget([
-                    'model' => $project, 
-                    'attribute' => 'end_date',
-                    'pluginOptions' => [
-                    'autoclose'=>true,
-                    'format'=>'yyyy-m-d',
-                    'endDate'=>'+30d'
-                    
-                    ]
-                ]);
+                      echo  $form->field($project, 'end_date')->widget(DatePicker::className(),[
+                        'pluginOptions' => [
+                        'autoclose'=>true,
+                        'format'=>'yyyy-m-d',
+                        // 'endDate'=>'+30d'
+                        ]
+                    ])->label("");
                 ?>
                 </div>
         <?= $form->field($project, 'user_num') ?>

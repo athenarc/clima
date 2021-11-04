@@ -311,6 +311,9 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         else
         {
             $warnings='Your request will be reviewed.';
+            $project_id=$project->id;
+            $message="Project $project->name has been modified and is pending approval.";
+            EmailEventsModerator::NotifyByEmail('edit_project', $project_id,$message);
         }
         
         
