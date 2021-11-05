@@ -209,7 +209,7 @@ class EmailEventsAdmin extends \yii\db\ActiveRecord
         $result=$query->select(['u.id', 'u.email','u.username'])
             ->from('auth_assignment as p')
             ->innerJoin('user as u', 'u.id=p.user_id')
-            ->innerJoin('email_events as e', 'e.user_id=u.id')
+            ->innerJoin('email_events_admin as e', 'e.user_id=u.id')
             ->where(['p.item_name'=>'Admin'])
             ->andWhere(["e.$email_event"=>1])
             ->andWhere(['not',['u.email'=>null]])

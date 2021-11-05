@@ -236,7 +236,7 @@ class EmailEventsModerator extends \yii\db\ActiveRecord
         $moderat=$moderat->select(['u.id', 'u.email', 'u.username'])
             ->from('auth_assignment as p')
             ->innerJoin('user as u', 'u.id=p.user_id')
-            ->innerJoin('email_events as e', 'e.user_id=u.id')
+            ->innerJoin('email_events_moderator as e', 'e.user_id=u.id')
             ->where(['p.item_name'=>'Moderator'])
             ->andWhere(["e.$email_event"=>1])
             ->andWhere(['not',['u.email'=>null]])

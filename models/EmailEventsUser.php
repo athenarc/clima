@@ -224,7 +224,7 @@ class EmailEventsUser extends \yii\db\ActiveRecord
         $query=new Query;
         $users=$query->select(['u.id', 'u.email','u.username'])
             ->from('user as u')
-            ->innerJoin('email_events as e', 'e.user_id=u.id')
+            ->innerJoin('email_events_user as e', 'e.user_id=u.id')
             ->where(['in','u.id',$project_request->user_list])
             ->andWhere(["e.$email_event"=>1])
             ->andWhere(['not',['u.email'=>null]])

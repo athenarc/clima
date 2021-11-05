@@ -56,16 +56,14 @@ if (!empty($errors))
         
         <div style="margin-bottom: 20px;">
         <?php echo '<label>  Project end date *  </label>';
-            echo DatePicker::widget([
-            'model' => $project, 
-            'attribute' => 'end_date',
-            'options' => ['placeholder' => 'Enter date'],
+          echo  $form->field($project, 'end_date')->widget(DatePicker::className(),[
             'pluginOptions' => [
             'autoclose'=>true,
-            'padding-top'=>"500px;",
-            'endDate'=>"+30d"
+            'format'=>'yyyy-m-d',
+            // 'endDate'=>'+30d'
             ]
-        ]);?>
+        ])->label("");
+        ?>
         </div>
         
 

@@ -149,12 +149,13 @@ class HotVolumes extends \yii\db\ActiveRecord
     {
         $query=new Query;
 
-
+        $userID=Userw::getCurrentUser()['id'];
         $query->select(['v.id','p.id as project_id','v.name as vm_name','p.name'])
               ->from('vm as v')
               ->innerJoin('project as p','p.id=v.project_id')
+              ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
               ->where(['v.active'=>true])
-              ->andWhere(['created_by'=>$user_id]);
+              ->andWhere("$userID = ANY(pr.user_list)");
 
 
         $results = $query->orderBy('v.created_at DESC')->all();
@@ -166,12 +167,13 @@ class HotVolumes extends \yii\db\ActiveRecord
     {
         $query=new Query;
 
-
+        $userID=Userw::getCurrentUser()['id'];
         $query->select(['v.id','p.id as project_id','v.name as vm_name', 'p.name'])
               ->from('vm_machines as v')
               ->innerJoin('project as p','p.id=v.project_id')
+              ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
               ->where(['v.active'=>true])
-              ->andWhere(['created_by'=>$user_id]);
+              ->andWhere("$userID = ANY(pr.user_list)");
 
 
         $results = $query->orderBy('v.created_at DESC')->all();

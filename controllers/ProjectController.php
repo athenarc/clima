@@ -396,9 +396,11 @@ class ProjectController extends Controller
         {
             $isValid = $projectModel->validate();
             $isValid = $serviceModel->validate() && $isValid;
+            $isValid = $projectModel->machinesDuration30() && $isValid;
 
             if ($isValid)
             {   
+
                 $participant_ids_tmp=[];
                 foreach ($participating as $participant)
                 {
@@ -420,6 +422,7 @@ class ProjectController extends Controller
                 $success.=$messages[1];
                 $warnings.=$messages[2];
                 $requestId=$messages[3];
+                
                 
                 if ($requestId!=-1)
                 {
@@ -877,6 +880,7 @@ class ProjectController extends Controller
             $num_of_jobs=$details->num_of_jobs;
             $used_jobs=$usage['count'];
             $remaining_jobs=$num_of_jobs-$used_jobs;
+            $vm_type="";
 
         }
         else if ($project_request->project_type==1)
@@ -884,6 +888,7 @@ class ProjectController extends Controller
             $details=ServiceRequest::findOne(['request_id'=>$id]);
             $view_file='view_service_request';
             $type="24/7 Service";
+            $vm_type="";
          
         }
         else if ($project_request->project_type==3)
@@ -891,10 +896,16 @@ class ProjectController extends Controller
             $details=MachineComputeRequest::findOne(['request_id'=>$id]);
             $view_file='view_machine_compute_request';
             $type="On-demand computation machines";
+            $vm_type="";
         }
         else if ($project_request->project_type==2)
         {
             $details=ColdStorageRequest::findOne(['request_id'=>$id]);
+            $vm_type="24/7 Service";
+            if($details->vm_type==2)
+            {
+                $vm_type="On-demand computation machines";
+            }
             $view_file='view_cold_request';
             $type="Storage volumes";
            
@@ -930,7 +941,7 @@ class ProjectController extends Controller
 
         return $this->render($view_file,['project'=>$project_request,'details'=>$details, 
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
+            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'vm_type'=>$vm_type]);
 
 
     }
@@ -1915,6 +1926,10 @@ class ProjectController extends Controller
             
             $isValid = $prequest->validate();
             $isValid = $drequest->validate() && $isValid;
+            if($prType==3)
+            {
+                $isValid = $prequest->machinesDuration30() && $isValid;
+            }
 
             
             $participant_ids_tmp=[];
