@@ -44,10 +44,6 @@ Headers::begin() ?>
 				<td class="col-md-6 text-left" scope="col"><?=$type?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Vm type:</th>
-				<td class="col-md-6 text-left" scope="col"><?=$vm_type?></td>
-			</tr>
-			<tr>
 				<th class="col-md-6 text-right" scope="col">Started on:</th>
 				<td class="col-md-6 text-left" scope="col"><?=$start?></td>
 			</tr>
@@ -70,6 +66,10 @@ Headers::begin() ?>
 <div class="table-responsive">
 	<table class="table table-striped">
 		<tbody>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">VM type:</th>
+				<td class="col-md-6 text-left" scope="col"><?=$vm_type?></td>
+			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Number of volumes:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_volumes ?></td>

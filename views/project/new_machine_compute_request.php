@@ -60,7 +60,7 @@ if (!empty($errors))
             'pluginOptions' => [
             'autoclose'=>true,
             'format'=>'yyyy-m-d',
-            // 'endDate'=>'+30d'
+            'endDate'=>'+30d'
             ]
         ])->label("");
         ?>
