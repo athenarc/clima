@@ -21,7 +21,7 @@ use app\models\OpenstackMachines;
  */
 class VmMachines extends \yii\db\ActiveRecord
 {
-    public $keyFile,$consoleLink='';
+    public $keyFile,$consoleLink='', $status, $diskSize;
     private $token, $port_id;
     public static $openstack,$creds;
     public $serverExists=true;
@@ -1179,5 +1179,144 @@ class VmMachines extends \yii\db\ActiveRecord
         }
         $console=$response->data['console'];
         $this->consoleLink=$console['url'];
+    }
+
+
+    public function getServerStatus()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return '';
+        }
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('GET')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return '';
+        }
+        $this->status=$response->data['server']['status'];
+
+        return $this->status;
+
+    }
+
+    public function startVM()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return 'error';
+        }
+        $startData=
+        [
+            "os-start"=> null
+        ];
+        
+        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id . '/action')
+                                ->setData($startData)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return 'error';
+        }
+        return 'success';
+
+    }
+
+    public function stopVM()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return 'error';
+        }
+        $startData=
+        [
+            "os-stop"=> null
+        ];
+        
+        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id . '/action')
+                                ->setData($startData)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return 'error';
+        }
+        return 'success';
+
+    }
+
+    public function rebootVM()
+    {
+        $result=self::authenticate();
+        $token=$result[0];
+
+        if (empty($token))
+        {
+            return 'error';
+        }
+        $startData=
+        [
+            "reboot" => 
+            [
+                "type" => "SOFT"
+            ]
+        ];
+        
+        
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+            $response = $client->createRequest()
+                                ->setMethod('POST')
+                                ->setFormat(Client::FORMAT_JSON)
+                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-OpenStack-Nova-API-Version'=> '2.1'])
+                                ->setUrl('/servers/' . $this->vm_id . '/action')
+                                ->setData($startData)
+                                ->send();
+        }
+        catch(yii\httpclient\Exception $e)
+        {
+            return 'error';
+        }
+        return 'success';
+
     }
 }

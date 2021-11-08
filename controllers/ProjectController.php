@@ -1227,6 +1227,145 @@ class ProjectController extends Controller
 
     }
 
+    public function actionMachineComputeConfigureVm($id,$multOrder=1,$backTarget='s')
+    {
+        /*
+         * Check that someone is not trying to do something illegal
+         * by "hacking" at URLs 
+         */
+        $owner=Project::userInProject($id);
+
+        if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+
+        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->andWhere(['project_multiple_order'=>$multOrder])->one();
+
+        //If vm is upgraded, then show message to user to delete past vm and create new
+        if(!empty($existing))
+        {
+
+            $service_old=MachineComputeRequest::find()->where(['request_id'=>$existing->request_id])->one();
+            $service_old_id=$service_old->id;
+            $project=Project::find()->where(['id'=>$id])->one();
+            $latest_service_request_id=$project->latest_project_request_id;
+            $service=MachineComputeRequest::find()->where(['request_id'=>$latest_service_request_id])->one();
+            if($service_old_id<$latest_service_request_id)
+            {
+                if($service_old->vm_flavour != $service->vm_flavour)
+                {
+                    Yii::$app->session->setFlash('success', "Due to an accepted project update, you have the option to create a larger machine. If you want to create it, backup any data stored in your current machine and then destroy it. After that you will be able to create a larger machine");
+                }
+            }
+        }
+        
+       
+        if (empty($existing))
+        {
+            /*
+             * Create new VM
+             */
+            
+            $model=new VmMachines;
+
+            session_write_close();
+            $avResources=VmMachines::getOpenstackAvailableResources();
+            session_start();
+
+            $project=Project::find()->where(['id'=>$id])->one();
+            $latest_project_request_id=$project->latest_project_request_id;
+            $service=MachineComputeRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
+
+            /*
+             * If someone is trying to do something fishy with the 
+             * parameters in the URL to create more VMs than allowed,
+             * stop them.
+             */
+            if ($service->num_of_vms < $multOrder)
+            {
+                return $this->render('error_unauthorized');
+            }
+            
+            if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
+            {
+                return $this->render('service_unavailable_resources');
+            }
+            
+            $imageDD=VmMachines::getOpenstackImages();
+
+            $form_params =
+            [
+                'action' => URL::to(['project/machine-compute-configure-vm','id'=>$id,'multOrder'=>$multOrder,'backTarget'=>'m']),
+                'options' => 
+                [
+                    'class' => 'vm__form',
+                    'id'=> "vm_form"
+                ],
+                'method' => 'POST'
+            ];
+
+            if ($model->load(Yii::$app->request->post()))
+            {
+
+                $model->keyFile = UploadedFile::getInstance($model, 'keyFile');
+                if ($model->validate())
+                {
+                    
+                    $model->project_multiple_order=$multOrder;
+                    session_write_close();
+                    $result=$model->createVM($latest_project_request_id,$service, $imageDD,$service->disk);
+                    session_start();
+                    $error=$result[0];
+                    $message=$result[1];
+                    $openstackMessage=$result[2];
+                    if ($error!=0)
+                    {
+                        
+                        return $this->render('error_vm_creation',['error' => $error,'message'=>$message,'openstackMessage'=>$openstackMessage]);
+                    }
+
+                    else
+                    {
+                        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+                        $existing->getConsoleLink();
+    
+                        return $this->render('vm_machines_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service,'backTarget'=>$backTarget]);
+                    }
+                }
+            }
+            
+            return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service,'backTarget'=>$backTarget,'project_id'=>$project->id]);
+        }
+        else
+        {
+            $hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
+            $additional_storage=[];
+            if(!empty($hotvolume))
+            {
+                foreach ($hotvolume as $hot) 
+                {
+                    $project=Project::find()->where(['id'=>$hot->project_id])->one();
+                    $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                    $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
+                }
+            }
+
+
+
+        
+            session_write_close();
+            $existing->getConsoleLink();
+            $existing->getServerStatus();
+            session_start();
+            
+             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage,'backTarget'=>$backTarget]);
+        }
+        
+
+    }
+
+
     public function actionMachineComputeAccessProject($id)
     {
         $owner=Project::userInProject($id);
@@ -1297,131 +1436,6 @@ class ProjectController extends Controller
 
     }
 
-    public function actionMachineComputeConfigureVm($id,$multOrder=1,$backTarget='s')
-    {
-        /*
-         * Check that someone is not trying to do something illegal
-         * by "hacking" at URLs 
-         */
-        $owner=Project::userInProject($id);
-
-        if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
-        {
-            return $this->render('error_unauthorized');
-        }
-
-        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->andWhere(['project_multiple_order'=>$multOrder])->one();
-
-        //If vm is upgraded, then show message to user to delete past vm and create new
-        if(!empty($existing))
-        {
-            $service_old=MachineComputeRequest::find()->where(['request_id'=>$existing->request_id])->one();
-            $service_old_id=$service_old->id;
-            $project=Project::find()->where(['id'=>$id])->one();
-            $latest_service_request_id=$project->latest_project_request_id;
-            $service=MachineComputeRequest::find()->where(['request_id'=>$latest_service_request_id])->one();
-            if($service_old_id<$latest_service_request_id)
-            {
-                if($service_old->vm_flavour != $service->vm_flavour)
-                {
-                    Yii::$app->session->setFlash('success', "Due to an accepted project update, you have the option to create a larger machine. If you want to create it, backup any data stored in your current machine and then destroy it. After that you will be able to create a larger machine");
-                }
-            }
-        }
-        
-       
-        if (empty($existing))
-        {
-            /*
-             * Create new VM
-             */
-            $model=new VmMachines;
-
-            $avResources=VmMachines::getOpenstackAvailableResources();
-            $project=Project::find()->where(['id'=>$id])->one();
-            $latest_project_request_id=$project->latest_project_request_id;
-            $service=MachineComputeRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
-
-            /*
-             * If someone is trying to do something fishy with the 
-             * parameters in the URL to create more VMs than allowed,
-             * stop them.
-             */
-            if ($service->num_of_vms < $multOrder)
-            {
-                return $this->render('error_unauthorized');
-            }
-            
-            if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
-            {
-                return $this->render('service_unavailable_resources');
-            }
-            
-            $imageDD=VmMachines::getOpenstackImages();
-
-            $form_params =
-            [
-                'action' => URL::to(['project/machine-compute-configure-vm','id'=>$id,'multOrder'=>$multOrder,'backTarget'=>'m']),
-                'options' => 
-                [
-                    'class' => 'vm__form',
-                    'id'=> "vm_form"
-                ],
-                'method' => 'POST'
-            ];
-
-            if ($model->load(Yii::$app->request->post()))
-            {
-
-                $model->keyFile = UploadedFile::getInstance($model, 'keyFile');
-                if ($model->validate())
-                {
-                    $model->project_multiple_order=$multOrder;
-                    $result=$model->createVM($latest_project_request_id,$service, $imageDD,$service->disk);
-                    $error=$result[0];
-                    $message=$result[1];
-                    $openstackMessage=$result[2];
-                    if ($error!=0)
-                    {
-                        
-                        return $this->render('error_vm_creation',['error' => $error,'message'=>$message,'openstackMessage'=>$openstackMessage]);
-                    }
-
-                    else
-                    {
-                        $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
-                        $existing->getConsoleLink();
-    
-                        return $this->render('vm_machines_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service,'backTarget'=>$backTarget]);
-                    }
-                }
-            }
-            
-            return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service,'backTarget'=>$backTarget,'project_id'=>$project->id]);
-        }
-        else
-        {
-        	$hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
-            $additional_storage=[];
-            if(!empty($hotvolume))
-            {
-                foreach ($hotvolume as $hot) 
-                {
-                    $project=Project::find()->where(['id'=>$hot->project_id])->one();
-                    $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
-                    $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
-                }
-            }
-
-
-
-        
-             $existing->getConsoleLink();
-             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage,'backTarget'=>$backTarget]);
-        }
-        
-
-    }
 
     public function actionGetVmStatus($vm_id='')
     {
@@ -1491,6 +1505,88 @@ class ProjectController extends Controller
             return;
         }
         $vm=new Vm();
+        $vm->vm_id=$vm_id;
+        $ok=$vm->rebootVM();
+        if ($ok='success')
+        {
+            Yii::$app->response->statusCode = 200;
+            return;
+        }
+        else
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+    }
+
+    public function actionGetVmMachinesStatus($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            return $this->asJson('');
+        }
+
+        $vm = new VmMachines();
+        $vm->vm_id=$vm_id;
+        $status=empty($vm->getServerStatus($vm_id))? '' : $vm->status;
+        
+        return $this->asJson($status);
+
+    }
+
+    public function actionStartVmMachines($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+        $vm=new VmMachines();
+        $vm->vm_id=$vm_id;
+        $ok=$vm->startVM();
+        // $ok='success';
+        if ($ok='success')
+        {
+            Yii::$app->response->statusCode = 200;
+            return;
+        }
+        else
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+    }
+
+    public function actionStopVmMachines($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+        $vm=new VmMachines();
+        $vm->vm_id=$vm_id;
+        $ok=$vm->stopVM();
+        if ($ok='success')
+        {
+            Yii::$app->response->statusCode = 200;
+            return;
+        }
+        else
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+    }
+
+    public function actionRebootVmMachines($vm_id='')
+    {
+        if (empty($vm_id))
+        {
+            Yii::$app->response->statusCode = 500;
+            return;
+        }
+        $vm=new VmMachines();
         $vm->vm_id=$vm_id;
         $ok=$vm->rebootVM();
         if ($ok='success')
