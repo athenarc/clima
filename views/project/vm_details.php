@@ -48,6 +48,8 @@ if ($model->status=='SHUTOFF')
 	$disable_reboot=' disabled';
 }
 
+
+
 Headers::begin() ?>
 <?php echo Headers::widget(
 ['title'=>'VM details', 
