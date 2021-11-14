@@ -27,7 +27,6 @@ use app\models\User;
 use app\models\EmailEventsAdmin;
 use app\models\Smtp;
 use app\models\Page;
-use app\components\LoukasMailer;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 class AdministrationController extends Controller

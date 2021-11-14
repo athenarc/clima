@@ -1937,7 +1937,10 @@ class ProjectController extends Controller
             $drequest->flavour=isset($drequest->flavourIdNameLimitless[$drequest->vm_flavour])?$drequest->flavourIdNameLimitless[$drequest->vm_flavour]:'';
             if (!isset($drequest->flavours[$drequest->flavour]))
             {
-                $drequest->flavours[$drequest->flavour]=$drequest->allFlavours[$drequest->flavour];
+                if (!empty($drequest->flavor))
+                {
+                    $drequest->flavours[$drequest->flavour]=$drequest->allFlavours[$drequest->flavour];
+                }
             }
             $view_file='edit_service';
             $upperlimits=ServiceLimits::find()->where(['user_type'=>$role])->one();
@@ -1950,7 +1953,6 @@ class ProjectController extends Controller
             {
                 $vm_exists=true;
             }
-
 
             $trls[0]='Unspecified';
             for ($i=1; $i<10; $i++)
