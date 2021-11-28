@@ -892,6 +892,24 @@ class ProjectRequest extends \yii\db\ActiveRecord
                         ->innerJoin('service_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->one();
+        $query=new Query;
+
+        $volumes_service=$query->select(['count(v.id) as number','sum(c.storage) as total'])
+                        ->from('cold_storage_request as c')
+                        ->innerJoin('project_request as pr','pr.id=c.request_id')
+                        ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
+                        ->innerJoin('hot_volumes as v','v.project_id=p.id')
+                        ->where(['v.vm_type'=>1,'v.active'=>true])
+                        ->one();
+        $query=new Query;
+        $volumes_machines=$query->select(['count(v.id) as number','sum(c.storage) as total'])
+                        ->from('cold_storage_request as c')
+                        ->innerJoin('project_request as pr','pr.id=c.request_id')
+                        ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
+                        ->innerJoin('hot_volumes as v','v.project_id=p.id')
+                        ->where(['v.vm_type'=>2,'v.active'=>true])
+                        ->one();
+        
 
         $final=[
             'active_services'=>$active_services,
@@ -916,6 +934,14 @@ class ProjectRequest extends \yii\db\ActiveRecord
             'total_machines_cores'=>$vm_total_machines_stats['cores'],
             'total_machines_ram'=>$vm_total_machines_stats['ram'],
             'total_machines_storage'=>$vm_total_machines_stats['storage']/1000.0,
+            'total_storage_projects'=>$volumes_machines['number'] + $volumes_service['number'],
+            'total_storage_size'=>($volumes_machines['total'] + $volumes_service['total'])/1024.0,
+            'number_storage_service'=>$volumes_service['number'],
+            'number_storage_machines'=>$volumes_machines['number'],
+            'size_storage_service'=>$volumes_service['total']/1024.0,
+            'size_storage_machines'=>$volumes_machines['total']/1024.0,
+
+
 
         ];
         return $final;

@@ -151,12 +151,12 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
 	<table class="table table-striped">
 		<tbody>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Active used  storage (TB)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['active_services_storage'] ?></td>
+				<th class="col-md-6 text-right" scope="col">Total storage projects (TB)</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_storage_projects'] ?> (<?= $usage['number_storage_service']?> for 24/7 service, <?= $usage['number_storage_machines']?> for on-demand compute machines)</td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Total used storage (TB)</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['total_services_storage'] ?></td>
+				<td class="col-md-6 text-left" scope="col"><?= number_format($usage['total_storage_size'],2) ?> TB (<?= number_format($usage['size_storage_service'],2)?> TB for 24/7 service, <?= number_format($usage['size_storage_machines'],2)?> TB for compute machines)</td>
 			</tr>
 		</body>
 	</table>
