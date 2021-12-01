@@ -202,21 +202,21 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
 
 <footer class="footer">
     <div class="container-fluid">
-        <div class="row">
+        <div class="row footer-first-line">
             <div class="col-md-3 text-center copyright">
                 <?=isset(Yii::$app->params['copyright']) && !empty(Yii::$app->params['copyright']) ? '&copy; ' . Yii::$app->params['copyright'] : '' ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Powered by <?=Html::a('CLIMA', 'https://github.com/athenarc/clima', ['target'=>'_blank'])?>
              </div>
-            <div class="col-md-offset-2 col-md-1 text-right"><?= (isset(Yii::$app->params['logo-footer']) && !empty(Yii::$app->params['logo-footer'])) ? Html::img(Yii::$app->params['logo-footer'],['class'=>"navbar-logo"]) : ''?> </div>
-            <div class="col-md-offset-2 col-md-2 text-right"><?=Html::a('Privacy & cookie policy',['site/privacy'])?></div>
-            <div class="pull-right"><?=$twitter_link?>&nbsp;<?=$youtube_link?></div>
+            <div class="col-md-offset-2 col-md-1 text-right logo-footer"><?= (isset(Yii::$app->params['logo-footer']) && !empty(Yii::$app->params['logo-footer'])) ? Html::img(Yii::$app->params['logo-footer'],['class'=>"navbar-logo"]) : ''?> </div>
+            <div class="col-md-offset-2 col-md-2 text-right privacy"><?=Html::a('Privacy & cookie policy',['site/privacy'])?></div>
+            <div class="pull-right social-icons"><?=$twitter_link?>&nbsp;<?=$youtube_link?></div>
         </div>
     <?php
     if (isset(Yii::$app->params['funding-footer']) && !empty(Yii::$app->params['funding-footer']))
     {
     ?>
-        <div class="row">
-            <div class="col-md-12 text-center espa-wrapper"><?= Html::img(Yii::$app->params['funding-footer'],['class'=>'espa-logo'])?></div>
+        <div class="row espa-wrapper">
+            <div class="col-md-12 text-center"><?= Html::img(Yii::$app->params['funding-footer'],['class'=>'espa-logo'])?></div>
         </div>
     </div>
     <?php

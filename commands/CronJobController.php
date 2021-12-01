@@ -49,10 +49,10 @@ class CronJobController extends Controller {
 
                     $notification_remaining_days=$remaining_secs/86400;
                     
-                    $message1="Project '$project[name]' will end in 30 days.";
-                    $message2="Project '$project[name]' will end in 15 days.";
-                    $message3="Project '$project[name]' will end in 1 day.";
-                    $message4="Project '$project[name]' will end in 5 days.";
+                    $message1="We would like to notify you that project '$project[name]' will expire in 30 days.";
+                    $message2="We would like to notify you that project '$project[name]' will expire in 15 days.";
+                    $message3="We would like to notify you that project '$project[name]' will expire in 1 day.";
+                    $message4="We would like to notify you that project '$project[name]' will expire in 5 days.";
                     
                     
                     

@@ -40,13 +40,6 @@ color:#EA9A61;
     padding: 65px 20px 20px;
 }
 
-.footer {
-    height: 60px;
-    background-color: #f5f5f5;
-    border-top: 1px solid #ddd;
-    padding-top: 20px;
-}
-
 .jumbotron {
     text-align: center;
     background-color: transparent;
@@ -171,8 +164,8 @@ a.desc:after {
 
 .espa-wrapper
 {
-    margin-top:10px;
-    padding-top:5px;
+    padding-top:20px;
+    padding-bottom:20px;
     width:100%;
     background-color: #f5f5f5;
     border-top: 1px solid #ddd;
@@ -181,4 +174,26 @@ a.desc:after {
 .copyright
 {
     padding-left:50px;
+    margin-top: 10px;
+}
+
+.footer {
+    background-color: #f5f5f5;
+    border-top: 1px solid #ddd;
+}
+
+.footer-first-line
+{
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.privacy
+{
+    margin-top: 10px;
+}
+
+.social-icons
+{
+    margin-top: 7.5px;
 }
