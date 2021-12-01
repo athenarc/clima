@@ -12,6 +12,7 @@ use app\assets\AppAsset;
 use app\components\SupportWindow;
 use webvimark\modules\UserManagement\models\User;
 use app\components\NotificationWidget;
+use app\models\Analytics;
 
 
 AppAsset::register($this);
@@ -22,6 +23,13 @@ $twitter_link=isset(Yii::$app->params['twitter_url']) ? Html::a($twitter_icon,Yi
 $youtube_icon='<i class="fab fa-youtube fa-2x" style="color:red"></i>';
 $youtube_link=isset(Yii::$app->params['youtube_url']) ? Html::a($youtube_icon,Yii::$app->params['youtube_url'],
     ['target'=>'_blank']) : '';
+
+//Get analytics if any
+$analytics=Analytics::find()->all();
+foreach ($analytics as $analytic)
+{
+    echo $analytic->code;
+}
 
 //Include font-awsome icons
 echo Html::cssFile('https://use.fontawesome.com/releases/v5.5.0/css/all.css', ['integrity'=> 'sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU', 'crossorigin'=> 'anonymous']);

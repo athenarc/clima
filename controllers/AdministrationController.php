@@ -27,6 +27,7 @@ use app\models\User;
 use app\models\EmailEventsAdmin;
 use app\models\Smtp;
 use app\models\Page;
+use app\models\Analytics;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 class AdministrationController extends Controller
@@ -465,6 +466,10 @@ class AdministrationController extends Controller
 
     public function actionManagePages()
     {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
         $pages=Page::find()->all();
 
         return $this->render('manage-pages',['pages'=>$pages]);
@@ -473,6 +478,10 @@ class AdministrationController extends Controller
 
     public function actionAddPage()
     {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
         $model=new Page;
         $form_params =
         [
@@ -496,6 +505,10 @@ class AdministrationController extends Controller
     }
     public function actionEditPage($id)
     {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
         $page=Page::find()->where(['id'=>$id])->one();
 
         if (empty($page))
@@ -524,6 +537,10 @@ class AdministrationController extends Controller
     }
     public function actionDeletePage($id)
     {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
         $page=Page::find()->where(['id'=>$id])->one();
 
         if (empty($page))
@@ -538,6 +555,10 @@ class AdministrationController extends Controller
     }
     public function actionViewPage($id)
     {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
         $page=Page::find()->where(['id'=>$id])->one();
 
         if (empty($page))
@@ -550,6 +571,10 @@ class AdministrationController extends Controller
 
     public function actionAllProjects()
     {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
         $configuration=Configuration::find()->one();
         $schema_url=$configuration->schema_url;
 
@@ -616,5 +641,88 @@ class AdministrationController extends Controller
        
         return $this->render('all_projects',['button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
             'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url]);
+    }
+
+    public function actionManageAnalytics()
+    {
+        $analytics=Analytics::find()->all();
+
+        return $this->render('manage-analytics',['analytics'=>$analytics]);
+
+    }
+
+    public function actionAddAnalytics()
+    {
+        $model=new Analytics;
+        $form_params =
+        [
+            'action' => URL::to(['administration/add-analytics']),
+            'options' => 
+            [
+                'class' => 'add_analytics_form',
+                'id'=> "add_analytics_form"
+            ],
+            'method' => 'POST'
+        ];
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate())
+        {
+            $model->save();
+            $this->redirect(['administration/manage-analytics']);
+        }
+
+        return $this->render('add-analytics',['model'=>$model,'form_params'=>$form_params]);
+        
+    }
+    public function actionEditAnalytics($id)
+    {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
+
+        $model=Analytics::find()->where(['id'=>$id])->one();
+
+        if (empty($model))
+        {
+            return $this->render('error_analytics_exist');
+        }
+
+        $form_params =
+        [
+            'action' => URL::to(['administration/edit-analytics', 'id'=>$model->id]),
+            'options' => 
+            [
+                'class' => 'edit_analytics_form',
+                'id'=> "edit_analytics_form"
+            ],
+            'method' => 'POST'
+        ];
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate())
+        {
+            $model->save();
+            $this->redirect(['administration/manage-analytics']);
+        }
+
+        return $this->render('edit-analytics',['model'=>$model,'form_params'=>$form_params]);
+    }
+    public function actionDeleteAnalytics($id)
+    {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
+        $model=Analytics::find()->where(['id'=>$id])->one();
+
+        if (empty($model))
+        {
+            return $this->render('error_analytics_exist');
+        }
+
+        $model->delete();
+        $this->redirect(['administration/manage-analytics']);
+
+        
     }
 }

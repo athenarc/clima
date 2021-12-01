@@ -18,6 +18,7 @@ $vm_history_icon='<i class="fa fa-history" aria-hidden="true"></i>';
 $configuration_icon='<i class="fa fa-cogs" aria-hidden="true"></i>';
 $static_pages_icon='<i class="fas fa-file-alt"></i>';
 $notifications_icon='<i class="fa fa-bell" aria-hidden="true"></i>';
+$analytics_icon='<i class="fas fa-chart-pie"></i>';
 
 
 Headers::begin() ?>
@@ -83,4 +84,6 @@ else
 <?= ToolButton::createButton("$email_icon Email notifications", "",['administration/email-notifications']) ?>
 <br />
 <?= ToolButton::createButton("$static_pages_icon Manage static pages", "",['administration/manage-pages']) ?>
+<br />
+<?= ToolButton::createButton("$analytics_icon Manage Analytics", "",['administration/manage-analytics']) ?>
 <br />
