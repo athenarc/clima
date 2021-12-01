@@ -19,6 +19,7 @@ use app\models\Notification;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\EmailEventsAdmin;
 use app\models\Page;
+use app\models\Analytics;
 
 class SiteController extends Controller
 {
@@ -197,8 +198,9 @@ class SiteController extends Controller
         $config=Configuration::find()->one();
         $id=$config->privacy_page;
         $page=Page::find()->where(['id'=>$id])->one();
+        $analytics=Analytics::find()->all();
 
-        return $this->render('privacy',['page'=>$page]);
+        return $this->render('privacy',['page'=>$page,'analytics'=>$analytics]);
     }
 
     public function actionNotificationRedirect($id)
