@@ -130,6 +130,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
     // print_r($menuItems);
     // exit(0);
 
+    $menuItems[]=['label' => 'Help', 'url' => ['/site/help']];
     if(Yii::$app->user->getIsGuest() == false)
     {
         // $menuItems[]=[
@@ -146,7 +147,6 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
         //                     ]
         //                 ]
         //             ];
-        $menuItems[]=['label' => 'Help', 'url' => ['/site/help']];
         $username=explode('@',User::getCurrentUser()['username'])[0];
         $menuItems[]=[
             'label' => 'Logout (' . $username . ')',
