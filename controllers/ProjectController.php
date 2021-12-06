@@ -268,8 +268,6 @@ class ProjectController extends Controller
         
         if ( ($serviceModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
-            // print_r($serviceModel);
-            // exit(0);
             $isValid = $projectModel->validate();
             $isValid = $serviceModel->validate() && $isValid;
 

@@ -149,6 +149,8 @@ if (!empty($errors))
             }
             ?>
         </div>
+    <div class="row"><div class="col-md-12"><?= Html::errorSummary($project, ['encode' => false]) ?></div></div>
+    <div class="row"><div class="col-md-12"><?= Html::errorSummary($service, ['encode' => false]) ?></div></div>
     <?php ActiveForm::end(); ?>
 
 </div><!-- new_service_request -->
