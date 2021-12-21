@@ -118,7 +118,14 @@ class SiteController extends Controller
             $username=$result['username'];
             $persistent_id=$result['persistent_id'];
 
-            $identity=User::findByPersistentId($persistent_id);
+            /*
+             * Auth server changed, so persistent id changed.
+             * In order not to break database of users already existing
+             * the search is performed by username instead of persistent id.
+             * Someone didn't think that far ahead it seems. :)
+             */
+            // $identity=User::findByPersistentId($persistent_id);
+            $identity=User::findByUsername($username);
             
             if (empty($identity))
             {
