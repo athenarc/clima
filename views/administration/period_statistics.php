@@ -151,7 +151,7 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
 	<table class="table table-striped">
 		<tbody>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Total storage projects (TB)</th>
+				<th class="col-md-6 text-right" scope="col">Total projects </th>
 				<td class="col-md-6 text-left" scope="col"><?= $usage['total_storage_projects'] ?> (<?= $usage['number_storage_service']?> for 24/7 service, <?= $usage['number_storage_machines']?> for on-demand compute machines)</td>
 			</tr>
 			<tr>
