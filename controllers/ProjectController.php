@@ -1883,12 +1883,37 @@ class ProjectController extends Controller
         $owner=($prequest->submitted_by==Userw::getCurrentUser()['id']);
 
 
-        if ( (!$owner) && (!Userw::hasRole('Admin',$superadminAllowed=true)) || (($prequest->status!=ProjectRequest::APPROVED) && ($prequest->status!=ProjectRequest::AUTOAPPROVED)) )
+        /*
+         * If someone other than the project owner or an Admin are trying
+         * to edit the request, then show an error.
+         */
+        if ( (!$owner) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
         }
+        /*
+         * Check that an invalid request is being updated
+         */
+        if (($prequest->status!=ProjectRequest::APPROVED) && (ProjectRequest::AUTOAPPROVED))
+        {
+            return $this->render('error_already_modified');
+        }
+        /*
+         * Check that project has not expired.
+         */
+        $date1 = new \DateTime($prequest->end_date);
+        $date2 = new \DateTime('now');
+        var_dump($date1->format("Y-m-d")); 
 
-
+        /*
+         * Since datetime involves time too
+         * equality will not work. Instead, check that 
+         * the date strings are not the same
+         */
+        if (($date1->format("Y-m-d")!=$date2->format("Y-m-d")) && ($date2>$date1))
+        {
+            return $this->render('error_expired');
+        }
         
         $prequest->fillUsernameList();
 
