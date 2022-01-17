@@ -1894,7 +1894,7 @@ class ProjectController extends Controller
         /*
          * Check that an invalid request is being updated
          */
-        if (($prequest->status!=ProjectRequest::APPROVED) && (ProjectRequest::AUTOAPPROVED))
+        if (($prequest->status!=ProjectRequest::APPROVED) && ($prequest->status!=ProjectRequest::AUTOAPPROVED))
         {
             return $this->render('error_already_modified');
         }
