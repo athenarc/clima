@@ -37,6 +37,19 @@ if (!empty($errors))
 
 }
 
+/*
+ * If multiple volumes allowed
+ * show the dropdown
+ */
+if ($details->vm_type==1)
+{
+    $multClass='hidden';
+}
+else
+{
+    $multClasss='';
+}
+
 Headers::begin() ?>
 <?php echo Headers::widget(
 ['title'=>'Edit storage volume request',])
@@ -93,10 +106,10 @@ Headers::begin() ?>
 
         <?= $form->field($details, 'type')->dropDownList($types, ['disabled'=>true])->label('Volume type') ?>
         <?= $form->field($details, 'vm_type')->dropDownList($vm_types, ['disabled'=>true])->label('I want to use this volume for:') ?>
-        <?= $form->field($details, 'storage')->textInput(['disabled'=>true])-> label($storage_label) ?>
+        <?= $form->field($details, 'storage')->textInput([])-> label($storage_label) ?>
+        <span class="$multClass num_of_volumes_dropdown"><?= $form->field($details, 'num_of_volumes')->dropDownList($num_vms_dropdown) ?></span>
+        <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> In order to change the size of the actual volume, you will need to delete and re-create it.</div>
 
-        
-        
         
     
         <div class="form-group">

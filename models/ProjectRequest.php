@@ -223,8 +223,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 $old_request=ProjectRequest::find()->where(['id'=>$modify_req_id])->one();
             }
 
-            // print_r($modify_req_id);
-            // exit(0);
+            
             
             if ( (Userw::hasRole('Admin',$superadminAllowed=true)) || (Userw::hasRole('Moderator',$superadminAllowed=true)) )
             {
@@ -379,25 +378,25 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $vm_type=$cold_storage_request->vm_type;
             $size=$cold_storage_request->storage;
             $name=$this->name;
-            if($cold_storage_request->type=='hot')
-            {
-                $hotvolume=new HotVolumes;
-                $hotvolume->initialize($vm_type);
-                $authenticate=$hotvolume->authenticate();
-                $token=$authenticate[0];
-                $message=$authenticate[1];
-                if(!$token=='')
-                {
-                    /*
-                     * Create multiple volumes (if applicable)
-                     */
-                    for ($i=1; $i<=$cold_storage_request->num_of_volumes; $i++)
-                    {
-                        $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id,$i);
-                    }
-                }
+            // if($cold_storage_request->type=='hot')
+            // {
+            //     $hotvolume=new HotVolumes;
+            //     $hotvolume->initialize($vm_type);
+            //     $authenticate=$hotvolume->authenticate();
+            //     $token=$authenticate[0];
+            //     $message=$authenticate[1];
+            //     if(!$token=='')
+            //     {
+                    
+            //          * Create multiple volumes (if applicable)
+                     
+            //         for ($i=1; $i<=$cold_storage_request->num_of_volumes; $i++)
+            //         {
+            //             $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id,$i);
+            //         }
+            //     }
                 
-            }
+            // }
 
         }
 

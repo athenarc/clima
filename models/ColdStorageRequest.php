@@ -67,7 +67,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
     {
         return [
             [['request_id'], 'default', 'value' => null],
-            [['request_id', 'vm_type'], 'integer'],
+            [['request_id', 'vm_type', 'num_of_volumes'], 'integer'],
             [['description', 'type'], 'string'],
             [['storage','description', 'type', 'vm_type','num_of_volumes'],'required'],
             [['additional_resources'],'string'],
@@ -165,25 +165,6 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             $vm_type=$cold_storage_request->vm_type;
             $size=$cold_storage_request->storage;
             $name=$project->name;
-            if($cold_storage_request->type=='hot')
-            {
-                $hotvolume=new HotVolumes;
-                $hotvolume->initialize($vm_type);
-                $authenticate=$hotvolume->authenticate();
-                $token=$authenticate[0];
-                $message=$authenticate[1];
-                if(!$token=='')
-                {
-                    /*
-                     * Create multiple volumes (if applicable)
-                     */
-                    for ($i=1; $i<=$this->num_of_volumes; $i++)
-                    {
-                        $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id,$i);
-                    }
-                }
-               
-            }
 
         }
              
@@ -212,6 +193,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
                 'additional_resources'=>$this->additional_resources,
                 'request_id' => $requestId,
                 'type'=>$this->type,
+                'num_of_volumes'=>$this->num_of_volumes,
                 'vm_type'=>$this->vm_type,
             ])->execute();
 
@@ -224,7 +206,6 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
          
         $row=$query->one();
 
-        // $autoaccepted_num=Project::find()->where(['status'=>2,'project_type'=>2])->count();
         $role=User::getRoleType();
         $cold_autoaccept= ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
         $cold_autoaccept_number=$cold_autoaccept->autoaccept_number;
@@ -252,8 +233,6 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
                 Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
             }
 
-
-            // $project=Project::find()->where(['id'=>$request->project_id])->one();
 
             //set status for old request to -3 (modified)
             
@@ -293,4 +272,93 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
     
 
     }
+
+    public static function getActiveProjects()
+    {
+        $user=Userw::getCurrentUser()['id'];
+        $query=new Query;
+        $date=date("Y-m-d");
+        $status=[1,2];
+        $results=$query->select(['p.id','c.vm_type','p.name', 'c.num_of_volumes as vnum'])
+                          ->from('project as p')
+                          ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+                          ->innerJoin('cold_storage_request as c','c.request_id=pr.id')
+                          ->where(['>=', 'end_date', $date])
+                          ->andWhere(['or', ['pr.submitted_by'=>$user],"$user = ANY(pr.user_list)"])
+                          ->andWhere(['IN','pr.status',$status])
+                          ->orderBy('pr.submission_date DESC')
+                          ->all();
+        $machines=[];
+        $services=[];
+        $project_ids=[];
+
+        foreach ($results as $res) 
+        {   $project_ids[]=$res['id'];
+            if($res['vm_type']==1)
+            {
+                $services[$res['id']]=$res;
+                $services[$res['id']]['created_at']='';
+                $services[$res['id']]['mountpoint']='';
+                $services[$res['id']]['vol_id']='';
+                $services[$res['id']]['mult_order']='';
+                $services[$res['id']]['vname']='';
+
+            }
+            else
+            {
+                if (!isset($machines[$res['id']]))
+                {
+                    $machines[$res['id']]=['count'=>$res['vnum'],'name'=>$res['name']];
+                    for ($i=1; $i<=$res['vnum']; $i++)
+                    {
+                        $machines[$res['id']][$i]=$res;
+                        $machines[$res['id']][$i]['created_at']='';
+                        $machines[$res['id']][$i]['mountpoint']='';
+                        $machines[$res['id']][$i]['vol_id']='';
+                        $machines[$res['id']][$i]['vmachname']='';
+                    }
+
+                }
+
+            }
+
+        }
+
+        $query=new Query;
+        $date=date("Y-m-d");
+
+        $results=$query->select(['h.project_id', 'h.id as vol_id', 'h.created_at', 'h.mountpoint', 
+                'h.active', 'h.mult_order', 'v.name as vname', 'h.vm_type', 'vmach.name as vmachname'])
+                          ->from('hot_volumes as h')
+                          ->leftJoin('vm as v','v.id=h.vm_id')
+                          ->leftJoin('vm_machines as vmach','vmach.id=h.vm_id')
+                          ->where(['IN','h.project_id',$project_ids])
+                          ->andWhere(['h.active'=>true])
+                          ->all();
+
+        foreach ($results as $res)
+        {
+            if($res['vm_type']==1)
+            {
+                $services[$res['project_id']]['created_at']=$res['created_at'];
+                $services[$res['project_id']]['mountpoint']=$res['mountpoint'];
+                $services[$res['project_id']]['vol_id']=$res['vol_id'];
+                $services[$res['project_id']]['mult_order']=$res['mult_order'];
+                $services[$res['project_id']]['vname']=$res['vname'];
+
+            }
+            else
+            {
+                $machines[$res['project_id']][$res['mult_order']]['created_at']=$res['created_at'];
+                $machines[$res['project_id']][$res['mult_order']]['mountpoint']=$res['mountpoint'];
+                $machines[$res['project_id']][$res['mult_order']]['vol_id']=$res['vol_id'];
+                $machines[$res['project_id']][$res['mult_order']]['vmachname']=$res['vmachname'];
+            }
+
+        }
+
+        return [$services,$machines];
+
+    }
+
 }

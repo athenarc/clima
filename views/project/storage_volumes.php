@@ -17,7 +17,8 @@ $this->title="Storage volumes";
 $this->registerJsFile('@web/js/project/storage-volumes.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 
-$manage_icon='<i class="fas fa-pencil-alt"></i>';
+$manage_icon='<i class="fas fa-server"></i>';
+$create_icon='<i class="fas fa-database"></i>';
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $delete_icon='<i class="fas fa-times"></i>';
 
@@ -59,28 +60,55 @@ if(!empty($services))
 		<tbody>
 
 		<?php 
-		foreach ($services as $res) 
+		foreach ($services as $pid => $res) 
 		{
 			$manage_button_class='';
-			if($res['active']==false)
-			{
+			if(empty($res['vol_id']))
+			{	
+				$vol_id='';
 				$manage_button_class='disabled';
-			}?>
-		
+			}
+			else
+			{
+				$vol_id=$res['vol_id'];
+			}
+			
+			if (!empty($res['created_at']))
+			{
+				$obj=new DateTime($res['created_at']);
+				$cdate=$obj->format('d-m-Y');
+			}
+			else
+			{
+				$cdate='-';
+			}
+			
+			
+			?>
+
 			<tr class="active">
 			<td class="col-md-2"><?=$res['name']?> </td>
-			<td class="col-md-1"><?=explode(' ',$res['accepted_at'])[0]?></td>
-			<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'-': $res['24/7 name']?></td>
+			<td class="col-md-1"><?=$cdate?></td>
+			<td class="col-md-2 text-center"><?=empty($res['vname'])?'-': $res['vname']?></td>
 			<td class="col-md-2 text-center"><?=empty($res['mountpoint'])?'-': $res['mountpoint']?></td>
 			<td class="col-md-3 text-right">
-				<?=Html::a("$manage_icon Manage attachment",['/project/manage-volume','id'=>$res['id'], 'service'=>$res['vm_type']],['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
-				<!-- <?php
-				if($res['active']==true)
-				{?>
+				
+			<?php
+				if(!empty($res['vol_id']))
+				{
+			?>
 					<?=Html::a("$delete_icon Delete",null,['class'=>"btn btn-danger btn-md delete-volume-btn",
-					'id'=>$res['name']])?>
-				<?php
-				}?> -->
+					'id'=>"delete-$vol_id"])?>
+			<?php
+				}
+				else
+				{
+			?>
+					<?=Html::a("$create_icon Create",['project/create-volume','id'=>$res['id']],['class'=>"btn btn-success btn-md"])?>
+			<?php
+				}
+			?>
+				<?=Html::a("$manage_icon Manage attachment",['/project/manage-volumes','id'=>$pid, 'vid'=>$vol_id],['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
 			</td>	
 			</tr>
 		<?php
@@ -115,30 +143,70 @@ if(!empty($machines))
 			</thead>
 			<tbody>
 			<?php 
-			foreach ($machines as $res) 
+			foreach ($machines as $pid => $proj) 
 			{
-				$manage_button_class='';
-				if($res['active']==false)
-				{
-					$manage_button_class='disabled';
-				}?>
-			
-				<tr class="active">
-			<td class="col-md-2"><?=$res['name']?> </td>
-			<td class="col-md-1"><?=explode(' ',$res['accepted_at'])[0]?></td>
-			<td class="col-md-2 text-center"><?=empty($res['vm_id'])?'-': $res['machine name']?></td>
-			<td class="col-md-2 text-center"><?=empty($res['mountpoint'])?'-': $res['mountpoint']?></td>
-			<td class="col-md-3 text-right">
-				<?=Html::a("$manage_icon Manage attachment",['/project/manage-volume','id'=>$res['id'], 'service'=>$res['vm_type']],['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
-				<!-- <?php
-				if($res['active']==true)
-				{?>
-					<?=Html::a("$delete_icon Delete",null,['class'=>"btn btn-danger btn-md delete-volume-btn",
-					'id'=>$res['name']])?>
+				for ($i=1; $i<=$proj['count']; $i++)
+				{	
+					$manage_button_class='';
+					if(empty($proj[$i]['vol_id']))
+					{
+						$manage_button_class='disabled';
+					}
+					
+					$vol_id='';
+					if(!empty($proj[$i]['vol_id']))
+					{
+						$vol_id=$proj[$i]['vol_id'];
+					}
+
+					if ($proj['count']>1)
+					{
+						$pname=$proj['name'] . '_' . $i;
+					}
+					else
+					{
+						$pname=$proj['name'];
+					}
+					
+					if (!empty($proj[$i]['created_at']))
+					{
+						$obj=new DateTime($proj[$i]['created_at']);
+						$cdate=$obj->format('d-m-Y');
+					}
+					else
+					{
+						$cdate='-';
+					}
+					?>
+					<tr class="active">
+						<td class="col-md-2"><?=$pname?> </td>
+						<td class="col-md-1"><?=$cdate?></td>
+						<td class="col-md-2 text-center"><?=(empty($proj[$i]['vmachname'])) ? '-': $proj[$i]['vmachname']?></td>
+						<td class="col-md-2 text-center"><?=(empty($proj[$i]['mountpoint'])) ? '-': $proj[$i]['mountpoint']?></td>
+						<td class="col-md-3 text-right">
+						
+						<?php
+							if(!empty($vol_id))
+							{
+						?>
+								<?=Html::a("$delete_icon Delete",null,['class'=>"btn btn-danger btn-md delete-volume-btn",
+								'id'=>"delete-$vol_id"])?>
+						<?php
+							}
+							else
+							{
+						?>
+								<?=Html::a("$create_icon Create",['project/create-volume','id'=>$pid,'order'=>$i],['class'=>"btn btn-success btn-md"])?>
+						<?php
+							}
+						?>
+						<?=Html::a("$manage_icon Manage attachment",['/project/manage-volumes','id'=>$pid,'vid'=>$vol_id], ['class'=>"btn btn-secondary btn-md $manage_button_class"])?>
+						</td>	
+					</tr>
 				<?php
-				}?> -->
-			</td>	
-			</tr>
+					}
+				?>
+
 			<?php
 			}?>
 		</tbody>
@@ -152,43 +220,87 @@ else
 		<h2> No active volumes for on-demand computation machines </h2>
 	</div></div>	
 <?php
-}?>
+}
 
-<?php 
-foreach ($results as $res) 
-{?>
-	<div class="modal <?=$res['name']?> fade" id="<?=$res['name']?>" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-	   			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLongTitle">Confirm delete</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true" class="btn-cancel-modal">&times;</span>
-				</button>
-				</div>
-				<div class="modal-body">Are you sure you want to delete this Volume?</div>
-				<div class="modal-loading">&nbsp;&nbsp;<b>Deleting <i class="fas fa-spinner fa-spin"></i></b></div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
-					<?=Html::a("$delete_icon Delete",['/project/delete-volume','id'=>$res['id'], 'service'=>$res['vm_type'] ],['class'=>"btn btn-danger confirm-delete"])?>
-				</div>
-			</div>
-		</div>
-	</div>
+
+foreach ($services as $pid =>$res) 
+{
+	if (empty($res['vol_id']))
+	{
+		continue;
+	}
+	else
+	{
+		$vol_id=$res['vol_id'];
+	}
+?>
+    <div class="modal delete-<?=$vol_id?>-modal fade" id="delete-<?=$vol_id?>-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Confirm delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="btn-cancel-modal">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">Are you sure you want to delete this Volume?</div>
+                <div class="modal-loading">&nbsp;&nbsp;<b>Deleting <i class="fas fa-spinner fa-spin"></i></b></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
+                    <?=Html::a("$delete_icon Delete",['/project/delete-volume','vid'=>$vol_id ],['class'=>"btn btn-danger confirm-delete"])?>
+                </div>
+            </div>
+        </div>
+    </div>
 <?php
-}?>
+}
 
-<div class="modal guide fade" id="<?=$res['name']?>" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered" role="document">
-			<div class="modal-content">
-	   			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLongTitle">Instructions for additional storage</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true" class="btn-cancel-modal">&times;</span>
-				</button>
-				</div>
-				<div class="modal-body">In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide',['site/additional-storage-tutorial'], ['target'=>'_blank'])?>.</div>
-				</div>
-		</div>
-	</div>
+foreach ($machines as $pid => $proj) 
+{
+	for ($i=1; $i<=$proj['count']; $i++)
+	{
+		if (empty($proj[$i]['vol_id']))
+		{
+			continue;
+		}
+		else
+		{
+			$vol_id=$proj[$i]['vol_id'];
+		}
+	?>
+	    <div class="modal delete-<?=$vol_id?>-modal fade" id="delete-<?=$vol_id?>-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
+	        <div class="modal-dialog modal-dialog-centered" role="document">
+	            <div class="modal-content">
+	                <div class="modal-header">
+	                <h5 class="modal-title" id="exampleModalLongTitle">Confirm delete</h5>
+	                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                    <span aria-hidden="true" class="btn-cancel-modal">&times;</span>
+	                </button>
+	                </div>
+	                <div class="modal-body">Are you sure you want to delete this Volume?</div>
+	                <div class="modal-loading">&nbsp;&nbsp;<b>Deleting <i class="fas fa-spinner fa-spin"></i></b></div>
+	                <div class="modal-footer">
+	                    <button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
+	                    <?=Html::a("$delete_icon Delete",['/project/delete-volume','vid'=>$vol_id ],['class'=>"btn btn-danger confirm-delete"])?>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	<?php
+	}
+}
+?>
 
+<!-- <div class="modal guide fade" id="" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Instructions for additional storage</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="btn-cancel-modal">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide',['site/additional-storage-tutorial'], ['target'=>'_blank'])?>.</div>
+                </div>
+        </div>
+    </div> -->

@@ -101,10 +101,6 @@ class ProjectController extends Controller
         $schema_url=$configuration->schema_url;
 
 
-        // $maxnumber=Project::getMaximumActiveAcceptedProjects(2,'silver',2);
-        // print_r($maxnumber);
-        // exit(0);
-
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
                     2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user'];
@@ -1956,7 +1952,6 @@ class ProjectController extends Controller
         else if ($prType==1)
         {
             $drequest=ServiceRequest::find()->where(['request_id'=>$id])->one();
-            // $drequest->flavour=$drequest->flavourIdNameLimitless[$drequest->vm_flavour];
             $drequest->flavour=isset($drequest->flavourIdNameLimitless[$drequest->vm_flavour])?$drequest->flavourIdNameLimitless[$drequest->vm_flavour]:'';
             if (!isset($drequest->flavours[$drequest->flavour]))
             {
@@ -2012,6 +2007,8 @@ class ProjectController extends Controller
         {
             $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
             $view_file='edit_cold_storage';
+            for ($i=1; $i<31; $i++)
+                $num_vms_dropdown[$i]=$i;
             
             $prequest->end_date='2100-1-1';
             
@@ -2043,8 +2040,6 @@ class ProjectController extends Controller
 
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
-
-            
             $isValid = $prequest->validate();
             $isValid = $drequest->validate() && $isValid;
             if($prType==3)
@@ -2523,220 +2518,225 @@ class ProjectController extends Controller
 
     public  function actionStorageVolumes()
     {
-        $results=HotVolumes::getHotVolumesInfo();
-        $services=[];
-        $machines=[];
-        foreach ($results as $res) 
-        {
-            if($res['vm_type']==1)
-            {
-                $services[$res['id']]=$res;
-                if(!empty($res['vm_id']))
-                {
-                    $vm=Vm::find()->where(['id'=>$res['vm_id']])->one();
-                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
-                    $services[$res['id']]['24/7 name']=$project_request->name;
-                }
-            }
-            else
-            {
-                $machines[$res['id']]=$res;
-                if(!empty($res['vm_id']))
-                {
-                    $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
-                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
-                    $machines[$res['id']]['machine name']=$project_request->name;
-                }
-            }
-
-        }
+        /*
+         * Get storage active projects for user
+         */
+        $results=ColdStorageRequest::getActiveProjects();
+        $services=$results[0];
+        $machines=$results[1];
+        
         return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
     }
 
-    public  function actionStorageVolumesAdmin()
+    public function actionCreateVolume($id,$order=1)
     {
-        $results=HotVolumes::getHotVolumesInfoAdmin();
-        $services=[];
-        $machines=[];
-        foreach ($results as $res) 
-        {
-            if($res['vm_type']==1)
-            {
-                $services[$res['id']]=$res;
-                if(!empty($res['vm_id']))
-                {
-                    $vm=Vm::find()->where(['id'=>$res['vm_id']])->one();
-                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
-                    $services[$res['id']]['24/7 name']=$project_request->name;
-                }
-            }
-            else
-            {
-                $machines[$res['id']]=$res;
-                if(!empty($res['vm_id']))
-                {
-                    $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
-                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
-                    $machines[$res['id']]['machine name']=$project_request->name;
-                }
-            }
-
-        }
-        return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
-    }
-
-    public  function actionDeleteVolume($id)
-    {
-        $hotvolume=HotVolumes::find()->where(['id'=>$id])->one();
-        $project_id=$hotvolume->project_id;
-        $volume_id=$hotvolume->volume_id;
-        $authenticate=$hotvolume::authenticate();
-        $token=$authenticate[0];
-        $message=$authenticate[1];
-        if(!$token=='')
-        {
-            $deleted=HotVolumes::deleteVolume($volume_id,$token,$id);
-            $success=$deleted[0];
-            $message=$deleted[1];
-        }
-        if($success)
-        {
-            Yii::$app->session->setFlash('success', "Volume has been successfully deleted");
-        }
-        else
-        {
-            Yii::$app->session->setFlash('danger', "$message");
-        }
-        return $this->redirect(['storage-volumes', 'id'=>$project_id]);
-    }
-
-    public  function actionManageVolume($id,$service)
-    {
-        $hotvolume=HotVolumes::find()->where(['id'=>$id])->one();
-        if (empty($hotvolume))
-        {
-            return $this->render('error_unauthorized');
-        }
-        $participant=Project::userInProject($hotvolume->project_id);
-
+        $participant=Project::userInProject($id);
         if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
         }
 
-        $user_id=Userw::getCurrentUser()['id'];
-        
-        $hotvolume->initialize($hotvolume->vm_type);
-        $project_id=$hotvolume->project_id;
-        $volume_id=$hotvolume->volume_id;
-        $vm_id=$hotvolume->vm_id;
-        $name=$hotvolume->name;
-        $project_name='';
-        $vms_dropdown=[];
-        if($vm_id==null)
+        $volume=HotVolumes::find()->where(['project_id'=>$id, 'mult_order' =>$order, 'active'=>true])->one();
+
+        if (!empty($volume))
         {
-           
-            if($hotvolume->vm_type==1)
+            Yii::$app->session->setFlash('danger', "Volume already exists. Please delete it and try again.");
+            return $this->redirect(['project/storage-volumes']);
+        }
+
+        $project=Project::find()->where(['id'=>$id])->one();
+        $crequest=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+
+        if ($order>$crequest->num_of_volumes)
+        {
+            Yii::$app->session->setFlash('danger', "Number of volumes exceeds project quota.");
+            return $this->redirect(['project/storage-volumes']);
+        }
+
+        if($crequest->type=='hot')
+        {
+            $hotvolume=new HotVolumes;
+            $hotvolume->initialize($crequest->vm_type);
+            $hotvolume->authenticate();
+            if (!empty($hotvolume->errorMessage))
             {
-                $vms=HotVolumes::getVolumeServices($hotvolume->volume_id,$user_id);
-               
-            }
-            else
-            {   
-                $vms=HotVolumes::getVolumeMachines($hotvolume->volume_id,$user_id);
-                
+                Yii::$app->session->setFlash('danger', $hotvolume->errorMessage);
+                return $this->redirect(['project/storage-volumes']);
             }
 
-            foreach ($vms as $vm) 
+            /*
+             * Create volume
+             */
+            
+            $hotvolume->create($project,$crequest,$order);
+            if (!empty($hotvolume->errorMessage))
             {
-                $vms_dropdown[$vm['id']]=$vm['vm_name'];
+                Yii::$app->session->setFlash('danger', $hotvolume->errorMessage);  
+                return $this->redirect(['project/storage-volumes']);
             }
+
+            Yii::$app->session->setFlash('success', "Volume created successfully");  
+            return $this->redirect(['project/storage-volumes']);
         }
         else
         {
-            if($hotvolume->vm_type==1)
-            {
-                $vm=Vm::find()->where(['id'=>$vm_id])->one();
-
-            }
-            else
-            {
-                $vm=VmMachines::find()->where(['id'=>$vm_id])->one();
-            }
-
-            $project_id=$vm->project_id;
-            $project=Project::find()->where(['id'=>$project_id])->one();
-            $project_name=$project->name;
-            $vms_dropdown[$vm_id]=$project_name;
+            /*
+             * This is a placeholder for when the cold storage
+             * backend is provided;
+             */
             
         }
-        if($hotvolume->vm_id==null)
-        {
-            if($hotvolume->load(Yii::$app->request->post()))
-            {
-                $new_vm_id=$hotvolume->vm_id;
-                $vm_type=$hotvolume->vm_type;
-                $hotvolume->initialize($vm_type);
-                $authenticate=$hotvolume->authenticate();
-                $token=$authenticate[0];
-                $message=$authenticate[1];
-                if(!$token=='')
-                {
-                    $attach=$hotvolume->attachVolume($volume_id,$new_vm_id,$token,$vm_type);
-                    $hotvolume->mountpoint=$attach;
-                    $hotvolume->vm_id=$new_vm_id;
-                    
-                }
-                $hotvolume->update();
-                Yii::$app->session->setFlash('success', "Volume has been attached to VM");
-                return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
-            }
-        }
-        
-        return $this->render('manage_volumes', ['hotvolume'=>$hotvolume, 'vms_dropdown'=>$vms_dropdown, 'name'=>$name, 'project_id'=>$project_id, 'volume_id'=>$volume_id, 'vm_id'=>$vm_id, 'project_name'=>$project_name]);
+        $this->redirect(['project/storage-volumes']);
+
     }
 
-    public function actionDetachVolumeFromVm($volume_id,$vm_id)
+    public  function actionDeleteVolume($vid)
     {
-        $hotvolume=HotVolumes::find()->where(['volume_id'=>$volume_id])->one();
-        if (empty($hotvolume))
+        $volume=HotVolumes::find()->where(['id'=>$vid])->one();
+
+        if (empty($volume))
         {
-            return $this->render('error_unauthorized');
+            Yii::$app->session->setFlash('danger', "Volume was not found. Please try again or contact an administrator.");
+            return $this->redirect(['project/storage-volumes']);
         }
 
-        $participant=Project::userInProject($hotvolume->project_id);
+        $participant=Project::userInProject($volume->id);
         if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
         }
 
-        $vm_type=$hotvolume->vm_type;
-        $hotvolume->initialize($vm_type);
-        $authenticate=$hotvolume->authenticate();
-        $token=$authenticate[0];
-        $message=$authenticate[1];
-        if(!$token=='')
+        $volume->initialize($volume->vm_type);
+        $volume->authenticate();
+        if (!empty($hotvolume->errorMessage))
         {
-            $detach=$hotvolume->detachVolume($volume_id,$vm_id,$token,$vm_type);
-            if($detach[0])
-            {
-                Yii::$app->session->setFlash('success', "Volume has been detached from VM");
-                return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
-            }
-            else
-            {
-                Yii::$app->session->setFlash('danger', $detach[1]);
-                return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
-            }
+            Yii::$app->session->setFlash('danger', $volume->errorMessage);
+            return $this->redirect(['project/storage-volumes']);
         }
-        else
+        
+        $volume->deleteVolume();
+
+        if (!empty($volume->errorMessage))
         {
-            Yii::$app->session->setFlash('danger', $message);
-            return $this->redirect(['storage-volumes', 'project_id'=>$hotvolume->project_id]);
+            Yii::$app->session->setFlash('danger', $volume->errorMessage);
+            return $this->redirect(['project/storage-volumes']);
         }
+
+        Yii::$app->session->setFlash('success', "Volume $volume->name has been successfully deleted.");
+        return $this->redirect(['project/storage-volumes']);
+        
+    }
+
+    public function actionManageVolumes($id,$vid)
+    {
+        $participant=Project::userInProject($id);
+        if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+
+        $volume=HotVolumes::find()->where(['id'=>$vid, 'project_id'=>$id])->one();
+
+        if (empty($volume))
+        {
+            Yii::$app->session->setFlash('danger', "Volume does not exist. Please create it and try again");
+            return $this->redirect(['project/storage-volumes']);
+        }
+
+        $volume->getVms();
+        if($volume->load(Yii::$app->request->post()))
+        {
+            /*
+             * These scenarios are not really possible,
+             * but check nevertheless
+             */
+            if (empty($volume->new_vm_id))
+            {
+                Yii::$app->session->setFlash('danger', "A VM has not been provided.");
+                return $this->redirect(['project/storage-volumes']);
+            }
+            if ($volume->vm_id==$volume->new_vm_id)
+            {
+                Yii::$app->session->setFlash('warning', "Volume already attached to VM.");
+                return $this->redirect(['project/storage-volumes']);
+            }
+
+            if (!empty($volume->vm_id))
+            {
+                Yii::$app->session->setFlash('danger', "The volume is attached to another VM. Please detach the volume first and try again.");
+                return $this->redirect(['project/storage-volumes']);
+            }
+
+            /*
+             * Initialize model. If OpenStack is unreachable, show message.
+             */
+            $volume->initialize($volume->vm_type);
+
+            /*
+             * Get API token. If OpenStack is unreachable, show message.
+             */
+            $volume->authenticate();
+
+            if (!empty($volume->errorMessage))
+            {
+                Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                return $this->redirect(['project/storage-volumes']);
+            }
+
+            $volume->attach();
+
+            if (!empty($volume->errorMessage))
+            {
+                Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                return $this->redirect(['project/storage-volumes']);
+            }
+
+            Yii::$app->session->setFlash('success', "Volume has been successfully attached to the VM. If the volume is new, 
+                            you will need to partition, format and mount it. 
+                            See " . Html::a('this guide', ['/site/additional-storage-tutorial']) . " on how to do it.");
+            return $this->redirect(['project/storage-volumes']);
+
+        }
+        
+        $vm_name=(isset($volume->vm_dropdown[$volume->vm_id])) ? $volume->vm_dropdown[$volume->vm_id] : '';
+
+        return $this->render('manage_volumes', ['volume'=>$volume,'pid'=>$id, 'vm_name'=>$vm_name]);
+    }
+
+    public function actionDetachVolumeFromVm($id,$vid)
+    {
+        $participant=Project::userInProject($id);
+        if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            return $this->render('error_unauthorized');
+        }
+
+        $volume=HotVolumes::find()->where(['id'=>$vid, 'project_id'=>$id])->one();
+
+        if (empty($volume))
+        {
+            Yii::$app->session->setFlash('danger', "Volume does not exist. Please create it and try again");
+            return $this->redirect(['project/storage-volumes']);
+        }
+
+        $volume->initialize($volume->vm_type);
+        $volume->authenticate();
+        if (!empty($volume->errorMessage))
+        {
+            Yii::$app->session->setFlash('danger', $volume->errorMessage);
+            return $this->redirect(['project/storage-volumes']);
+        }
+        $volume->detach();
+        if (!empty($volume->errorMessage))
+        {
+            Yii::$app->session->setFlash('danger', $volume->errorMessage);
+            return $this->redirect(['project/storage-volumes']);
+        }
+        
+        Yii::$app->session->setFlash('success', "Volume has been successfully detached from the VM.");
+        return $this->redirect(['project/storage-volumes']);
 
     }
 
 }
-
 

@@ -1,9 +1,9 @@
 $(document).ready(function(){
 
 	$(".delete-volume-btn").click(function(){
-		id=$(this).attr("id");
+		id=$(this).attr("id") + '-modal';
 		$(".modal-loading").hide();
-		$('.'+id).modal('show');
+		$('#'+id).modal('show');
 
 
 	});

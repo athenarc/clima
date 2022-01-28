@@ -34,13 +34,12 @@ class HotVolumes extends \yii\db\ActiveRecord
      * {@inheritdoc}
      */
 
-    private $name, $token;
-    public $openstack,$creds;
+    private $name, $token='';
+    public $openstack,$creds,$errorMessage='', $vm_dropdown=[], $new_vm_id='';
 
     public function initialize($vm_type)
     {
 
-        // parent::init();
         if($vm_type==1)
         {
            $this->openstack=Openstack::find()->one();
@@ -49,7 +48,7 @@ class HotVolumes extends \yii\db\ActiveRecord
         {
             $this->openstack=OpenstackMachines::find()->one();
         }
-        // $this->openstack=Openstack::find()->one();
+        
         $this->creds=[
             "auth"=> 
             [
@@ -85,7 +84,8 @@ class HotVolumes extends \yii\db\ActiveRecord
             [['vm_type'], 'integer'],
             [['volume_id', 'vm_id', 'mountpoint', 'deleted_by'], 'string'],
             [['accepted_at','deleted_at'], 'safe'],
-            [['active'],'boolean']
+            [['active'],'boolean'],
+            [['new_vm_id'],'integer'],
         ];
     }
 
@@ -105,81 +105,35 @@ class HotVolumes extends \yii\db\ActiveRecord
     }
 
 
-    public static function getHotVolumesInfo()
+    public function getVms()
     {
         $query=new Query;
 
+        if ($this->vm_type==1)
+        {
+            $table='vm';
+        }
+        else
+        {
+            $table='vm_machines';
+        }
         $userID=Userw::getCurrentUser()['id'];
-        $query->select(['ht.id','ht.name','ht.volume_id','p.id as project_id','p.latest_project_request_id as request_id','ht.accepted_at','cs.vm_type', 'ht.active', 'ht.deleted_at', 'ht.deleted_by', 'ht.vm_id','ht.mountpoint', 'p.name as project_name'])
-              ->from('hot_volumes as ht')
-              ->innerJoin('project as p','p.id=ht.project_id')
-              ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
-              ->innerJoin('cold_storage_request as cs', 'pr.id=cs.request_id')
-              ->where("$userID = ANY(pr.user_list)")
-              ->andWhere(["not", ['ht.volume_id'=>null]]);
-              
-              // ->where(['p.status'=>[1,2]]);
-              // ->andWhere(['pr.project_type'=>2]);
-
-
-        $results = $query->orderBy('ht.accepted_at DESC')->all();
+        $results=$query->select(['v.id as vm_id','p.id as project_id','v.name as vm_name','p.name'])
+                      ->from("$table as v")
+                      ->innerJoin('project as p','p.id=v.project_id')
+                      ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
+                      ->where(['v.active'=>true])
+                      ->andWhere("$userID = ANY(pr.user_list)")
+                      ->orderBy('v.created_at DESC')->all();
         
-        return $results;
+        foreach ($results as $res) 
+        {
+            $this->vm_dropdown[$res['vm_id']]=$res['vm_name'];
+        }
+
+        return;
     }
 
-    public static function getHotVolumesInfoAdmin()
-    {
-        $query=new Query;
-
-        $userID=Userw::getCurrentUser()['id'];
-        $query->select(['ht.id','ht.name','ht.volume_id','p.id as project_id','p.latest_project_request_id as request_id','ht.accepted_at','cs.vm_type', 'ht.active', 'ht.deleted_at', 'ht.deleted_by', 'ht.vm_id','ht.mountpoint', 'p.name as project_name'])
-              ->from('hot_volumes as ht')
-              ->innerJoin('project as p','p.id=ht.project_id')
-              ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
-              ->innerJoin('cold_storage_request as cs', 'pr.id=cs.request_id')
-              ->andWhere(["not", ['ht.volume_id'=>null]]);
-
-
-        $results = $query->orderBy('ht.accepted_at DESC')->all();
-        
-        return $results;
-    }
-
-    public static function getVolumeServices($volume_id,$user_id)
-    {
-        $query=new Query;
-
-        $userID=Userw::getCurrentUser()['id'];
-        $query->select(['v.id','p.id as project_id','v.name as vm_name','p.name'])
-              ->from('vm as v')
-              ->innerJoin('project as p','p.id=v.project_id')
-              ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
-              ->where(['v.active'=>true])
-              ->andWhere("$userID = ANY(pr.user_list)");
-
-
-        $results = $query->orderBy('v.created_at DESC')->all();
-        
-        return $results;
-    }
-
-    public static function getVolumeMachines($volume_id, $user_id)
-    {
-        $query=new Query;
-
-        $userID=Userw::getCurrentUser()['id'];
-        $query->select(['v.id','p.id as project_id','v.name as vm_name', 'p.name'])
-              ->from('vm_machines as v')
-              ->innerJoin('project as p','p.id=v.project_id')
-              ->innerJoin('project_request as pr', 'pr.id=p.latest_project_request_id')
-              ->where(['v.active'=>true])
-              ->andWhere("$userID = ANY(pr.user_list)");
-
-
-        $results = $query->orderBy('v.created_at DESC')->all();
-        
-        return $results;
-    }
 
     public static function getCreatedVolumesServicesUser($user_id)
     {
@@ -284,8 +238,7 @@ class HotVolumes extends \yii\db\ActiveRecord
         /*
          * Authenticate with the openstack api
          */
-        $flag=true;
-        $message='';
+        
         try
         {
             $client = new Client(['baseUrl' => $this->openstack->keystone_url]);
@@ -296,40 +249,35 @@ class HotVolumes extends \yii\db\ActiveRecord
                                 ->setData($this->creds)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
-            $flag=false;
-            $token='';
-            $message="There was an error contacting OpenStack API";
+            $this->errorMessage="There was an error contacting OpenStack API " . $e;
+            return;
         }
         if(!$response->getIsOK())
         {
-            $flag=false;
-            $token='';
-            $message=$response->data['error']['message'];
+            $this->errorMessage==$response->data['error']['message'];
+            return;
         }
 
-        if($flag)
-        {
-            $token=$response->headers['x-subject-token'];
-        }
-        return [$token,$message];
+        $this->token=$response->headers['x-subject-token'];
+
+        return;
     }
 
 
-    public function createVolume($size,$name,$token,$vm_type,$project_id,$multOrder)
+    public function create($project,$crequest,$order)
     {
         /*
          * Add a new ssh key
          */
-        
+        $this->name=$project->name . '_' . $order;
         $volumedata=
         [
             "volume"=>
             [  
-                "size"=> $size,
-                "name" => $name . '_' . $multOrder,
-
+                "size"=> $crequest->storage,
+                "name" => $this->name,
             ],
         ];
 
@@ -340,37 +288,35 @@ class HotVolumes extends \yii\db\ActiveRecord
             $response = $client->createRequest()
                                 ->setMethod('POST')
                                 ->setFormat(Client::FORMAT_JSON)
-                                ->addHeaders(['X-Auth-Token'=>$token])
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
                                 ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes')
                                 ->setData($volumedata)
                                 ->send();
         }
         catch(Exception $e)
         {
-           
-            return [false, "There was an error contacting OpenStack API"];
+            $this->errorMessage="There was an error contacting OpenStack API. Please contact an administrator. " . $e;
         }
         if (!$response->getIsOk())
         {
-            return [false, ""];
+            $this->errorMessage="There was an error with the request to the OpenStack API. Please contact an administrator.";
         }
 
         $volume_id=$response->data['volume']['id'];
+        $this->created_at='NOW()';
+        $this->project_id=$project->id;
+        $this->volume_id=$volume_id;
+        $this->vm_type=$crequest->vm_type;
+        $this->mult_order=$order;
+        $this->active=true;
+        $this->save();
 
-        Yii::$app->db->createCommand()->insert('hot_volumes', [
-                            'name' => $name . '_' . $multOrder,
-                            'accepted_at'=>'NOW()',
-                            'project_id' => $project_id,
-                            'volume_id'=>$volume_id,
-                            'vm_type'=>$vm_type,
-                            'active'=>true,
-                        ])->execute();
 
         return $volume_id;
 
     }
 
-    public function attachVolume($volume_id,$vm_id,$token,$vm_type)
+    public function attach()
     {
         /*
          * Check if volume is available
@@ -381,68 +327,50 @@ class HotVolumes extends \yii\db\ActiveRecord
             $response = $client->createRequest()
                                 ->setMethod('GET')
                                 ->setFormat(Client::FORMAT_JSON)
-                                ->addHeaders(['X-Auth-Token'=>$token])
-                                ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes/' . $volume_id)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes/' . $this->volume_id)
                                 ->send();
-        // print_r(base64_decode($this->openstack->tenant_id));
-        // exit(0);
             
         }
         catch(Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API 1"];
+            $this->errorMessage="Error code 1 while creating: there was an error contacting the OpenStack API. " . $e;
+            return;
         }
 
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API 2"];
+            $this->errorMessage="Error code 2 while creating: there was an error contacting the OpenStack API.";
+            return;
         }
 
         $volumeStatus=$response->data['volume']['status'];
         
         if($volumeStatus=='in-use')
         {
-            return [false, "The volume is already in use. Please first detach the volume."];
+            $this->errorMessage="The volume is already in use. Please detach the volume first.";
+            return;
         }
-        while($volumeStatus!='available')
+
+        if($volumeStatus!='available')
         {
-            sleep(10);
-            try
-            {
-                $client = new Client(['baseUrl' => $this->openstack->cinder_url]);
-                $response = $client->createRequest()
-                                    ->setMethod('GET')
-                                    ->setFormat(Client::FORMAT_JSON)
-                                    ->addHeaders(['X-Auth-Token'=>$token])
-                                    ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes/' . $volume_id)
-                                    ->send();
-                
-            }
-            catch(Exception $e)
-            {
-               
-                return [false, "There was an error contacting OpenStack API 3"];
-            }
-            if (!$response->getIsOk())
-            {
-                return [false, "There was an error contacting OpenStack API 4"];
-            }
-
-            $volumeStatus=$response->data['volume']['status'];
-
+            $this->errorMessage="The volume is not available. Please try again or contact an administrator.";
+            return;
         }
+
+
         /*
          * Check if VM is ready
          */
-        if ($vm_type==1)
+        if ($this->vm_type==1)
         {
-            $vm=Vm::find()->where(['id'=>$vm_id])->one();
+            $vm=Vm::find()->where(['id'=>$this->new_vm_id])->one();
 
         }
         else
         {
-            $vm=VmMachines::find()->where(['id'=>$vm_id])->one();
+            $vm=VmMachines::find()->where(['id'=>$this->new_vm_id])->one();
         }
         try
         {
@@ -450,51 +378,35 @@ class HotVolumes extends \yii\db\ActiveRecord
             $response = $client->createRequest()
                             ->setMethod('GET')
                             ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$token])
+                            ->addHeaders(['X-Auth-Token'=>$this->token])
                             ->setUrl('/servers/' . $vm->vm_id)
                             ->send();
         
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API 5"];
+            $this->errorMessage="Error code 5 while creating: there was an error contacting the OpenStack API. " . $e;
+            return;
         }
-        // print_r($response);
-        // exit(0);
+        
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API 6"];
+            $this->errorMessage="Error code 6 while creating: there was an error contacting the OpenStack API.";
+            return;
         }
         
         $status=$response->data['server']['status'];
         
-
-        while ($status!='ACTIVE')
+        /*
+         * Check if VM is ready.
+         */
+        if ($status!='ACTIVE')
         {
-            
-            try
-            {
-                $client = new Client(['baseUrl' => $this->openstack->nova_url]);
-                $response = $client->createRequest()
-                                    ->setMethod('GET')
-                                    ->setFormat(Client::FORMAT_JSON)
-                                    ->addHeaders(['X-Auth-Token'=>$token])
-                                    ->setUrl('/servers/' . $vm_id)
-                                    ->send();
-                
-            }
-            catch(Exception $e)
-            {
-               
-                return [false, "There was an error contacting OpenStack API 7"];
-            }
-            if (!$response->getIsOk())
-            {
-                return [false, "There was an error contacting OpenStack API 8"];
-            }
-            $status=$response->data['server']['status'];
+            $this->errorMessage="The VM is not ready. Please try again or contact an administrator.";
+            return;
         }
+
 
         /*
          * Attach Volume
@@ -504,7 +416,7 @@ class HotVolumes extends \yii\db\ActiveRecord
         [
             "volumeAttachment"=>
             [  
-                'volumeId' => $volume_id,
+                'volumeId' => $this->volume_id,
 
             ],
         ];
@@ -515,7 +427,7 @@ class HotVolumes extends \yii\db\ActiveRecord
             $response = $client->createRequest()
                             ->setMethod('POST')
                             ->setFormat(Client::FORMAT_JSON)
-                            ->addHeaders(['X-Auth-Token'=>$token])
+                            ->addHeaders(['X-Auth-Token'=>$this->token])
                             ->setUrl('/servers/' . $vm->vm_id . '/os-volume_attachments' )
                             ->setData($volumedata)
                             ->send();
@@ -523,30 +435,35 @@ class HotVolumes extends \yii\db\ActiveRecord
         catch(Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API 9"];
+            $this->errorMessage="Error code 9 while creating: there was an error contacting the OpenStack API. " . $e;
+            return;
         }
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API 10"];
+            $this->errorMessage="Error code 10 while creating: there was an error contacting the OpenStack API.";
+            return;
         }
 
-        return $response->data['volumeAttachment']['device'];
+        $this->mountpoint=$response->data['volumeAttachment']['device'];
+        $this->vm_id=$this->new_vm_id;
+        $this->save();
 
     }
 
-    public function detachVolume($volume_id, $vm_id, $token,$vm_type)
+
+    public function detach()
     {
         /*
          * Add a new ssh key
          */
-        if ($vm_type==1)
+        if ($this->vm_type==1)
         {
-            $vm=Vm::find()->where(['id'=>$vm_id])->one();
+            $vm=Vm::find()->where(['id'=>$this->vm_id])->one();
 
         }
         else
         {
-            $vm=VmMachines::find()->where(['id'=>$vm_id])->one();
+            $vm=VmMachines::find()->where(['id'=>$this->vm_id])->one();
         }
 
         try
@@ -555,36 +472,103 @@ class HotVolumes extends \yii\db\ActiveRecord
             $response = $client->createRequest()
                                 ->setMethod('DELETE')
                                 ->setFormat(Client::FORMAT_JSON)
-                                ->addHeaders(['X-Auth-Token'=>$token])
-                                ->setUrl('/servers/' . $vm->vm_id . '/os-volume_attachments/' . $volume_id)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl('/servers/' . $vm->vm_id . '/os-volume_attachments/' . $this->volume_id)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            $this->errorMessage="Error code 1 while detaching: there was an error contacting the OpenStack API. " . $e;
+            return;
         }
-        // print_r($response);
-        // exit(0);
+        
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            $this->errorMessage="Error code 2 while detaching: there was an error contacting the OpenStack API.";
+            return;
         }
 
-        Yii::$app->db->createCommand()->update('hot_volumes',
-        ['vm_id'=>'', 'mountpoint'=>''], "volume_id='$volume_id'")->execute();
+        $this->vm_id='';
+        $this->mountpoint='';
 
-        return [true,""];
-
-        
+        $this->save();  
 
 
     }
 
-    public function deleteVolume($volume_id,$token, $id)
+    /*
+     * Name "delete" clashed with the ActiveRecord function
+     */
+    public function deleteVolume()
     {
+        if (!empty($this->vm_id))
+        {
+            $this->detach();
+            if (!empty($this->errorMessage))
+            {
+                return;
+            }
+            /*
+             * After detaching we must wait until the volume is available for deletion.
+             */
+            try
+            {
+                $client = new Client(['baseUrl' => $this->openstack->cinder_url]);
+                $response = $client->createRequest()
+                                    ->setMethod('GET')
+                                    ->setFormat(Client::FORMAT_JSON)
+                                    ->addHeaders(['X-Auth-Token'=>$this->token])
+                                    ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes/' . $this->volume_id)
+                                    ->send();
+                
+            }
+            catch(\Exception $e)
+            {
+                
+                $this->errorMessage="Error code 1 while deleting: there was an error contacting the OpenStack API. " . $e;
+                return;
+            }
+
+            if (!$response->getIsOk())
+            {
+                $this->errorMessage="Error code 2 while deleting: there was an error contacting the OpenStack API.";
+                return;
+            }
+
+            $volumeStatus=$response->data['volume']['status'];
+            
+            while($volumeStatus!='available')
+            {
+                sleep(5);
+                try
+                {
+                    $client = new Client(['baseUrl' => $this->openstack->cinder_url]);
+                    $response = $client->createRequest()
+                                        ->setMethod('GET')
+                                        ->setFormat(Client::FORMAT_JSON)
+                                        ->addHeaders(['X-Auth-Token'=>$this->token])
+                                        ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes/' . $this->volume_id)
+                                        ->send();
+                    
+                }
+                catch(\Exception $e)
+                {
+                   
+                    $this->errorMessage="Error code 3 while deleting: there was an error contacting the OpenStack API. " . $e;
+                    return;
+                }
+                if (!$response->getIsOk())
+                {
+                    $this->errorMessage="Error code 4 while deleting: there was an error contacting the OpenStack API.";
+                    return;
+                }
+
+                $volumeStatus=$response->data['volume']['status'];
+            }
+        }
         /*
-         * Add a new ssh key
+         * Delete volume using the OpenStack API
          */
         try
         {
@@ -592,27 +576,32 @@ class HotVolumes extends \yii\db\ActiveRecord
             $response = $client->createRequest()
                                 ->setMethod('DELETE')
                                 ->setFormat(Client::FORMAT_JSON)
-                                ->addHeaders(['X-Auth-Token'=>$token])
-                                ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes/' . $volume_id)
+                                ->addHeaders(['X-Auth-Token'=>$this->token])
+                                ->setUrl(base64_decode($this->openstack->tenant_id) . '/volumes/' . $this->volume_id)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
-           
-            return [false, "There was an error contacting OpenStack API"];
+            $this->errorMessage="Error code 5 while deleting: there was an error contacting the OpenStack API. " . $e;
+            return;
         }
+
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            $this->errorMessage="Error code 6 while deleting: there was an error contacting the OpenStack API.";
+            return;
         }
 
         $user=Userw::getCurrentUser()['username'];
         $username=explode('@',$user)[0];
 
-        Yii::$app->db->createCommand()->update('hot_volumes',
-            ['active'=>false, 'deleted_at'=>'NOW', 'deleted_by'=>$username], "id='$id'")->execute();
+        $this->deleted_by=$username;
+        $this->deleted_at='NOW()';
+        $this->active=false;
+        $this->save();
 
-        return [true,""];
+        return;
+       
 
     }
 

@@ -725,4 +725,40 @@ class AdministrationController extends Controller
 
         
     }
+
+    public  function actionStorageVolumesAdmin()
+    {
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        {
+            return $this->render('//project/error_unauthorized');
+        }
+        $results=HotVolumes::getHotVolumesInfoAdmin();
+        $services=[];
+        $machines=[];
+        foreach ($results as $res) 
+        {
+            if($res['vm_type']==1)
+            {
+                $services[$res['id']]=$res;
+                if(!empty($res['vm_id']))
+                {
+                    $vm=Vm::find()->where(['id'=>$res['vm_id']])->one();
+                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
+                    $services[$res['id']]['24/7 name']=$project_request->name;
+                }
+            }
+            else
+            {
+                $machines[$res['id']]=$res;
+                if(!empty($res['vm_id']))
+                {
+                    $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
+                    $project_request=ProjectRequest::find()->where(['id'=>$vm->request_id])->one();
+                    $machines[$res['id']]['machine name']=$project_request->name;
+                }
+            }
+
+        }
+        return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
+    }
 }

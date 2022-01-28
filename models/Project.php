@@ -408,13 +408,8 @@ class Project extends \yii\db\ActiveRecord
               ->innerJoin('user as u','pr.submitted_by=u.id')
               ->where(['IN','pr.status',$status])
               ->orderBy('pr.submission_date DESC');
-        // print_r($query->createCommand()->getRawSql());
-        // exit(0);
         
         $results=$query->all();
-
-        // print_r($results);
-        // exit(0);
         
         return $results;
 

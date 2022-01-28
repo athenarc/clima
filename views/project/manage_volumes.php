@@ -23,7 +23,7 @@ Headers::begin() ?>
 'buttons'=>
     [
         
-        ['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/storage-volumes', 'project_id'=>$project_id],
+        ['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/storage-volumes'],
          'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
     ],
 ])
@@ -40,13 +40,13 @@ Headers::begin() ?>
 <div class="row"><div class="col-md-12"></div></div>
     
     <?php
-    if(empty($vm_id))
+    if(empty($volume->vm_id))
     { 
         $form = ActiveForm::begin(); 
     ?>
         <div class="row">
             <div class="col-md-offset-3 col-md-7"> <h2> Select VM to attach the volume</h2>
-                <?= $form->field($hotvolume, 'vm_id')->dropDownList($vms_dropdown)->label('') ?>
+                <?= $form->field($volume, 'new_vm_id')->dropDownList($volume->vm_dropdown)->label('') ?>
             </div>
         </div>
         <div class="row">
@@ -59,13 +59,13 @@ Headers::begin() ?>
     {?>
         <div class="row">
             <div class="col-md-offset-3 col-md-7"> <h2> Detach the volume from the VM</h2>
-                <?= Html::textInput('detach',$project_name,['class'=>'form-control', 'disabled'=>true])?>
+                <?= Html::textInput('detach',$vm_name,['class'=>'form-control', 'disabled'=>true])?>
             </div>
         </div>
         <div class="row">&nbsp;</div>
         <div class="row">
             <div class="col-md-offset-3 col-md-7"><?= Html::a("$unlink_icon Detach",
-                ['project/detach-volume-from-vm', 'volume_id'=>$volume_id, 'vm_id'=>$vm_id],
+                ['project/detach-volume-from-vm', 'id'=>$pid, 'vid'=>$volume->id],
                 ['class' => 'btn btn-danger']) ?>
             </div>
         </div>
