@@ -293,7 +293,7 @@ class HotVolumes extends \yii\db\ActiveRecord
                                 ->setData($volumedata)
                                 ->send();
         }
-        catch(Exception $e)
+        catch(\Exception $e)
         {
             $this->errorMessage="There was an error contacting OpenStack API. Please contact an administrator. " . $e;
         }
@@ -301,8 +301,16 @@ class HotVolumes extends \yii\db\ActiveRecord
         {
             $this->errorMessage="There was an error with the request to the OpenStack API. Please contact an administrator.";
         }
-
-        $volume_id=$response->data['volume']['id'];
+        
+        try
+        {
+            $volume_id=$response->data['volume']['id'];
+        }
+        catch(\Exception $e)
+        {
+            $this->errorMessage=$response->data['badRequest']['message'];
+            return;
+        }
         $this->created_at='NOW()';
         $this->project_id=$project->id;
         $this->volume_id=$volume_id;
