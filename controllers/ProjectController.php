@@ -2600,7 +2600,7 @@ class ProjectController extends Controller
             return $this->redirect(['project/storage-volumes']);
         }
 
-        $participant=Project::userInProject($volume->id);
+        $participant=Project::userInProject($project->id);
         if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
