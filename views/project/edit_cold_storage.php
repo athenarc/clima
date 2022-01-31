@@ -47,7 +47,7 @@ if ($details->vm_type==1)
 }
 else
 {
-    $multClasss='';
+    $multClass='';
 }
 
 Headers::begin() ?>
