@@ -67,8 +67,12 @@ Headers::begin() ?>
 	<table class="table table-striped">
 		<tbody>
 			<tr>
+				<th class="col-md-6 text-right" scope="col">Storage type:</th>
+				<td class="col-md-6 text-left" scope="col"><?=($details->type=='hot')?'Hot':'Cold'?></td>
+			</tr>
+			<tr>
 				<th class="col-md-6 text-right" scope="col">VM type:</th>
-				<td class="col-md-6 text-left" scope="col"><?=$vm_type?></td>
+				<td class="col-md-6 text-left" scope="col"><?=($details->vm_type==1)?'24/7 Service':'On-demand computation machines'?></td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Number of volumes:</th>
