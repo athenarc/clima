@@ -1899,7 +1899,6 @@ class ProjectController extends Controller
          */
         $date1 = new \DateTime($prequest->end_date);
         $date2 = new \DateTime('now');
-        var_dump($date1->format("Y-m-d")); 
 
         /*
          * Since datetime involves time too
@@ -2099,12 +2098,18 @@ class ProjectController extends Controller
                 
             }
             
-
             if ($isValid)
             {   
                 if ($prType==2)
                 {
-                  //  $prequest->end_date='2100-1-1';
+                    if ($volume_exists)
+                    {
+                        if ($dold->changed($drequest))
+                        {
+                            Yii::$app->session->setFlash('danger', "You cannot modify storage volume details before a volume is deleted");
+                            return $this->redirect(['project/index']);
+                        }
+                    }
                 }
                 if ($prType==1 || $prType==3)
                 {

@@ -454,4 +454,15 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
 
     }
 
+    public function changed($new)
+    {
+        $changed=false;
+        if (($new->type!=$this->type) || ($new->vm_type!=$this->vm_type) || ($new->storage!=$this->storage) || ($new->num_of_volumes!=$this->num_of_volumes))
+        {
+            $changed=true;
+        }
+        return $changed;
+
+    }
+
 }
