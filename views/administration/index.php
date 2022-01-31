@@ -19,6 +19,7 @@ $configuration_icon='<i class="fa fa-cogs" aria-hidden="true"></i>';
 $static_pages_icon='<i class="fas fa-file-alt"></i>';
 $notifications_icon='<i class="fa fa-bell" aria-hidden="true"></i>';
 $analytics_icon='<i class="fas fa-chart-pie"></i>';
+$volumes_icon='<i class="fas fa-hdd"></i>';
 
 
 Headers::begin() ?>
@@ -78,6 +79,8 @@ else
 <?= ToolButton::createButton("$vm_history_icon  VM machines history", "",['/project/vm-machines-list']) ?>
 <br />
 <?= ToolButton::createButton("$projects_icon  View all projects", "",['administration/all-projects']) ?>
+<br />
+<?= ToolButton::createButton("$volumes_icon  View storage volumes", "",['administration/storage-volumes']) ?>
 <br />
 <?= ToolButton::createButton("$configuration_icon System configuration", "",['administration/configure']) ?>
 <br />

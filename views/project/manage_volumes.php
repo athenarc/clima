@@ -42,7 +42,7 @@ Headers::begin() ?>
     <?php
     if(empty($volume->vm_id))
     { 
-        $form = ActiveForm::begin(); 
+        $form = ActiveForm::begin($form_params); 
     ?>
         <div class="row">
             <div class="col-md-offset-3 col-md-7"> <h2> Select VM to attach the volume</h2>
@@ -65,7 +65,7 @@ Headers::begin() ?>
         <div class="row">&nbsp;</div>
         <div class="row">
             <div class="col-md-offset-3 col-md-7"><?= Html::a("$unlink_icon Detach",
-                ['project/detach-volume-from-vm', 'id'=>$pid, 'vid'=>$volume->id],
+                ['project/detach-volume-from-vm', 'id'=>$pid, 'vid'=>$volume->id,'ret'=>$ret],
                 ['class' => 'btn btn-danger']) ?>
             </div>
         </div>

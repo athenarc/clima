@@ -104,11 +104,11 @@ Headers::begin() ?>
         <div class="row">&nbsp;</div>
 
 
-        <?= $form->field($details, 'type')->dropDownList($types, ['disabled'=>true])->label('Volume type') ?>
-        <?= $form->field($details, 'vm_type')->dropDownList($vm_types, ['disabled'=>true])->label('I want to use this volume for:') ?>
-        <?= $form->field($details, 'storage')->textInput([])-> label($storage_label) ?>
-        <span class="$multClass num_of_volumes_dropdown"><?= $form->field($details, 'num_of_volumes')->dropDownList($num_vms_dropdown) ?></span>
-        <div class="col-md-10 autoaccept_not_allowed"><i class="fa fa-asterisk" aria-hidden="true"></i> In order to change the size of the actual volume, you will need to delete and re-create it.</div>
+        <?= $form->field($details, 'type')->dropDownList($types, ['disabled'=>$volume_exists])->label('Volume type') ?>
+        <?= $form->field($details, 'vm_type')->dropDownList($vm_types, ['disabled'=>$volume_exists])->label('I want to use this volume for:') ?>
+        <?= $form->field($details, 'storage')->textInput(['disabled'=>$volume_exists])-> label($storage_label) ?>
+        <span class="<?=$multClass?> num_of_volumes_dropdown"><?= $form->field($details, 'num_of_volumes')->dropDownList($num_vms_dropdown,['disabled'=>$volume_exists]) ?></span>
+        <div class="col-md-10 autoaccept_not_allowed <?=(!$volume_exists) ? 'hidden' : ''?>"><i class="fa fa-asterisk" aria-hidden="true"></i> In order to change the size and type of the volume(s), you will need to delete them and try again.</div>
 
         
     
