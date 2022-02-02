@@ -26,7 +26,7 @@ $this->title="All projects";
  * Users are able to view the name, version, start date, end date, mountpoint 
  * and running status of their previous software executions. 
  */
-$history_icon='<i class="fas fa-history"></i>';
+$back_icon='<i class="fas fa-arrow-left"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
 $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
 
@@ -37,17 +37,10 @@ $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
 Headers::begin() ?>
 <?php echo Headers::widget(
 ['title'=>"All projects", 
-	// 'buttons'=>
-	// [
-	// 	['fontawesome_class'=>$history_icon,'name'=> 'Project requests', 'action'=> ['/project/user-request-list'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
-	// 	['fontawesome_class'=>$new_icon,'name'=> 'New project', 'action'=>['/project/new-request'], 'type'=>'a', 
-	// 	'options'=>['class'=>'btn btn-success']] 
-	//],
-	// 'special_content'=>'<div class="col-md-12 text-right">
-	// 						<h5><span class='.$role.'-user><i class="fa fa-certificate fa-xs" aria-hidden="true"></i>
-	// 						</span> <span>'. $roles[$role]. ' user &nbsp;</span><span title="Type of user"><i class="fa fa-question-circle" aria-hidden="true"></i></h5>
-	// 						</span>
-	// 					</div>'
+	'buttons'=>
+	[
+		['fontawesome_class'=>$back_icon,'name'=> 'Project requests', 'action'=> ['/administration/index'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
+	],
 ])
 ?>
 <?Headers::end()?>
@@ -89,7 +82,7 @@ if (!empty($active))
 		<thead>
 			<tr>
 				<th class="col-md-3" scope="col">Project</th>
-				<th class="col-md-2" scope="col">Type</th>
+				<th class="col-md-1" scope="col">Type</th>
 				<th class="col-md-3 text-center" scope="col">Owner</th>
 				<th class="col-md-2 text-center" scope="col">Expires in</th>
 				<th class="col-md-3" scope="col">&nbsp;</th>
@@ -166,10 +159,10 @@ foreach ($active as $res)
 ?>
 			<tr class="active" style="font-size: 14px;">
 				<td class="col-md-3" style="vertical-align: middle!important;"> <?=$res['name']?> &nbsp; <?=$triangle_icon?> </td>
-				<td class="col-md-2" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
+				<td class="col-md-1" style="padding-left: 20px; vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon ?></td>
 				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
-				<td class="col-md-2 text-right">
+				<td class="col-md-3 text-right">
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'admin','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
 				</td>	
 			</tr>
@@ -217,7 +210,7 @@ if (!empty($expired))
 		<thead>
 			<tr>
 				<th class="col-md-3" scope="col">Project</th>
-				<th class="col-md-2" scope="col">Type</th>
+				<th class="col-md-1" scope="col">Type</th>
 				<th class="col-md-3 text-center" scope="col">Owner</th>
 				<th class="col-md-2 text-center" scope="col">Expired on</th>
 				<th class="col-md-3" scope="col">&nbsp;</th>
@@ -232,6 +225,7 @@ foreach ($expired as $res)
 {
 	
 	$view_icon='<i class="fas fa-eye"></i>';
+	$reactivate_icon='<i class="fas fa-sync-alt"></i>';
 	$usage_icon='<i class="fas fa-chart-pie"></i>';
 	$access_icon='<i class="fas fa-external-link-square-alt"></i>';
 	$button_link=$button_links[$res['project_type']];
@@ -274,12 +268,12 @@ foreach ($expired as $res)
 ?>
 			<tr class="active" style="font-size: 14px;">
 				<td class="col-md-3" style="vertical-align: middle!important;"> <?=$res['name']?></td>
-				<td class="col-md-2" style="padding-left: 20px;vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon?></td>
+				<td class="col-md-1" style="padding-left: 20px;vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon?></td>
 				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?></td>
-				<td class="col-md-2 text-right">
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>1],['class'=>'btn btn-secondary btn-md'])?> 
-					
+				<td class="col-md-3 text-right">
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>1],['class'=>'btn btn-secondary btn-md'])?>
+					<?=Html::a("$reactivate_icon Re-activate",['/administration/reactivate','id'=>$res['id']],['class'=>'btn btn-primary btn-md', 'title'=>'Re-activate project'])?> 
 				</td>
 			</tr>
 

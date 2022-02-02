@@ -742,4 +742,50 @@ class AdministrationController extends Controller
         
         return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
     }
+
+    public function actionReactivate($id)
+    {
+        $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
+        
+        if (empty($prequest))
+        {
+            return $this->render('//project/error_unauthorized');
+        }
+
+
+        /*
+         * If someone other than the project owner or an Admin are trying
+         * to edit the request, then show an error.
+         */
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
+        {
+            return $this->render('//project/error_unauthorized');
+        }
+        /*
+         * Check that project is expired.
+         */
+        $date1 = new \DateTime($prequest->end_date);
+        $date2 = new \DateTime('now');
+
+        /*
+         * Since datetime involves time too
+         * equality will not work. Instead, check that 
+         * the date strings are not the same
+         */
+        if (!(($date1->format("Y-m-d")!=$date2->format("Y-m-d")) && ($date2>$date1)))
+        {
+            Yii::$app->session->setFlash('danger', "Project is not expired");
+            return $this->redirect(['administration/all-projects']);
+        }
+
+        $prequest->reactivate();
+        if (!empty($prequest->errors))
+        {
+            Yii::$app->session->setFlash('danger', $prequest->errors);
+            return $this->redirect(['administration/all-projects']);
+        }
+
+        Yii::$app->session->setFlash('success', "Project successfully re-activated");
+        return $this->redirect(['administration/all-projects']);
+    }
 }

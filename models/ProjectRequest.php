@@ -35,6 +35,7 @@ use app\models\EmailEventsModerator;
 class ProjectRequest extends \yii\db\ActiveRecord
 {
     public $usernameList;
+    public $errors='';
 
     const TYPES=[0=>'On-demand computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'Machine Compute'];
     const STATUSES=[-5=>'Expired',-4 =>'Deleted',-3 =>'Invalid due to modification',-2=>'Inactive',-1=>'Rejected',0=>'Pending', 1=>'Approved', 2=>'Auto-approved'];
@@ -286,6 +287,64 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return [$errors,$success,$warnings,$request_id];
     }
 
+    public function reactivate()
+    {        
+        $newRequest=clone $this;
+        $newRequest->isNewRecord = true;
+        unset($newRequest->id);
+        $newRequest->end_date=new \DateTime('NOW');
+        $newRequest->end_date=$newRequest->end_date->modify('+2 days')->format('m-d-Y H:i:s');
+        $newRequest->submission_date="NOW()";
+        $newRequest->approval_date='NOW()';
+
+        if (!$newRequest->save(false))
+        {
+            $this->errors='Failed to write to database';
+        }
+        
+        //invalidate old request if it is a modification
+
+        $project=Project::find()->where(['id'=>$this->project_id])->one();
+
+        if(!empty($project->pending_request_id))
+        {
+            $pending=ProjectRequest::find()->where(['id'=>$project->pending_request_id])->one();
+            $pending->status=-3;
+            $pending->save();
+        }
+
+        $project->pending_request_id='';
+        $project->status=2;
+        $project->latest_project_request_id=$newRequest->id;
+        $project->save();
+
+        if ($this->project_type==0)
+        {
+            $details=OndemandRequest::find()->where(['request_id'=>$this->id])->one();
+        }
+        else if ($this->project_type==1)
+        {
+            $details=ServiceRequest::find()->where(['request_id'=>$this->id])->one();
+        }
+        else if ($this->project_type==2)
+        {
+            $details=ColdStorageRequest::find()->where(['request_id'=>$this->id])->one();
+        }
+        else if ($this->project_type==3)
+        {
+            $details=MachineComputeRequest::find()->where(['request_id'=>$this->id])->one();
+            
+        }
+
+        $newDetails=clone $details;
+        $newDetails->isNewRecord = true;
+        unset($newDetails->id);
+        $newDetails->request_id=$newRequest->id;
+        $newDetails->save(false);
+        
+        return;
+    }
+
     public static function getRequestList($filter)
     {
         $query=new Query;
@@ -378,25 +437,6 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $vm_type=$cold_storage_request->vm_type;
             $size=$cold_storage_request->storage;
             $name=$this->name;
-            // if($cold_storage_request->type=='hot')
-            // {
-            //     $hotvolume=new HotVolumes;
-            //     $hotvolume->initialize($vm_type);
-            //     $authenticate=$hotvolume->authenticate();
-            //     $token=$authenticate[0];
-            //     $message=$authenticate[1];
-            //     if(!$token=='')
-            //     {
-                    
-            //          * Create multiple volumes (if applicable)
-                     
-            //         for ($i=1; $i<=$cold_storage_request->num_of_volumes; $i++)
-            //         {
-            //             $volume_id=$hotvolume->createVolume($size,$name,$token,$vm_type,$project->id,$i);
-            //         }
-            //     }
-                
-            // }
 
         }
 
@@ -702,19 +742,11 @@ class ProjectRequest extends \yii\db\ActiveRecord
     {
         $attr1=$model1->getAttributes();
         $attr2=$model2->getAttributes();
-        // print_r($attr1);
-        // print_r("<br />");
-        // print_r($attr2);
-        // print_r("<br />");
-        // exit(0);
 
 
         foreach ($attr1 as $name => $value)
         {
-        //     print_r($value);
-        //     print_r("<br />");
-        //     print_r($attr2[$name]);
-        //     print_r("<br /><br />");
+        
             if ($value!=$attr2[$name])
             {
                 // exit(0);
@@ -735,10 +767,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 // ->setUrl("http://83.212.72.66/schema/web/index.php?r=api/project-usage")
                 ->setData($data)
                 ->send();
-        // if (!$response->getIsOk())
-        // {
-        //     return false;
-        // }
+        
         $usage=($response->data==false) ? [
                                             'count' => 0, 
                                             'total_time' => '00:00:00', 
