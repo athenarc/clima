@@ -28,11 +28,11 @@ class VmMachines extends \yii\db\ActiveRecord
 
 
     private $create_errors=[
-        1=>"There was an error connecting with the Openstack infrastructure.",
+        1=>"There was an error connecting to the Openstack infrastructure.",
         2=>"There was an error creating a key-pair with the provided key.",
-        3=>"There was an error creating the Virtual Machine.",
-        4=>"There was an error connecting with the Openstack infrastructure.",
-        5=>"There was an error creating an external IP address.",
+        3=>"There was an error creating the VM.",
+        4=>"There was an error connecting to the Openstack infrastructure.",
+        5=>"There was an error creating a public IP address.",
         6=>"There was an error creating the additional storage space.",
         7=>"There was an error attaching the additional storage space to the VM.",
 
@@ -40,9 +40,9 @@ class VmMachines extends \yii\db\ActiveRecord
 
     private $delete_errors=[
         1=>"There was an error connecting with the Openstack infrastructure.",
-        2=>"There was an error deleting the external IP address.",
+        2=>"There was an error deleting the public IP address.",
         3=>"There was an error deleting the Virtual Machine.",
-        4=>"There was an error deleting the key-pair.",
+        4=>"There was an error deleting the public key.",
         5=>"There was an error deleting the additional storage space.",
         6=>"There was an error detaching the additional storage space from the VM.",
 
@@ -124,15 +124,15 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl(['flavors/detail'])
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
             $flag=false;
-            return "There was an error contacting OpenStack API";
+            return "There was an error contacting the OpenStack API. Please contact an administrator.";
         }
         if(!$response->getIsOK())
         {
             $flag=false;
-            return "There was an error contacting OpenStack API";
+            return "There was an error contacting the OpenStack API. Please contact an administrator.";
         }
 
         if($flag)
@@ -159,15 +159,15 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl(['images?visibility=public'])
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
             $flag=false;
-            return ["There was an error contacting OpenStack API"];
+            return ["There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if(!$response->getIsOK())
         {
             $flag=false;
-            return ["There was an error contacting OpenStack API"];
+            return ["There was an error contacting the OpenStack API. Please contact an administrator."];
         }
 
         if($flag)
@@ -178,13 +178,6 @@ class VmMachines extends \yii\db\ActiveRecord
             {
                 $id=$image['id'];
                 $name=$image['name'];
-                /*
-                 * Do not show windows image for people other than admins
-                 */
-                // if ((!$isAdmin) && ($id=='189b93db-ab73-42fc-82b9-77be716f687e'))
-                // {
-                //     continue;
-                // }
 
                 $dropdown[$id]=$name;
             }
@@ -211,11 +204,11 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setData(self::$creds)
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
             $flag=false;
             $token='';
-            $message="There was an error contacting OpenStack API";
+            $message="There was an error contacting the OpenStack API. Please contact an administrator.";
         }
         if(!$response->getIsOK())
         {
@@ -258,14 +251,14 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->send();
 
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false,"There was an error contacting OpenStack API"];
+            return [false,"There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
-            return [false,$response->data['conflictingRequest']['message']];
+            return [false,""];
         }
 
         
@@ -302,10 +295,10 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setData($volumedata)
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
@@ -334,10 +327,10 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->send();
             
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
@@ -362,10 +355,10 @@ class VmMachines extends \yii\db\ActiveRecord
                                     ->send();
                 
             }
-            catch (yii\httpclient\Exception $e)
+            catch (\yii\httpclient\Exception $e)
             {
                
-                return [false, "There was an error contacting OpenStack API"];
+                return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
             }
             if (!$response->getIsOk())
             {
@@ -389,10 +382,10 @@ class VmMachines extends \yii\db\ActiveRecord
                             ->send();
         
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
@@ -416,10 +409,10 @@ class VmMachines extends \yii\db\ActiveRecord
                                     ->send();
                 
             }
-            catch (yii\httpclient\Exception $e)
+            catch (\yii\httpclient\Exception $e)
             {
                
-                return [false, "There was an error contacting OpenStack API"];
+                return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
             }
             if (!$response->getIsOk())
             {
@@ -453,14 +446,14 @@ class VmMachines extends \yii\db\ActiveRecord
                             ->setData($volumedata)
                             ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
 
         return [true,""];
@@ -482,14 +475,14 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl('/servers/' . $this->vm_id . '/os-volume_attachments/' . $this->volume_id)
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         return [true,""];
 
@@ -511,14 +504,14 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl(base64_decode(self::$openstack->tenant_id) . '/volumes/' . $this->volume_id)
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
 
         return [true,""];
@@ -538,14 +531,14 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl(["os-keypairs/$key_name"])
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
            
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, ""];
         }
         return [true,""];
     }
@@ -609,13 +602,13 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setData($vmdata)
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
-           return [false,"There was an error contacting OpenStack API"];
+           return [false,"There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
-            return [false,"There was an error contacting OpenStack API"];
+            return [false,""];
         }
 
         $this->vm_id=$response->data['server']['id'];
@@ -635,14 +628,14 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl(["servers/$this->vm_id/os-interface"])
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
-           return [false, "There was an error contacting OpenStack API"];
+           return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
 
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, ""];
         }
         
         $this->port_id=$response->data['interfaceAttachments'][0]['port_id'];
@@ -662,14 +655,14 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl(["servers/$this->vm_id"])
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
-           return [false, "There was an error contacting OpenStack API"];
+           return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
 
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, ""];
         }
 
         return [true,""];
@@ -701,11 +694,11 @@ class VmMachines extends \yii\db\ActiveRecord
         }
         catch (Exception $e)
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, ""];
         }
 
         $this->ip_id=$response->data['floatingip']['id'];
@@ -726,14 +719,14 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl(["floatingips/$this->ip_id"])
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
-           return [false, "There was an error contacting OpenStack API"];
+           return [false, "There was an error contacting the OpenStack API. Please contact an administrator."];
         }
 
         if (!$response->getIsOk())
         {
-            return [false, "There was an error contacting OpenStack API"];
+            return [false, ""];
         }
 
         return [true,""];
@@ -761,7 +754,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                     ->send();
 
             }
-            catch (yii\httpclient\Exception $e)
+            catch (\yii\httpclient\Exception $e)
             {
                $responseOK=false;
             }
@@ -792,7 +785,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->send();
 
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
             return ['','','',''];
         }
@@ -824,7 +817,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->send();
             
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
             return ['','','',''];
         }
@@ -852,7 +845,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl([base64_decode(self::$openstack->tenant_id) .'/limits'])
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
             return ['','','',''];
         }
@@ -1075,7 +1068,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                     ->setUrl('/servers/' . $this->vm_id . '/os-server-password')
                                     ->send();
             }
-            catch (yii\httpclient\Exception $e)
+            catch (\yii\httpclient\Exception $e)
             {
                 $passNotExists=true;
                 $encrypted='';
@@ -1120,7 +1113,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl('/servers/' . $this->vm_id)
                                 ->send();
         }
-        catch (yii\httpclient\Exception $e)
+        catch (\yii\httpclient\Exception $e)
         {
                 $this->serverExists=false;
                 return;
@@ -1157,7 +1150,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                     ->setData($consoleData)
                                     ->send();
             }
-            catch (yii\httpclient\Exception $e)
+            catch (\yii\httpclient\Exception $e)
             {
                 $consoleAvailable=false;
                 return;
@@ -1202,7 +1195,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setUrl('/servers/' . $this->vm_id)
                                 ->send();
         }
-        catch(yii\httpclient\Exception $e)
+        catch(\yii\httpclient\Exception $e)
         {
             return '';
         }
@@ -1239,7 +1232,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setData($startData)
                                 ->send();
         }
-        catch(yii\httpclient\Exception $e)
+        catch(\yii\httpclient\Exception $e)
         {
             return 'error';
         }
@@ -1274,7 +1267,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setData($startData)
                                 ->send();
         }
-        catch(yii\httpclient\Exception $e)
+        catch(\yii\httpclient\Exception $e)
         {
             return 'error';
         }
@@ -1312,7 +1305,7 @@ class VmMachines extends \yii\db\ActiveRecord
                                 ->setData($startData)
                                 ->send();
         }
-        catch(yii\httpclient\Exception $e)
+        catch(\yii\httpclient\Exception $e)
         {
             return 'error';
         }
