@@ -10,7 +10,7 @@ $this->title = "Machine Creation";
 echo Html::CssFile('@web/css/project/vm-configure.css');
 $this->registerJsFile('@web/js/project/vm-configure.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$helpLink=Html::a('&nbsp;guide&nbsp;','https://confluence.atlassian.com/bitbucketserver/creating-ssh-keys-776639788.html',["target"=>'_blank']);
+$helpLink=Html::a('&nbsp;guide&nbsp;','https://docs.rightscale.com/faq/How_Do_I_Generate_My_Own_SSH_Key_Pair.html',["target"=>'_blank']);
 $info='<i class="fas fa-info-circle"></i>';
 
 $back_action=($backTarget=='m')?['/project/machine-compute-access-project','id'=>$project_id]:['project/index'];
@@ -52,7 +52,7 @@ Headers::begin() ?>
 	
 	<!-- <?= $form->field($model, 'public_key')->textarea(['rows'=>10])->label('') ?> -->
 	<h3>Upload a public SSH key:</h3>
-	<div class="row"><span style="padding-top: 3px; margin-right: 5px; padding-left: 15px;"> <?=$info?></span> A public SSH key is required to access the new machine. Follow this <?=$helpLink?> to create a public SSH key.</div>
+	<div class="row"><span style="padding-top: 3px; margin-right: 5px; padding-left: 15px;"> <?=$info?></span> A public SSH key (RSA or PEM) is required to access the new machine. Follow this <?=$helpLink?> to create a public SSH key.</div>
 	<?= $form->field($model, 'keyFile')->fileInput()->label('') ?>
 	
 	<div class="loading">
