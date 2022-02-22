@@ -96,17 +96,22 @@ class ApiController extends Controller
 
     public function actionActiveOndemandQuotas($username)
     {
-        // Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $records=Project::getActiveOndemandQuotasApi($username);
-        // var_dump(json_encode($records));
-        // exit(0);
+        
         
         
         return $this->asJson($records);
     }
 
+    public function actionAllOndemandQuotas($username)
+    {
 
+        $records=Project::getAllOndemandQuotasApi($username);
+        
+        
+        return $this->asJson($records);
+    }
 }
 
 

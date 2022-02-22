@@ -245,6 +245,44 @@ class Project extends \yii\db\ActiveRecord
 
     }
 
+    public static function getAllOndemandQuotasApi($username)
+    {
+        $query=new Query;
+
+        $status=[1,2];
+
+        $user=User::findByUsername($username);
+        if (empty($user))
+        {
+            return [];
+        }
+        $user=$user->id;
+        
+
+        $query->select(['pr.name','pr.approval_date', 'pr.duration','pr.end_date','odr.num_of_jobs','odr.ram','odr.cores'])
+                ->from('project as p')
+                ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+                ->innerJoin('ondemand_request as odr','pr.id=odr.request_id')
+                ->where(['IN','pr.status',$status])
+                ->andWhere(['pr.project_type'=>0])
+                ->andFilterWhere([
+
+                'or',
+
+                ['pr.submitted_by'=>$user],
+
+                "$user = ANY(pr.user_list)"
+
+              ])
+
+              ->orderBy('pr.submission_date DESC');
+        
+        $results=$query->all();        
+        
+        return $results;
+
+    }
+
     public static function getOndemandProjectQuotas($username,$project)
     {
         $query=new Query;
