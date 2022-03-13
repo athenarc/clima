@@ -243,7 +243,7 @@ foreach ($services as $pid =>$res)
                     <span aria-hidden="true" class="btn-cancel-modal">&times;</span>
                 </button>
                 </div>
-                <div class="modal-body">Are you sure you want to delete this Volume?</div>
+                <div class="modal-body">Are you sure you want to delete volume '<?=$res['name']?>'?</div>
                 <div class="modal-loading">&nbsp;&nbsp;<b>Deleting <i class="fas fa-spinner fa-spin"></i></b></div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
@@ -267,6 +267,15 @@ foreach ($machines as $pid => $proj)
 		{
 			$vol_id=$proj[$i]['vol_id'];
 		}
+		
+		if ($proj['count']>1)
+		{
+			$pname=$proj['name'] . '_' . $i;
+		}
+		else
+		{
+			$pname=$proj['name'];
+		}
 	?>
 	    <div class="modal delete-<?=$vol_id?>-modal fade" id="delete-<?=$vol_id?>-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
 	        <div class="modal-dialog modal-dialog-centered" role="document">
@@ -277,7 +286,7 @@ foreach ($machines as $pid => $proj)
 	                    <span aria-hidden="true" class="btn-cancel-modal">&times;</span>
 	                </button>
 	                </div>
-	                <div class="modal-body">Are you sure you want to delete this Volume?</div>
+	                <div class="modal-body">Are you sure you want to delete volume '<?=$pname?>'?</div>
 	                <div class="modal-loading">&nbsp;&nbsp;<b>Deleting <i class="fas fa-spinner fa-spin"></i></b></div>
 	                <div class="modal-footer">
 	                    <button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
@@ -291,16 +300,3 @@ foreach ($machines as $pid => $proj)
 }
 ?>
 
-<!-- <div class="modal guide fade" id="" tabindex="-1" role="dialog" aria-labelledby="delete-modal" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Instructions for additional storage</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" class="btn-cancel-modal">&times;</span>
-                </button>
-                </div>
-                <div class="modal-body">In order to partition, format and mount the additional storage, which is attached to /dev/vdb, follow this <?=Html::a('guide',['site/additional-storage-tutorial'], ['target'=>'_blank'])?>.</div>
-                </div>
-        </div>
-    </div> -->
