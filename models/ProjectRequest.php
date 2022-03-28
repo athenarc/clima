@@ -850,58 +850,59 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $query=new Query;
 
-        $vms_services_active=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm as v','v.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
+        $vms_services_active=$query->select(['p.id'])
+                        ->from('project as p')
+                        ->innerJoin('vm as v','v.project_id=p.id')
+                        ->where(['IN','p.status',[1,2]])
                         ->andWhere(['v.active'=>true])
-                        ->andWhere(['>','pr.end_date','NOW'])
+                        // ->andWhere(['>','pr.end_date','NOW'])
                         ->count();
         $query=new Query;
 
-        $vms_services_total=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm as v','v.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
+        $vms_services_total=$query->select(['p.id'])
+                        ->from('project as p')
+                        ->innerJoin('vm as v','v.project_id=p.id')
+                        ->where(['IN','p.status',[1,2]])
                         // ->andWhere(['v.active'=>true])
                         ->count();
         $query=new Query;
 
-        $vms_machines_active=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
+        $vms_machines_active=$query->select(['p.id'])
+                        ->from('project as p')
+                        ->innerJoin('vm_machines as v','v.project_id=p.id')
+                        ->where(['IN','p.status',[1,2]])
                         ->andWhere(['v.active'=>true])
-                        ->andWhere(['>','pr.end_date','NOW'])
+                        // ->andWhere(['>','pr.end_date','NOW'])
                         ->count();
+
         $query=new Query;
 
         $vms_machines_total=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
+                        ->from('project as p')
+                        ->innerJoin('vm_machines as v','v.project_id=p.id')
+                        ->where(['IN','p.status',[1,2]])
                         // ->andWhere(['v.active'=>true])
                         ->count();
         $query=new Query;
 
         $vm_active_services_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
                         ->from('project_request as pr')
-                        ->innerJoin('vm as v','v.request_id=pr.id')
+                        ->innerJoin('vm as v','v.project_id=pr.project_id')
                         ->innerJoin('service_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->andWhere(['v.active'=>true])
-                        ->andWhere(['>','pr.end_date','NOW'])
+                        // ->andWhere(['>','pr.end_date','NOW'])
                         ->one();
         
         $query=new Query;
 
         $vm_active_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
                         ->from('project_request as pr')
-                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
+                        ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
                         ->innerJoin('service_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->andWhere(['v.active'=>true])
-                        ->andWhere(['>','pr.end_date','NOW'])
+                        // ->andWhere(['>','pr.end_date','NOW'])
                         ->one();
 
         $query=new Query;             
@@ -916,7 +917,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $vm_total_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
                         ->from('project_request as pr')
-                        ->innerJoin('vm_machines as v','v.request_id=pr.id')
+                        ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
                         ->innerJoin('service_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->one();
