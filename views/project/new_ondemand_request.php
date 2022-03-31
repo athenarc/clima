@@ -66,8 +66,8 @@ if (!empty($errors))
 <div class="row"><div class="col-md-12"> * All fields marked with asterisk are mandatory</div></div>
 
     <?php $form = ActiveForm::begin($form_params); ?>
-    <div class="row"><div class="col-md-12"><?= Html::errorSummary($project, ['encode' => false]) ?></div></div>
-    <div class="row"><div class="col-md-12"><?= Html::errorSummary($ondemand, ['encode' => false]) ?></div></div>
+        <?= $form->errorSummary($project) ?>
+        <?= $form->errorSummary($ondemand) ?>
         <div class="row box">
             <div class="col-md-6">
                 <h3>Project details</h3>
@@ -151,8 +151,7 @@ if (!empty($errors))
             }
             ?>
         </div>
-        <div class="row"><div class="col-md-12"><?= Html::errorSummary($project, ['encode' => false]) ?></div></div>
-        <div class="row"><div class="col-md-12"><?= Html::errorSummary($ondemand, ['encode' => false]) ?></div></div>
+        
     <?php ActiveForm::end(); ?>
 
 </div><!-- new_ondemand_project -->

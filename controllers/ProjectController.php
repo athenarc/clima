@@ -264,30 +264,32 @@ class ProjectController extends Controller
         
         if ( ($serviceModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
+            /*
+             * Remove duplicate users before validating
+             */
+            $participant_ids_tmp=[];
+            foreach ($participating as $participant)
+            {
+                $username=$participant . '@elixir-europe.org';
+                $pid=User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid]=null;
+            }
+
+            $participant_ids=[];
+            foreach ($participant_ids_tmp as $pid => $dummy)
+            {
+                $participant_ids[]=$pid;
+            }
+
+            $projectModel->user_list=$participant_ids;
+
             $isValid = $projectModel->validate();
             $isValid = $serviceModel->validate() && $isValid;
 
             if ($isValid)
             {   
-                $participant_ids_tmp=[];
-                foreach ($participating as $participant)
-                {
-                    // $name_exp=explode(' ',$participant);
-                    // $name=$name_exp[0];
-                    // $surname=$name_exp[1];
-                    $username=$participant . '@elixir-europe.org';
-                    $pid=User::findByUsername($username)->id;
-                    $participant_ids_tmp[$pid]=null;
-                }
-
-                $participant_ids=[];
-                foreach ($participant_ids_tmp as $pid => $dummy)
-                {
-                    $participant_ids[]=$pid;
-                }
-
-                $projectModel->user_list=$participant_ids;
-                $messages=$projectModel->uploadNew($participating,$project_types['service']);
+                
+                $messages=$projectModel->uploadNew($project_types['service']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
                 $warnings.=$messages[2];
@@ -388,6 +390,22 @@ class ProjectController extends Controller
         
         if ( ($serviceModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
+            $participant_ids_tmp=[];
+            foreach ($participating as $participant)
+            {
+               
+                $username=$participant . '@elixir-europe.org';
+                $pid=User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid]=null;
+            }
+
+            $participant_ids=[];
+            foreach ($participant_ids_tmp as $pid => $dummy)
+            {
+                $participant_ids[]=$pid;
+            }
+
+            $projectModel->user_list=$participant_ids;
             $isValid = $projectModel->validate();
             $isValid = $serviceModel->validate() && $isValid;
             $isValid = $projectModel->machinesDuration30() && $isValid;
@@ -395,23 +413,8 @@ class ProjectController extends Controller
             if ($isValid)
             {   
 
-                $participant_ids_tmp=[];
-                foreach ($participating as $participant)
-                {
-                   
-                    $username=$participant . '@elixir-europe.org';
-                    $pid=User::findByUsername($username)->id;
-                    $participant_ids_tmp[$pid]=null;
-                }
-
-                $participant_ids=[];
-                foreach ($participant_ids_tmp as $pid => $dummy)
-                {
-                    $participant_ids[]=$pid;
-                }
-
-                $projectModel->user_list=$participant_ids;
-                $messages=$projectModel->uploadNew($participating,$project_types['machine_compute']);
+                
+                $messages=$projectModel->uploadNew($project_types['machine_compute']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
                 $warnings.=$messages[2];
@@ -531,28 +534,29 @@ class ProjectController extends Controller
         
         if ( ($coldStorageModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
+            $participant_ids_tmp=[];
+            foreach ($participating as $participant)
+            {
+                $username=$participant . '@elixir-europe.org';
+                $pid=User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid]=null;
+            }
+
+            $participant_ids=[];
+            foreach ($participant_ids_tmp as $pid => $dummy)
+            {
+                $participant_ids[]=$pid;
+            }
+
+            $projectModel->user_list=$participant_ids;
             $isValid = $projectModel->validate();
             $isValid = $coldStorageModel->validate() && $isValid;
             $projectModel->end_date='2100-1-1';
 
             if ($isValid)
             {    
-                $participant_ids_tmp=[];
-                foreach ($participating as $participant)
-                {
-                    $username=$participant . '@elixir-europe.org';
-                    $pid=User::findByUsername($username)->id;
-                    $participant_ids_tmp[$pid]=null;
-                }
-
-                $participant_ids=[];
-                foreach ($participant_ids_tmp as $pid => $dummy)
-                {
-                    $participant_ids[]=$pid;
-                }
-
-                $projectModel->user_list=$participant_ids;
-                $messages=$projectModel->uploadNew($participating,$project_types['coldstorage']);
+                
+                $messages=$projectModel->uploadNew($project_types['coldstorage']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
                 $warnings.=$messages[2];
@@ -669,31 +673,29 @@ class ProjectController extends Controller
 
         if ( ($ondemandModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
+            $participant_ids_tmp=[];
+            foreach ($participating as $participant)
+            {
+                $username=$participant . '@elixir-europe.org';
+                $pid=User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid]=null;
+            }
+
+            $participant_ids=[];
+            foreach ($participant_ids_tmp as $pid => $dummy)
+            {
+                $participant_ids[]=$pid;
+            }
+
+            $projectModel->user_list=$participant_ids;
+
             $isValid = $projectModel->validate();
             $isValid = $ondemandModel->validate() && $isValid;
 
             if ($isValid)
             {
 
-                $participant_ids_tmp=[];
-                foreach ($participating as $participant)
-                {
-                    // $name_exp=explode(' ',$participant);
-                    // $name=$name_exp[0];
-                    // $surname=$name_exp[1];
-                    $username=$participant . '@elixir-europe.org';
-                    $pid=User::findByUsername($username)->id;
-                    $participant_ids_tmp[$pid]=null;
-                }
-
-                $participant_ids=[];
-                foreach ($participant_ids_tmp as $pid => $dummy)
-                {
-                    $participant_ids[]=$pid;
-                }
-
-                $projectModel->user_list=$participant_ids;
-                $messages=$projectModel->uploadNew($participating,$project_types['ondemand']);
+                $messages=$projectModel->uploadNew($project_types['ondemand']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
                 $warnings.=$messages[2];
@@ -2056,14 +2058,6 @@ class ProjectController extends Controller
 
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
-            $isValid = $prequest->validate();
-            $isValid = $drequest->validate() && $isValid;
-            if($prType==3)
-            {
-                $isValid = $prequest->machinesDuration30() && $isValid;
-            }
-
-            
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
@@ -2079,6 +2073,14 @@ class ProjectController extends Controller
             }
             
             $prequest->user_list=new yii\db\ArrayExpression($participant_ids, 'int4');
+
+            $isValid = $prequest->validate();
+            $isValid = $drequest->validate() && $isValid;
+            if($prType==3)
+            {
+                $isValid = $prequest->machinesDuration30() && $isValid;
+            }
+            
             $pchanged_tmp= ProjectRequest::ProjectModelChanged($pold,$prequest);
             $pchanged=$pchanged_tmp[0];
             $uchanged=$pchanged_tmp[1];
@@ -2119,11 +2121,10 @@ class ProjectController extends Controller
                     }
 
                 }
-
                 if ($pchanged || $dchanged)
                 {
                 
-                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
+                    $messages=$prequest->uploadNewEdit($prType,$id,$uchanged);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];

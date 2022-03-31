@@ -86,6 +86,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             [['name'],'allowed_name_chars'],
             [['name','user_num', 'end_date'],'required'],
             [['user_num'],'integer','min'=>0],
+            [['user_list'],'more_users_than_allowed'],
         ];
     }
 
@@ -130,41 +131,25 @@ class ProjectRequest extends \yii\db\ActiveRecord
         ];
     }
 
-    public function uploadNew($participating,$project_type)
+    public function uploadNew($project_type)
     {
         $errors='';
         $success='';
         $warnings='';
         $request_id=-1;
+        $message='';
+        $project_id='';
 
-        if (empty($participating))
+        
+
+        if (empty($this->user_list))
         {
             $errors="Error: You must specify at least one user participating in the project.";
         }
-         if (count($participating)>$this->user_num)
-        {
-            $errors.="<br />The number of users specified is greater that the maximum number of users.";
-        }
+        
         
         if (empty($errors))
-        {
-            //remove duplicate participants
-           
-            $participant_ids_tmp=[];
-            foreach ($participating as $participant)
-            {
-
-                $username=$participant . '@elixir-europe.org';
-                $id=User::findByUsername($username)->id;
-                $participant_ids_tmp[$id]=null;
-            }
-
-            $participant_ids=[];
-            foreach ($participant_ids_tmp as $id => $dummy)
-            {
-                $participant_ids[]=$id;
-            }
-            
+        {            
             $submitted_by=User::findByUsername(Userw::getCurrentUser()['username'])->id;
 
             Yii::$app->db->createCommand()->insert('project', ['name' => $this->name,'project_type'=> $project_type])->execute();
@@ -198,20 +183,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return [$errors,$success,$warnings,$request_id, $message, $project_id];
     }
 
-    public function uploadNewEdit($participating,$project_type,$modify_req_id='',$uchanged)
+    public function uploadNewEdit($project_type,$modify_req_id='',$uchanged)
     {
         $errors='';
         $success='';
         $warnings='';
         $request_id=-1;
 
-        if (empty($participating))
+        if (empty($this->user_list))
         {
             $errors="Error: You must specify at least one user participating in the project.";
-        }
-         if (count($participating)>$this->user_num)
-        {
-            $errors.="<br />The number of users specified is greater that the maximum number of users.";
         }
         
         if (empty($errors))
@@ -678,6 +659,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return true;
     }
 
+    public function more_users_than_allowed($attribute, $params, $validator)
+    {
+        
+        if ($this->user_num<count($this->user_list))
+        {
+            $this->addError($attribute, "You cannot add more users that the number specified.");
+        }
+        return true;
+    }
+
     public static function projectModelChanged($model1, $model2)
     {
         $attr1=$model1->getAttributes();
@@ -969,7 +960,6 @@ class ProjectRequest extends \yii\db\ActiveRecord
             'number_storage_machines'=>$volumes_machines['number'],
             'size_storage_service'=>$volumes_service['total']/1024.0,
             'size_storage_machines'=>$volumes_machines['total']/1024.0,
-
 
 
         ];
