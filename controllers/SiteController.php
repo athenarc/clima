@@ -256,6 +256,11 @@ class SiteController extends Controller
 
         $notification->markAsSeen();
 
+        if (empty($notification->url))
+        {
+            return $this->redirect(['project/index']);
+        }
+
         return $this->redirect($notification->url);
 
 
