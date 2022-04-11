@@ -31,7 +31,7 @@ $this->registerJsFile('@web/js/components/magic_search_box.js', ['depends' => [\
  */
 
 $field="\"<div class='hidden_selected_element'><i class='fas fa-times'></i>&nbsp;\" + ui.item.value + ";
-$field.="\"<input type='hidden' id='hidden_selected_element_input' name='participating[]' value='\" + ui.item.value + \"'>";
+$field.="\"<input type='hidden' class='hidden_selected_element_input' name='participating[]' value='\" + ui.item.value + \"'>";
 $field.="</div>\"";
 
 echo "<div class='magic_search_box_wrapper'>";
@@ -57,8 +57,11 @@ echo "<div class='magic_search_box_wrapper'>";
             . '     var selected_elements=$(".hidden_element_box").html(); '
             . '     selected_elements=' . $field . ' + selected_elements; '
             . '     $(".hidden_element_box").html(selected_elements); '
+            . '     var elements=$(".hidden_selected_element").length; '
+            . '     var el_html="Total: " + elements;'
+            . '     $("#total-users").html(el_html);'
             
-            .   '$(".fas.fa-times").click(function(){$(this).parent().remove();}); '
+            .   '$(".fas.fa-times").click(function(){$(this).parent().remove();var elements=$(".hidden_selected_element").length;var el_html="Total: " + elements;$("#total-users").html(el_html);}); '
             .   '} ',
             'close' => 'function( event, ui ) {$("#user_search_box").val("");}',
 
@@ -66,7 +69,7 @@ echo "<div class='magic_search_box_wrapper'>";
         //html options
         'options' => $this->context->html_params,
     ]);
-    echo "<div class='hidden_element_box'>";
+    echo "<div class='hidden_element_box col-md-10'>";
     foreach ($this->context->participating as $part)
     {
         // print_r($currentUser);
@@ -76,14 +79,12 @@ echo "<div class='magic_search_box_wrapper'>";
         {
             echo "<i class='fas fa-times'></i>";
         }
-        else
-        {
-            
-        }
-        echo " $part<input type='hidden' id='hidden_selected_element_input' name='participating[]' value='$part'>";
+        
+        echo " $part<input type='hidden' class='hidden_selected_element_input' name='participating[]' value='$part'>";
         echo "</div>";
     }
     echo "</div>";
+    echo "<div class='col-md-2 text-right' id='total-users'>Total: " . count($this->context->participating) . "</div>";
     
 echo "</div>";
 
