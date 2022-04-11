@@ -410,8 +410,6 @@ class AdministrationController extends Controller
 
         if($user->load(Yii::$app->request->post()) && $user_notifications->load(Yii::$app->request->post()))
         {
-            // print_r($user_notifications);
-            // exit(0);
             $user->update();
             $user_notifications->update();
             Yii::$app->session->setFlash('success', "Your changes have been successfully submitted");
@@ -583,10 +581,12 @@ class AdministrationController extends Controller
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
                     2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user'];
 
+        
         $deleted=Project::getAllDeletedProjects();
-       
-        $all_projects=Project::getAllActiveProjectsAdm();
-        $expired_owner=Project::getAllExpiredProjects();
+
+        $filters=['user'=>Yii::$app->request->post('username',''), 'type'=>Yii::$app->request->post('project_type','-1')];
+        $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type']);
+        $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type']);
         $role=User::getRoleType();
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
@@ -638,10 +638,12 @@ class AdministrationController extends Controller
         $number_of_active=count($all_projects);
         $number_of_expired=count($expired);
         
-        
+        $types_dropdown=['-1'=>'','0'=>'On-demand batch computations', '1'=>'24/7 Services', '2'=>'Storage volumes', '3'=>'On-demand computation machines'];
        
-        return $this->render('all_projects',['button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
-            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url]);
+        return $this->render('all_projects',['button_links'=>$button_links,
+            'project_types'=>$project_types,'role'=>$role, 'types_dropdown'=>$types_dropdown, 'filters'=>$filters,
+            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 
+            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url]);
     }
 
     public function actionManageAnalytics()

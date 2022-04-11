@@ -16,8 +16,8 @@ use yii\helpers\Url;
 use app\components\Headers;
 
 
-echo Html::CssFile('@web/css/project/index.css');
-$this->registerJsFile('@web/js/project/index.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+echo Html::CssFile('@web/css/administration/all_projects.css');
+$this->registerJsFile('@web/js/administration/all_projects.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
 $this->title="All projects";
 
@@ -29,9 +29,6 @@ $this->title="All projects";
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
 $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
-
-
-
 
 
 Headers::begin() ?>
@@ -294,4 +291,37 @@ else
 }
 ?>
 
-</div> 
+</div>
+
+<div class="filters-div">
+	<?=Html::beginForm(['administration/all-projects'],'post',['id'=>'filters-form'])?>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::label('Project type:')?>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::dropDownList('project_type',$filters['type'],$types_dropdown, ['class'=>'types_dropdown','id'=>'types_dropdown'])?>
+			</div>
+		</div>
+
+		<div class="row">&nbsp;</div>
+
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::label('Username:')?>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::input(null,'username',$filters['user'],['class'=>'username_field'])?>
+			</div>
+		</div>
+
+		<div class="row">&nbsp;</div>
+
+
+	<?=Html::endForm()?>
+</div>
+

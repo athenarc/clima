@@ -453,15 +453,13 @@ class Project extends \yii\db\ActiveRecord
 
     }
 
-    public static function getAllExpiredProjects()
+    public static function getAllExpiredProjects($user='',$type='-1')
     {
         $query=new Query;
 
-       // $status=ProjectRequest::EXPIRED;
+       
         $date=date("Y-m-d");
-        $user=Userw::getCurrentUser()['id'];
-        // print_r($user);
-        // exit(0);
+        
 
         $query->select(['pr.id','pr.name','pr.duration',"pr.end_date",'pr.status','pr.viewed', 'pr.approval_date','pr.project_type','u.username'])
               ->from('project as p')
@@ -469,19 +467,25 @@ class Project extends \yii\db\ActiveRecord
               ->innerJoin('user as u','pr.submitted_by=u.id')
               ->where(['<','end_date',$date])
               ->orderBy('pr.submission_date DESC');
-        // print_r($query->createCommand()->getRawSql());
-        // exit(0);
         
+        if (!empty($user))
+        {
+            $query->andWhere("u.username like '%$user%'");
+        }
+        if (intval($type)>=0)
+        {
+            $query->andWhere("p.project_type=$type");
+        }
+
         $results=$query->all();
 
-         //print_r($results);
-        //exit(0);
+         
         
         return $results;
 
     }
 
-     public static function getAllActiveProjectsAdm()
+     public static function getAllActiveProjectsAdm($user='',$type='-1')
     {
         $query=new Query;
         $date=date("Y-m-d");
@@ -496,7 +500,16 @@ class Project extends \yii\db\ActiveRecord
               ->andWhere(['IN','pr.status',$status])
               ->orderBy('pr.submission_date DESC');
         
-        
+
+        if (!empty($user))
+        {
+            $query->andWhere("u.username like '%$user%'");
+        }
+        if (intval($type)>=0)
+        {
+            $query->andWhere("p.project_type=$type");
+        }
+
         $results=$query->all();
         return $results;
 

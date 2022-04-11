@@ -1,0 +1,56 @@
+.header-button-area .btn-success
+{
+	margin-right:10px;
+}
+
+.table-responsive
+{
+	margin-left:10px;
+	margin-right:10px;
+}
+
+.bronze-user
+{
+
+	color:#cd7f32;
+}
+
+.silver-user
+{
+	color:#e0e0e0;
+}
+
+.gold-user
+{
+	color:#f37d30;
+}
+
+.fa-exclamation-triangle
+{
+	color:#E6833B!important;
+}
+
+.favorite
+{
+	cursor: pointer;
+	color:red;
+}
+
+.filters-div
+{
+	position: fixed;
+	padding: 20px;
+	top: 200px;
+	left:0px;
+	z-index: 1000;
+	border: solid 1px #c5c5c5;
+	background: #f5f5f5;
+	border-radius: 5px;
+}
+
+.username_field
+{
+	border-radius: 5px;
+	width:  100%;
+	border:1px solid #8f8f9d;
+}
