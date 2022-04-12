@@ -294,10 +294,11 @@ else
 </div>
 
 <div class="filters-div">
+	<h4 class="text-center">Filter</h4>
 	<?=Html::beginForm(['administration/all-projects'],'post',['id'=>'filters-form'])?>
 		<div class="row">
 			<div class="col-md-12 text-center">
-				<?=Html::label('Project type:')?>
+				<?=Html::label('By project type:')?>
 			</div>
 		</div>
 		<div class="row">
@@ -310,7 +311,7 @@ else
 
 		<div class="row">
 			<div class="col-md-12 text-center">
-				<?=Html::label('Username:')?>
+				<?=Html::label('By owner:')?>
 			</div>
 		</div>
 		<div class="row">
