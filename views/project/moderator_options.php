@@ -19,7 +19,11 @@ Headers::begin() ?>
 ?>
 <?Headers::end()?>
 
-<?= ToolButton::createButton("$projects_icon View project requests", "",['/project/request-list']) ?>
-<br />
-<?= ToolButton::createButton("$email_icon Email notifications", "",['/project/moderator-email-notifications']) ?>
-<br />
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <?= ToolButton::createButton("$projects_icon View project requests", "",['/project/request-list']) ?>
+        <br />
+        <?= ToolButton::createButton("$email_icon Email notifications", "",['/project/moderator-email-notifications']) ?>
+        <br />
+    </div>
+</div>

@@ -12,13 +12,13 @@ $this->title = "New Request";
 $icon_tickets='<i class="fas fa-ticket-alt" aria-hidden="true"></i>';
 $email_icon='<i class="fa fa-envelope" aria-hidden="true"></i>';
 
-
-?>
-<?php
 Headers::begin() ?>
-<?php echo Headers::widget()?>
-<?php
-Headers::end()?>
+
+<?php echo Headers::widget(
+['title'=>"", 
+])
+?>
+<?Headers::end()?>
 
 <?php
 if (empty($errors))
@@ -48,16 +48,11 @@ else
 
 
 ?>
-
-<!--  <div class="text-center container-fluid">
- 	<div class="row">
- 		<div class="col-md-12 account-settings-title">
- 			<h1>Select a </h1>
- 		</div>
- 	</div>
- </div> -->
-
-<?= ToolButton::createButton("$icon_tickets View my tickets", "",['/ticket-user/index']) ?>
-<br />
-<?= ToolButton::createButton("$email_icon Email notifications", "",['/personal/email-notifications']) ?>
-<br />
+<div class="row justify-content-center">
+    <div class="col-md-6">
+		<?= ToolButton::createButton("$icon_tickets View my tickets", "",['/ticket-user/index']) ?>
+		<br />
+		<?= ToolButton::createButton("$email_icon Email notifications", "",['/personal/email-notifications']) ?>
+		<br />
+	</div>
+</div>
