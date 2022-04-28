@@ -28,7 +28,9 @@ $this->title="Dashboard";
  */
 $history_icon='<i class="fas fa-history"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
+$statistics_icon='<i class="fas fa-chart-line"></i>';
 $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
+
 
 
 
@@ -40,6 +42,7 @@ Headers::begin() ?>
 	'buttons'=>
 	[
 		['fontawesome_class'=>$history_icon,'name'=> 'Project requests', 'action'=> ['/project/user-request-list'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
+		['fontawesome_class'=>$statistics_icon,'name'=> 'User statistics', 'action'=> ['/project/user-statistics'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
 		['fontawesome_class'=>$new_icon,'name'=> 'New project', 'action'=>['/project/new-request'], 'type'=>'a', 
 		'options'=>['class'=>'btn btn-success']] 
 	],

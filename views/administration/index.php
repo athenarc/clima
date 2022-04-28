@@ -5,7 +5,7 @@ use app\components\ToolButton;
 use webvimark\modules\UserManagement\models\User;
 use app\components\Headers;
 
-echo Html::CssFile('@web/css/personal-account-settings.css');
+echo Html::CssFile('@web/css/administration/index.css');
 $this->title = "Administration";
 
 
@@ -57,36 +57,80 @@ else
 }
 
 ?>
+<div class="row justify-content-center">
+	<div class="fieldset col-md-6">
+		<div class="fieldset-label ">Users</div>
+		<br />
+		<?= ToolButton::createButton("$users_icon User management", "",['/personal/superadmin-actions']) ?>
+		<br />
+		<?= ToolButton::createButton("$users_icon User statistics", "",['/administration/user-stats-list']) ?>
+		<br />
+	</div>
+</div>
 
-<!--  <div class="text-center container-fluid">
- 	<div class="row">
- 		<div class="col-md-12 account-settings-title">
- 			<h1>Select a </h1>
- 		</div>
- 	</div>
- </div> -->
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
 
-<?= ToolButton::createButton("$notifications_icon Mass notification", "",['/site/mass-notification']) ?>
-<br />
-<?= ToolButton::createButton("$statistics_icon Current $name statistics", "",['/administration/period-statistics']) ?>
-<br />
-<?= ToolButton::createButton("$icon_tickets Ticket management", "",['/ticket-admin/index']) ?>
-<br />
-<?= ToolButton::createButton("$users_icon User management", "",['/personal/superadmin-actions']) ?>
-<br />
-<?= ToolButton::createButton("$vm_history_icon  VM 24/7 history", "",['/project/vm-list']) ?>
-<br />
-<?= ToolButton::createButton("$vm_history_icon  VM machines history", "",['/project/vm-machines-list']) ?>
-<br />
-<?= ToolButton::createButton("$projects_icon  View all projects", "",['administration/all-projects']) ?>
-<br />
-<?= ToolButton::createButton("$volumes_icon  View storage volumes", "",['administration/storage-volumes']) ?>
-<br />
-<?= ToolButton::createButton("$configuration_icon System configuration", "",['administration/configure']) ?>
-<br />
-<?= ToolButton::createButton("$email_icon Email notifications", "",['administration/email-notifications']) ?>
-<br />
-<?= ToolButton::createButton("$static_pages_icon Manage static pages", "",['administration/manage-pages']) ?>
-<br />
-<?= ToolButton::createButton("$analytics_icon Manage Analytics", "",['administration/manage-analytics']) ?>
-<br />
+<div class="row justify-content-center">
+	<div class="fieldset col-md-6">
+		<div class="fieldset-label ">Projects</div>
+		<br />
+		<?= ToolButton::createButton("$projects_icon  View all projects", "",['administration/all-projects']) ?>
+		<br />
+		<?= ToolButton::createButton("$volumes_icon  View storage volumes", "",['administration/storage-volumes']) ?>
+		<br />
+	</div>
+</div>
+
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
+
+<div class="row justify-content-center">
+	<div class="fieldset col-md-6">
+		<div class="fieldset-label ">Notifications</div>
+		<br />
+		<?= ToolButton::createButton("$notifications_icon Mass notification", "",['/site/mass-notification']) ?>
+		<br />
+		<?= ToolButton::createButton("$email_icon Email notifications", "",['administration/email-notifications']) ?>
+		<br />
+	</div>
+</div>
+
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
+
+<div class="row justify-content-center">
+	<div class="fieldset col-md-6">
+		<div class="fieldset-label ">VMs</div>
+		<br />
+		<?= ToolButton::createButton("$vm_history_icon  VM 24/7 history", "",['/project/vm-list']) ?>
+		<br />
+		<?= ToolButton::createButton("$vm_history_icon  VM machines history", "",['/project/vm-machines-list']) ?>
+		<br />
+		<?= ToolButton::createButton("$volumes_icon  View storage volumes", "",['administration/storage-volumes']) ?>
+		<br />
+	</div>
+</div>
+
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
+
+<div class="row justify-content-center">
+	<div class="fieldset col-md-6">
+		<div class="fieldset-label">System</div>
+		<br />
+		<?= ToolButton::createButton("$statistics_icon Current $name statistics", "",['/administration/period-statistics']) ?>
+		<br />
+		<?= ToolButton::createButton("$icon_tickets Ticket management", "",['/ticket-admin/index']) ?>
+		<br />
+		<?= ToolButton::createButton("$configuration_icon System configuration", "",['administration/configure']) ?>
+		<br />
+		<?= ToolButton::createButton("$static_pages_icon Manage static pages", "",['administration/manage-pages']) ?>
+		<br />
+		<?= ToolButton::createButton("$analytics_icon Manage Analytics", "",['administration/manage-analytics']) ?>
+		<br />
+	</div>
+</div>
+
+
+		

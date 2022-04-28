@@ -2814,5 +2814,15 @@ class ProjectController extends Controller
 
     }
 
+    public function actionUserStatistics()
+    {
+        $user=Userw::getCurrentUser();
+        $uid=$user['id'];
+        $username=explode('@',$user['username'])[0];
+        $usage_owner=Project::userStatisticsOwner($uid);
+        $usage_participant=Project::userStatisticsParticipant($uid);
+        return $this->render('user_statistics', ['usage_participant'=>$usage_participant,'usage_owner'=>$usage_owner, 'username'=>$username]);
+    }
+
 }
 

@@ -232,5 +232,52 @@ class User extends UserIdentity
         }
     }
 
+    public static function getActiveUserStats($username='', $activeFilter='all')
+    {
+        $query=new Query;
+
+        $query->select(['count(pr.id) as active', 'u.id','u.username', 'u.email'])
+                ->from('user as u')
+                ->leftJoin('project_request pr',"u.id = ANY(pr.user_list) AND pr.end_date>=NOW() AND pr.status IN (1,2)")
+                ->groupBy('u.id')
+                ->orderBy(['active'=>SORT_DESC,'u.username'=>SORT_ASC]);
+
+        if (!empty($username))
+        {
+            $query->where(['LIKE','u.username',$username]);
+        }
+        
+        if ($activeFilter=='inactive')
+        {
+            $query->having(['count(pr.id)'=>0]);
+        }
+        else if ($activeFilter=='active')  
+        {
+            $query->having('count(pr.id)>0');
+        }
+        
+        $results=$query->all();
+
+        
+        return $results;
+    }
+
+    public static function getActiveUserNum($username='', $activeFilter='all')
+    {
+        $query=new Query;
+
+        $query->select(['count(pr.id) as active', 'u.id','u.username', 'u.email'])
+                ->from('user as u')
+                ->leftJoin('project_request pr',"u.id = ANY(pr.user_list) AND pr.end_date>=NOW() AND pr.status IN (1,2)")
+                ->groupBy('u.id')
+                ->having(['>', 'count(pr.id)', 0])
+                ->orderBy(['active'=>SORT_DESC,'u.username'=>SORT_ASC]);
+
+        $results=$query->count();
+
+        
+        return $results;
+    }
+
 
 }

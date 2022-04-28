@@ -790,4 +790,38 @@ class AdministrationController extends Controller
         Yii::$app->session->setFlash('success', "Project successfully re-activated");
         return $this->redirect(['administration/all-projects']);
     }
+
+    public function actionUserStatistics($id)
+    {
+        $user=User::find()->where(['id'=>$id])->one();
+
+        if (empty($user))
+        {
+            Yii::$app->session->setFlash('danger',"User not found in the Database.");
+            return $this->redirect(['/administration/user-stats-list']);
+        }
+        $username=explode('@',$user->username)[0];
+        $usage_owner=Project::userStatisticsOwner($user->id);
+        $usage_participant=Project::userStatisticsParticipant($user->id);
+        
+        return $this->render('user_statistics', ['usage_participant'=>$usage_participant,'usage_owner'=>$usage_owner, 'username'=>$username]);
+    }
+
+    public function actionUserStatsList()
+    {
+        $username='';
+        $activeFilterDrop=['all'=>'All', 'active'=>'Active', 'inactive'=>'Inactive'];
+        $activeFilter='all';
+        if (Yii::$app->request->post())
+        {
+            $username=Yii::$app->request->post('username');
+            $activeFilter=Yii::$app->request->post('activeFilter');
+        }
+        $users=User::getActiveUserStats($username,$activeFilter);
+        $activeUsers=User::getActiveUserNum();
+        $totalUsers=User::find()->count();
+        
+        return $this->render('user_stats_list', ['users'=>$users,'username'=>$username, 'activeFilter'=>$activeFilter, 
+                'activeFilterDrop'=>$activeFilterDrop, 'activeUsers'=>$activeUsers, 'totalUsers'=>$totalUsers]);
+    }
 }

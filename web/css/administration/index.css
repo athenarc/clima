@@ -1,0 +1,20 @@
+.fieldset {
+  position: relative;
+  border: 1px solid #ddd;
+  padding: 30px !important;
+  border-radius: 5px;
+  background-color: rgb(255,196,132,0.3);
+
+}
+
+.fieldset-label {
+  position: absolute;
+  top: 0;
+  font-size: 18px;
+  line-height: 1;
+  margin: -9px 0 0; /* half of font-size */
+  background: #fff;
+  padding: 5px 7px 5px 7px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}

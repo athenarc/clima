@@ -776,8 +776,6 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $response = $client->createRequest()
                 ->setMethod('GET')
                 ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/period-statistics")
-                // ->setUrl("http://83.212.72.66/schema/web/index.php?r=api/project-usage")
-                // ->setData($data)
                 ->send();
         // if (!$response->getIsOk())
         // {
@@ -890,7 +888,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $vm_active_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
                         ->from('project_request as pr')
                         ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
-                        ->innerJoin('service_request as s','s.request_id=pr.id')
+                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->andWhere(['v.active'=>true])
                         // ->andWhere(['>','pr.end_date','NOW'])
@@ -909,7 +907,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $vm_total_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
                         ->from('project_request as pr')
                         ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
-                        ->innerJoin('service_request as s','s.request_id=pr.id')
+                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
                         ->where(['IN','pr.status',[1,2]])
                         ->one();
         $query=new Query;
