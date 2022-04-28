@@ -19,4 +19,10 @@ $(document).ready(function(){
       $('#filters-form').submit();
     });
 
+  $(".reactivate_btn").click(function(){
+      var modal_id='#' + $(this).data()['modalId'];
+      
+      $(modal_id).modal();
+  })
+
 })

@@ -270,7 +270,7 @@ foreach ($expired as $res)
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?></td>
 				<td class="col-md-3 text-right">
 					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','return'=>'admin','expired'=>1],['class'=>'btn btn-secondary btn-md'])?>
-					<?=Html::a("$reactivate_icon Re-activate",['/administration/reactivate','id'=>$res['id']],['class'=>'btn btn-primary btn-md', 'title'=>'Re-activate project'])?> 
+					<?=Html::a("$reactivate_icon Re-activate",null,['class'=>'btn btn-primary btn-md reactivate_btn', 'title'=>'Re-activate project', 'data-modal-id'=> "reactivate-$res[name]-modal"])?> 
 				</td>
 			</tr>
 
@@ -292,6 +292,32 @@ else
 ?>
 
 </div>
+
+<?php
+foreach ($expired as $res) 
+{
+	$pname=$res['name'];
+	?>
+    <div class="modal reactivate-<?=$pname?>-modal fade" id="reactivate-<?=$pname?>-modal" tabindex="-1" role="dialog" aria-labelledby="reactivate-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Confirm re-activation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="btn-cancel-modal">&times;</span>
+                </button>
+                </div>
+                <div class="modal-body">Are you sure you want to re-activate project '<?=$res['name']?>'</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
+                    <?=Html::a("$reactivate_icon Re-activate",['/administration/reactivate','id'=>$res['id']],['class'=>'btn btn-primary btn-md', 'title'=>'Re-activate project'])?>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php
+}
+?>
 
 <div class="filters-div">
 	<h4 class="text-center">Filter</h4>
