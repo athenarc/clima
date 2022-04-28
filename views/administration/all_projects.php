@@ -269,7 +269,7 @@ foreach ($expired as $res)
 				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?></td>
 				<td class="col-md-3 text-right">
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>1],['class'=>'btn btn-secondary btn-md'])?>
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','return'=>'admin','expired'=>1],['class'=>'btn btn-secondary btn-md'])?>
 					<?=Html::a("$reactivate_icon Re-activate",['/administration/reactivate','id'=>$res['id']],['class'=>'btn btn-primary btn-md', 'title'=>'Re-activate project'])?> 
 				</td>
 			</tr>
