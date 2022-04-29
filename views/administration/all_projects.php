@@ -29,6 +29,7 @@ $this->title="All projects";
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $new_icon='<i class="fas fa-plus-circle"></i>';
 $roles=['bronze'=>'Bronze','gold'=>'Gold','silver'=>'Silver'];
+$expired_active_resources_icon='<i class="fa fa-exclamation-triangle", title="This expired project has active resources"></i>';
 
 
 Headers::begin() ?>
@@ -234,6 +235,14 @@ foreach ($expired as $res)
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand batch computation';
+		if (isset($active_resources[0][$res['name']]))
+		{
+			$active=true;
+		}
+		else
+		{
+			$active=false;
+		}
 		
 	}
 	else if ($res['project_type']==1) 
@@ -242,6 +251,14 @@ foreach ($expired as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='24/7 Service';
+		if (isset($active_resources[1][$res['project_id']]))
+		{
+			$active=true;
+		}
+		else
+		{
+			$active=false;
+		}
 
 	}
 	else if ($res['project_type']==3) 
@@ -250,6 +267,14 @@ foreach ($expired as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='On-demand computation machines';
+		if (isset($active_resources[3][$res['project_id']]))
+		{
+			$active=true;
+		}
+		else
+		{
+			$active=false;
+		}
 
 	}
 	else
@@ -258,13 +283,14 @@ foreach ($expired as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
 		$title='Cold Storage';
+		$active=false;
 
 	}
 
 
 ?>
 			<tr class="active" style="font-size: 14px;">
-				<td class="col-md-3" style="vertical-align: middle!important;"> <?=$res['name']?></td>
+				<td class="col-md-3" style="vertical-align: middle!important;"> <?=$res['name']?>&nbsp;<?=$active ? $expired_active_resources_icon : ''?></td>
 				<td class="col-md-1" style="padding-left: 20px;vertical-align: middle!important;" title="<?=$title?>"><?=$project_icon?></td>
 				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?></td>

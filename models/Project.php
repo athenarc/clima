@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\db\Query;
+use yii\httpclient\Client;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\User;
 use app\models\ProjectRequest;
@@ -461,7 +462,7 @@ class Project extends \yii\db\ActiveRecord
         $date=date("Y-m-d");
         
 
-        $query->select(['pr.id','pr.name','pr.duration',"pr.end_date",'pr.status','pr.viewed', 'pr.approval_date','pr.project_type','u.username'])
+        $query->select(['p.id as project_id','pr.id','pr.name','pr.duration',"pr.end_date",'pr.status','pr.viewed', 'pr.approval_date','pr.project_type','u.username'])
               ->from('project as p')
               ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
               ->innerJoin('user as u','pr.submitted_by=u.id')
@@ -476,13 +477,69 @@ class Project extends \yii\db\ActiveRecord
         {
             $query->andWhere("p.project_type=$type");
         }
-
         $results=$query->all();
-
-         
+        
+        
         
         return $results;
 
+    }
+
+    public static function getActiveResources()
+    {
+        /*
+         * Get active services VMs, machine VMs, volumes and Jupyter servers
+         */
+        $active_vms=[];
+        $active_machnes=[];
+        $active_volumes=[];
+
+        $vms=Vm::find()->select(['project_id'])->where(['active'=>'t'])->distinct()->all();
+
+        foreach ($vms as $vm)
+        {
+            $active_vms[$vm->project_id]=true;
+        }
+
+        $machines=VmMachines::find()->select(['project_id'])->where(['active'=>'t'])->distinct()->all();
+
+        foreach ($machines as $mach)
+        {
+            $active_machines[$vm->project_id]=true;
+        }
+        
+        $volumes=HotVolumes::find()->select(['project_id'])->where(['active'=>'t'])->distinct()->all();
+
+        foreach ($volumes as $vol)
+        {
+            $active_volumes[$vm->project_id]=true;
+        }
+
+        try
+        {
+            $client = new Client();
+            $response = $client->createRequest()
+                ->setMethod('GET')
+                ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/active-jupyter-projects")
+                ->send();
+
+            if (!$response->getIsOk())
+            {
+                $active_jupyter=[];
+            }
+            else
+            {
+                $active_jupyter=$response->data;
+            }
+            
+        }
+        catch (\Exception $e)
+        {   
+            $active_jupyter=[];
+        }
+        
+
+        return [$active_jupyter, $active_vms, $active_machines, $active_volumes];
     }
 
     public static function getAllActiveProjectsAdm($user='',$type='-1')

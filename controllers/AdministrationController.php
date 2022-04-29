@@ -587,6 +587,7 @@ class AdministrationController extends Controller
         $filters=['user'=>Yii::$app->request->post('username',''), 'type'=>Yii::$app->request->post('project_type','-1')];
         $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type']);
         $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type']);
+        $resources=Project::getActiveResources();
         $role=User::getRoleType();
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
@@ -643,7 +644,7 @@ class AdministrationController extends Controller
         return $this->render('all_projects',['button_links'=>$button_links,
             'project_types'=>$project_types,'role'=>$role, 'types_dropdown'=>$types_dropdown, 'filters'=>$filters,
             'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 
-            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url]);
+            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url, 'active_resources'=>$resources]);
     }
 
     public function actionManageAnalytics()

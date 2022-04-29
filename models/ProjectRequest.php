@@ -755,7 +755,6 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $response = $client->createRequest()
                 ->setMethod('GET')
                 ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/project-usage")
-                // ->setUrl("http://83.212.72.66/schema/web/index.php?r=api/project-usage")
                 ->setData($data)
                 ->send();
         
@@ -764,7 +763,9 @@ class ProjectRequest extends \yii\db\ActiveRecord
                                             'total_time' => '00:00:00', 
                                             'avg_time' => '00:00:00', 
                                             'ram' => 0, 
-                                            'cpu' => 0
+                                            'cpu' => 0, 
+                                            'active_jupyter' => 0,
+                                            'total_jupyter' => 0
                                           ] : $response->data;
         return $usage;
     }
