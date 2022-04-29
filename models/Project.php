@@ -505,7 +505,7 @@ class Project extends \yii\db\ActiveRecord
 
         foreach ($machines as $mach)
         {
-            $active_machines[$vm->project_id]=true;
+            $active_machines[$mach->project_id]=true;
         }
         
         $volumes=HotVolumes::find()->select(['project_id'])->where(['active'=>'t'])->distinct()->all();

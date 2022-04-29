@@ -267,7 +267,7 @@ foreach ($expired as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
 		$title='On-demand computation machines';
-		if (isset($active_resources[3][$res['project_id']]))
+		if (isset($active_resources[2][$res['project_id']]))
 		{
 			$active=true;
 		}
