@@ -20,7 +20,7 @@ $this->registerJsFile('@web/js/project/view-request-user.js', ['depends' => [\yi
 $approve_icon='<i class="fas fa-check"></i>';
 $reject_icon='<i class="fas fa-times"></i>';
 $back_icon='<i class="fas fa-arrow-left"></i>';
-$back_link=($return=='index') ? '/project/index' : '/administration/all-projects';
+$back_link=($return=='admin') ? '/administration/all-projects' : '/project/index';
 $bar_percentage=round(($usage['count'])/$details->num_of_jobs*100);
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
@@ -135,6 +135,14 @@ else
 			<tr>
 				<th class="col-md-6 text-right" scope="col">RAM for jobs:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?> GBs (used <?=round($usage['ram'],2)?> GBs/job οn average)</td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Active Jupyter Servers:</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['active_jupyter'] ?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Total Jupyter Servers:</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_jupyter']?></td>
 			</tr>
 		</tbody>
 	</table>

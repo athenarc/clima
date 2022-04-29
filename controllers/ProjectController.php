@@ -942,23 +942,28 @@ class ProjectController extends Controller
 
     }
 
-    public function actionViewRequestUser($id,$filter='all',$return='')
+    public function actionViewRequestUser($id,$filter='all',$return='index')
     {
 
         ProjectRequest::recordViewed($id);
         $project_request=ProjectRequest::findOne($id);
+        $project=Project::find()->where(['id'=>$project_request->project_id])->one();
         
+        $user_list=$project_request->user_list->getValue();
+        $users=User::find()->where(['id'=>$user_list])->all();
 
-        $users=User::find()->where(['IN','id',$project_request->user_list])->all();
-        $user_ids=array_column($users, 'id');
-        $current_user_id=Userw::getCurrentUser()['id'];
+        $current_user=Userw::getCurrentUser();
 
-        if ( (!in_array($current_user_id, $user_ids)) && (!Userw::hasRole('Moderator',$superadminAllowed=true))
+        if ( (!in_array($current_user['id'], $user_list)) && (!Userw::hasRole('Moderator',$superadminAllowed=true))
                 && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
         {
             return $this->render('error_unauthorized');
         }
 
+        if ( ($return!='admin') || (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        {
+            $return='index';
+        }
       
 
         if(is_null($project_request->approval_date))
@@ -1006,6 +1011,10 @@ class ProjectController extends Controller
             $details=ServiceRequest::findOne(['request_id'=>$id]);
             $view_file='view_service_request_user';
             $type="24/7 Service";
+            $active_vms=VM::find()->where(['project_id'=>$project->id, 'active'=>'t'])->count();
+            $total_vms=VM::find()->where(['project_id'=>$project->id])->count();
+            $usage['active_vms']=$active_vms;
+            $usage['total_vms']=$total_vms;
             
 
         }
@@ -1014,6 +1023,10 @@ class ProjectController extends Controller
             $details=MachineComputeRequest::findOne(['request_id'=>$id]);
             $view_file='view_machine_compute_request_user';
             $type="On-demand computation machines";
+            $active_vms=VmMachines::find()->where(['project_id'=>$project->id, 'active'=>'t'])->count();
+            $total_vms=VmMachines::find()->where(['project_id'=>$project->id])->count();
+            $usage['active_vms']=$active_vms;
+            $usage['total_vms']=$total_vms;
            
         }
         else if ($project_request->project_type==2)
@@ -1022,6 +1035,10 @@ class ProjectController extends Controller
             $view_file='view_cold_request_user';
             $type="Storage volumes";
             $remaining_jobs=0;
+            $active_volumes=HotVolumes::find()->where(['project_id'=>$project->id, 'active'=>'t'])->count();
+            $total_volumes=HotVolumes::find()->where(['project_id'=>$project->id])->count();
+            $usage['active_volumes']=$active_volumes;
+            $usage['total_volumes']=$total_volumes;
         }
         
 
@@ -1031,30 +1048,23 @@ class ProjectController extends Controller
          * Fix username so that it is shown without @
          */
         $submitted->username=explode('@',$submitted->username)[0];
-        // $users=User::returnList($project->user_list);
-        $number_of_users=count($users);
+        
         $maximum_number_users=$project_request->user_num;
 
-        $user_list='';
+
         foreach ($users as $user)
         {
-            $usernames=$user->username;
-            if (--$number_of_users <= 0) 
-            {
-                $user_list.=explode('@', $usernames)[0].'';
-            }    
-            else
-            {
-                $user_list.=explode('@', $usernames)[0].', ';
-            }
+            $username_list[]=explode('@',$user->username)[0];
         }
+        $username_list=implode(', ',$username_list);
+
 
         $number_of_users=count($users);
         
         $expired=0;
 
         return $this->render($view_file,['project'=>$project_request,'details'=>$details, 'return'=>$return,
-            'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
+            'filter'=>$filter,'usage'=>$usage,'user_list'=>$username_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
         	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
 
     }

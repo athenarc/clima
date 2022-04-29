@@ -106,6 +106,14 @@ else
 				<th class="col-md-6 text-right" scope="col">RAM: </th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?> GBs</td>
 			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Active VMs: </th>
+				<td class="col-md-6 text-left" scope="col"><?=$usage['active_vms']?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Total created VMs: </th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_vms'] ?></td>
+			</tr>
 			</body>
 		</table>
 	</div>

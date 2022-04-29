@@ -111,11 +111,15 @@ else
 				<td class="col-md-6 text-left" scope="col"><?=($details->vm_type==1)?'24/7 Service':'On-demand computation machines'?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Number of volumes:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_volumes ?></td>
+				<th class="col-md-6 text-right" scope="col">Active volumes:</th>
+				<td class="col-md-6 text-left" scope="col"><?=$usage['active_volumes']?> out of <?= $details->num_of_volumes ?> allowed</td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Allocated storage:</th>
+				<th class="col-md-6 text-right" scope="col">Total created volumes:</th>
+				<td class="col-md-6 text-left" scope="col"><?=$usage['total_volumes']?></td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Allocated storage per volume:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?> GBs</td>
 			</tr>
 		</tbody>

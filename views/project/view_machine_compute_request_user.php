@@ -101,16 +101,20 @@ else
 		<table class="table table-striped">
 			<tbody>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Number of VMs:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_vms ?></td>
-			</tr>
-			<tr>
 				<th class="col-md-6 text-right" scope="col">CPU cores:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_cores ?></td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">RAM: </th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->ram ?> GBs</td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Active VMs: </th>
+				<td class="col-md-6 text-left" scope="col"><?=$usage['active_vms']?> out of <?= $details->num_of_vms ?> allowed</td>
+			</tr>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">Total created VMs: </th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['total_vms'] ?></td>
 			</tr>
 			</body>
 		</table>
