@@ -134,7 +134,13 @@ if (!empty($errors))
         <?= $form->field($service,'flavour')->dropDownList($service->flavours)->label($flavour_label)?>
 
 
-    
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-warning" role="alert">
+                  Currently HYPATIA does not possess a backup service. To ensure the safety of your data, you should backup your data in a source outside HYPATIA.
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-1"><?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?></div>
             <div class="col-md-1"><?= Html::a('<i class="fas fa-times"></i> Cancel', ['/project/index'], ['class'=>'btn btn-default']) ?></div>

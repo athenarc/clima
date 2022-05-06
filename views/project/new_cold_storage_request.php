@@ -103,7 +103,14 @@ if (!empty($errors))
         <?= $form->field($coldStorage, 'vm_type')->dropDownList($vm_types)->label('I want to use this volume for:') ?>
         <?= $form->field($coldStorage, 'storage')-> label($storage_label) ?>
         <span class="hidden num_of_volumes_dropdown"><?= $form->field($coldStorage, 'num_of_volumes')->dropDownList($multiple) ?></span>
-    
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-warning" role="alert">
+                  Currently HYPATIA does not possess a backup service. To ensure the safety of your data, you should backup your data in a source outside HYPATIA.
+                </div>
+            </div>
+        </div>  
         <div class="row">
             <div class="col-md-1"><?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?></div>
             <div class="col-md-1"><?= Html::a('<i class="fas fa-times"></i> Cancel', ['/project/index'], ['class'=>'btn btn-default']) ?></div>

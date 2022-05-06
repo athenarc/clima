@@ -156,6 +156,15 @@ if (!isset(Yii::$app->params['windowsImageIDs'][$model->image_id]))
 
 <div class="row">&nbsp;</div>
 <div class="row">&nbsp;</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-warning" role="alert">
+          Currently HYPATIA does not possess a backup service. To ensure the safety of your data, you should backup your data in a source outside HYPATIA.
+        </div>
+    </div>
+</div>  
+
 <div class="row"><h3 style="padding-left: 15px;">Useful tips:</h3></div>
 
 <div class="row">

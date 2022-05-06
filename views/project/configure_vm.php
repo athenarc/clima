@@ -63,7 +63,13 @@ Headers::begin() ?>
 <?php
 	ActiveForm::end();
 ?>
-
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-warning" role="alert">
+          Currently HYPATIA does not possess a backup service. To ensure the safety of your data, you should backup your data in a source outside HYPATIA.
+        </div>
+    </div>
+</div>  
 
 <div class="modal instructions fade"  tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg" role="document">

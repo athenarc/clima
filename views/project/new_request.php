@@ -40,28 +40,36 @@ Headers::begin() ?>
 
 <?php
 ?>
-<div class="col-md-12 project">
-<?= ToolButton::createButton("$ondemand_icon  On-demand batch computations", "",['/project/new-ondemand-request']) ?>
+<div class="row justify-content-center">
+    <div class="col-md-4 project">
+    <?= ToolButton::createButton("$ondemand_icon  On-demand batch computations", "",['/project/new-ondemand-request']) ?>
+    </div>
 </div>
 <?php
 if (Userw::hasRole('Gold',$superAdminAllowed=true))
 {
 ?>
-<div class="col-md-12 project">
-<?= ToolButton::createButton("$ondemand_icon  On-demand computation machines", "",['/project/new-machine-compute-request']) ?>
+    <div class="row justify-content-center">
+    <div class="col-md-4 project">
+    <?= ToolButton::createButton("$ondemand_icon  On-demand computation machines", "",['/project/new-machine-compute-request']) ?>
+    </div>
 </div>
 <?php
 }
 ?>
-<div class="col-md-12 project">
-<?= ToolButton::createButton("$service_icon  24/7 service", "",['/project/new-service-request']) ?>
+<div class="row justify-content-center">
+    <div class="col-md-4 project">
+    <?= ToolButton::createButton("$service_icon  24/7 service", "",['/project/new-service-request']) ?>
+    </div>
 </div>
 
 <?php
 
 ?>
-<div class="col-md-12 project">
-	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-cold-storage-request']) ?>
+<div class="row justify-content-center">
+    <div class="col-md-4 project">
+    	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-cold-storage-request']) ?>
+    </div>
 </div>
 <?php
 ?>
