@@ -39,9 +39,6 @@ Headers::begin() ?>
 ])
 ?>
 <?Headers::end()?>
-<?php
-$loadIndicatorColorClassBreakpoints = ['loadBreakpoint0'=>0.33, 'loadBreakpoint1'=>0.66];
-?>
 
 <div class="col-md-12 text-center"><h3 style="font-weight:bold;">Basic info </h3></tr></div>
 	<div class="table-responsive">
@@ -91,12 +88,15 @@ $loadIndicatorColorClassBreakpoints = ['loadBreakpoint0'=>0.33, 'loadBreakpoint1
                     <div class="row mr-0">
                         <div class="col-4 text-left"><?= $details->num_of_cores ?></div>
                         <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['cpu']))
-                                ? ColorClassedLoadIndicator::widget(array_merge([
+                                ? ColorClassedLoadIndicator::widget([
                                     'current' => $resourcesStats['cpu']['current'],
                                     'requested' => $resourcesStats['cpu']['requested'],
                                     'total' => $resourcesStats['cpu']['total'],
                                     'context' => ContextualLoadIndicator::CPU,
-                                ], $loadIndicatorColorClassBreakpoints))
+                                    'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
+                                    'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
+                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
+                                ])
                                 : '' ?></div>
                     </div>
                 </td>
@@ -107,12 +107,15 @@ $loadIndicatorColorClassBreakpoints = ['loadBreakpoint0'=>0.33, 'loadBreakpoint1
                     <div class="row mr-0">
                         <div class="col-4 text-left"><?= $details->ram ?> GBs</div>
                         <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['ram']))
-                                ? ColorClassedLoadIndicator::widget(array_merge([
+                                ? ColorClassedLoadIndicator::widget([
                                     'current' => $resourcesStats['ram']['current'],
                                     'requested' => $resourcesStats['ram']['requested'],
                                     'total' => $resourcesStats['ram']['total'],
                                     'context' => ContextualLoadIndicator::MEMORY,
-                                ], $loadIndicatorColorClassBreakpoints))
+                                    'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
+                                    'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
+                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
+                                ])
                                 : '' ?></div>
                     </div>
                 </td>
@@ -123,12 +126,15 @@ $loadIndicatorColorClassBreakpoints = ['loadBreakpoint0'=>0.33, 'loadBreakpoint1
                     <div class="row mr-0">
                         <div class="col-4 text-left"><?= $details->num_of_ips ?></div>
                         <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['ips']))
-                                ? ColorClassedLoadIndicator::widget(array_merge([
+                                ? ColorClassedLoadIndicator::widget([
                                     'current' => $resourcesStats['ips']['current'],
                                     'requested' => $resourcesStats['ips']['requested'],
                                     'total' => $resourcesStats['ips']['total'],
                                     'context' => ContextualLoadIndicator::IP,
-                                ], $loadIndicatorColorClassBreakpoints))
+                                    'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
+                                    'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
+                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
+                                ])
                                 : '' ?></div>
                     </div>
                 </td>
@@ -139,12 +145,15 @@ $loadIndicatorColorClassBreakpoints = ['loadBreakpoint0'=>0.33, 'loadBreakpoint1
                     <div class="row mr-0">
                         <div class="col-4 text-left"><?= $details->disk ?> GBs</div>
                         <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['storage']))
-                                ? ColorClassedLoadIndicator::widget(array_merge([
+                                ? ColorClassedLoadIndicator::widget([
                                     'current' => $resourcesStats['storage']['current'],
                                     'requested' => $resourcesStats['storage']['requested'],
                                     'total' => $resourcesStats['storage']['total'],
                                     'context' => ContextualLoadIndicator::MEMORY,
-                                ], $loadIndicatorColorClassBreakpoints))
+                                    'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
+                                    'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
+                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
+                                ])
                                 : '' ?></div>
                     </div>
                 </td>

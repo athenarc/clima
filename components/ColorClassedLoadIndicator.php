@@ -22,12 +22,16 @@ class ColorClassedLoadIndicator extends ContextualLoadIndicator
     public function init()
     {
         // Will not run if theme is explicitly defined
-        if (!$this->bootstrap4Class) {
+        if (!$this->bootstrap4CurrentClass) {
             if ($this->loadBreakpoint0 && $this->loadBreakpoint1) {
                 $loadToConsider = ($this->current + ($this->considerRequested * $this->requested)) / $this->total;
-                if ($loadToConsider < $this->loadBreakpoint0) $this->bootstrap4Class = 'success';
-                elseif ($loadToConsider < $this->loadBreakpoint1) $this->bootstrap4Class = 'warning';
-                else $this->bootstrap4Class = 'danger';
+
+                if ($loadToConsider < $this->loadBreakpoint0) $qualifiedBootstrapClass='success';
+                elseif ($loadToConsider < $this->loadBreakpoint1) $qualifiedBootstrapClass='warning';
+                else $qualifiedBootstrapClass = 'danger';
+
+                $this->bootstrap4CurrentClass = $qualifiedBootstrapClass;
+                if ($this->considerRequested) $this->bootstrap4RequestedClass = $qualifiedBootstrapClass;
             }
         }
 

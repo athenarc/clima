@@ -954,6 +954,7 @@ class ProjectController extends Controller
            
         }
 
+        // Configure general information about statistics and visualizations
         $excessiveRequest=false;
         foreach ($resourcesStats as $resourceStats) {
             if ($resourceStats['current']+$resourceStats['requested']>=$resourceStats['total']) {
@@ -961,7 +962,12 @@ class ProjectController extends Controller
                 break;
             }
         }
-        $resourcesStats['general']=['excessiveRequest'=>$excessiveRequest];
+        $resourcesStats['general']=[
+            'excessiveRequest'=>$excessiveRequest,
+            'loadBreakpoint0'=>0.33,
+            'loadBreakpoint1'=>0.66,
+            'bootstrap4RequestedClass'=>'primary'
+        ];
         
         $submitted=User::find()->where(['id'=>$project_request->submitted_by])->one();
         $project_owner= ($submitted->username==Userw::getCurrentUser()['username']);

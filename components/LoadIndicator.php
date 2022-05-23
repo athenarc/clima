@@ -20,14 +20,16 @@ class LoadIndicator extends Widget
     public $requestedMessage;
     public $remainingMessage;
     public $exceedingMessage;
-    public $bootstrap4Class;
+    public $bootstrap4CurrentClass;
+    public $bootstrap4RequestedClass;
 
     public function init()
     {
         $this->remaining = $this->total - $this->requested - $this->current;
         $this->exceeding = $this->current + $this->requested >= $this->total;
         $this->requested = $this->requested ?: 0;
-        $this->bootstrap4Class = $this->bootstrap4Class ?: 'dark';
+        $this->bootstrap4CurrentClass = $this->bootstrap4CurrentClass ?: 'dark';
+        $this->bootstrap4RequestedClass = $this->bootstrap4RequestedClass ?: 'dark';
         $this->exceedingMessage = $this->exceedingMessage ?: 'Insufficient resources';
     }
 
@@ -67,7 +69,8 @@ class LoadIndicator extends Widget
                 'requestedMessage' => $this->requestedMessage,
                 'remainingMessage' => $this->remainingMessage,
                 'exceedingMessage' => $this->exceedingMessage,
-                'theme' => $this->bootstrap4Class
+                'bootstrap4CurrentClass' => $this->bootstrap4CurrentClass,
+                'bootstrap4RequestedClass' => $this->bootstrap4RequestedClass
             ]
         );
     }

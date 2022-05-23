@@ -10,10 +10,10 @@ $this->registerJsFile('@web/js/components/load-indicator.js', ['depends' => [\yi
 
 <div>
     <div class="progress load-indicator">
-        <div class="progress-bar bg-<?=$theme?>" role="progressbar" data-container="body" data-toggle="tooltip" title="<?= $currentMessage ?>"
+        <div class="progress-bar bg-<?=$bootstrap4CurrentClass?>" role="progressbar" data-container="body" data-toggle="tooltip" title="<?= $currentMessage ?>"
              style="width: <?= $current ?>%" aria-valuenow="<?= $current ?>" aria-valuemin="0" aria-valuemax="100">
             <span><?= $currentLabel ?></span></div>
-        <div class="progress-bar bg-<?=$theme?> progress-bar-striped progress-bar-animated" role="progressbar"
+        <div class="progress-bar bg-<?=$bootstrap4RequestedClass?> progress-bar-striped progress-bar-animated" role="progressbar"
              data-container="body" data-toggle="tooltip" title="<?= $requestedMessage ?>" style="width: <?= $requested ?>%"
              aria-valuenow="<?= $requested ?>" aria-valuemin="0" aria-valuemax="100"><span><?= $requestedLabel ?></span>
         </div>
