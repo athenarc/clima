@@ -864,6 +864,148 @@ class VmMachines extends \yii\db\ActiveRecord
         
     }
 
+    public static function getOpenstackCpuAndRamStatistics()
+    {
+        $statistics = [
+            'cpu' => null,
+            'ram' => null
+        ];
+
+        $result = self::authenticate();
+        $token = $result[0];
+        $client = new Client(['baseUrl' => self::$openstack->nova_url]);
+        try {
+            $response = $client->createRequest()
+                ->setMethod('GET')
+                ->setFormat(Client::FORMAT_JSON)
+                ->addHeaders(['X-Auth-Token' => $token])
+                ->setUrl(['limits'])
+                ->send();
+
+        } catch (\yii\httpclient\Exception $e) {
+            return $statistics;
+        }
+        if (!$response->getIsOk()) {
+            return $statistics;
+        }
+
+        $result = $response->data['limits']['absolute'];
+
+        $statistics['cpu'] = [
+            'current' => $result['totalCoresUsed'],
+            'total' => $result['maxTotalCores']
+        ];
+        $statistics['ram'] = [
+            'current' => $result['totalRAMUsed'] / 1024,
+            'total' => $result['maxTotalRAMSize'] / 1024
+        ];
+        return $statistics;
+    }
+
+    public static function getOpenstackStorageStatistics()
+    {
+        $statistics = [
+            'storage' => null
+        ];
+
+        $result = self::authenticate();
+        $token = $result[0];
+
+        try {
+            $client = new Client(['baseUrl' => self::$openstack->cinder_url]);
+            $response = $client->createRequest()
+                ->setMethod('GET')
+                ->setFormat(Client::FORMAT_JSON)
+                ->addHeaders(['X-Auth-Token' => $token])
+                ->setUrl([base64_decode(self::$openstack->tenant_id) . '/limits'])
+                ->send();
+        } catch (\yii\httpclient\Exception $e) {
+            return $statistics;
+        }
+        if (!$response->getIsOk()) {
+            return $statistics;
+        }
+
+        $result = $response->data['limits']['absolute'];
+
+        $statistics['storage'] = [
+            'current' => $result['totalGigabytesUsed'],
+            'total' => $result['maxTotalVolumeGigabytes']
+        ];
+
+        return $statistics;
+    }
+
+    public static function getOpenstackIpStatistics() {
+        $statistics = [
+            'ips' => null
+        ];
+
+        $result = self::authenticate();
+        $token = $result[0];
+
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
+            $response = $client->createRequest()
+                ->setMethod('GET')
+                ->setFormat(Client::FORMAT_JSON)
+                ->addHeaders(['X-Auth-Token'=>$token])
+                ->setUrl(['floatingips'])
+                ->setData(['floating_network_id'=>self::$openstack->floating_net_id])
+                ->send();
+
+        }
+        catch (\yii\httpclient\Exception $e)
+        {
+            return $statistics;
+        }
+        if (!$response->getIsOk())
+        {
+            return $statistics;
+        }
+
+        $result=$response->data['floatingips'];
+
+        if (empty($result))
+        {
+            $currentIps=0;
+        }
+        else
+        {
+            $currentIps=count($result);
+        }
+
+        try
+        {
+            $client = new Client(['baseUrl' => self::$openstack->neutron_url]);
+            $response = $client->createRequest()
+                ->setMethod('GET')
+                ->setFormat(Client::FORMAT_JSON)
+                ->addHeaders(['X-Auth-Token'=>$token])
+                ->setUrl(['quotas/' . base64_decode(self::$openstack->tenant_id)])
+                ->send();
+
+        }
+        catch (\yii\httpclient\Exception $e)
+        {
+            return $statistics;
+        }
+        if (!$response->getIsOk())
+        {
+            return $statistics;
+        }
+
+        $totalIps=$response->data['quota']['floatingip'];
+
+        $statistics['ips']=[
+            'current'=>$currentIps,
+            'total'=>$totalIps
+        ];
+
+        return $statistics;
+    }
+
     public function createVM($requestId,$service,$images,$diskSize)
     {   
         $keyFileName=Yii::$app->params['tmpKeyLocation'] . $this->keyFile->baseName . '_' . $this->project_multiple_order. '.' . $this->keyFile->extension;
