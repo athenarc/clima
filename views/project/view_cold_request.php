@@ -8,6 +8,8 @@
  * First version: March 2019
  */
 
+use app\components\ColorClassedLoadIndicator;
+use app\components\ContextualLoadIndicator;
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
 use app\components\Headers;
@@ -33,6 +35,10 @@ Headers::begin() ?>
 ])
 ?>
 <?Headers::end()?>
+
+<?php
+$loadIndicatorColorClassBreakpoints = ['loadBreakpoint0'=>0.33, 'loadBreakpoint1'=>0.66];
+?>
 
 
 
@@ -80,7 +86,19 @@ Headers::begin() ?>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Allocated storage:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->storage ?> GBs</td>
+                <td class="col-md-6" scope="col">
+                    <div class="row mr-0">
+                        <div class="col-4 text-left"><?= $details->storage ?> GBs</div>
+                        <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['storage']))
+                                ? ColorClassedLoadIndicator::widget(array_merge([
+                                    'current'=>$resourcesStats['storage']['current'],
+                                    'requested'=>$resourcesStats['storage']['requested'],
+                                    'total'=>$resourcesStats['storage']['total'],
+                                    'context'=>ContextualLoadIndicator::MEMORY,
+                                ],$loadIndicatorColorClassBreakpoints))
+                                : ''?></div>
+                    </div>
+                </td>
 			</tr>
 		</tbody>
 	</table>
@@ -105,7 +123,11 @@ if ($project->status==0)
 
 	<div class="row">
 		<div class="col-md-12 text-center">
-            <?= Html::a("$approve_icon Approve",['/project/approve', 'id'=>$request_id], ['class' => 'btn btn-success']) ?>&nbsp;&nbsp;&nbsp;&nbsp;
+            <?php
+            if (!$resourcesStats['general']['excessiveRequest']) {
+                echo Html::a("$approve_icon Approve", ['/project/approve', 'id' => $request_id], ['class' => 'btn btn-success']);
+            } ?>
+            &nbsp;&nbsp;&nbsp;&nbsp;
             <?= Html::a("$modify_icon Modify", ['/project/modify-request', 'id'=>$request_id], ['class'=>'btn btn-secondary']) ?>&nbsp;&nbsp;&nbsp;&nbsp;
             <?= Html::a("$reject_icon Reject", ['/project/reject', 'id'=>$request_id], ['class'=>'btn btn-danger']) ?>
     	</div>
