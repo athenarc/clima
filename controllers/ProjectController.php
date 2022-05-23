@@ -862,8 +862,9 @@ class ProjectController extends Controller
 
         $usage=[];
         $remaining_jobs=0;
-        
-    
+
+
+        $resourcesStats=[];
 
         //Request details must be retrieved by the project request id
         if ($project_request->project_type==0)
@@ -885,7 +886,22 @@ class ProjectController extends Controller
             $view_file='view_service_request';
             $type="24/7 Service";
             $vm_type="";
-         
+            // Required stats: cores, ram , ips, disk
+            $model=new Vm;
+            session_write_close();
+            $openStackCpuAndRam = Vm::getOpenstackCpuAndRamStatistics();
+            $openStackIps = Vm::getOpenstackIpStatistics();
+            $openStackStorage = Vm::getOpenstackStorageStatistics();
+            session_start();
+            $openStackCpuAndRam['cpu']['requested']=$details->num_of_vms*$details->num_of_cores;
+            $openStackCpuAndRam['ram']['requested']=$details->num_of_vms*$details->ram;
+
+            $openStackIps['ips']['requested']=$details->num_of_vms*$details->num_of_ips;
+            //    -> this should equal always to 1 since for 24/7 services, only 1 vm is allocated with only 1 ip
+
+            $openStackStorage['storage']['requested']=$details->num_of_vms*$details->disk;
+
+            $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
         }
         else if ($project_request->project_type==3)
         {
@@ -893,6 +909,24 @@ class ProjectController extends Controller
             $view_file='view_machine_compute_request';
             $type="On-demand computation machines";
             $vm_type="";
+            // Required stats: cores, ram , ips, disk
+            $model=new VmMachines;
+            session_write_close();
+            $openStackCpuAndRam = VmMachines::getOpenstackCpuAndRamStatistics();
+            $openStackIps = VmMachines::getOpenstackIpStatistics();
+            $openStackStorage = VmMachines::getOpenstackStorageStatistics();
+            session_start();
+
+            $openStackCpuAndRam['cpu']['requested']=$details->num_of_vms*$details->num_of_cores;
+            $openStackCpuAndRam['ram']['requested']=$details->num_of_vms*$details->ram;
+
+            $openStackIps['ips']['requested']=$details->num_of_vms*$details->num_of_ips;
+            //    -> this should equal always to num_of_vms since for on-demand computation machines, only each vm
+            //       is bound to 1 ip
+
+            $openStackStorage['storage']['requested']=$details->num_of_vms*$details->disk;
+
+            $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
         }
         else if ($project_request->project_type==2)
         {
@@ -901,11 +935,33 @@ class ProjectController extends Controller
             if($details->vm_type==2)
             {
                 $vm_type="On-demand computation machines";
+                $model=new VmMachines;
+                session_write_close();
+                $openStackStorage = VmMachines::getOpenstackStorageStatistics();
+                session_start();
             }
+            else {
+                $model=new Vm;
+                session_write_close();
+                $openStackStorage = Vm::getOpenstackStorageStatistics();
+                session_start();
+            }
+            $totalRequestedStorage=$details->storage*$details->num_of_volumes;
+            $openStackStorage['storage']['requested'] = $totalRequestedStorage;
+            $resourcesStats = $openStackStorage;
             $view_file='view_cold_request';
             $type="Storage volumes";
            
         }
+
+        $excessiveRequest=false;
+        foreach ($resourcesStats as $resourceStats) {
+            if ($resourceStats['current']+$resourceStats['requested']>=$resourceStats['total']) {
+                $excessiveRequest=true;
+                break;
+            }
+        }
+        $resourcesStats['general']=['excessiveRequest'=>$excessiveRequest];
         
         $submitted=User::find()->where(['id'=>$project_request->submitted_by])->one();
         $project_owner= ($submitted->username==Userw::getCurrentUser()['username']);
@@ -937,7 +993,7 @@ class ProjectController extends Controller
 
         return $this->render($view_file,['project'=>$project_request,'details'=>$details, 
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
+            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'resourcesStats' => $resourcesStats]);
 
 
     }
