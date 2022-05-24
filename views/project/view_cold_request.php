@@ -85,7 +85,7 @@ Headers::begin() ?>
                 <td class="col-md-6" scope="col">
                     <div class="row mr-0">
                         <div class="col-4 text-left"><?= $details->storage ?> GBs</div>
-                        <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['storage']))
+                        <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['storage']) && $project->status==0)
                                 ? ColorClassedLoadIndicator::widget([
                                     'current'=>$resourcesStats['storage']['current'],
                                     'requested'=>$resourcesStats['storage']['requested'],
