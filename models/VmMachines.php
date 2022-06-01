@@ -867,7 +867,7 @@ class VmMachines extends \yii\db\ActiveRecord
     public static function getOpenstackCpuAndRamStatistics()
     {
         $statistics = [
-            'cpu' => null,
+            'num_of_cores' => null,
             'ram' => null
         ];
 
@@ -891,7 +891,7 @@ class VmMachines extends \yii\db\ActiveRecord
 
         $result = $response->data['limits']['absolute'];
 
-        $statistics['cpu'] = [
+        $statistics['num_of_cores'] = [
             'current' => $result['totalCoresUsed'],
             'total' => $result['maxTotalCores']
         ];
@@ -938,7 +938,7 @@ class VmMachines extends \yii\db\ActiveRecord
 
     public static function getOpenstackIpStatistics() {
         $statistics = [
-            'ips' => null
+            'num_of_ips' => null
         ];
 
         $result = self::authenticate();
@@ -998,7 +998,7 @@ class VmMachines extends \yii\db\ActiveRecord
 
         $totalIps=$response->data['quota']['floatingip'];
 
-        $statistics['ips']=[
+        $statistics['num_of_ips']=[
             'current'=>$currentIps,
             'total'=>$totalIps
         ];
