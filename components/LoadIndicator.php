@@ -9,6 +9,7 @@ class LoadIndicator extends Widget
 {
     protected $remaining;
     protected $exceeding;
+    protected $isPositive;
 
     public $current;
     public $total;
@@ -22,14 +23,18 @@ class LoadIndicator extends Widget
     public $exceedingMessage;
     public $bootstrap4CurrentClass;
     public $bootstrap4RequestedClass;
+    public $bootstrap4RequestedClassPositive;
+    public $bootstrap4RequestedClassNegative;
 
     public function init()
     {
         $this->remaining = $this->total - $this->requested - $this->current;
         $this->exceeding = $this->current + $this->requested >= $this->total;
         $this->requested = $this->requested ?: 0;
+        $this->isPositive = $this->requested > 0;
         $this->bootstrap4CurrentClass = $this->bootstrap4CurrentClass ?: 'dark';
-        $this->bootstrap4RequestedClass = $this->bootstrap4RequestedClass ?: 'dark';
+        $this->bootstrap4RequestedClassPositive = $this->bootstrap4RequestedClassPositive ?: ($this->bootstrap4RequestedClass ?: 'danger');
+        $this->bootstrap4RequestedClassNegative = $this->bootstrap4RequestedClassNegative ?: ($this->bootstrap4RequestedClass ?: 'success');
         $this->exceedingMessage = $this->exceedingMessage ?: 'Insufficient resources';
     }
 
@@ -54,7 +59,7 @@ class LoadIndicator extends Widget
                 'remainingMessage' => $this->remainingMessage,
                 'exceedingMessage' => $this->exceedingMessage,
                 'bootstrap4CurrentClass' => $this->bootstrap4CurrentClass,
-                'bootstrap4RequestedClass' => $this->bootstrap4RequestedClass
+                'bootstrap4RequestedClass' => $this->isPositive? $this->bootstrap4RequestedClassPositive : $this->bootstrap4RequestedClassNegative
             ]
         );
     }
