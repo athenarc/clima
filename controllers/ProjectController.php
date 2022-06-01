@@ -2195,8 +2195,8 @@ class ProjectController extends Controller
                 }
                 if ($pchanged || $dchanged)
                 {
-                
-                    $messages=$prequest->uploadNewEdit($prType,$id,$uchanged);
+
+                    $messages=$prequest->uploadNewEdit($prType,$uchanged,$id);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
@@ -2453,17 +2453,17 @@ class ProjectController extends Controller
 
                 if ($pchanged || $dchanged)
                 {
-                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
-                    $errors.=$messages[0];
-                    $success.=$messages[1];
-                    $warnings.=$messages[2];
-                    $requestId=$messages[3];
-                    if ($requestId!=-1)
-                    {
-                        $messages=$drequest->uploadNewEdit($requestId,$uchanged);
-                        $errors.=$messages[0];
-                        $success.=$messages[1];
-                        $warnings.=$messages[2];
+//                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
+                    $messages = $prequest->uploadNewEdit($prType, $uchanged, $id);
+                    $errors .= $messages[0];
+                    $success .= $messages[1];
+                    $warnings .= $messages[2];
+                    $requestId = $messages[3];
+                    if ($requestId != -1) {
+                        $messages = $drequest->uploadNewEdit($requestId, $uchanged);
+                        $errors .= $messages[0];
+                        $success .= $messages[1];
+                        $warnings .= $messages[2];
                     }
                 }
                 else

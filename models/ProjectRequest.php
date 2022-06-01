@@ -236,7 +236,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return [$errors,$success,$warnings,$request_id, $message, $project_id];
     }
 
-    public function uploadNewEdit($project_type,$modify_req_id='',$uchanged)
+    public function uploadNewEdit($project_type,$uchanged,$modify_req_id='')
     {
         $errors='';
         $success='';
