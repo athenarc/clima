@@ -74,6 +74,191 @@ class ProjectController extends Controller
     }
 
     /**
+     * A private method which is used to determine whether a project request is a modification of another project
+     * request, in which case it calculates and returns the difference in projects' parameters.
+     *
+     * The method examines whether the given project request is bound to a project with a previous request, previously
+     * approved. In that case the method retrieves the diff of the two projects by invoking the getDiff() method of the
+     * given request. In addition, since the diff returned by the aforementioned method is rather technical, it
+     * transforms certain fields to more meaningful values.
+     *
+     * e.g. Two project requests have a difference in the requested end date, thus the getDiff() method will return the
+     * two different timestamps. evaluateProjectRequestDiff() will transform these values returning two descriptive date
+     * strings instead.
+     *
+     * @param $projectRequest ProjectRequest The project request for which to examine whether it is a modification or
+     * not
+     * @param $projectDetailsRequest OndemandRequest|ServiceRequest|ColdStorageRequest|MachineComputeRequest
+     * Optionally, the project request that describes in detail the type and parameters of project. If it is not given,
+     * an additional database query will be made to retrieve it.
+     * @param $otherProjectRequest ProjectRequest Optionally, the other project request which will be used in the
+     * production of the diff
+     * @return null|array Returns null if no diff was produced. Otherwise, returns an associative array with the
+     * database field names as keys, for each field that was different between the two requests. In addition, for
+     * resource-specific quantitative values, a "difference" field is also added to show the total difference in
+     * resources between two requests
+     * @see ProjectRequest::getDiff() Project request getDiff() method
+     *
+     */
+    private static function evaluateProjectRequestDiff($projectRequest, $projectDetailsRequest = null, $otherProjectRequest = null)
+    {
+        // If the other project request is not defined, query the database
+        $project = null;
+        if (!isset($otherProjectRequest)) {
+            if (!$projectRequest->isModification()) return null;
+            $project = Project::find()->where(['pending_request_id' => $projectRequest->id])->one();
+            $otherProjectRequest = ProjectRequest::find()->where(['id' => $project->latest_project_request_id])->one();
+        }
+
+        // If project details request is not defined, query the database
+        if (!isset($projectDetailsRequest)) {
+            // Query the database for the progress as long as it is not already defined
+            $project = $project ?: Project::find()->where(['pending_request_id' => $projectRequest->id])->one();
+            $projectType = $project->project_type;
+            switch ($projectType) {
+                case 0:
+                    $projectDetailsRequest = OndemandRequest::find()->where(['request_id' => $projectRequest->id])->one();
+                    break;
+                case 1:
+                    $projectDetailsRequest = ServiceRequest::find()->where(['request_id' => $projectRequest->id])->one();
+                    break;
+                case 2:
+                    $projectDetailsRequest = ColdStorageRequest::find()->where(['request_id' => $projectRequest->id])->one();
+                    break;
+                case 3:
+                    $projectDetailsRequest = MachineComputeRequest::find()->where(['request_id' => $projectRequest->id])->one();
+                    break;
+                default:
+                    return null;
+            }
+        }
+        // Get diff
+        $diff = $projectRequest->getDiff($otherProjectRequest);
+
+        if (isset($diff['project']['user_list'])) {
+            $currentProjectUserIds = $diff['project']['user_list']['current'];
+            $otherProjectUserIds = $diff['project']['user_list']['other'];
+
+            $allRelatedUsers = User::find()->where(['IN', 'id',
+                array_merge($currentProjectUserIds, $otherProjectUserIds)
+            ])->all();
+
+            // Create a user id-to-username registry for O(1) mapping of usernames
+            $allRelatedUsersRegistry = [];
+            foreach ($allRelatedUsers as $relatedUser) {
+                $allRelatedUsersRegistry[$relatedUser->id] = explode('@', $relatedUser->username)[0];
+            }
+            $mapIdsToUsernames = function ($id) use ($allRelatedUsersRegistry) {
+                return $allRelatedUsersRegistry[$id];
+            };
+            $diff['project']['user_list']['current'] = array_map($mapIdsToUsernames, $currentProjectUserIds);
+            $diff['project']['user_list']['other'] = array_map($mapIdsToUsernames, $otherProjectUserIds);
+        }
+
+        if (isset($diff['project']['user_num'])) {
+            $differenceMaxUsers = $diff['project']['user_num']['current'] - $diff['project']['user_num']['other'];
+            $diff['project']['user_num']['difference'] = $differenceMaxUsers;
+        }
+
+        // 2. Timestamps to day or minute resolutions
+        if (isset($diff['project']['submission_date']) && isset($diff['project']['approval_date'])) {
+            // This is expected always to run since, obviously, different requests have different submission
+            // timestamps. Furthermore, since the older transmission is asserted as a previously approved request
+            // and the current request is pending, approval timestamps will be different (current's will be null)
+
+            $otherStartDateTs = strtotime($diff['project']['approval_date']['other']);
+            $currStartDateTs = strtotime($diff['project']['submission_date']['current']);
+            $otherStartDate = date('Y-m-d', $otherStartDateTs);
+            $currStartDate = date('Y-m-d', $currStartDateTs);
+            if ($otherStartDate == $currStartDate) {
+                $otherStartDate .= ' ' . date('H:i:s', $otherStartDateTs);
+                $currStartDate .= ' ' . date('H:i:s', $currStartDateTs);
+            }
+
+            $diff['project']['submission_date']['current'] = $currStartDate;
+            $diff['project']['approval_date']['other'] = $otherStartDate;
+        }
+        if (isset($diff['project']['end_date'])) {
+
+            $currentEndDateTs = strtotime($diff['project']['end_date']['current']);
+            $otherEndDateTs = strtotime($diff['project']['end_date']['other']);
+
+            $diff_in_seconds = $currentEndDateTs - $otherEndDateTs;
+            $diff_in_days = $diff_in_seconds / (60 * 60 * 24);
+
+            $diff['project']['end_date']['difference'] = $diff_in_days;
+        }
+
+        // 3. For each resource type calculate difference and fetch from OpenStack corresponding resource
+        // status
+        $otherProjectNumOfVms = null;
+        $otherProjectNumOfVolumes = null;
+        if (isset($diff['details']['num_of_vms'])) {
+            // Store num_of_vms for the other project request because it may be needed in evaluation of differences of
+            // other resources
+            $otherProjectNumOfVms = $diff['details']['num_of_vms']['other'];
+
+            $diff['details']['num_of_vms']['difference'] = $diff['details']['num_of_vms']['current'] - $diff['details']['num_of_vms']['other'];;
+        }
+
+        if (isset($diff['details']['num_of_volumes'])) {
+            // Store num_of_volumes as well for the other project request for the potential evaluation of a new
+            // project's storage
+            $otherProjectNumOfVolumes = $diff['details']['num_of_volumes']['other'];
+
+            $diff['details']['num_of_volumes']['difference'] = $diff['details']['num_of_volumes']['current'] - $diff['details']['num_of_volumes']['other'];;
+        }
+
+        // For cores, ram, ips and disk, even if no change has been made to the number of individual VM resources, if
+        // the number of VMs changed, then the total amount needed regarding these resources also has changed.
+        if (isset($diff['details']['num_of_cores']) || isset($diff['details']['num_of_vms'])) {
+            // If no change has been made to a project's num_of_cores, then get the value from the current project
+            // details request
+            $currentProjectCores = $diff['details']['num_of_cores']['current'] ?? $projectDetailsRequest->num_of_cores;
+            $otherProjectCores = $diff['details']['num_of_cores']['other'] ?? $currentProjectCores;
+            $differenceCores = $projectDetailsRequest->num_of_vms * $currentProjectCores - ($otherProjectNumOfVms ?: $projectDetailsRequest->num_of_vms) * $otherProjectCores;
+
+            $diff['details']['num_of_cores']['difference'] = $differenceCores;
+        }
+        if (isset($diff['details']['ram']) || isset($diff['details']['num_of_vms'])) {
+            $currentProjectRam = $diff['details']['ram']['current'] ?? $projectDetailsRequest->ram;
+            $otherProjectRam = $diff['details']['ram']['other'] ?? $currentProjectRam;
+            $differenceRam = ($projectDetailsRequest->num_of_vms ?? 1) * $currentProjectRam - ($otherProjectNumOfVms ?: ($projectDetailsRequest->num_of_vms??1)) * $otherProjectRam;
+
+            $diff['details']['ram']['difference'] = $differenceRam;
+        }
+        if (isset($diff['details']['num_of_ips']) || isset($diff['details']['num_of_vms'])) {
+            $currentProjectNumOfIps = $diff['details']['num_of_ips']['current'] ?? $projectDetailsRequest->num_of_ips;
+            $otherProjectNumOfIps = $diff['details']['num_of_ips']['other'] ?? $currentProjectNumOfIps;
+            $differenceIps = $projectDetailsRequest->num_of_vms * $currentProjectNumOfIps - ($otherProjectNumOfVms ?: $projectDetailsRequest->num_of_vms) * $otherProjectNumOfIps;
+
+            $diff['details']['num_of_ips']['difference'] = $differenceIps;
+        }
+        if (isset($diff['details']['disk']) || isset($diff['details']['num_of_vms'])) {
+            $currentProjectDisk = $diff['details']['disk']['current'] ?? $projectDetailsRequest->disk;
+            $otherProjectDisk = $diff['details']['disk']['other'] ?? $currentProjectDisk;
+            $differenceDisk = $projectDetailsRequest->num_of_vms * $currentProjectDisk - ($otherProjectNumOfVms ?: $projectDetailsRequest->num_of_vms) * $otherProjectDisk;
+
+            $diff['details']['disk']['difference'] = $differenceDisk;
+        }
+        if (isset($diff['details']['storage']) || isset($diff['details']['num_of_volumes'])) {
+            $currentProjectStorage = $diff['details']['storage']['current'] ?? $projectDetailsRequest->storage;
+            $otherProjectStorage = $diff['details']['storage']['other'] ?? $currentProjectStorage;
+            $differenceStorage = $projectDetailsRequest->num_of_volumes * $currentProjectStorage - ($otherProjectNumOfVolumes ?: $projectDetailsRequest->num_of_volumes) * $otherProjectStorage;
+
+            $diff['details']['storage']['difference'] = $differenceStorage;
+        }
+
+        if (isset($diff['details']['vm_type'])) {
+            $diff['details']['vm_type']['current'] = ($diff['details']['vm_type']['current'] == 1 ? "24/7 Service": "On-demand computation machines");
+            $diff['details']['vm_type']['other'] = ($diff['details']['vm_type']['other'] == 1 ? "24/7 Service": "On-demand computation machines");
+        }
+
+        // Probably more transformations to be registered below
+        return $diff;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function actions()
