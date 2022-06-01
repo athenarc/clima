@@ -2419,6 +2419,11 @@ class ProjectController extends Controller
 
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
+            // Enforce one volume for 24/7 service
+            if ($prType==2 && $drequest->vm_type==1) {
+                $drequest->num_of_volumes=1;
+            }
+
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
@@ -2695,6 +2700,11 @@ class ProjectController extends Controller
 
             $isValid = $prequest->validate();
             $isValid = $drequest->validate() && $isValid;
+
+            // Enforce one volume for 24/7 service
+            if ($prType==2 && $drequest->vm_type==1) {
+                $drequest->num_of_volumes=1;
+            }
 
 
             /* 
