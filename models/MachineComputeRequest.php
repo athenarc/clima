@@ -323,4 +323,20 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
     
     }
 
+    public function getDiff($other) {
+        $diff=[];
+        $otherAttributes = $other->getAttributes();
+
+        foreach ($otherAttributes as $attributeName => $attributeValue)
+        {
+            if($this->$attributeName !== $attributeValue) {
+                $diff[$attributeName]=[
+                    'current'=>$this->$attributeName,
+                    'other'=>$attributeValue
+                ];
+            }
+        }
+
+        return $diff;
+    }
 }

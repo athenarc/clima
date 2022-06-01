@@ -501,4 +501,73 @@ class ServiceRequest extends \yii\db\ActiveRecord
     
     }
 
+    public function getDiff($other) {
+        $exclude = ['id','request_id'];
+        $diff=[];
+        $otherAttributes = $other->getAttributes();
+
+        foreach ($otherAttributes as $attributeName => $attributeValue)
+        {
+            if (in_array($attributeName,$exclude)) continue;
+            if($this->$attributeName !== $attributeValue) {
+                $diff[$attributeName]=[
+                    'current'=>$this->$attributeName,
+                    'other'=>$attributeValue
+                ];
+            }
+        }
+
+        // Flavour-wise comparison
+        if ($this->vm_flavour!=$other->vm_flavour) {
+
+            // Retrieve corresponding flavour keys based on flavour UUID in vm_flavour property
+            $currFlavour = array_search($this->vm_flavour,$this->allFlavourID);
+            $otherFlavour = array_search($other->vm_flavour,$other->allFlavourID);
+
+            if ($currFlavour && $otherFlavour){
+                $this->flavour = $currFlavour;
+                $other->flavour = $otherFlavour;
+
+                // Compare requested number of CPUs
+                if ($this->allFlavourCores[$this->flavour]!=$other->allFlavourCores[$other->flavour]) {
+                    $diff['num_of_cores']=[
+                        'current'=>$this->allFlavourCores[$this->flavour],
+                        'other'=>$other->allFlavourCores[$other->flavour],
+                        'difference'=>$this->num_of_vms*($this->allFlavourCores[$this->flavour] - $other->allFlavourCores[$other->flavour])
+                    ];
+                }
+
+                // Compare requested amount of RAM
+                if ($this->allFlavourRam[$this->flavour]!=$other->allFlavourRam[$other->flavour]) {
+                    $diff['ram']=[
+                        'current'=>$this->allFlavourRam[$this->flavour],
+                        'other'=>$other->allFlavourRam[$other->flavour],
+                        'difference'=>$this->num_of_vms*($this->allFlavourRam[$this->flavour] - $other->allFlavourRam[$other->flavour])
+                    ];
+                }
+
+                // Compare requested amount of disk space
+                if ($this->allFlavourDisk[$this->flavour]!=$other->allFlavourDisk[$other->flavour]) {
+                    $diff['disk']=[
+                        'current'=>$this->allFlavourDisk[$this->flavour],
+                        'other'=>$other->allFlavourDisk[$other->flavour],
+                        'difference'=>$this->num_of_vms*($this->allFlavourDisk[$this->flavour] - $other->allFlavourDisk[$other->flavour])
+                    ];
+                }
+
+                // Also, for the case of disk, check whether a different type of disk was requested (SSD or Volume)?
+                $currentType = (isset(Yii::$app->params['ioFlavors']) && isset(Yii::$app->params['ioFlavors'][$this->vm_flavour]))?'SSD':'Volume';
+                $otherType = (isset(Yii::$app->params['ioFlavors']) && isset(Yii::$app->params['ioFlavors'][$other->vm_flavour]))?'SSD':'Volume';
+                if ($currentType !== $otherType) {
+                    $diff['diskType']=[
+                        'current'=>$currentType,
+                        'other'=>$otherType
+                    ];
+                }
+            }
+        }
+
+        return $diff;
+    }
+
 }

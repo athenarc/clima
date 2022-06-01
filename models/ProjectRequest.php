@@ -112,6 +112,59 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return true;
     }
 
+    public function getDiff($other){
+        $exclude = ['id','user_list'];
+        $diff=[
+            'project'=>[]
+        ];
+        $otherRequestAttributes = $other->getAttributes();
+
+        $details = null;
+        $otherDetails = null;
+        switch($this->project_type) {
+            case 0:
+                $details = OndemandRequest::find()->where(['request_id'=>$this->id])->one();
+                $otherDetails = OndemandRequest::find()->where(['request_id'=>$other->id])->one();
+                break;
+            case 1:
+                $details = ServiceRequest::find()->where(['request_id'=>$this->id])->one();
+                $otherDetails = ServiceRequest::find()->where(['request_id'=>$other->id])->one();
+                break;
+            case 2:
+                $details = ColdStorageRequest::find()->where(['request_id'=>$this->id])->one();
+                $otherDetails = ColdStorageRequest::find()->where(['request_id'=>$other->id])->one();
+                break;
+            case 3:
+                $details = MachineComputeRequest::find()->where(['request_id'=>$this->id])->one();
+                $otherDetails = MachineComputeRequest::find()->where(['request_id'=>$other->id])->one();
+                break;
+        }
+        if ($details && $otherDetails) $diff['details']=$details->getDiff($otherDetails);
+
+        foreach ($otherRequestAttributes as $attributeName => $attributeValue)
+        {
+            if (in_array($attributeName,$exclude)) continue;
+            if($this->$attributeName !== $attributeValue) {
+                $diff['project'][$attributeName]=[
+                    'current'=>$this->$attributeName,
+                    'other'=>$attributeValue
+                ];
+            }
+        }
+
+        $userList=$this->user_list->getValue();
+        $otherUserList=$other->user_list->getValue();
+        sort($userList);
+        sort($otherUserList);
+        if ($userList!=$otherUserList) {
+            $diff['project']['user_list']=[
+                'current'=>$userList,
+                'other'=>$otherUserList
+            ];
+        }
+
+        return $diff;
+    }
 
     public function attributeLabels()
     {
@@ -532,6 +585,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
     }
 
+    public function isModification() {
+        $project = Project::find()->where(['id'=>$this->project_id])->one();
+        return (isset($project->pending_request_id) && isset($project->latest_project_request_id) && $project->pending_request_id!=$project->latest_project_request_id);
+    }
 
     public static function getVmList($filter)
     {
