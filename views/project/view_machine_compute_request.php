@@ -10,6 +10,8 @@
 
 use app\components\ColorClassedLoadIndicator;
 use app\components\ContextualLoadIndicator;
+use app\components\ProjectDiff;
+use rmrevin\yii\fontawesome\FA;
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
 use app\components\Headers;
@@ -48,9 +50,24 @@ Headers::begin() ?>
 				<th class="col-md-6 text-right" scope="col">Type:</th>
 				<td class="col-md-6 text-left" scope="col"><?=$type?></td>
 			</tr>
+            <tr>
+                <th class="col-md-6 text-right" scope="col">Status:</th>
+                <td class="col-md-6 text-left" scope="col"><?= $project_status ?>
+                    <?php if ($project->status == 0) {
+                        echo ($requestHistory['isMod'])
+                            ? '<span class="text-secondary" title="Modification">' . FA::icon('pencil-alt') . '</span>'
+                            : '<span class="text-warning" title="New project">' . FA::icon('star') . '</span>';
+                    }
+                    ?>
+                </td>
+            </tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Started on:</th>
-				<td class="col-md-6 text-left" scope="col"><?=$start?></td>
+				<td class="col-md-6 text-left" scope="col"><?php
+                    if (isset($requestHistory['diff']['project']['submission_date']) && isset($requestHistory['diff']['project']['approval_date'])) {
+                        ProjectDiff::str($requestHistory['diff']['project']['approval_date']['other'], $requestHistory['diff']['project']['submission_date']['current']);
+                    } else echo $start;
+                    ?></td>
 			</tr>
 			<?php
 			if($remaining_time==0)
@@ -65,13 +82,36 @@ Headers::begin() ?>
 			{?>
 				<tr>
 					<th class="col-md-6 text-right" scope="col">Ends on: </th>
-					<td class="col-md-6 text-left" scope="col"><?=$ends?> (<?=$remaining_time?> days remaining)</td>
+					<td class="col-md-6 text-left" scope="col"><?php
+                        if (isset($requestHistory['diff']['project']['end_date'])) {
+                            ProjectDiff::str($requestHistory['diff']['project']['end_date']['other'], $requestHistory['diff']['project']['end_date']['current']);
+                        } else echo $ends;
+                        ?> (<?= $remaining_time ?> days remaining
+                        <?php if (isset($requestHistory['diff']['project']['end_date'])) {
+                            echo '- <span class="text-'
+                                . (($requestHistory['diff']['project']['end_date']['difference'] > 0) ? 'danger' : 'success')
+                                . '">' . abs($requestHistory['diff']['project']['end_date']['difference'])
+                                . ' days '
+                                . (($requestHistory['diff']['project']['end_date']['difference'] > 0) ? ' to be extended' : 'to be shortened')
+                                . '</span>';
+                        } ?>)</td>
 				</tr>
 			<?php
 			}?>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Participating users:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $user_list ?> (<?=$number_of_users?> out of <?=$maximum_number_users?>)</td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?php
+                    if (isset($requestHistory['diff']['project']['user_list'])) {
+                        ProjectDiff::arr($requestHistory['diff']['project']['user_list']['other'], $requestHistory['diff']['project']['user_list']['current']);
+                    } else echo $user_list;
+                    ?>(<?= $number_of_users ?> out of
+                    <?php
+                    if (isset($requestHistory['diff']['project']['user_num'])) {
+                        ProjectDiff::str($requestHistory['diff']['project']['user_num']['other'], $requestHistory['diff']['project']['user_num']['current']);
+                    } else echo $maximum_number_users;
+                    ?>)
+                </td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Owner: </th>
@@ -86,32 +126,65 @@ Headers::begin() ?>
 			<tbody>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Number of VMs:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_vms ?></td>
+				<td class="col-md-6 text-left" scope="col"><?php
+                    if (isset($requestHistory['diff']['details']['num_of_vms'])) {
+                        ProjectDiff::str($requestHistory['diff']['details']['num_of_vms']['other'], $requestHistory['diff']['details']['num_of_vms']['current']);
+                    } else echo $details->num_of_vms;
+                    ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">CPU cores:</th>
+				<th class="col-md-6 text-right" scope="col">CPU cores per VM:</th>
                 <td class="col-md-6" scope="col">
                     <div class="row mr-0">
-                        <div class="col-4 text-left"><?= $details->num_of_cores ?></div>
-                        <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['cpu']) && $project->status==0)
+                        <div class="col-4 text-left">
+                            <?php
+                            if (isset($requestHistory['diff']['details']['num_of_cores'])) {
+                                if (isset($requestHistory['diff']['details']['num_of_cores']['current']) && isset($requestHistory['diff']['details']['num_of_cores']['other'])) {
+                                    ProjectDiff::str($requestHistory['diff']['details']['num_of_cores']['other'], $requestHistory['diff']['details']['num_of_cores']['current']);
+                                }
+                                echo ' (<span class="text-'
+                                    .(($requestHistory['diff']['details']['num_of_cores']['difference']>0)?'danger':'success')
+                                    .'">'
+                                    .abs($requestHistory['diff']['details']['num_of_cores']['difference'])
+                                    .' cores in total to be '
+                                    .(($requestHistory['diff']['details']['num_of_cores']['difference']>0)?'allocated':'released')
+                                    .'</span>)';
+                            } else echo $details->num_of_cores;
+                            ?></div>
+                        <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['num_of_cores']) && $project->status==0)
                                 ? ColorClassedLoadIndicator::widget([
-                                    'current' => $resourcesStats['cpu']['current'],
-                                    'requested' => $resourcesStats['cpu']['requested'],
-                                    'total' => $resourcesStats['cpu']['total'],
+                                    'current' => $resourcesStats['num_of_cores']['current'],
+                                    'requested' => $resourcesStats['num_of_cores']['requested'],
+                                    'total' => $resourcesStats['num_of_cores']['total'],
                                     'context' => ContextualLoadIndicator::CPU,
                                     'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
                                     'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
-                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
-                                ])
+                                    'bootstrap4RequestedClassPositive'=>$resourcesStats['general']['bootstrap4RequestedClassPositive'],
+                                    'bootstrap4RequestedClassNegative'=>$resourcesStats['general']['bootstrap4RequestedClassNegative']])
                                 : '' ?></div>
                     </div>
                 </td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">RAM:</th>
+				<th class="col-md-6 text-right" scope="col">RAM per VM:</th>
                 <td class="col-md-6" scope="col">
                     <div class="row mr-0">
-                        <div class="col-4 text-left"><?= $details->ram ?> GBs</div>
+                        <div class="col-4 text-left">
+                            <?php
+                            if (isset($requestHistory['diff']['details']['ram'])) {
+                                if (isset($requestHistory['diff']['details']['ram']['current']) && isset($requestHistory['diff']['details']['ram']['other'])) {
+                                    ProjectDiff::str($requestHistory['diff']['details']['ram']['other'], $requestHistory['diff']['details']['ram']['current'].'GBs');
+                                }
+                                echo ' (<span class="text-'
+                                    .(($requestHistory['diff']['details']['ram']['difference']>0)?'danger':'success')
+                                    .'">'
+                                    .abs($requestHistory['diff']['details']['ram']['difference'])
+                                    .'GBs RAM in total to be '
+                                    .(($requestHistory['diff']['details']['ram']['difference']>0)?'allocated':'released')
+                                    .'</span>)';
+                            } else echo $details->ram.'GBs';
+                            ?>
+                        </div>
                         <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['ram']) && $project->status==0)
                                 ? ColorClassedLoadIndicator::widget([
                                     'current' => $resourcesStats['ram']['current'],
@@ -120,36 +193,64 @@ Headers::begin() ?>
                                     'context' => ContextualLoadIndicator::MEMORY,
                                     'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
                                     'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
-                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
-                                ])
+                                    'bootstrap4RequestedClassPositive'=>$resourcesStats['general']['bootstrap4RequestedClassPositive'],
+                                    'bootstrap4RequestedClassNegative'=>$resourcesStats['general']['bootstrap4RequestedClassNegative']])
                                 : '' ?></div>
                     </div>
                 </td>
 			</tr>
             <tr>
-                <th class="col-md-6 text-right" scope="col">Number of IPs:</th>
+                <th class="col-md-6 text-right" scope="col">Number of IPs per VM:</th>
                 <td class="col-md-6" scope="col">
                     <div class="row mr-0">
-                        <div class="col-4 text-left"><?= $details->num_of_ips ?></div>
-                        <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['ips']) && $project->status==0)
+                        <div class="col-4 text-left"><?php
+                            if (isset($requestHistory['diff']['details']['num_of_ips'])) {
+                                if (isset($requestHistory['diff']['details']['num_of_ips']['current']) && isset($requestHistory['diff']['details']['num_of_ips']['other'])) {
+                                    ProjectDiff::str($requestHistory['diff']['details']['num_of_ips']['other'], $requestHistory['diff']['details']['num_of_ips']['current']);
+                                }
+                                echo ' (<span class="text-'
+                                    .(($requestHistory['diff']['details']['num_of_ips']['difference']>0)?'danger':'success')
+                                    .'">'
+                                    .abs($requestHistory['diff']['details']['num_of_ips']['difference'])
+                                    .'IPs in total to be '
+                                    .(($requestHistory['diff']['details']['num_of_ips']['difference']>0)?'bound':'released')
+                                    .'</span>)';
+                            } else echo $details->num_of_ips;
+                            ?></div>
+                        <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['num_of_ips']) && $project->status==0)
                                 ? ColorClassedLoadIndicator::widget([
-                                    'current' => $resourcesStats['ips']['current'],
-                                    'requested' => $resourcesStats['ips']['requested'],
-                                    'total' => $resourcesStats['ips']['total'],
+                                    'current' => $resourcesStats['num_of_ips']['current'],
+                                    'requested' => $resourcesStats['num_of_ips']['requested'],
+                                    'total' => $resourcesStats['num_of_ips']['total'],
                                     'context' => ContextualLoadIndicator::IP,
                                     'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
                                     'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
-                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
-                                ])
+                                    'bootstrap4RequestedClassPositive'=>$resourcesStats['general']['bootstrap4RequestedClassPositive'],
+                                    'bootstrap4RequestedClassNegative'=>$resourcesStats['general']['bootstrap4RequestedClassNegative']])
                                 : '' ?></div>
                     </div>
                 </td>
             </tr>
             <tr>
-                <th class="col-md-6 text-right" scope="col">Disk:</th>
+                <th class="col-md-6 text-right" scope="col">Disk per VM:</th>
                 <td class="col-md-6" scope="col">
                     <div class="row mr-0">
-                        <div class="col-4 text-left"><?= $details->disk ?> GBs</div>
+                        <div class="col-4 text-left">
+                            <?php
+                            if (isset($requestHistory['diff']['details']['disk'])) {
+                                if (isset($requestHistory['diff']['details']['disk']['current']) && isset($requestHistory['diff']['details']['disk']['other'])) {
+                                    ProjectDiff::str($requestHistory['diff']['details']['disk']['other'], $requestHistory['diff']['details']['disk']['current'].'GBs');
+                                }
+                                echo ' (<span class="text-'
+                                    .(($requestHistory['diff']['details']['disk']['difference']>0)?'danger':'success')
+                                    .'">'
+                                    .abs($requestHistory['diff']['details']['disk']['difference'])
+                                    .'GBs of disk in total to be '
+                                    .(($requestHistory['diff']['details']['disk']['difference']>0)?'allocated':'released')
+                                    .'</span>)';
+                            } else echo $details->disk.'GBs';
+                            ?>
+                        </div>
                         <div class="col-8 text-right pr-0"><?= (isset($resourcesStats['storage']) && $project->status==0)
                                 ? ColorClassedLoadIndicator::widget([
                                     'current' => $resourcesStats['storage']['current'],
@@ -158,8 +259,8 @@ Headers::begin() ?>
                                     'context' => ContextualLoadIndicator::MEMORY,
                                     'loadBreakpoint0'=>$resourcesStats['general']['loadBreakpoint0'],
                                     'loadBreakpoint1'=>$resourcesStats['general']['loadBreakpoint1'],
-                                    'bootstrap4RequestedClass'=>$resourcesStats['general']['bootstrap4RequestedClass']
-                                ])
+                                    'bootstrap4RequestedClassPositive'=>$resourcesStats['general']['bootstrap4RequestedClassPositive'],
+                                    'bootstrap4RequestedClassNegative'=>$resourcesStats['general']['bootstrap4RequestedClassNegative']])
                                 : '' ?></div>
                     </div>
                 </td>
@@ -173,11 +274,20 @@ Headers::begin() ?>
 			<tbody>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Analysis description:</th>
-				<td class="col-md-6 text-left" scope="col"><?= $details->description ?></td>
+				<td class="col-md-6 text-left" scope="col"><?php
+                    if (isset($requestHistory['diff']['details']['description'])) {
+                        ProjectDiff::str($requestHistory['diff']['details']['description']['other'], $requestHistory['diff']['details']['description']['current']);
+                    } else echo $details->description;
+                    ?></td>
 			</tr>
 			</body>
 		</table>
 	</div>
+</div>
+<div>
+    <?php
+    var_dump($requestHistory);
+    ?>
 </div>
 <div class="row">&nbsp;</div>
 
