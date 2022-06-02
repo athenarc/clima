@@ -966,7 +966,7 @@ class ProjectController extends Controller
             $model = new $modelClass;
             // Required stats: cores, ram , ips, disk
             if ($project_request->status == 0) {
-                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();r::evaluateProjectRequestDiff($project_request);
+                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();
                 // If the project is actually a modification, then there's no need to poll for all the resources; just
                 // the ones that have been modified in the newer request
                 if (isset($previouslyApprovedProjectRequest)) {
