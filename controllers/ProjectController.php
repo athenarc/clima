@@ -2,43 +2,36 @@
 
 namespace app\controllers;
 
-use Yii;
-use yii\filters\AccessControl;
-use yii\web\Controller;
-use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
+use app\models\ColdStorageAutoaccept;
+use app\models\ColdStorageLimits;
+use app\models\ColdStorageRequest;
+use app\models\Configuration;
+use app\models\EmailEventsModerator;
+use app\models\EmailEventsUser;
+use app\models\HotVolumes;
+use app\models\MachineComputeLimits;
+use app\models\MachineComputeRequest;
+use app\models\OndemandAutoaccept;
+use app\models\OndemandLimits;
+use app\models\OndemandRequest;
 use app\models\Project;
 use app\models\ProjectRequest;
 use app\models\ProjectRequestCold;
-use app\models\ServiceRequest;
-use app\models\MachineComputeRequest;
-use app\models\MachineComputeLimits;
-use app\models\ColdStorageLimits;
-use app\models\ColdStorageAutoaccept;
-use app\models\OndemandRequest;
-use app\models\OndemandLimits;
-use app\models\OndemandAutoaccept;
-use app\models\ServiceLimits;
 use app\models\ServiceAutoaccept;
-use app\models\ColdStorageRequest;
-use app\models\Notification;
-use app\models\Configuration;
+use app\models\ServiceLimits;
+use app\models\ServiceRequest;
+use app\models\Smtp;
 use app\models\User;
 use app\models\Vm;
 use app\models\VmMachines;
-use yii\db\Query;
-use app\models\Smtp;
-use app\models\EmailEventsModerator;
-use app\models\EmailEventsUser;
-use app\models\Email;
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\web\UploadedFile;
-use app\models\HotVolumes;
 use webvimark\modules\UserManagement\models\User as Userw;
-
+use Yii;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\Controller;
+use yii\web\UploadedFile;
 
 
 class ProjectController extends Controller
@@ -927,7 +920,7 @@ class ProjectController extends Controller
                     if (isset($diff['details']['disk'])) {
                         $openStackStorage = Vm::getOpenstackStorageStatistics();
                         $openStackStorage['storage']['requested'] = $diff['details']['disk']['difference'];
-                        $resourcesStats['storage'] = $openStackStorage['storage'];
+                        $resourcesStats['disk'] = $openStackStorage['storage'];
                     }
                     if (session_status()!==PHP_SESSION_ACTIVE) session_start();
                 } // If it is not a modification, then poll for all required resources
@@ -941,8 +934,9 @@ class ProjectController extends Controller
                     $openStackCpuAndRam['ram']['requested'] = $details->num_of_vms * $details->ram;
                     $openStackIps['num_of_ips']['requested'] = $details->num_of_vms * $details->num_of_ips;
                     // this should equal always to 1 since for 24/7 services, only 1 vm is allocated with only 1 ip
-
-                    $openStackStorage['storage']['requested'] = $details->num_of_vms * $details->disk;
+                    $openStackStorage['disk'] = $openStackStorage['storage'];
+                    unset($openStackStorage['storage']);
+                    $openStackStorage['disk']['requested'] = $details->num_of_vms * $details->disk;
 
                     $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
                     error_log(serialize($resourcesStats));
@@ -1030,7 +1024,7 @@ class ProjectController extends Controller
                     if (isset($diff['details']['disk'])) {
                         $openStackStorage = VmMachines::getOpenstackStorageStatistics();
                         $openStackStorage['storage']['requested'] = $diff['details']['disk']['difference'];
-                        $resourcesStats['storage'] = $openStackStorage['storage'];
+                        $resourcesStats['disk'] = $openStackStorage['storage'];
                     }
                     if (session_status()!==PHP_SESSION_ACTIVE) session_start();
                 } // If it is not a modification, then poll for all required resources
@@ -1045,8 +1039,9 @@ class ProjectController extends Controller
                     $openStackIps['num_of_ips']['requested'] = $details->num_of_vms * $details->num_of_ips;
                     // this should equal always to num_of_vms since for on-demand computation machines, each vm
                     // is only bound to 1 ip
-
-                    $openStackStorage['storage']['requested'] = $details->num_of_vms * $details->disk;
+                    $openStackStorage['disk'] = $openStackStorage['storage'];
+                    unset($openStackStorage['storage']);
+                    $openStackStorage['disk']['requested'] = $details->num_of_vms * $details->disk;
 
                     $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
                 }
@@ -1062,11 +1057,7 @@ class ProjectController extends Controller
             }
         }
         $resourcesStats['general'] = [
-            'excessiveRequest' => $excessiveRequest,
-            'loadBreakpoint0' => 0.33,
-            'loadBreakpoint1' => 0.66,
-            'bootstrap4RequestedClassPositive' => 'primary',
-            'bootstrap4RequestedClassNegative' => 'secondary'
+            'excessiveRequest' => $excessiveRequest
         ];
 
         $requestHistory = ['isMod' => isset($diff)];

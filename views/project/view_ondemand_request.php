@@ -9,6 +9,7 @@
  */
 
 use app\components\ProjectDiff;
+use app\components\ProjectValueDisplay;
 use rmrevin\yii\fontawesome\FA;
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
@@ -78,40 +79,21 @@ Headers::begin() ?>
             </tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Started on:</th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['project']['submission_date']) && isset($requestHistory['diff']['project']['approval_date'])) {
-                        ProjectDiff::str($requestHistory['diff']['project']['approval_date']['other'], $requestHistory['diff']['project']['submission_date']['current']);
-                    } else echo $start;
-                    ?></td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::startDate($start,$requestHistory); ?>
+                </td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Ends on: </th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['project']['end_date'])) {
-                        ProjectDiff::str($requestHistory['diff']['project']['end_date']['other'], $requestHistory['diff']['project']['end_date']['current']);
-                    } else echo $ends;
-                    ?> (<?= $remaining_time ?> days remaining
-                    <?php if (isset($requestHistory['diff']['project']['end_date'])) {
-                        echo '- <span class="text-'
-                            . (($requestHistory['diff']['project']['end_date']['difference'] > 0) ? 'danger' : 'success')
-                            . '">' . abs($requestHistory['diff']['project']['end_date']['difference'])
-                            . ' days '
-                            . (($requestHistory['diff']['project']['end_date']['difference'] > 0) ? ' to be extended' : 'to be shortened')
-                            . '</span>';
-                    } ?>)</td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::endDate($ends, $remaining_time, $requestHistory) ?>
+                </td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Participating users:</th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['project']['user_list'])) {
-                        ProjectDiff::arr($requestHistory['diff']['project']['user_list']['other'], $requestHistory['diff']['project']['user_list']['current']);
-                    } else echo $user_list;
-                    ?>(<?= $number_of_users ?> out of
-                    <?php
-                    if (isset($requestHistory['diff']['project']['user_num'])) {
-                        ProjectDiff::str($requestHistory['diff']['project']['user_num']['other'], $requestHistory['diff']['project']['user_num']['current']);
-                    } else echo $maximum_number_users;
-                    ?>)</td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::userList($user_list, $number_of_users, $maximum_number_users, $requestHistory) ?>
+                </td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Owner: </th>
@@ -128,27 +110,21 @@ Headers::begin() ?>
 		<tbody>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Remaining jobs:</th>
-				<td class="col-md-6 text-left" scope="col"><div class="col-md-3" style="padding-left: 0px;"><?= $remaining_jobs?> (out of <?php
-                        if (isset($requestHistory['diff']['details']['num_of_jobs'])) {
-                            ProjectDiff::str($requestHistory['diff']['details']['num_of_jobs']['other'], $requestHistory['diff']['details']['num_of_jobs']['current']);
-                        } else echo $details->num_of_jobs;
-                        ?>)</div><div class="col-md-9"><div class="progress"><div class="progress-bar <?=$bar_class?>" role="progressbar" style="width:<?=$bar_percentage?>%" aria-valuenow="$bar_percentage" aria-valuemin="0" aria-valuemax="100"></div></div></div></td>
+				<td class="col-md-6 text-left" scope="col"><div class="col-md-3" style="padding-left: 0px;"><?= $remaining_jobs?> (out of
+                        <?= ProjectValueDisplay::simpleValue($details->num_of_jobs, 'num_of_jobs', $requestHistory); ?>
+                    )</div><div class="col-md-9"><div class="progress"><div class="progress-bar <?=$bar_class?>" role="progressbar" style="width:<?=$bar_percentage?>%" aria-valuenow="$bar_percentage" aria-valuemin="0" aria-valuemax="100"></div></div></div></td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">CPU cores for job:</th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['details']['cores'])) {
-                        ProjectDiff::str($requestHistory['diff']['details']['cores']['other'], $requestHistory['diff']['details']['cores']['current']);
-                    } else echo $details->cores;
-                    ?> (used <?=round($usage['cpu']/1000,2)?> cores/job οn average)</td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::simpleValue($details->cores, 'cores', $requestHistory); ?>
+                    (used <?=round($usage['cpu']/1000,2)?> cores/job οn average)</td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">RAM for jobs:</th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['details']['ram'])) {
-                        ProjectDiff::str($requestHistory['diff']['details']['ram']['other'], $requestHistory['diff']['details']['ram']['current']);
-                    } else echo $details->ram;
-                    ?> GBs (used <?=round($usage['ram'],2)?> GBs/job οn average)</td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::simpleValue($details->ram, 'ram', $requestHistory); ?>
+                    GBs (used <?=round($usage['ram'],2)?> GBs/job οn average)</td>
 			</tr>
 		</tbody>
 	</table>
@@ -159,33 +135,25 @@ Headers::begin() ?>
 		<tbody>		
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Analysis type:</th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['details']['analysis_type'])) {
-                        ProjectDiff::str($requestHistory['diff']['details']['analysis_type']['other'], $requestHistory['diff']['details']['analysis_type']['current']);
-                    } else echo $details->analysis_type;
-                    ?></td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::simpleValue($details->analysis_type, 'analysis_type', $requestHistory); ?>
+                </td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Maturity:</th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['details']['maturity'])) {
-                        ProjectDiff::str($requestHistory['diff']['details']['maturity']['other'], $requestHistory['diff']['details']['maturity']['current']);
-                    } else echo $details->maturity;
-                    ?></td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::simpleValue($details->maturity, 'maturity', $requestHistory); ?>
+                </td>
 			</tr>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Description:</th>
-				<td class="col-md-6 text-left" scope="col"><?php
-                    if (isset($requestHistory['diff']['details']['description'])) {
-                        ProjectDiff::str($requestHistory['diff']['details']['description']['other'], $requestHistory['diff']['details']['description']['current']);
-                    } else echo $details->description;
-                    ?></td>
+				<td class="col-md-6 text-left" scope="col">
+                    <?= ProjectValueDisplay::simpleValue($details->description, 'description', $requestHistory); ?>
+                </td>
 			</tr>
 		</body>
 	</table>
 </div>
-<div class="row">&nbsp;</div>
-
 
 <?php
 if ($project->status==0)
