@@ -284,11 +284,6 @@ Headers::begin() ?>
 		</table>
 	</div>
 </div>
-<div>
-    <?php
-    var_dump($requestHistory);
-    ?>
-</div>
 <div class="row">&nbsp;</div>
 
 <?php
