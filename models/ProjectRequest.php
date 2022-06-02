@@ -112,34 +112,98 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return true;
     }
 
-    public function getDiff($other){
+    public function getFormattedDiff($other, $shallow=false) {
+        // Get diff
+        $diff = $this->getDiff($other, true);
+
+        if (isset($diff['project']['user_list'])) {
+            $currentProjectUserIds = $diff['project']['user_list']['current'];
+            $otherProjectUserIds = $diff['project']['user_list']['other'];
+
+            $allRelatedUsers = User::find()->where(['IN', 'id',
+                array_merge($currentProjectUserIds, $otherProjectUserIds)
+            ])->all();
+
+            // Create a user id-to-username registry for O(1) mapping of usernames
+            $allRelatedUsersRegistry = [];
+            foreach ($allRelatedUsers as $relatedUser) {
+                $allRelatedUsersRegistry[$relatedUser->id] = explode('@', $relatedUser->username)[0];
+            }
+            $mapIdsToUsernames = function ($id) use ($allRelatedUsersRegistry) {
+                return $allRelatedUsersRegistry[$id];
+            };
+            $diff['project']['user_list']['current'] = array_map($mapIdsToUsernames, $currentProjectUserIds);
+            $diff['project']['user_list']['other'] = array_map($mapIdsToUsernames, $otherProjectUserIds);
+        }
+
+        if (isset($diff['project']['user_num'])) {
+            $differenceMaxUsers = $diff['project']['user_num']['current'] - $diff['project']['user_num']['other'];
+            $diff['project']['user_num']['difference'] = $differenceMaxUsers;
+        }
+
+        // 2. Timestamps to day or minute resolutions
+        if (isset($diff['project']['submission_date']) && isset($diff['project']['approval_date'])) {
+            // This is expected always to run since, obviously, different requests have different submission
+            // timestamps. Furthermore, since the older transmission is asserted as a previously approved request
+            // and the current request is pending, approval timestamps will be different (current's will be null)
+
+            $otherStartDateTs = strtotime($diff['project']['approval_date']['other']);
+            $currStartDateTs = strtotime($diff['project']['submission_date']['current']);
+            $otherStartDate = date('Y-m-d', $otherStartDateTs);
+            $currStartDate = date('Y-m-d', $currStartDateTs);
+            if ($otherStartDate == $currStartDate) {
+                $otherStartDate .= ' ' . date('H:i:s', $otherStartDateTs);
+                $currStartDate .= ' ' . date('H:i:s', $currStartDateTs);
+            }
+
+            $diff['project']['submission_date']['current'] = $currStartDate;
+            $diff['project']['approval_date']['other'] = $otherStartDate;
+        }
+        if (isset($diff['project']['end_date'])) {
+
+            $currentEndDateTs = strtotime($diff['project']['end_date']['current']);
+            $otherEndDateTs = strtotime($diff['project']['end_date']['other']);
+
+            $diff_in_seconds = $currentEndDateTs - $otherEndDateTs;
+            $diff_in_days = $diff_in_seconds / (60 * 60 * 24);
+
+            $diff['project']['end_date']['difference'] = $diff_in_days;
+        }
+
+        if (!$shallow) {
+            $details = null;
+            $otherDetails = null;
+            switch ($this->project_type) {
+                case 0:
+                    $details = OndemandRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = OndemandRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+                case 1:
+                    $details = ServiceRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = ServiceRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+                case 2:
+                    $details = ColdStorageRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = ColdStorageRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+                case 3:
+                    $details = MachineComputeRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = MachineComputeRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+            }
+
+            $diff['details'] = $details->getFormattedDiff($otherDetails);
+        }
+
+        return $diff;
+    }
+
+    public function getDiff($other, $shallow=false){
         $exclude = ['id','user_list'];
         $diff=[
             'project'=>[]
         ];
         $otherRequestAttributes = $other->getAttributes();
-
-        $details = null;
-        $otherDetails = null;
-        switch($this->project_type) {
-            case 0:
-                $details = OndemandRequest::find()->where(['request_id'=>$this->id])->one();
-                $otherDetails = OndemandRequest::find()->where(['request_id'=>$other->id])->one();
-                break;
-            case 1:
-                $details = ServiceRequest::find()->where(['request_id'=>$this->id])->one();
-                $otherDetails = ServiceRequest::find()->where(['request_id'=>$other->id])->one();
-                break;
-            case 2:
-                $details = ColdStorageRequest::find()->where(['request_id'=>$this->id])->one();
-                $otherDetails = ColdStorageRequest::find()->where(['request_id'=>$other->id])->one();
-                break;
-            case 3:
-                $details = MachineComputeRequest::find()->where(['request_id'=>$this->id])->one();
-                $otherDetails = MachineComputeRequest::find()->where(['request_id'=>$other->id])->one();
-                break;
-        }
-        if ($details && $otherDetails) $diff['details']=$details->getDiff($otherDetails);
 
         foreach ($otherRequestAttributes as $attributeName => $attributeValue)
         {
@@ -161,6 +225,30 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 'current'=>$userList,
                 'other'=>$otherUserList
             ];
+        }
+
+        if (!$shallow) {
+            $details = null;
+            $otherDetails = null;
+            switch ($this->project_type) {
+                case 0:
+                    $details = OndemandRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = OndemandRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+                case 1:
+                    $details = ServiceRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = ServiceRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+                case 2:
+                    $details = ColdStorageRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = ColdStorageRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+                case 3:
+                    $details = MachineComputeRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = MachineComputeRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+            }
+            if ($details && $otherDetails) $diff['details'] = $details->getDiff($otherDetails);
         }
 
         return $diff;
@@ -585,9 +673,9 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
     }
 
-    public function isModification() {
-        $project = Project::find()->where(['id'=>$this->project_id])->one();
-        return (isset($project->pending_request_id) && isset($project->latest_project_request_id) && $project->pending_request_id!=$project->latest_project_request_id);
+    public function getPreviouslyApprovedProjectRequest() {
+        $project = Project::find()->where(['pending_request_id' => $this->id])->one();
+        return ProjectRequest::find()->where(['id' => $project->latest_project_request_id])->one();
     }
 
     public static function getVmList($filter)
