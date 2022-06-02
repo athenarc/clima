@@ -215,6 +215,13 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
         $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
+        /*
+         * Volumes for machine VMs should not be auto-accepted
+         */
+        if ($this->vm_type=='2')
+        {
+            $autoaccept_allowed=false;
+        }
         
 
         if ((($this->storage<=$row['storage']) && $autoaccept_allowed) || $uchanged)
