@@ -321,5 +321,24 @@ class OndemandRequest extends \yii\db\ActiveRecord
         return [$errors,$success,$warnings];
     }
 
+    public function getFormattedDiff($other)
+    {
+        $diff = $this->getDiff($other);
+        return $diff;
+    }
 
+    public function getDiff($other) {
+        $diff=[];
+        $otherAttributes = $other->getAttributes();
+        foreach ($otherAttributes as $attributeName => $attributeValue)
+        {
+            if($this->$attributeName !== $attributeValue) {
+                $diff[$attributeName]=[
+                    'current'=>$this->$attributeName,
+                    'other'=>$attributeValue
+                ];
+            }
+        }
+        return $diff;
+    }
 }

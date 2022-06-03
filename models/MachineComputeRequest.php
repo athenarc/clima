@@ -323,4 +323,70 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
     
     }
 
+    public function getFormattedDiff($other) {
+        $diff = $this->getDiff($other);
+
+        // 3. For each resource type calculate difference and fetch from OpenStack corresponding resource
+        // status
+        $otherProjectNumOfVms = null;
+        if (isset($diff['num_of_vms'])) {
+            // Store num_of_vms for the other project request because it may be needed in evaluation of differences of
+            // other resources
+            $otherProjectNumOfVms = $diff['num_of_vms']['other'];
+
+            $diff['num_of_vms']['difference'] = $diff['num_of_vms']['current'] - $diff['num_of_vms']['other'];;
+        }
+
+        // For cores, ram, ips and disk, even if no change has been made to the number of individual VM resources, if
+        // the number of VMs changed, then the total amount needed regarding these resources also has changed.
+        if (isset($diff['num_of_cores']) || isset($diff['num_of_vms'])) {
+            // If no change has been made to a project's num_of_cores, then get the value from the current project
+            // details request
+            $currentProjectCores = $diff['num_of_cores']['current'] ?? $this->num_of_cores;
+            $otherProjectCores = $diff['num_of_cores']['other'] ?? $currentProjectCores;
+            $differenceCores = $this->num_of_vms * $currentProjectCores - ($otherProjectNumOfVms ?: $this->num_of_vms) * $otherProjectCores;
+
+            $diff['num_of_cores']['difference'] = $differenceCores;
+        }
+        if (isset($diff['ram']) || isset($diff['num_of_vms'])) {
+            $currentProjectRam = $diff['ram']['current'] ?? $this->ram;
+            $otherProjectRam = $diff['ram']['other'] ?? $currentProjectRam;
+            $differenceRam = ($this->num_of_vms ?? 1) * $currentProjectRam - ($otherProjectNumOfVms ?: ($this->num_of_vms ?? 1)) * $otherProjectRam;
+
+            $diff['ram']['difference'] = $differenceRam;
+        }
+        if (isset($diff['num_of_ips']) || isset($diff['num_of_vms'])) {
+            $currentProjectNumOfIps = $diff['num_of_ips']['current'] ?? $this->num_of_ips;
+            $otherProjectNumOfIps = $diff['num_of_ips']['other'] ?? $currentProjectNumOfIps;
+            $differenceIps = $this->num_of_vms * $currentProjectNumOfIps - ($otherProjectNumOfVms ?: $this->num_of_vms) * $otherProjectNumOfIps;
+
+            $diff['num_of_ips']['difference'] = $differenceIps;
+        }
+        if (isset($diff['disk']) || isset($diff['num_of_vms'])) {
+            $currentProjectDisk = $diff['disk']['current'] ?? $this->disk;
+            $otherProjectDisk = $diff['disk']['other'] ?? $currentProjectDisk;
+            $differenceDisk = $this->num_of_vms * $currentProjectDisk - ($otherProjectNumOfVms ?: $this->num_of_vms) * $otherProjectDisk;
+
+            $diff['disk']['difference'] = $differenceDisk;
+        }
+
+        return $diff;
+    }
+
+    public function getDiff($other) {
+        $diff=[];
+        $otherAttributes = $other->getAttributes();
+
+        foreach ($otherAttributes as $attributeName => $attributeValue)
+        {
+            if($this->$attributeName !== $attributeValue) {
+                $diff[$attributeName]=[
+                    'current'=>$this->$attributeName,
+                    'other'=>$attributeValue
+                ];
+            }
+        }
+
+        return $diff;
+    }
 }

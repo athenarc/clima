@@ -215,6 +215,13 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
         $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
         $project=Project::find()->where(['id'=>$request->project_id])->one();
 
+        /*
+         * Volumes for machine VMs should not be auto-accepted
+         */
+        if ($this->vm_type=='2')
+        {
+            $autoaccept_allowed=false;
+        }
         
 
         if ((($this->storage<=$row['storage']) && $autoaccept_allowed) || $uchanged)
@@ -465,4 +472,48 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
 
     }
 
+    public function getFormattedDiff($other) {
+        $diff = $this->getDiff($other);
+
+        // 3. For each resource type calculate difference and fetch from OpenStack corresponding resource
+        // status
+        $otherProjectNumOfVolumes = null;
+        if (isset($diff['num_of_volumes'])) {
+            // Store num_of_volumes as well for the other project request for the potential evaluation of a new
+            // project's storage
+            $otherProjectNumOfVolumes = $diff['num_of_volumes']['other'];
+
+            $diff['num_of_volumes']['difference'] = $diff['num_of_volumes']['current'] - $diff['num_of_volumes']['other'];;
+        }
+        if (isset($diff['storage']) || isset($diff['num_of_volumes'])) {
+            $currentProjectStorage = $diff['storage']['current'] ?? $this->storage;
+            $otherProjectStorage = $diff['storage']['other'] ?? $currentProjectStorage;
+            $differenceStorage = $this->num_of_volumes * $currentProjectStorage - ($otherProjectNumOfVolumes ?: $this->num_of_volumes) * $otherProjectStorage;
+
+            $diff['storage']['difference'] = $differenceStorage;
+        }
+        if (isset($diff['vm_type'])) {
+            $diff['vm_type']['current'] = ($diff['vm_type']['current'] == 1 ? "24/7 Service" : "On-demand computation machines");
+            $diff['vm_type']['other'] = ($diff['vm_type']['other'] == 1 ? "24/7 Service" : "On-demand computation machines");
+        }
+
+        return $diff;
+    }
+
+    public function getDiff($other) {
+        $diff=[];
+        $otherAttributes = $other->getAttributes();
+
+        foreach ($otherAttributes as $attributeName => $attributeValue)
+        {
+            if($this->$attributeName !== $attributeValue) {
+                $diff[$attributeName]=[
+                    'current'=>$this->$attributeName,
+                    'other'=>$attributeValue
+                ];
+            }
+        }
+
+        return $diff;
+    }
 }

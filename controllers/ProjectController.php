@@ -2,43 +2,36 @@
 
 namespace app\controllers;
 
-use Yii;
-use yii\filters\AccessControl;
-use yii\web\Controller;
-use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
+use app\models\ColdStorageAutoaccept;
+use app\models\ColdStorageLimits;
+use app\models\ColdStorageRequest;
+use app\models\Configuration;
+use app\models\EmailEventsModerator;
+use app\models\EmailEventsUser;
+use app\models\HotVolumes;
+use app\models\MachineComputeLimits;
+use app\models\MachineComputeRequest;
+use app\models\OndemandAutoaccept;
+use app\models\OndemandLimits;
+use app\models\OndemandRequest;
 use app\models\Project;
 use app\models\ProjectRequest;
 use app\models\ProjectRequestCold;
-use app\models\ServiceRequest;
-use app\models\MachineComputeRequest;
-use app\models\MachineComputeLimits;
-use app\models\ColdStorageLimits;
-use app\models\ColdStorageAutoaccept;
-use app\models\OndemandRequest;
-use app\models\OndemandLimits;
-use app\models\OndemandAutoaccept;
-use app\models\ServiceLimits;
 use app\models\ServiceAutoaccept;
-use app\models\ColdStorageRequest;
-use app\models\Notification;
-use app\models\Configuration;
+use app\models\ServiceLimits;
+use app\models\ServiceRequest;
+use app\models\Smtp;
 use app\models\User;
 use app\models\Vm;
 use app\models\VmMachines;
-use yii\db\Query;
-use app\models\Smtp;
-use app\models\EmailEventsModerator;
-use app\models\EmailEventsUser;
-use app\models\Email;
-use yii\helpers\Url;
-use yii\helpers\Html;
-use yii\web\UploadedFile;
-use app\models\HotVolumes;
 use webvimark\modules\UserManagement\models\User as Userw;
-
+use Yii;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
+use yii\helpers\Html;
+use yii\helpers\Url;
+use yii\web\Controller;
+use yii\web\UploadedFile;
 
 
 class ProjectController extends Controller
@@ -825,10 +818,10 @@ class ProjectController extends Controller
 
     public function actionViewRequest($id,$filter='all')
     {
-
         ProjectRequest::recordViewed($id);
-        $project_request=ProjectRequest::findOne($id);
-        
+        $project_request = ProjectRequest::findOne($id);
+        $project_status = ProjectRequest::STATUSES[$project_request->status];
+
         if (!Userw::hasRole('Admin',$superadminAllowed=true) && (!Userw::hasRole('Moderator',$superadminAllowed=true)) )
         {
             return $this->render('//site/error_unauthorized');
@@ -878,80 +871,181 @@ class ProjectController extends Controller
             $used_jobs=$usage['count'];
             $remaining_jobs=$num_of_jobs-$used_jobs;
             $vm_type="";
+            if ($project_request->status == 0) { // Poll OpenStack only in case the request is pending
+                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();
+                if (isset($previouslyApprovedProjectRequest)) {
+                    $diff = $project_request->getFormattedDiff($previouslyApprovedProjectRequest);
+                }
+            }
 
         }
         else if ($project_request->project_type==1)
         {
-            $details=ServiceRequest::findOne(['request_id'=>$id]);
-            $view_file='view_service_request';
-            $type="24/7 Service";
-            $vm_type="";
+            $details = ServiceRequest::findOne(['request_id' => $id]);
+            $view_file = 'view_service_request';
+            $type = "24/7 Service";
+            $vm_type = "";
             // Required stats: cores, ram , ips, disk
-            $model=new Vm;
-            session_write_close();
-            $openStackCpuAndRam = Vm::getOpenstackCpuAndRamStatistics();
-            $openStackIps = Vm::getOpenstackIpStatistics();
-            $openStackStorage = Vm::getOpenstackStorageStatistics();
-            session_start();
-            $openStackCpuAndRam['cpu']['requested']=$details->num_of_vms*$details->num_of_cores;
-            $openStackCpuAndRam['ram']['requested']=$details->num_of_vms*$details->ram;
+            if ($project_request->status == 0) { // Poll OpenStack only in case the request is pending
+                $model = new Vm;
+                session_write_close();
+                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();
 
-            $openStackIps['ips']['requested']=$details->num_of_vms*$details->num_of_ips;
-            //    -> this should equal always to 1 since for 24/7 services, only 1 vm is allocated with only 1 ip
+                // If the project is actually a modification, then there's no need to poll for all the resources; just
+                // the ones that have been modified in the newer request
+                if (isset($previouslyApprovedProjectRequest)) {
+                    $diff=$project_request->getFormattedDiff($previouslyApprovedProjectRequest);
+                    // Check if cores or ram have been modified in the new request
+                    if (isset($diff['details']['num_of_cores']) || isset($diff['details']['ram'])) {
+                        $openStackCpuAndRam = Vm::getOpenstackCpuAndRamStatistics();
 
-            $openStackStorage['storage']['requested']=$details->num_of_vms*$details->disk;
+                        if (isset($diff['details']['num_of_cores'])) {
+                            $openStackCpuAndRam['num_of_cores']['requested'] = $diff['details']['num_of_cores']['difference'];
+                            $resourcesStats['num_of_cores'] = $openStackCpuAndRam['num_of_cores'];
+                        } else {
+                            unset($openStackCpuAndRam['num_of_cores']);
+                        }
+                        if (isset($diff['details']['ram'])) {
+                            $openStackCpuAndRam['ram']['requested'] = $diff['details']['ram']['difference'];
+                            $resourcesStats['ram'] = $openStackCpuAndRam['ram'];
+                        } else {
+                            unset($openStackCpuAndRam['ram']);
+                        }
+                    }
+                    if (isset($diff['details']['num_of_ips'])) {
+                        $openStackIps = Vm::getOpenstackIpStatistics();
+                        $openStackIps['num_of_ips']['requested'] = $diff['details']['num_of_ips']['difference'];
+                        $resourcesStats['num_of_ips'] = $openStackIps['num_of_ips'];
+                    }
+                    if (isset($diff['details']['disk'])) {
+                        $openStackStorage = Vm::getOpenstackStorageStatistics();
+                        $openStackStorage['storage']['requested'] = $diff['details']['disk']['difference'];
+                        $resourcesStats['disk'] = $openStackStorage['storage'];
+                    }
+                    if (session_status()!==PHP_SESSION_ACTIVE) session_start();
+                } // If it is not a modification, then poll for all required resources
+                else {
+                    $openStackCpuAndRam = Vm::getOpenstackCpuAndRamStatistics();
+                    $openStackIps = Vm::getOpenstackIpStatistics();
+                    $openStackStorage = Vm::getOpenstackStorageStatistics();
+                    if (session_status()!==PHP_SESSION_ACTIVE) session_start();
 
-            $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
-        }
-        else if ($project_request->project_type==3)
-        {
-            $details=MachineComputeRequest::findOne(['request_id'=>$id]);
-            $view_file='view_machine_compute_request';
-            $type="On-demand computation machines";
-            $vm_type="";
-            // Required stats: cores, ram , ips, disk
-            $model=new VmMachines;
-            session_write_close();
-            $openStackCpuAndRam = VmMachines::getOpenstackCpuAndRamStatistics();
-            $openStackIps = VmMachines::getOpenstackIpStatistics();
-            $openStackStorage = VmMachines::getOpenstackStorageStatistics();
-            session_start();
+                    $openStackCpuAndRam['num_of_cores']['requested'] = $details->num_of_vms * $details->num_of_cores;
+                    $openStackCpuAndRam['ram']['requested'] = $details->num_of_vms * $details->ram;
+                    $openStackIps['num_of_ips']['requested'] = $details->num_of_vms * $details->num_of_ips;
+                    // this should equal always to 1 since for 24/7 services, only 1 vm is allocated with only 1 ip
+                    $openStackStorage['disk'] = $openStackStorage['storage'];
+                    unset($openStackStorage['storage']);
+                    $openStackStorage['disk']['requested'] = $details->num_of_vms * $details->disk;
 
-            $openStackCpuAndRam['cpu']['requested']=$details->num_of_vms*$details->num_of_cores;
-            $openStackCpuAndRam['ram']['requested']=$details->num_of_vms*$details->ram;
-
-            $openStackIps['ips']['requested']=$details->num_of_vms*$details->num_of_ips;
-            //    -> this should equal always to num_of_vms since for on-demand computation machines, only each vm
-            //       is bound to 1 ip
-
-            $openStackStorage['storage']['requested']=$details->num_of_vms*$details->disk;
-
-            $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
+                    $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
+                    error_log(serialize($resourcesStats));
+                }
+            }
         }
         else if ($project_request->project_type==2)
         {
             $details=ColdStorageRequest::findOne(['request_id'=>$id]);
             $vm_type="24/7 Service";
+            $view_file='view_cold_request';
+            $type="Storage volumes";
             if($details->vm_type==2)
             {
                 $vm_type="On-demand computation machines";
-                $model=new VmMachines;
-                session_write_close();
-                $openStackStorage = VmMachines::getOpenstackStorageStatistics();
-                session_start();
+                $modelClass = VmMachines::class;
             }
             else {
-                $model=new Vm;
-                session_write_close();
-                $openStackStorage = Vm::getOpenstackStorageStatistics();
-                session_start();
+                $modelClass = Vm::class;
             }
-            $totalRequestedStorage=$details->storage*$details->num_of_volumes;
-            $openStackStorage['storage']['requested'] = $totalRequestedStorage;
-            $resourcesStats = $openStackStorage;
-            $view_file='view_cold_request';
-            $type="Storage volumes";
-           
+            $model = new $modelClass;
+            // Required stats: cores, ram , ips, disk
+            if ($project_request->status == 0) {
+                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();
+                // If the project is actually a modification, then there's no need to poll for all the resources; just
+                // the ones that have been modified in the newer request
+                if (isset($previouslyApprovedProjectRequest)) {
+                    $diff=$project_request->getFormattedDiff($previouslyApprovedProjectRequest);
+                    if (isset($diff['details']['storage'])) {
+                        session_write_close();
+                        $openStackStorage = $modelClass::getOpenstackStorageStatistics();
+                        if (session_status()!==PHP_SESSION_ACTIVE) session_start();
+                        $openStackStorage['storage']['requested'] = $diff['details']['storage']['difference'];
+                        $resourcesStats['storage'] = $openStackStorage['storage'];
+                    }
+                } // If it is not a modification, then poll for all required resources
+                else {
+                    session_write_close();
+                    $openStackStorage = $modelClass::getOpenstackStorageStatistics();
+                    if (session_status()!==PHP_SESSION_ACTIVE) session_start();
+                    $totalRequestedStorage = $details->storage * $details->num_of_volumes;
+                    $openStackStorage['storage']['requested'] = $totalRequestedStorage;
+                    $resourcesStats['storage'] = $openStackStorage['storage'];
+                }
+            }
+        }
+        else if ($project_request->project_type==3)
+        {
+            $details = MachineComputeRequest::findOne(['request_id' => $id]);
+            $view_file = 'view_machine_compute_request';
+            $type = "On-demand computation machines";
+            $vm_type = "";
+            // Required stats: cores, ram , ips, disk
+            if ($project_request->status == 0) { // Poll OpenStack only in case the request is pending
+                $model = new VmMachines;
+                session_write_close();
+                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();
+                // If the project is actually a modification, then there's no need to poll for all the resources; just
+                // the ones that have been modified in the newer request
+                if (isset($previouslyApprovedProjectRequest)) {
+                    $diff=$project_request->getFormattedDiff($previouslyApprovedProjectRequest);
+
+                    // Check if cores or ram have been modified in the new request
+                    if (isset($diff['details']['num_of_cores']) || isset($diff['details']['ram'])) {
+                        $openStackCpuAndRam = VmMachines::getOpenstackCpuAndRamStatistics();
+
+                        if (isset($diff['details']['num_of_cores'])) {
+                            $openStackCpuAndRam['num_of_cores']['requested'] = $diff['details']['num_of_cores']['difference'];
+                            $resourcesStats['num_of_cores'] = $openStackCpuAndRam['num_of_cores'];
+                        } else {
+                            unset($openStackCpuAndRam['num_of_cores']);
+                        }
+                        if (isset($diff['details']['ram'])) {
+                            $openStackCpuAndRam['ram']['requested'] = $diff['details']['ram']['difference'];
+                            $resourcesStats['ram'] = $openStackCpuAndRam['ram'];
+                        } else {
+                            unset($openStackCpuAndRam['ram']);
+                        }
+                    }
+                    if (isset($diff['details']['num_of_ips'])) {
+                        $openStackIps = VmMachines::getOpenstackIpStatistics();
+                        $openStackIps['num_of_ips']['requested'] = $diff['details']['num_of_ips']['difference'];
+                        $resourcesStats['num_of_ips'] = $openStackIps['num_of_ips'];
+                    }
+                    if (isset($diff['details']['disk'])) {
+                        $openStackStorage = VmMachines::getOpenstackStorageStatistics();
+                        $openStackStorage['storage']['requested'] = $diff['details']['disk']['difference'];
+                        $resourcesStats['disk'] = $openStackStorage['storage'];
+                    }
+                    if (session_status()!==PHP_SESSION_ACTIVE) session_start();
+                } // If it is not a modification, then poll for all required resources
+                else {
+                    $openStackCpuAndRam = VmMachines::getOpenstackCpuAndRamStatistics();
+                    $openStackIps = VmMachines::getOpenstackIpStatistics();
+                    $openStackStorage = VmMachines::getOpenstackStorageStatistics();
+                    if (session_status()!==PHP_SESSION_ACTIVE) session_start();
+
+                    $openStackCpuAndRam['num_of_cores']['requested'] = $details->num_of_vms * $details->num_of_cores;
+                    $openStackCpuAndRam['ram']['requested'] = $details->num_of_vms * $details->ram;
+                    $openStackIps['num_of_ips']['requested'] = $details->num_of_vms * $details->num_of_ips;
+                    // this should equal always to num_of_vms since for on-demand computation machines, each vm
+                    // is only bound to 1 ip
+                    $openStackStorage['disk'] = $openStackStorage['storage'];
+                    unset($openStackStorage['storage']);
+                    $openStackStorage['disk']['requested'] = $details->num_of_vms * $details->disk;
+
+                    $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
+                }
+            }
         }
 
         // Configure general information about statistics and visualizations
@@ -962,44 +1056,47 @@ class ProjectController extends Controller
                 break;
             }
         }
-        $resourcesStats['general']=[
-            'excessiveRequest'=>$excessiveRequest,
-            'loadBreakpoint0'=>0.33,
-            'loadBreakpoint1'=>0.66,
-            'bootstrap4RequestedClass'=>'primary'
+        $resourcesStats['general'] = [
+            'excessiveRequest' => $excessiveRequest
         ];
-        
-        $submitted=User::find()->where(['id'=>$project_request->submitted_by])->one();
-        $project_owner= ($submitted->username==Userw::getCurrentUser()['username']);
+
+        $requestHistory = ['isMod' => isset($diff)];
+        if (isset($diff)) $requestHistory['diff'] = $diff;
+
+        $usernames = [];
+        // If the project request is a modification, in which the user_list has been modified then the user list will
+        // have been stored in the corresponding diff field
+        if ($requestHistory['isMod'] && isset($diff['project']['user_list'])) {
+            $usernames = $diff['project']['user_list']['current'];
+        } else {
+            $users = User::find()->where(['IN', 'id', $project_request->user_list])->all();
+            $mapUsername = function ($usr) {
+                return explode('@', $usr->username)[0];
+            };
+            $usernames = array_map($mapUsername, $users);
+        }
+
+        $submitted = User::find()->where(['id' => $project_request->submitted_by])->one();
+        $project_owner = ($submitted->username == Userw::getCurrentUser()['username']);
         /*
          * Fix username so that it is shown without @
          */
-        $users=User::find()->where(['IN','id',$project_request->user_list])->all();
-        $submitted->username=explode('@',$submitted->username)[0];
+        // $users=User::find()->where(['IN','id',$project_request->user_list])->all();
+        $submitted->username = explode('@', $submitted->username)[0];
         // $users=User::returnList($project->user_list);
-        $number_of_users=count($users);
-        $maximum_number_users=$project_request->user_num;
+        $number_of_users = count($usernames);
+        $maximum_number_users = $project_request->user_num;
 
-        $user_list='';
-        foreach ($users as $user)
-        {
-            $usernames=$user->username;
-            if (--$number_of_users <= 0) 
-            {
-                $user_list.=explode('@', $usernames)[0].'';
-            }    
-            else
-            {
-                $user_list.=explode('@', $usernames)[0].', ';
-            }
-        }
+        $user_list = join(', ', array_values($usernames));
+        $expired = 0;
 
-        $number_of_users=count($users);
-        $expired=0;
-
-        return $this->render($view_file,['project'=>$project_request,'details'=>$details, 
-            'filter'=>$filter,'usage'=>$usage,'user_list'=>$user_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'resourcesStats' => $resourcesStats]);
+        return $this->render($view_file, ['project' => $project_request, 'details' => $details,
+            'filter' => $filter, 'usage' => $usage, 'user_list' => $user_list, 'submitted' => $submitted,
+            'request_id' => $id, 'type' => $type, 'ends' => $ends, 'start' => $start,
+            'remaining_time' => $remaining_time, 'project_owner' => $project_owner,
+            'number_of_users' => $number_of_users, 'maximum_number_users' => $maximum_number_users,
+            'remaining_jobs' => $remaining_jobs, 'expired' => $expired, 'resourcesStats' => $resourcesStats,
+            'requestHistory' => $requestHistory, 'project_status' => $project_status]);
 
 
     }
@@ -2130,6 +2227,11 @@ class ProjectController extends Controller
 
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
+            // Enforce one volume for 24/7 service
+            if ($prType==2 && $drequest->vm_type==1) {
+                $drequest->num_of_volumes=1;
+            }
+
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
@@ -2195,8 +2297,8 @@ class ProjectController extends Controller
                 }
                 if ($pchanged || $dchanged)
                 {
-                
-                    $messages=$prequest->uploadNewEdit($prType,$id,$uchanged);
+
+                    $messages=$prequest->uploadNewEdit($prType,$uchanged,$id);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
@@ -2407,6 +2509,11 @@ class ProjectController extends Controller
             $isValid = $prequest->validate();
             $isValid = $drequest->validate() && $isValid;
 
+            // Enforce one volume for 24/7 service
+            if ($prType==2 && $drequest->vm_type==1) {
+                $drequest->num_of_volumes=1;
+            }
+
 
             /* 
              * Get participant ids
@@ -2453,17 +2560,17 @@ class ProjectController extends Controller
 
                 if ($pchanged || $dchanged)
                 {
-                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
-                    $errors.=$messages[0];
-                    $success.=$messages[1];
-                    $warnings.=$messages[2];
-                    $requestId=$messages[3];
-                    if ($requestId!=-1)
-                    {
-                        $messages=$drequest->uploadNewEdit($requestId,$uchanged);
-                        $errors.=$messages[0];
-                        $success.=$messages[1];
-                        $warnings.=$messages[2];
+//                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
+                    $messages = $prequest->uploadNewEdit($prType, $uchanged, $id);
+                    $errors .= $messages[0];
+                    $success .= $messages[1];
+                    $warnings .= $messages[2];
+                    $requestId = $messages[3];
+                    if ($requestId != -1) {
+                        $messages = $drequest->uploadNewEdit($requestId, $uchanged);
+                        $errors .= $messages[0];
+                        $success .= $messages[1];
+                        $warnings .= $messages[2];
                     }
                 }
                 else
