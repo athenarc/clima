@@ -5,9 +5,13 @@
 
 .table-responsive
 {
-	margin-left:10px;
-	margin-right:10px;
+	border-collapse: collapse;
+	border-spacing: 0;
+	width: 100%;
+	border: 1px solid #ddd;
+	
 }
+
 
 .bronze-user
 {
@@ -33,5 +37,7 @@
 .favorite
 {
 	cursor: pointer;
-	color:red;
+	color:rgb(137, 137, 150);
 }
+
+

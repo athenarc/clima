@@ -1113,16 +1113,16 @@ class ProjectController extends Controller
 
         $current_user=Userw::getCurrentUser();
 
-        if ( (!in_array($current_user['id'], $user_list)) && (!Userw::hasRole('Moderator',$superadminAllowed=true))
-                && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
-        {
-            return $this->render('error_unauthorized');
-        }
+        // if ( (!in_array($current_user['id'], $user_list)) && (!Userw::hasRole('Moderator',$superadminAllowed=true))
+        //         && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        // {
+        //     return $this->render('error_unauthorized');
+        // }
 
-        if ( ($return!='admin') || (!Userw::hasRole('Admin',$superadminAllowed=true)) )
-        {
-            $return='index';
-        }
+        // if ( ($return!='admin') || (!Userw::hasRole('Admin',$superadminAllowed=true)) )
+        // {
+        //     $return='index';
+        // }
       
 
         if(is_null($project_request->approval_date))
@@ -1874,14 +1874,24 @@ class ProjectController extends Controller
     public function actionVmList($filter='all')
     {
 
-        $results=ProjectRequest::getVmList($filter);
+        $filters_search=['user'=>Yii::$app->request->get('username',''), 'project'=>Yii::$app->request->get('project_name',''), 'ip'=>Yii::$app->request->get('ip_address','')];
+
+        $results=ProjectRequest::getVmList($filter, $filters_search['user'], $filters_search['project'], $filters_search['ip']);
+        $vmcount_all=ProjectRequest::getVmCount("all");
+        $vmcount_active=ProjectRequest::getVmCount("active");
+        $vmcount_deleted=ProjectRequest::getVmCount("deleted");
 
         $new_results=[];
+        $ips = array();
         foreach ($results[1] as $res) 
         {
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($res['end_date']);
             $remaining=$now-$end_project;
+            
+            $vm=VM::find()->where(['id'=>$res['vm_id']])->one();
+            $ips[] = $vm->ip_address;
+
             if($res['project_type']==1)
             {
                 $type='service';
@@ -1906,6 +1916,8 @@ class ProjectController extends Controller
                 
             }
             $new_results[]=$res;
+            
+
         }
 
         $pages=$results[0];
@@ -1922,20 +1934,31 @@ class ProjectController extends Controller
         }
 
         return $this->render('vm_list',['results'=>$results,'pages'=>$pages,
-                                'sideItems'=>$sidebarItems,'filter'=>$filter]);
+                                'sideItems'=>$sidebarItems,'filter'=>$filter, "count_all"=>$vmcount_all, "count_active"=>$vmcount_active,"count_deleted"=>$vmcount_deleted, 
+                                'ips'=>$ips,'filters'=>$filters_search, 'search_user'=>$filters_search['user'], 'search_project'=>$filters_search['project'], 'ip_address'=>$filters_search['ip']]);
     }
 
     public function actionVmMachinesList($filter='all')
     {
-
-        $results=ProjectRequest::getVmMachinesList($filter);
+        $filters_search=['user'=>Yii::$app->request->get('username',''), 'project'=>Yii::$app->request->get('project_name',''), 'ip'=>Yii::$app->request->get('ip_address','')];
+        
+        $results=ProjectRequest::getVmMachinesList($filter, $filters_search['user'], $filters_search['project'], $filters_search['ip']);
+        $vmcount_all=ProjectRequest::getVmMachinesCount("all");
+        $vmcount_active=ProjectRequest::getVmMachinesCount("active");
+        $vmcount_deleted=ProjectRequest::getVmMachinesCount("deleted");
 
         $new_results=[];
+        $ips = array();
         foreach ($results[1] as $res) 
         {
+            
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($res['end_date']);
             $remaining=$now-$end_project;
+
+            $vm=VmMachines::find()->where(['id'=>$res['vm_id']])->one();
+            $ips[] = $vm->ip_address;
+
             if($res['project_type']==3)
             {
                 $type='service';
@@ -1976,11 +1999,12 @@ class ProjectController extends Controller
         }
 
         return $this->render('vm_machines_list',['results'=>$results,'pages'=>$pages,
-                                'sideItems'=>$sidebarItems,'filter'=>$filter]);
+                                'sideItems'=>$sidebarItems,'filter'=>$filter, "count_all"=>$vmcount_all, "count_active"=>$vmcount_active,"count_deleted"=>$vmcount_deleted, 'ips'=>$ips,
+                                'filters'=>$filters_search, 'search_user'=>$filters_search['user'], 'search_project'=>$filters_search['project'], 'ip_address'=>$filters_search['ip']]);
     }
 
 
-    public function actionAdminVmDetails($id,$project_id,$filter)
+    public function actionAdminVmDetails($id,$project_id,$filter,$pages=null)
     {
         
         if (!Userw::hasRole('Admin',$superadminAllowed=true))
@@ -2003,7 +2027,7 @@ class ProjectController extends Controller
         
         return $this->render('vm_admin_details',['project'=>$project,'service'=>$service,
                                 'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
-                                'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
+                                'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id, 'pages'=>$pages]);
     }
 
     
@@ -3002,6 +3026,16 @@ class ProjectController extends Controller
         $usage_participant=Project::userStatisticsParticipant($uid);
         return $this->render('user_statistics', ['usage_participant'=>$usage_participant,'usage_owner'=>$usage_owner, 'username'=>$username]);
     }
+
+    public function actionOnDemandLp($id) {
+        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
+
+        $project=Project::find()->where(['id'=>$id])->one();
+        $project_id=$project->id;
+        return $this->render('on_demand_lp',['model'=>$existing, 'requestId'=>$id, 'project'=>$project]);
+    }
+
+
 
 }
 

@@ -18,6 +18,7 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/project/index.css');
 $this->registerJsFile('@web/js/project/index.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerCssFile("@web/css/project/index.css");
 
 $this->title="Dashboard";
 
@@ -125,34 +126,37 @@ foreach ($active as $res)
 
 	if($res['favorite']==false)
 	{
-		$favorite_icon='<i class="far fa-heart favorite" title="Make favorite"></i>';
+		$favorite_icon='<i class="far fa-star favorite" title="Make favorite ", style="color:rgb(136, 122, 122)"></i>';
 		$favorite_link=Url::to(['/project/make-favorite','project_id'=>$res['project_id']]);
 	}
 	else
 	{
-		$favorite_icon='<i class="fas fa-heart favorite" title="Remove favorite"></i>';
+		$favorite_icon='<i class="fas fa-star favorite" title="Remove favorite", , style="color:rgb(136, 122, 122)"></i>';
 		$favorite_link=Url::to(['/project/remove-favorite','project_id'=>$res['project_id']]);
 	}
 
 	if ($res['project_type']==0)
 	{
 		
-		$projectLink=$schema_url;
-		if(empty($schema_url))
-        {
-            $ondemand_access_class='disabled';
-        }
-		$projectTarget='_blank';
-		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand batch computation';
+		// $projectLink=$schema_url;
+		// if(empty($schema_url))
+        // {
+        //    $ondemand_access_class='disabled';
+        // }
+		// added the next line
+		// $projectLink=Url::to(['/project/view-request-user','id'=>$res['id']]);
+		$projectLink=Url::to(['/project/on-demand-lp','id'=>$res['project_id']]);
+		$projectTarget='_self';
+		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
+		$title='On-demand batch computation project';
 		$days=$res[1]. " days";
 	}
 	else if ($res['project_type']==1) 
 	{
 		$projectLink=Url::to(['/project/configure-vm','id'=>$res['project_id']]);
 		$projectTarget='_self';
-		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
-		$title='24/7 Service';
+		$project_icon='<i class="fa fa-leaf" aria-hidden="true"></i>';
+		$title='24/7 service project';
 		if($res['louros']==true)
 		{
 			$edit_button_class="disabled";
@@ -174,7 +178,7 @@ foreach ($active as $res)
 		$projectLink=Url::to(['/project/storage-volumes']);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
-		$title="Cold-Storage";
+		$title="Storage volume project";
 		$days='N/A';
 	}
 
@@ -188,7 +192,8 @@ foreach ($active as $res)
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$days?></td>
 				<td class="col-md-3 text-right">
 					<?=Html::a("$update_icon Update",['/project/edit-project','id'=>$res['id']],['class'=>"btn btn-secondary btn-md $edit_button_class"])?>
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
+					<!--=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-success btn-md'])--> 
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','expired'=>0],['class'=>'btn btn-secondary btn-md'])?>
 					<?=Html::a("$access_icon Access", $projectLink,['class'=>"btn btn-success btn-md $access_button_class $ondemand_access_class",'target'=>$projectTarget])?>
 				</td>	
 			</tr>
@@ -260,16 +265,16 @@ foreach ($expired as $res)
 	{
 		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
 		$projectTarget='_blank';
-		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand batch computation';
+		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
+		$title='On-demand batch computation project';
 		
 	}
 	else if ($res['project_type']==1) 
 	{
 		$projectLink=Url::to(['/project/configure-vm','id'=>$res['id']]);
 		$projectTarget='_self';
-		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
-		$title='24/7 Service';
+		$project_icon='<i class="fa fa-leaf" aria-hidden="true"></i>';
+		$title='24/7 service project';
 
 	}
 	else if ($res['project_type']==3) 
@@ -285,7 +290,7 @@ foreach ($expired as $res)
 		$projectLink=Url::to(['/site/under-construction']);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
-		$title='Cold Storage';
+		$title='Storage volume project';
 
 	}
 

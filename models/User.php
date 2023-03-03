@@ -279,5 +279,16 @@ class User extends UserIdentity
         return $results;
     }
 
+    // public static function returnRegistrationIP($username)
+    // {
+    //     $query=new Query;
+    //     $row=$query->select(['registration_ip'])
+    //                ->from('user')
+    //                ->where(['username'=>$username])
+    //                ->one();
+
+    //     return $row['registration_ip'];
+    // }
+
 
 }

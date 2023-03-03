@@ -678,7 +678,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return ProjectRequest::find()->where(['id' => $project->latest_project_request_id])->one();
     }
 
-    public static function getVmList($filter)
+    public static function getVmList($filter, $user='', $project='', $ip='')
     {
         $query=new Query;
         // print_r($filter);
@@ -687,7 +687,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         
         $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
                         'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
-                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
+                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id', 'v.ip_address'])
               ->from('project_request as pr')
               ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')
               ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
@@ -701,6 +701,19 @@ class ProjectRequest extends \yii\db\ActiveRecord
         else if ($filter=='deleted')
         {
             $query->andWhere(['v.active'=>false]);
+        }
+
+        if (!empty($user))
+        {
+            $query->andWhere("u1.username like '%$user%'");
+        }
+        if (!empty($project))
+        {
+            $query->andWhere("pr.name like '%$project%'");
+        }
+        if (!empty($ip))
+        {
+            $query->andWhere("v.ip_address like '%$ip%'");
         }
         
               
@@ -716,8 +729,35 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return [$pages,$results];
     }
 
+    public static function getVmCount($filter)
+    {
+        $query=new Query;
+        
+        $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
+                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
+                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
+              ->from('project_request as pr')
+              ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')
+              ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+              ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
+              ->where(['pr.project_type'=>1]);
+        if ($filter=='active')
+        {
+            $query->andWhere(['v.active'=>true]);
+        }
+        else if ($filter=='deleted')
+        {
+            $query->andWhere(['v.active'=>false]);
+        }
 
-    public static function getVmMachinesList($filter)
+        $results = $query->count();
+
+        return $results;
+    }
+
+
+
+    public static function getVmMachinesList($filter, $user='', $project='', $ip='')
     {
         $query=new Query;
         // print_r($filter);
@@ -726,7 +766,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         
         $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
                         'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
-                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
+                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id', 'v.ip_address'])
               ->from('project_request as pr')
               ->join('LEFT JOIN','vm_machines as v', 'pr.id=v.request_id')
               ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
@@ -741,6 +781,18 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             $query->andWhere(['v.active'=>false]);
         }
+        if (!empty($user))
+        {
+            $query->andWhere("u1.username like '%$user%'");
+        }
+        if (!empty($project))
+        {
+            $query->andWhere("pr.name like '%$project%'");
+        }
+        if (!empty($ip))
+        {
+            $query->andWhere("v.ip_address like '%$ip%'");
+        }
         
               
         // print_r($query->createCommand()->getRawSql());
@@ -753,6 +805,32 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $results = $query->orderBy('v.created_at DESC')->offset($pages->offset)->limit($pages->limit)->all();
         
         return [$pages,$results];
+    }
+
+    public static function getVmMachinesCount($filter)
+    {
+        $query=new Query;
+
+        $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
+                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
+                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
+              ->from('project_request as pr')
+              ->join('LEFT JOIN','vm_machines as v', 'pr.id=v.request_id')
+              ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+              ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
+              ->where(['pr.project_type'=>3]);
+        if ($filter=='active')
+        {
+            $query->andWhere(['v.active'=>true]);
+        }
+        else if ($filter=='deleted')
+        {
+            $query->andWhere(['v.active'=>false]);
+        }
+        
+        $results = $query->count();
+        
+        return $results;
     }
 
     public function fillUsernameList()
