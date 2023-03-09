@@ -3027,13 +3027,7 @@ class ProjectController extends Controller
         return $this->render('user_statistics', ['usage_participant'=>$usage_participant,'usage_owner'=>$usage_owner, 'username'=>$username]);
     }
 
-    public function actionOnDemandLp($id) {
-        $existing=Vm::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
 
-        $project=Project::find()->where(['id'=>$id])->one();
-        $project_id=$project->id;
-        return $this->render('on_demand_lp',['model'=>$existing, 'requestId'=>$id, 'project'=>$project]);
-    }
 
 
 

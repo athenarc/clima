@@ -138,14 +138,12 @@ foreach ($active as $res)
 	if ($res['project_type']==0)
 	{
 		
-		// $projectLink=$schema_url;
-		// if(empty($schema_url))
-        // {
-        //    $ondemand_access_class='disabled';
-        // }
-		// added the next line
-		// $projectLink=Url::to(['/project/view-request-user','id'=>$res['id']]);
-		$projectLink=Url::to(['/project/on-demand-lp','id'=>$res['project_id']]);
+		$projectLink=$schema_url;
+		if(empty($schema_url))
+        {
+           $ondemand_access_class='disabled';
+        }
+
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
 		$title='On-demand batch computation project';
