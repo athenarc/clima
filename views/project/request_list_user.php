@@ -100,7 +100,7 @@ foreach ($results as $res)
 				<td class="col-md-3"><?=date("F j, Y, H:i:s",strtotime($res['submission_date']))?></td>
 				<td class="col-md-2"><?=$project_types[$res['project_type']] ?></td>
 				<td class="col-md-2"><?=$statuses[$res['status']]?></td>
-				<td class="col-md-1"><?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'filter'=>$filter, 'expired'=>$expired],['class'=>'btn btn-primary btn-md'])?></td>
+				<td class="col-md-1"><?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'filter'=>$filter, 'expired'=>$expired, 'return'=>'user_request'],['class'=>'btn btn-primary btn-md'])?></td>
 			</tr>
 
 <?php

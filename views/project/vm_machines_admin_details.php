@@ -18,7 +18,7 @@ Headers::begin() ?>
 	'buttons'=>
 	[
 		
-		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/vm-machines-list'],
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/vm-machines-list', 'filter'=>$filter],
 		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
 	],
 ])

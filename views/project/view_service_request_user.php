@@ -21,26 +21,61 @@ $this->registerJsFile('@web/js/project/view-request-user.js', ['depends' => [\yi
 $approve_icon='<i class="fas fa-check"></i>';
 $reject_icon='<i class="fas fa-times"></i>';
 $back_icon='<i class="fas fa-arrow-left"></i>';
-$back_link=($return=='index') ? '/project/index' : '/administration/all-projects';
+#$back_link=($return=='index') ? '/project/index' : '/administration/all-projects';
+if ($return == 'user_request'){
+	$back_link='/project/user-request-list';
+}elseif ($return == 'index'){
+	$back_link='/project/index';
+}else {
+	$back_link='/administration/all-projects';
+}
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
+//added the next line
+//$access_icon='<i class="fas fa-external-link-square-alt"></i>';
+
+
 
 
 Headers::begin() ?>
 <?php
 if ($project_owner & (($project->status==1) || ($project->status==2)) & $expired!=1)
 {
-	
-	echo Headers::widget(
-	['title'=>"Project details", 'subtitle'=>$project->name,
-		'buttons'=>
-		[
-			['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
-			['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link], 'type'=>'a', 
-			'options'=>['class'=>'btn btn-default']] 
-		],
-	]);
+	if ($return == 'user_request'){
+		echo Headers::widget(
+			['title'=>"Project details", 'subtitle'=>$project->name,
+				'buttons'=>
+				[
+					//added the next line
+					//['fontawesome_class'=>'<i class="fas fa-check"></i>','name'=> 'Create','options'=>['class'=>'btn btn-primary create-vm-btn'], 'type'=>'submitButton' ],
+					
+					// ['fontawesome_class'=>$access_icon,'name'=> 'Access','action'=> ['/project/configure-vm','id'=>$project->project_id], 'type'=>'a', 
+					// 'options'=>['class'=>'btn btn-success']],
+					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
+					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link, 'filter'=>$filter], 'type'=>'a', 
+					'options'=>['class'=>'btn btn-default']] 
+		
+				],
+			]);
+	} else {
+		echo Headers::widget(
+			['title'=>"Project details", 'subtitle'=>$project->name,
+				'buttons'=>
+				[
+					//added the next line
+					//['fontawesome_class'=>'<i class="fas fa-check"></i>','name'=> 'Create','options'=>['class'=>'btn btn-primary create-vm-btn'], 'type'=>'submitButton' ],
+					
+					// ['fontawesome_class'=>$access_icon,'name'=> 'Access','action'=> ['/project/configure-vm','id'=>$project->project_id], 'type'=>'a', 
+					// 'options'=>['class'=>'btn btn-success']],
+					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
+					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link], 'type'=>'a', 
+					'options'=>['class'=>'btn btn-default']] 
+		
+				],
+			]);
+	}
+
 }
 else
 {
@@ -50,10 +85,13 @@ else
 		[
 			['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link], 'type'=>'a', 
 			'options'=>['class'=>'btn btn-default']] 
+
 		],
 	]);
 }?>
 <?Headers::end()?>
+
+
 
 
 <div class="col-md-12 text-center"><h3 style="font-weight:bold;">Basic info </h3></tr></div>

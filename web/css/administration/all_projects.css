@@ -5,8 +5,9 @@
 
 .table-responsive
 {
-	margin-left:10px;
-	margin-right:10px;
+	margin-left:12%;
+	margin-right:10%;
+	
 }
 
 .bronze-user
@@ -38,14 +39,17 @@
 
 .filters-div
 {
+	float:left;
+	width:15%;
 	position: fixed;
-	padding: 20px;
+	margin-right:60%;
 	top: 200px;
 	left:0px;
 	z-index: 1000;
 	border: solid 1px #c5c5c5;
 	background: #f5f5f5;
 	border-radius: 5px;
+	overflow: scroll;
 }
 
 .username_field

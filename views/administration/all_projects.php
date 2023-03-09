@@ -18,6 +18,7 @@ use app\components\Headers;
 
 echo Html::CssFile('@web/css/administration/all_projects.css');
 $this->registerJsFile('@web/js/administration/all_projects.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+$this->registerCssFile("@web/css/administration/all_projects.css");
 
 $this->title="All projects";
 
@@ -121,15 +122,15 @@ foreach ($active as $res)
             $ondemand_access_class='disabled';
         }
 		$projectTarget='_blank';
-		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand batch computation';
+		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
+		$title='On-demand batch computation project';
 	}
 	else if ($res['project_type']==1) 
 	{
 		$projectLink=Url::to(['/project/configure-vm','id'=>$res['project_id']]);
 		$projectTarget='_self';
-		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
-		$title='24/7 Service';
+		$project_icon='<i class="fa fa-leaf" aria-hidden="true"></i>';
+		$title='24/7 service project';
 		if($res['louros']==true)
 		{
 			$edit_button_class="disabled";
@@ -142,14 +143,14 @@ foreach ($active as $res)
 		$projectLink=Url::to(['/project/machine-compute-configure-vm','id'=>$res['project_id']]);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand computation machines';
+		$title='On-demand computation machines project';
 	}
 	else if ($res['project_type']==2) 
 	{
 		$projectLink=Url::to(['/project/storage-volumes-admin']);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
-		$title="Cold-Storage";
+		$title="Storage volume project";
 	}
 
 
@@ -345,6 +346,10 @@ foreach ($expired as $res)
 }
 ?>
 
+<html>
+	<head>
+	<meta name="viewport" content="width=device-width">
+
 <div class="filters-div">
 	<h4 class="text-center">Filter</h4>
 	<?=Html::beginForm(['administration/all-projects'],'post',['id'=>'filters-form'])?>
@@ -377,4 +382,6 @@ foreach ($expired as $res)
 
 	<?=Html::endForm()?>
 </div>
+</html>
+</head>
 

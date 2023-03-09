@@ -13,7 +13,7 @@ use yii\widgets\LinkPager;
 use yii\bootstrap\NavBar;
 use yii\bootstrap\Nav;
 use yii\helpers\Url;
-use app\components\Headers;  
+use app\components\Headers;
 
 
 echo Html::CssFile('@web/css/project/vm-list.css');
@@ -44,7 +44,13 @@ Headers::begin() ?>
 					<?php
 						foreach ($sideItems as $item)
 						{
-							echo Html::a($item['text'],$item['link'],['class'=>$item['class']]);
+							if ($item['text']== "All"){
+								echo Html::a($item['text']." (".$count_all.")",$item['link'],['class'=>$item['class']]);
+							} elseif ($item['text']== "Active"){
+								echo Html::a($item['text']." (".$count_active.")",$item['link'],['class'=>$item['class']]);
+							} else {
+								echo Html::a($item['text']." (".$count_deleted.")",$item['link'],['class'=>$item['class']]);
+							}
 						}
 					?>
 					</div>  <!-- list-group .// -->
@@ -63,10 +69,11 @@ if (!empty($results))
 				<thead>
 					<tr>
 						<th class="col-md-2 text-center" scope="col">Project Name</th>
+						<th class="col-md-2 text-center" scope="col">IP Address</th>
 						<th class="col-md-2 text-center" scope="col">Created by</th>
 						<th class="col-md-2 text-center" scope="col">Created at</th>
-						<th class="col-md-2 text-center" scope="col">Deleted by</th>
-						<th class="col-md-2 text-center" scope="col">Deleted at</th>
+						<!--th class="col-md-2 text-center" scope="col">Deleted by</th-->
+						<!--th class="col-md-2 text-center" scope="col">Deleted at</th-->
 						<th class="col-md-1 text-center" scope="col">Status</th>
 						<th class="col-md-1 text-center" scope="col">&nbsp;</th>
 					</tr>
@@ -74,7 +81,7 @@ if (!empty($results))
 				<tbody>
 <?php
 
-
+	$index = 0;
 	foreach ($results as $res)
 	{
 
@@ -93,16 +100,18 @@ if (!empty($results))
 						<tr class="<?=$class?>">
 							<td class="col-md-2 align-middle"><?=$res['project_name']?> <?=($res['expired']==1 &&
 							$res['active']==1) ? $exclamation_icon : ''?></td>
+							<td class="col-md-2 align-middle"><?=$ips[$index]?></td>
 							<td class="col-md-2 align-middle"><?=$userc?></td>
 							<td class="col-md-2 align-middle"><?=empty($res['created_at'])? '' : date("F j, Y, H:i:s",strtotime($res['created_at']))?></td>
 
-							<td class="col-md-2 align-middle"><?=$userd?></td>
-							<td class="col-md-2 align-middle"><?=empty($res['deleted_at'])? '' : date("F j, Y, H:i:s",strtotime($res['deleted_at']))?></td>
+							<!--td class="col-md-2 align-middle"><!?=$userd?></td-->
+							<!--td class="col-md-2 align-middle"><!?=empty($res['deleted_at'])? '' : date("F j, Y, H:i:s",strtotime($res['deleted_at']))?></td-->
 							<td class="col-md-1 align-middle"><?=$status?></td>
 							<td class="col-md-1 align-middle"><?=Html::a("$view_icon Details",[$button_link,'project_id'=>$res['project_id'],'filter'=>$filter, 'id'=>$res['vm_id']],['class'=>'btn btn-primary btn-md'])?></td>
 					</tr>
 
 	<?php
+	$index = $index+1;
 	}
 	?>
 					</tbody>
@@ -120,6 +129,58 @@ else
 <?php
 }
 ?>
+
+</div><!--container-fluid-->
+
+<div class="filters-div">
+	<h4 class="text-center">Filter</h4>
+	<?=Html::beginForm(['project/vm-machines-list', 'filter'=>$filter],'get',['id'=>'filters-form'])?>
+
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::label('By user:')?>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::input($search_user,'username',$filters['user'],['class'=>'username_field'])?>
+			</div>
+		</div>
+
+		<div class="row">&nbsp;</div>
+
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::label('By project name:')?>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::input($search_project,'project_name',$filters['project'],['class'=>'project_field'])?>
+				
+			</div>
+		</div>
+				<div class="row">&nbsp;</div>
+
+
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::label('By IP address:')?>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::input($ip_address,'ip_address',$filters['ip'],['class'=>'ip_field'])?>
+		
+			</div>
+		</div>
+
+	<div class="row">&nbsp;</div>
+	<INPUT type="submit" value="Submit">
+
+	<?=Html::endForm()?>
+</div>
+
 	</div><!--row-->
 	<div class="row">&nbsp;</div>
 	<div class="row"><div class="col-md-12"><div class="float-right"><?= LinkPager::widget(['pagination' => $pages]) ?></div></div></div>

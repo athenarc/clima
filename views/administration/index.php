@@ -77,8 +77,6 @@ else
 		<br />
 		<?= ToolButton::createButton("$projects_icon  View all projects", "",['administration/all-projects']) ?>
 		<br />
-		<?= ToolButton::createButton("$volumes_icon  View storage volumes", "",['administration/storage-volumes']) ?>
-		<br />
 	</div>
 </div>
 
@@ -101,11 +99,11 @@ else
 
 <div class="row justify-content-center">
 	<div class="fieldset col-md-6">
-		<div class="fieldset-label ">VMs</div>
+		<div class="fieldset-label ">Resources</div>
 		<br />
-		<?= ToolButton::createButton("$vm_history_icon  VM 24/7 history", "",['/project/vm-list']) ?>
+		<?= ToolButton::createButton("$vm_history_icon  View VMs (24/7 projects)", "",['/project/vm-list']) ?>
 		<br />
-		<?= ToolButton::createButton("$vm_history_icon  VM machines history", "",['/project/vm-machines-list']) ?>
+		<?= ToolButton::createButton("$vm_history_icon  View VMs (on demand computation machines)", "",['/project/vm-machines-list']) ?>
 		<br />
 		<?= ToolButton::createButton("$volumes_icon  View storage volumes", "",['administration/storage-volumes']) ?>
 		<br />
