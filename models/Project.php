@@ -491,7 +491,7 @@ class Project extends \yii\db\ActiveRecord
          * Get active services VMs, machine VMs, volumes and Jupyter servers
          */
         $active_vms=[];
-        $active_machnes=[];
+        $active_machines=[];
         $active_volumes=[];
 
         $vms=Vm::find()->select(['project_id'])->where(['active'=>'t'])->distinct()->all();
