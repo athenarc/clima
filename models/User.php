@@ -115,11 +115,11 @@ class User extends UserIdentity
         $expansion = strtolower($expansion);
         if($expansion == "left")
         {
-            $search_type = $term;
+            $search_type = "%$term";
         }
         else if($expansion == 'right')
         {
-            $search_type = $term;
+            $search_type = "$term%";
         }
         else
         {
@@ -127,7 +127,7 @@ class User extends UserIdentity
         }
         $rows=$query->select(["levenshtein(username, '$term') as dist","username"])
               ->from('user')
-              ->where(['ilike',"username",$search_type])
+              ->where(['ilike',"username",$search_type, false])
               ->limit($max_num)
               ->orderBy(['dist' => SORT_ASC])
               ->all();

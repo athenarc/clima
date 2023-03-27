@@ -93,7 +93,7 @@ Headers::begin() ?>
         <br/>
         <?= MagicSearchBox::widget(
             ['min_char_to_start' => Yii::$app->params["minUsernameLength"] ?? 1,
-             'expansion' => 'both', 
+             'expansion' => 'right', 
              'suggestions_num' => 5, 
              'html_params' => [ 'id' => 'user_search_box', 
              'name'=>'participants', 
