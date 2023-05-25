@@ -104,7 +104,7 @@ class EmailEventsUser extends \yii\db\ActiveRecord
                          ->setSubject($subject)
                          ->setTextBody('Plain text content')
                          ->setHtmlBody("Dear ". explode('@',$user['username'])[0] . ",  <br /> <br /> $message 
-                         <br /> <br /> Sincerely, <br /> the $name team.")
+                         <br /> <br /> Sincerely, <br /> the $name Administration team.")
                          ->send();
                          usleep(2000);
                 }
@@ -187,7 +187,7 @@ class EmailEventsUser extends \yii\db\ActiveRecord
                          ->setSubject($subject)
                          ->setTextBody('Plain text content')
                          ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br /> <br /> $message 
-                         <br /> <br /> Sincerely, <br /> the $name team.")
+                         <br /> <br /> Sincerely, <br /> the $name Administration team.")
                          ->send();
                      usleep(2000);
                 }

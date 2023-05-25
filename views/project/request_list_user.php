@@ -98,7 +98,17 @@ foreach ($results as $res)
 			<tr class="<?=$line_classes[$res['status']]?>">
 				<td class="col-md-2"><?=$res['name']?></td>
 				<td class="col-md-3"><?=date("F j, Y, H:i:s",strtotime($res['submission_date']))?></td>
+				<?php
+				if ($project_types[$res['project_type']] == 'Cold-Storage'){
+				?>
+				<td class="col-md-2"><?='Storage Volume' ?></td>
+				<?php
+				}else {
+				?>
 				<td class="col-md-2"><?=$project_types[$res['project_type']] ?></td>
+				<?php
+				}
+				?>
 				<td class="col-md-2"><?=$statuses[$res['status']]?></td>
 				<td class="col-md-1"><?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'filter'=>$filter, 'expired'=>$expired, 'return'=>'user_request'],['class'=>'btn btn-primary btn-md'])?></td>
 			</tr>

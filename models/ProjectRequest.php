@@ -16,7 +16,6 @@ use app\models\HotVolumes;
 use app\models\EmailEventsUser;
 use app\models\EmailEventsModerator;
 
-
 /**
  * This is the model class for table "project".
  *
@@ -315,9 +314,20 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $success='';
             $request_id=$id = Yii::$app->db->getLastInsertID();
 
+            $username = User::returnUsernameById($submitted_by);
+            if ($project_type == 0){
+                $project_typen = "On-demand computation";
+            } elseif ($project_type == 1){
+                $project_typen = "24/7 Service";
+            } elseif ($project_type == 2){
+                $project_typen = "Cold-Storage";
+            } else {
+                $project_typen = "Machine Compute";
+            }
+
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$project_id'")->execute();
 
-            $message="A new project named '$this->name' has been submitted and is pending moderator approval.";
+            $message="A new $project_typen project named '$this->name' has been submitted by user $username and is pending moderator approval.";
            
         }
 
@@ -547,6 +557,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
         
 
         $project->latest_project_request_id=$this->id;
+        $request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+        $submitted_by = $request->submitted_by;
         $project->pending_request_id=null;
         $project->status=1;
         $project->name=$this->name;
@@ -562,14 +574,27 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         }
 
-        $message="We are happy to inform you that project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
+        $username = User::returnUsernameById($submitted_by);
+        if ($this->project_type == 0){
+            $project_typen = "On-demand computation";
+        } elseif ($this->project_type == 1){
+            $project_typen = "24/7 Service";
+        } elseif ($this->project_type == 2){
+            $project_typen = "Cold-Storage";
+        } else {
+            $project_typen = "Machine Compute";
+        }
+
+        $message="We are happy to inform you that your project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
+        $message_mod="We would like to inform you that the $project_typen project '$this->name', submitted by the user $username, has been approved.";  
+
 
         foreach ($this->user_list as $user) 
         {
             Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
         }
 
-        EmailEventsModerator::NotifyByEmail('project_decision', $this->project_id,$message);
+        EmailEventsModerator::NotifyByEmail('project_decision', $this->project_id,$message_mod);
         EmailEventsUser::NotifyByEmail('project_decision', $this->project_id,$message);
              
 
@@ -596,9 +621,24 @@ class ProjectRequest extends \yii\db\ActiveRecord
         }
 
         $project->save(false);
+
+        $request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+        $submitted_by = $request->submitted_by;
+
+        $username = User::returnUsernameById($submitted_by);
+        if ($this->project_type == 0){
+            $project_typen = "On-demand computation";
+        } elseif ($this->project_type == 1){
+            $project_typen = "24/7 Service";
+        } elseif ($this->project_type == 2){
+            $project_typen = "Cold-Storage";
+        } else {
+            $project_typen = "Machine Compute";
+        }
         
 
-        $message="We are sorry to inform you that your request for project '$this->name' has been rejected by the Resource Allocation Committee.";
+        $message="We are sorry to inform you that your request for the project '$this->name' has been rejected.";
+        $message_mod="We would like to inform you that the request for the $project_typen project '$this->name', submitted by user $username, has been rejected.";
         
         foreach ($this->user_list as $user) 
         {
@@ -606,7 +646,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Notification::notify($user,$message,-1,Url::to(['project/user-request-list','filter'=>'rejected']));
         }
         EmailEventsUser::NotifyByEmail('project_decision', $this->project_id,$message);
-        EmailEventsModerator::NotifyByEmail('project_decision', $this->project_id,$message);
+        EmailEventsModerator::NotifyByEmail('project_decision', $this->project_id,$message_mod);
 
 
     }
@@ -1187,5 +1227,15 @@ class ProjectRequest extends \yii\db\ActiveRecord
         ];
         return $final;
     }
+
+    public static function GetProjectUser($name)
+    {
+        $query=new Query;
+
+        $query->select(['username'])
+              ->from('project_request as pr')
+              ->innerJoin('user','pr.submitted_by="user".id')
+              ->where(['pr.name' => $name]);
+     }
     
 }

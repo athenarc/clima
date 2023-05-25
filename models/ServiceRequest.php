@@ -379,9 +379,12 @@ class ServiceRequest extends \yii\db\ActiveRecord
             $project->status=2;
             $project->name=$request->name;
             $project->save();
+            $username = User::returnUsernameById($request->submitted_by);
 
-            $message_autoaccept="We are happy to inform you that project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
-        
+
+            $message_autoaccept="We are happy to inform you that yor project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
+            $message_autoaccept_mod="We would like to inform you that the 24/7 service project '$project->name', submitted by user $username, has been automatically approved.";
+
 
             
         }
@@ -395,7 +398,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
        
        $success='Successfully added project request!';
 
-       return [$errors,$success,$warnings,$message_autoaccept,$project->id];
+       return [$errors,$success,$warnings,$message_autoaccept,$project->id, $message_autoaccept_mod];
     
     }
 
@@ -486,9 +489,12 @@ class ServiceRequest extends \yii\db\ActiveRecord
         }
         else
         {
+            $request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+            $submitted_by = $request->submitted_by;
+            $username = User::returnUsernameById($submitted_by);
             $warnings='Your request will be reviewed.';
             $project_id=$project->id;
-            $message="Project $project->name has been modified and is pending approval.";
+            $message="The 24/7 service project '$project->name', created by user $username, has been modified and is pending approval.";
             EmailEventsModerator::NotifyByEmail('edit_project', $project_id,$message);
         }
 

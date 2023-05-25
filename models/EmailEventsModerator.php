@@ -96,7 +96,7 @@ class EmailEventsModerator extends \yii\db\ActiveRecord
         elseif($email_type=='new_project')
         {
             $all_users=self::getModerators($email_type);
-            $subject='New ' . $name . ' project';
+            $subject='New ' . $name . ' project' ;
             $recipient_ids=array_keys($all_users);
 
         }
@@ -119,7 +119,7 @@ class EmailEventsModerator extends \yii\db\ActiveRecord
                          ->setSubject($subject)
                          ->setTextBody('Plain text content')
                          ->setHtmlBody("Dear ". explode('@',$user['username'])[0] . ",  <br /> <br /> $message 
-                         <br /> <br /> Sincerely, <br /> the $name team.")
+                         <br /> <br /> Sincerely, <br /> the $name Administration team.")
                          ->send();
                          usleep(2000);
                 }
@@ -203,7 +203,7 @@ class EmailEventsModerator extends \yii\db\ActiveRecord
                          ->setSubject($subject)
                          ->setTextBody('Plain text content')
                          ->setHtmlBody("Dear ". explode('@',$user['username'])[0]. ",  <br /> <br /> $message 
-                         <br /> <br /> Sincerely, <br /> the $name team.")
+                         <br /> <br /> Sincerely, <br /> the $name Administration team.")
                          ->send();
                      usleep(2000);
                 }

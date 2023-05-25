@@ -19,6 +19,11 @@ class TicketConfig extends \yii\base\Model
         'Bug' => 'Вug',
         'New feature proposal' => 'New feature proposal',
         'Suggestion' => 'Suggestion',
+        'User upgrade' => 'User upgrade',
+    ];
+
+    const up = [
+        'User upgrade' => 'User upgrade',
     ];
 
     /** @var string  */

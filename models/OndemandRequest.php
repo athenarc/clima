@@ -181,6 +181,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
         
 
         $message_autoaccept='';
+        $message_autoaccept_mod = '';
         if (($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->num_of_jobs <=$row['num_of_jobs']) && $autoaccept_allowed)
         {
             // $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
@@ -205,9 +206,10 @@ class OndemandRequest extends \yii\db\ActiveRecord
             $project->status=2;
             $project->name=$request->name;
             $project->save(false);
+            $username = User::returnUsernameById($request->submitted_by);
 
-            $message_autoaccept="We are happy to inform you that project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website"; 
-
+            $message_autoaccept="We are happy to inform you that your project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website"; 
+            $message_autoaccept_mod="We would like to inform you that the On-demand computation project '$project->name', submitted by user $username, has been automatically approved.";
             
         }
 
@@ -220,7 +222,7 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         $success='Successfully added project request!';
     
-        return [$errors,$success,$warnings,$message_autoaccept,$project->id];
+        return [$errors,$success,$warnings,$message_autoaccept,$project->id, $message_autoaccept_mod];
     }
 
     public function uploadNewEdit($requestId,$uchanged)
@@ -308,9 +310,12 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         else
         {
+            $request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
+            $submitted_by = $request->submitted_by;
+            $username = User::returnUsernameById($submitted_by);
             $warnings='Your request will be reviewed.';
             $project_id=$project->id;
-            $message="Project $project->name has been modified and is pending approval.";
+            $message="The on-demand computation project '$project->name', created by user $username, has been modified and is pending approval.";
             EmailEventsModerator::NotifyByEmail('edit_project', $project_id,$message);
         }
 

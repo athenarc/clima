@@ -36,7 +36,7 @@ $this->registerJs("
 <div class="panel page-block">
     <div class="container-fluid row">
         <div class="col-lg-12">
-            <a type="button" href="<?= Url::to(['/ticket-user/open']) ?>" class="btn btn-primary pull-right"
+            <a type="button" href="<?= Url::to(['/ticket-user/open']) ?>" class="btn btn-default pull-right"
                style="">New ticket</a>
             <div class="clearfix" style="margin-bottom: 10px"></div>
             <div>
@@ -46,8 +46,16 @@ $this->registerJs("
                         return ['data-id' => $model->id, 'class' => 'ticket'];
                     },
                     'columns'      => [
-                        'department',
-                        'topic',
+                        [
+                            'attribute' => 'department',
+                            'format' => 'text',
+                            'label' => 'Ticket category',
+                        ],
+                        [
+                            'attribute' => 'topic',
+                            'format' => 'text',
+                            'label' => 'Ticket subject',
+                        ],
                         [
                             'contentOptions' => [
                                 'style' => 'text-align:center;',

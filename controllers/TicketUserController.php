@@ -152,7 +152,7 @@ class TicketUserController extends Controller
      *
      * @return string|\yii\web\Response
      */
-    public function actionOpen($link='')
+    public function actionOpen($link='', $upgrade=0)
     {
         $ticketHead = new TicketHead();
         $ticketBody = new TicketBody();
@@ -179,7 +179,7 @@ class TicketUserController extends Controller
                     }
 
                     $username=explode('@',$ticketBody->name_user)[0];
-                    $message="User <strong>$username</strong> created a new ticket: <strong>$ticketHead->topic</strong>.";
+                    $message="User <strong>$username</strong> created a new <strong>$ticketHead->department</strong> ticket with the following topic:  <br /> <strong>$ticketHead->topic</strong>.";
                     $url=Url::to(['/ticket-admin/answer','id'=>$ticketHead->id]);
                     foreach (User::getAdminIds() as $admin)
                     {
@@ -194,11 +194,23 @@ class TicketUserController extends Controller
             }
         }
 
-        return $this->render('open', [
-            'ticketHead' => $ticketHead,
-            'ticketBody' => $ticketBody,
-            'qq'         => TicketConfig::qq,
-            'fileTicket' => $ticketFile,
-        ]);
+        if ($upgrade==0){
+            return $this->render('open', [
+                'ticketHead' => $ticketHead,
+                'ticketBody' => $ticketBody,
+                'qq'         => TicketConfig::qq,
+                'fileTicket' => $ticketFile,
+                'upgrade' => 0,
+            ]);
+        } else {
+            return $this->render('open', [
+                'ticketHead' => $ticketHead,
+                'ticketBody' => $ticketBody,
+                'qq'         => TicketConfig::up,
+                'fileTicket' => $ticketFile,
+                'upgrade' => 1,
+            ]);
+        }
     }
+
 }
