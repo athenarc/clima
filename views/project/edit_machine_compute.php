@@ -62,8 +62,8 @@ Headers::begin() ?>
         <?= Html::label($participating_label, 'user_search_box', ['class'=>'blue-label']) ?>
         <br/>
         <?= MagicSearchBox::widget(
-            ['min_char_to_start' => 3, 
-             'expansion' => 'both', 
+            ['min_char_to_start' => Yii::$app->params["minUsernameLength"] ?? 1,
+             'expansion' => 'right', 
              'suggestions_num' => 5, 
              'html_params' => [ 'id' => 'user_search_box', 
              'name'=>'participants', 

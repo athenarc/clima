@@ -2,8 +2,8 @@
 
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
-$aai=(isset($params['aai_auth'])) && ($params['aai_auth']);
-$db2=($aai) ? require __DIR__ . '/db2.php' : ['class' => 'yii\db\Connection'];
+$aai = (isset($params['aai_auth'])) && ($params['aai_auth']);
+$db2 = ($aai) ? require __DIR__ . '/db2.php' : ['class' => 'yii\db\Connection'];
 
 $config = [
     'id' => 'basic',
@@ -11,16 +11,15 @@ $config = [
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
         '@webvimark' => '@vendor/webvimark/module-user-management/',
     ],
     'components' => [
-        'assetManager'=>[
-            'appendTimestamp'=>true,
+        'assetManager' => [
+            'appendTimestamp' => true,
             'bundles' => [
                 //'yii\bootstrap\BootstrapPluginAsset' => false,
-                'webvimark\extensions\DateRangePicker\DateRangePickerAsset'=>false,
-                
+                'webvimark\extensions\DateRangePicker\DateRangePickerAsset' => false,
             ],
         ],
         'request' => [
@@ -31,14 +30,12 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-                    'class' => 'webvimark\modules\UserManagement\components\UserConfig',
+            'class' => 'webvimark\modules\UserManagement\components\UserConfig',
 
-                    // Comment this if you don't want to record user logins
-                    // 'on afterLogin' => function($event) {
-                    //     \webvimark\modules\UserManagement\models\UserVisitLog::newVisitor($event->identity->id);
-                    // }
-            // 'identityClass' => 'app\models\User',
-            // 'enableAutoLogin' => true,
+            // Comment this if you don't want to record user logins
+            'on afterLogin' => function ($event) {
+                \webvimark\modules\UserManagement\models\UserVisitLog::newVisitor($event->identity->id);
+            }
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -47,7 +44,7 @@ $config = [
             'class' => 'yii\swiftmailer\Mailer',
             'useFileTransport' => false,
             'transport' => [
-            ],  
+            ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -68,7 +65,7 @@ $config = [
             ],
         ],
         */
-        'view'=>(!$aai)? [] :[
+        'view' => (!$aai) ? [] : [
             'theme' => [
                 'pathMap' => [
                     '@webvimark/views/auth' => '@app/views/user/'
@@ -76,11 +73,12 @@ $config = [
             ],
         ],
     ],
-    'modules'=>[
+    'modules' => [
         'user-management' => [
             'class' => 'webvimark\modules\UserManagement\UserManagementModule',
 
-            'enableRegistration' => true,
+            // 'enableRegistration' => true,
+            // 'rolesAfterRegistration' => ['Bronze'],
 
             // Add regexp validation to passwords. Default pattern does not restrict user and can enter any set of characters.
             // The example below allows user to enter :
@@ -92,49 +90,21 @@ $config = [
             // $: anchored to the end of the string
 
             //'passwordRegexp' => '^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$',
-        
+
 
             // Here you can set your handler to change layout for any controller or action
             // Tip: you can use this event in any module
-            'on beforeAction'=>function(yii\base\ActionEvent $event) {
-                if ( $event->action->uniqueId == 'user-management/auth/login' )
-                {
-                    $event->action->controller->layout = 'loginLayout.php';
-                };
-            },
+            // 'on beforeAction'=>function(yii\base\ActionEvent $event) {
+            //     if ( $event->action->uniqueId == 'user-management/auth/login' )
+            //     {
+            //         $event->action->controller->layout = 'loginLayout.php';
+            //     };
+            // },
         ],
         // 'ticket' => [
         //     'class' => ricco\ticket\Module::className(),
         // ],
     ],
-    'modules'=>[
-    'user-management' => [
-        'class' => 'webvimark\modules\UserManagement\UserManagementModule',
-
-        // 'enableRegistration' => true,
-
-        // Add regexp validation to passwords. Default pattern does not restrict user and can enter any set of characters.
-        // The example below allows user to enter :
-        // any set of characters
-        // (?=\S{8,}): of at least length 8
-        // (?=\S*[a-z]): containing at least one lowercase letter
-        // (?=\S*[A-Z]): and at least one uppercase letter
-        // (?=\S*[\d]): and at least one number
-        // $: anchored to the end of the string
-
-        //'passwordRegexp' => '^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])\S*$',
-        
-
-        // Here you can set your handler to change layout for any controller or action
-        // Tip: you can use this event in any module
-        'on beforeAction'=>function(yii\base\ActionEvent $event) {
-                if ( $event->action->uniqueId == 'user-management/auth/login' )
-                {
-                    $event->action->controller->layout = 'loginLayout.php';
-                };
-            },
-    ],
-],
     'params' => $params,
 ];
 

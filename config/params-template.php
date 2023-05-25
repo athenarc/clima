@@ -17,5 +17,24 @@ return [
     'funding-footer'=>'Location funding logo for the footer or leave empty for none',
     'youtube_url' => 'Fill if you have a youtube channel',
     'twitter_url' => 'Fill if you have a twitter account',
-    'copyright' => 'Fill if you want to add a copyright text', 
+    'copyright' => 'Fill if you want to add a copyright text',
+
+
+    /*
+    minimumUsernameLength
+
+    Set this value to the minimum length of a user's username, as per deployment policies
+
+    This value is used to determine the minimum input text length in autocomplete fields where users are being searched
+    based on their username. To avoid missing users whose usernames are smaller than the autocomplete value, this
+    parameter is inspected.
+
+    For example, if a user can have username of user0 but the input text length must be at least 6 characters before
+    the request is made, then no matter what input text is given, user0 will not be retrievable.
+
+    If this value is missing from the parameters, then autocomplete fields will issue requests even for 1-character
+    inputs, which is also a safe default. This however, gets inefficient quickly with the increase of the user-base.
+    Thus, consider defining the minimum username length used throughout the deployment.
+    */
+    'minUsernameLength' => 1
 ];
