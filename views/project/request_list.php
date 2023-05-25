@@ -100,7 +100,17 @@ foreach ($results as $res)
 						<td class="col-md-2 align-middle"><?=$res['name']?></td>
 						<td class="col-md-2 align-middle"><?=$user?></td>
 						<td class="col-md-2 align-middle"><?=date("F j, Y, H:i:s",strtotime($res['submission_date']))?></td>
-						<td class="col-md-2 align-middle"><?=$project_types[$res['project_type']] ?></td>
+						<?php
+						if ($project_types[$res['project_type']] == 'Cold-Storage'){
+						?>
+						<td class="col-md-2"><?='Storage Volume' ?></td>
+						<?php
+						}else {
+						?>
+						<td class="col-md-2"><?=$project_types[$res['project_type']] ?></td>
+						<?php
+						}
+						?>
 						<td class="col-md-1 align-middle"><?=$statuses[$res['status']]?></td>
 						<td class="col-md-1 align-middle"><?=Html::a("$view_icon Details",['/project/view-request','id'=>$res['id'],'filter'=>$filter],['class'=>'btn btn-primary btn-md'])?></td>
 				</tr>

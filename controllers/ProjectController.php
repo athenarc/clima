@@ -297,6 +297,7 @@ class ProjectController extends Controller
                     $success.=$messages[1];
                     $warnings.=$messages[2];
                     $message_autoaccept=$messages[3];
+                    $message_autoaccept_mod = $messages[5];
                 }
 
                 if (empty($errors))
@@ -317,7 +318,7 @@ class ProjectController extends Controller
                     else
                     {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                    	EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                    	EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
@@ -563,6 +564,7 @@ class ProjectController extends Controller
                     $success.=$messages[1];
                     $warnings.=$messages[2];
                     $message_autoaccept=$messages[3];
+                    $message_autoaccept_mod=$messages[4];
                 }
 
                 if (empty($errors))
@@ -584,7 +586,7 @@ class ProjectController extends Controller
                     else
                     {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     
@@ -703,6 +705,7 @@ class ProjectController extends Controller
                     $success.=$messages[1];
                     $warnings.=$messages[2];
                     $message_autoaccept=$messages[3];
+                    $message_autoaccept_mod = $messages[5];
                 }
 
                 if (empty($errors))
@@ -724,7 +727,7 @@ class ProjectController extends Controller
                     else
                     {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
                     

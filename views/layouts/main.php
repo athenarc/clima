@@ -105,6 +105,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
     if(User::hasRole("Bronze", $superAdminAllowed = true) || User::hasRole("Silver", $superAdminAllowed = true) || User::hasRole("Gold", $superAdminAllowed = true))
     {
         $menuItems[]=['label' => 'Dashboard', 'url' => ['/project/index']];
+        //$menuItems[]=['label' => 'Helpdesk', 'url'=> ['/ticket-user/index']];
         $menuItems[]=['label' => 'User options', 'url' => ['/personal/user-options'],
       //  'active' => in_array(\Yii::$app->controller->id, ['personal'])
     ];
@@ -130,7 +131,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
     // print_r($menuItems);
     // exit(0);
 
-    $menuItems[]=['label' => 'Help', 'url' => ['/site/help']];
+    $menuItems[]=['label' => 'Guide', 'url' => ['/site/help']];
     if(Yii::$app->user->getIsGuest() == false)
     {
         // $menuItems[]=[
