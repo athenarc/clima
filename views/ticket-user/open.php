@@ -30,7 +30,7 @@ $this->title = 'Support';
                 if ($upgrade == 1){
             ?>
         <div class="col-md-12">
-            <div class="alert alert-warning" role="alert">
+            <div class="alert alert-success" role="alert">
                 
                  Currently, based on the position of each individual in their organisation, HYPATIA users are classified in one of the following user types:<br>
                 &#x2022; <b>Bronze:</b> This type of user is the one with the less privileges and the most limitations. It is assigned as the default type upon registration. It can be used for testing or educational purposes during training events (indicatively).<br>
