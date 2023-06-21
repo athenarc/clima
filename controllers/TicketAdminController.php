@@ -78,7 +78,7 @@ class TicketAdminController extends Controller
      * @param $id int
      * @return string|\yii\web\Response
      */
-    public function actionAnswer($id)
+    public function actionAnswer($id, $mode, $url1=1)
     {
         $thisTicket = TicketBody::find()->where(['id_head' => $id])->joinWith('file')->asArray()->orderBy('date DESC')->all();
         if(empty($thisTicket))
@@ -127,7 +127,7 @@ class TicketAdminController extends Controller
             }
         }
 
-        return $this->render('answer', ['thisTicket' => $thisTicket, 'newTicket' => $newTicket, 'ticketHead'=>$ticketHead]);
+        return $this->render('answer', ['thisTicket' => $thisTicket, 'newTicket' => $newTicket, 'ticketHead'=>$ticketHead, 'mode'=>$mode, 'url'=>$url1]);
     }
 
     /**

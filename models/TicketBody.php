@@ -79,6 +79,7 @@ class TicketBody extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
         $this->name_user = Yii::$app->user->identity['username'];
+        $this->date = date("Y-m-d h:i:sa");
         if (in_array(Yii::$app->user->identity->getId(), User::getAdminIds())) {
             $this->client = self::ADMIN;
         }

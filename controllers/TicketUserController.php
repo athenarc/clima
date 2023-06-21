@@ -172,7 +172,11 @@ class TicketUserController extends Controller
                     $uploadForm->imageFiles = UploadedFile::getInstances($ticketFile, 'fileName');
                     if ($uploadForm->upload()) {
                         TicketFile::saveImage($ticketBody, $uploadForm);
-                    }
+                    } 
+                    // else {
+                    //     Yii::$app->session->setFlash('error', "error");
+                    //     return $this->redirect(['project/index']);
+                    // }
 
                     if (\Yii::$app->request->isAjax) {
                         return 'OK';

@@ -9,10 +9,12 @@ use yii\helpers\Url;
 <div class="panel page-block">
     <div class="container-fluid row">
         <div class="col-md-1 col-md-offset-11">
-            <a class="btn btn-default" href="<?= \yii\helpers\Url::toRoute(['/ticket-admin/index']) ?>"
+            <!-- <a class="btn btn-default" href="<?= \yii\helpers\Url::toRoute(['/ticket-admin/index']) ?>" -->
+            <a class="btn btn-default" href="<?= $url ?>"
                style="margin-bottom: 10px">Back</a>
         </div>   
         <div class="col-lg-12">
+        <?php if ($mode == 0) { ?>
             <a class="btn btn-primary" style="width: 100%" role="button" data-toggle="collapse" href="#collapseExample"
                aria-expanded="false" aria-controls="collapseExample">
                 <i class="glyphicon glyphicon-pencil pull-left"></i><span>Write answer</span>
@@ -29,6 +31,7 @@ use yii\helpers\Url;
                     <?php $form->end() ?>
                 </div>
             </div>
+            <?php } ?>
             <div class="clearfix" style="margin-bottom: 20px"></div>
             <?php foreach ($thisTicket as $ticket) : ?>
                 <div class="panel panel-primary">
@@ -43,7 +46,7 @@ use yii\helpers\Url;
                         <?php if (!empty($ticket['file'])) : ?>
                             <hr>
                             <?php foreach ($ticket['file'] as $file) : ?>
-                                <a href="<?= Url::to('@web/fileTicket/reduced/') . $file['fileName'] ?>" target="_blank"><img
+                                <a href="<?= Url::to('@web/fileTicket/') . $file['fileName'] ?>" target="_blank"><img
                                             src="<?= Url::to('@web/fileTicket/reduced/') . $file['fileName'] ?> " alt="..."
                                             class="img-thumbnail"></a>
                             <?php endforeach; ?>
@@ -52,6 +55,6 @@ use yii\helpers\Url;
                 </div>
             <?php endforeach; ?>
         </div>
-        <div class="row"><div class="col-md-12">Ticket opened at:&nbsp; <?=Html::a($ticketHead->page,$ticketHead->page, ['target'=>'_blank'])?></div></div>
+        <div class="row"><div class="col-md-12">Ticket opened at page:&nbsp; <?=Html::a($ticketHead->page,$ticketHead->page, ['target'=>'_blank'])?></div></div>
     </div>
 </div>
