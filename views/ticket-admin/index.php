@@ -1,6 +1,8 @@
 <?php
 /** @var \ricco\ticket\models\TicketHead $dataProvider */
 use app\models\TicketHead;
+use app\models\TicketBody;
+$u=1;
 ?>
 
 <div class="panel page-block">
@@ -24,15 +26,41 @@ use app\models\TicketHead;
                 'columns'      => [
                     [
                         'attribute' => 'userName',
-                        'value'     => 'userName.username',
+                        //$user = 'userName.username',
+                        'value'     => function($model){
+                            $user = $model['userName'];
+                            return explode('@',$user->username)[0];
+                        }
                     ],
                     [
                         'attribute' => 'department',
-                        'value'     => 'department',
+                        'format' => 'text',
+                        'label' => 'Ticket category',
                     ],
                     [
                         'attribute' => 'topic',
-                        'value'     => 'topic',
+                        'format' => 'text',
+                        'label' => 'Ticket subject',
+                    ],
+                    [
+                        
+                        'enableSorting' => true,
+                        'format' => 'integer',
+                        'label' => 'No of answers',
+                        'value' => function($model){
+                            $tickets = TicketBody::find()->where(['id_head' => $model['id']])->joinWith('file')->asArray()->orderBy('date DESC')->all();
+                            $answers = 0;
+                            foreach ($tickets as $t){
+                                $who = $t['client'] == 1 ? 'Administrator' : 'User';
+                                if ($who == 'Administrator'){
+                                    $answers++;
+                                }
+                            }
+                            if (count($tickets) == $answers) {
+                                $answers-- ;
+                            }
+                            return $answers;
+                        },
                     ],
                     [
                         'attribute' => 'status',
@@ -67,7 +95,7 @@ use app\models\TicketHead;
                         'buttons'       => [
                             'update' => function ($url, $model) {
                                 return \yii\helpers\Html::a('Answer',
-                                    \yii\helpers\Url::toRoute(['/ticket-admin/answer', 'id' => $model['id']]),
+                                    \yii\helpers\Url::toRoute(['/ticket-admin/answer', 'url1' => $_SERVER['REQUEST_URI'], 'mode' => 0, 'id' => $model['id']]),
                                     ['class' => 'btn-xs btn-info']);
                             },
                             'delete' => function ($url, $model) {
@@ -83,7 +111,7 @@ use app\models\TicketHead;
                                 return \yii\helpers\Html::a('Close',
                                     \yii\helpers\Url::to(['/ticket-admin/closed', 'id' => $model['id']]),
                                     [
-                                        'class'   => 'btn-xs btn-primary',
+                                        'class'   => 'btn-xs btn-dark',
                                         'onclick' => 'return confirm("Are you sure you want to close the ticket?")',
                                     ]
                                 );
@@ -99,6 +127,20 @@ use app\models\TicketHead;
                             },
                         ],
                     ],
+                    [
+                        'class'         => 'yii\grid\ActionColumn',
+                        'template'      => '{view}&nbsp',
+                        'headerOptions' => [
+                            'style' => 'width:230px',
+                        ],
+                        'buttons'       => [
+                            'view' => function ($url, $model) {
+                                return \yii\helpers\Html::a('View',
+                                    \yii\helpers\Url::toRoute(['/ticket-admin/answer', 'url1' => $_SERVER['REQUEST_URI'], 'id' => $model['id'], 'mode' => 1]),
+                                    ['class' => 'btn-xs btn-primary']);
+                            },
+                        ]   
+                    ]
                 ],
             ]) ?>
         </div>

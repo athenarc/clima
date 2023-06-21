@@ -131,7 +131,8 @@ class TicketHead extends \yii\db\ActiveRecord
             'query' => $query,
             'sort' => [
                 'defaultOrder' => [
-                    'date_update' => SORT_DESC
+                    'date_update' => SORT_DESC,
+                    //'userName' => SORT_ASC,
                 ]
             ],
             'pagination' => [
