@@ -184,9 +184,9 @@ foreach ($active as $res)
 	}
 
 	$projectTarget='_self';
-	$project_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
+	$project_icon='<i class="fa fa-book" aria-hidden="true"></i>';
 	// $title='Jupyter Notebook';
-	$title='Books project';
+	$title='On-demand notebooks';
 	$days=$res[1]. " days";
 	}
 	else
@@ -289,9 +289,9 @@ foreach ($expired as $res)
 		// $projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
 		$projectLink=Url::to(['/project/jupyter-index']);
 		$projectTarget='_blank';
-		$project_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
+		$project_icon='<i class="fa fa-book" aria-hidden="true"></i>';
 		// $title='Jupyter Notebook';
-		$title='Books project';
+		$title='On-demand notebooks';
 		
 	}
 	else if ($res['project_type']==1) 

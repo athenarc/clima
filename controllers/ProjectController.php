@@ -1065,7 +1065,7 @@ class ProjectController extends Controller
             $details=JupyterRequestNew::findOne(['request_id'=>$id]);
             $view_file='view_jupyter_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
-            $type="Books";
+            $type="On-demand notebooks";
             // $num_of_jobs=$details->num_of_jobs;
             // $used_jobs=$usage['count'];
             // $remaining_jobs=$num_of_jobs-$used_jobs;
@@ -1259,7 +1259,7 @@ class ProjectController extends Controller
             $details=JupyterRequestNew::findOne(['request_id'=>$id]);
             $view_file='view_jupyter_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
-            $type="Books";
+            $type="On-demand notebooks";
             // $num_of_jobs=$details->num_of_jobs;
             // $used_jobs=$usage['count'];
             // $remaining_jobs=$num_of_jobs-$used_jobs;
@@ -1404,7 +1404,7 @@ class ProjectController extends Controller
             $details=JupyterRequestNew::findOne(['request_id'=>$id]);
             $view_file='view_jupyter_request_user';
             $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
-            $type="Books";
+            $type="On-demand notebooks";
             $active_servers=JupyterServer::find()->where(['active'=>true,'project'=>$project])->count();
             $selected_image = JupyterImages::find()->where(['id'=>$details->image])->one();
             $description=$selected_image->description;

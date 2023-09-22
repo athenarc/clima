@@ -38,6 +38,8 @@ $this->title="Start Jupyter server";
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 $start_icon='<i class="fas fa-play"></i>';
+$exclamation_icon='<i class="fas fa-exclamation-triangle" style="color:orange" title="The Vm belongs to an expired project"></i>';
+
 
 Headers::begin() ?>
 <?php echo Headers::widget(
@@ -51,6 +53,14 @@ Headers::begin() ?>
 ?>
 <?php Headers::end();?>
 
+<div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-warning" role="alert">
+                <td class="col-md-2 align-middle"><?=$exclamation_icon ?></td>
+                Please remember your password; you'll need it every time you access your Jupyter server, and it can't be recovered later. Your security and access are important to us!
+                </div>
+            </div>
+        </div>
 <?php $form=ActiveForm::begin($form_params); ?>
 
     <?=$form->field($model,'image_id')->textInput(['readonly' => true, 'value' =>$imageDrop[$image__id]])->label("Jupyter server type")?>
@@ -66,7 +76,7 @@ Headers::begin() ?>
     <div class="modal-content">
       <div class="modal-body text-center">
             <h3 class="modal-text "><i class="fas fa-spinner fa-spin"></i>&nbsp; Please wait while the server is being created...<br /></h3>
-            <h4>This process may take up to 10 minutes. <br /> You will be redirected automatically.</h4>
+            <h4>This process may take a few minutes. <br /> You will be redirected automatically.</h4>
       </div>
     </div>
   </div>

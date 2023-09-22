@@ -20,7 +20,7 @@ $static_pages_icon='<i class="fas fa-file-alt"></i>';
 $notifications_icon='<i class="fa fa-bell" aria-hidden="true"></i>';
 $analytics_icon='<i class="fas fa-chart-pie"></i>';
 $volumes_icon='<i class="fas fa-hdd"></i>';
-$jupyter_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
+$jupyter_icon='<i class="fa fa-book" aria-hidden="true"></i>';
 
 
 Headers::begin() ?>

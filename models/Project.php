@@ -20,7 +20,7 @@ use app\models\ProjectRequest;
 class Project extends \yii\db\ActiveRecord
 {
 
-    const TYPES=[0=>'On-demand batch computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'On-demand computation machines', 4=>'Books'];
+    const TYPES=[0=>'On-demand batch computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'On-demand computation machines', 4=>'On-demand notebooks'];
     const STATUSES=[-5=>'Εxpired',-4 =>'Deleted',-1=>'Rejected',0=>'Pending', 1=>'Approved', 2=>'Auto-approved'];  
     /**
      * {@inheritdoc}

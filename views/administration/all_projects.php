@@ -133,8 +133,8 @@ foreach ($active as $res)
             $ondemand_access_class='disabled';
         }
 		$projectTarget='_blank';
-		$project_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
-		$title='Jupyter Notebook';
+		$project_icon='<i class="fa fa-book" aria-hidden="true"></i>';
+		$title='On demand notebooks';
 	}
 	else if ($res['project_type']==1) 
 	{
