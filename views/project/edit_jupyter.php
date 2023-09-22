@@ -12,7 +12,7 @@ use app\components\Headers;
 /* @var $form ActiveForm */
 echo Html::CssFile('@web/css/project/project-request.css');
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
-$this->title="Edit books project request";
+$this->title="Edit on-demand notebooks project request";
 echo $interval;
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 $cancel_icon='<i class="fas fa-times"></i>';
@@ -53,7 +53,7 @@ if (!empty($errors))
 }
 Headers::begin() ?>
 <?php echo Headers::widget(
-['title'=>'Edit books project request',])
+['title'=>'Edit on-demand notebooks project request',])
 ?>
 <?Headers::end()?>
 

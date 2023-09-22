@@ -13,7 +13,7 @@ use app\components\Headers;
 echo Html::CssFile('@web/css/project/project-request.css');
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->title="Submit a new books project request";
+$this->title="Submit a new on-demand notebooks project request";
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 
