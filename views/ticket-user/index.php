@@ -70,6 +70,8 @@ $this->registerJs("
                                         return '<div class="label label-success">Answered</div>';
                                     case TicketHead::CLOSED :
                                         return '<div class="label label-info">Closed</div>';
+                                    default :
+                                        return '<div class="label label-default">Open</div>';
                                 }
                             },
                             'format'         => 'html',

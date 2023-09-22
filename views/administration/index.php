@@ -20,6 +20,7 @@ $static_pages_icon='<i class="fas fa-file-alt"></i>';
 $notifications_icon='<i class="fa fa-bell" aria-hidden="true"></i>';
 $analytics_icon='<i class="fas fa-chart-pie"></i>';
 $volumes_icon='<i class="fas fa-hdd"></i>';
+$jupyter_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
 
 
 Headers::begin() ?>
@@ -106,6 +107,8 @@ else
 		<?= ToolButton::createButton("$vm_history_icon  View VMs (on demand computation machines)", "",['/project/vm-machines-list']) ?>
 		<br />
 		<?= ToolButton::createButton("$volumes_icon  View storage volumes", "",['administration/storage-volumes']) ?>
+		<br />
+		<?= ToolButton::createButton("$jupyter_icon  View jupyter servers", "",['administration/view-active-jupyters']) ?>
 		<br />
 	</div>
 </div>

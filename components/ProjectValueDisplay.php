@@ -2,6 +2,8 @@
 
 namespace app\components;
 
+use app\models\JupyterImages;
+
 /**
 * A class created for organizing and producing formats of values of common attributes shared amongst the projects
  */
@@ -105,6 +107,45 @@ class ProjectValueDisplay
             $renderedHtml.= ProjectDiff::str($requestHistory['diff']['details'][$targetField]['other'], $requestHistory['diff']['details'][$targetField]['current']);
         }
         else $renderedHtml .= $defaultValue;
+
+        return $renderedHtml;
+    }
+
+    public static function image($defaultValue, $targetField, $requestHistory=null) {
+        $renderedHtml = '';
+        if (isset($requestHistory['diff']['details'][$targetField]['current']) && isset($requestHistory['diff']['details'][$targetField]['other'])) {
+            
+            $selected_image_bef = JupyterImages::find()->where(['id'=>$requestHistory['diff']['details'][$targetField]['other']])->one();
+            $description=$selected_image_bef->description;
+            if ($selected_image_bef->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
+            $image_bef=$description;
+
+            $selected_image_after = JupyterImages::find()->where(['id'=>$requestHistory['diff']['details'][$targetField]['current']])->one();
+            $description=$selected_image_after->description;
+            if ($selected_image_after->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
+
+            $image_after=$description;
+            $renderedHtml.= ProjectDiff::str($image_bef, $image_after);
+
+        }
+
+        else {
+
+            $selected_image_bef = JupyterImages::find()->where(['id'=>$defaultValue])->one();
+            $description=$selected_image_bef->description;
+            if ($selected_image_bef->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
+            $image_bef=$description;
+            $renderedHtml .= $image_bef;
+        }
 
         return $renderedHtml;
     }

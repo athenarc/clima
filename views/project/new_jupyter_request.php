@@ -13,36 +13,40 @@ use app\components\Headers;
 echo Html::CssFile('@web/css/project/project-request.css');
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$this->title="Submit a new on-demand computation project request";
+$this->title="Submit a new books project request";
 
 $participating_label="Participating users  <i class='fas fa-question-circle' title='Type 3 or more characters of the desired ELIXIR-AAI username to get suggestions'></i>";
 
 if($autoacceptlimits->ram==$upperlimits->ram)
 {
-    $ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $upperlimits->ram] </span>";
+    $ram_label= "Maximum allowed memory per server (in GBs) * <span class=limits-label> [upper limits: $upperlimits->ram] </span>";
 }
 else
 {
-    $ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with review)] </span>";
+    $ram_label= "Maximum allowed memory per server (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with review)] </span>";
 }
 
-if($autoacceptlimits->num_of_jobs==$upperlimits->num_of_jobs)
-{
-    $jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits: $upperlimits->num_of_jobs] </span>";
-}
-else
-{
-    $jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits:  $autoacceptlimits->num_of_jobs (automatically accepted),  $upperlimits->num_of_jobs (with review)] </span>";
-}
+// if($autoacceptlimits->num_of_jobs==$upperlimits->num_of_jobs)
+// {
+//     $jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits: $upperlimits->num_of_jobs] </span>";
+// }
+// else
+// {
+//     $jobs_label="Maximum number of jobs in project's lifetime * <span class=limits-label> [upper limits:  $autoacceptlimits->num_of_jobs (automatically accepted),  $upperlimits->num_of_jobs (with review)] </span>";
+// }
 
 if($autoacceptlimits->cores==$upperlimits->cores)
 {
-    $cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores] </span>" ;
+    $cores_label= "Available cores per server * <span class=limits-label> [upper limits: $autoacceptlimits->cores] </span>" ;
 }
 else
 {
-    $cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with review)] </span>" ;
+    $cores_label= "Available cores per server * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with review)] </span>" ;
 }
+
+$participants_label= "Maximum number of users to participate in the project * <span class=limits-label> [upper limit: $upperlimits->participants] </span>" ;
+
+
 
 if (!empty($errors))
 {
@@ -56,18 +60,18 @@ if (!empty($errors))
 
 <?php Headers::begin(); ?>
 <?php echo Headers::widget(
-['title'=>'Request a new on-demand computation project', 
+['title'=>'Request a new books project', 
 ])
 ?>
 <?Headers::end()?>
 
-<div class="ondemand_project">
+<div class="jupyter_project">
 
 <div class="row"><div class="col-md-12"> * All fields marked with asterisk are mandatory</div></div>
 
     <?php $form = ActiveForm::begin($form_params); ?>
         <?= $form->errorSummary($project) ?>
-        <?= $form->errorSummary($ondemand) ?>
+        <?= $form->errorSummary($jupyter) ?>
         <div class="row box">
             <div class="col-md-6">
                 <h3>Project details</h3>
@@ -80,14 +84,16 @@ if (!empty($errors))
             echo DatePicker::widget([
             'model' => $project, 
             'attribute' => 'end_date',
-            'options' => ['placeholder' => 'Enter date'],
+            'options' => array('placeholder' => 'Enter date'),
             'pluginOptions' => [
+            'endDate'=>"+".$upperlimits->duration."D",
             'autoclose'=>true,
             'padding-top'=>"500px;"
             ]
         ]);?>
         </div>
-        <?= $form->field($project, 'user_num') ?>
+        <?= $form->field($jupyter, 'participants_number')->label($participants_label) ?>
+        <?php $project['user_num'] = $jupyter['participants_number'];?>
         <?= Html::label($participating_label, 'user_search_box', ['class'=>'blue-label']) ?>
         <br/>
         <?= MagicSearchBox::widget(
@@ -109,11 +115,9 @@ if (!empty($errors))
             <div class="col-md-6">
                 <h3>Analysis information details</h3>
             
-        
-        <?= $form->field($ondemand, 'analysis_type') ?>
-        <?= $form->field($ondemand, 'maturity')->dropDownList($maturities)  ?>
-        <?= $form->field($ondemand, 'description')->textarea(['rows'=>6]); ?>
-        <?= $form->field($ondemand, 'containerized')->checkbox(['checked'=>true]); ?>
+    
+        <?= $form->field($jupyter, 'description')->textarea(['rows'=>6]); ?>
+        <?= $form->field($jupyter, 'image')->dropDownList($images)  ?>
         
         </div>
      </div>  
@@ -126,10 +130,9 @@ if (!empty($errors))
         </div>
         <div class="row">&nbsp;</div>
 
-                <?= $form->field($ondemand, "num_of_jobs")->label($jobs_label) ?>
-                <?= $form->field($ondemand, 'cores')->label($cores_label) ?>
-                <?= $form->field($ondemand, 'ram')->label($ram_label) ?>
-        
+                
+                <?= $form->field($jupyter, 'cores')->label($cores_label) ?>
+                <?= $form->field($jupyter, 'ram')->label($ram_label) ?>
         
         <div class="row">
             <div class="col-md-12">
@@ -155,4 +158,4 @@ if (!empty($errors))
         
     <?php ActiveForm::end(); ?>
 
-</div><!-- new_ondemand_project -->
+</div><!-- new_jupyter_project -->

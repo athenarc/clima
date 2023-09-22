@@ -28,6 +28,7 @@ $ondemand_batch_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
 $ondemand_machines_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 $storage_icon='<i class="fa fa-database" aria-hidden="true"></i>';
 $service_icon='<i class="fa fa-leaf" aria-hidden="true"></i>';
+$jupyter_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
 
 Headers::begin() ?>
 <?php echo Headers::widget(
@@ -41,6 +42,11 @@ Headers::begin() ?>
 
 <?php
 ?>
+<div class="row justify-content-center">
+    <div class="col-md-4 project">
+    <?= ToolButton::createButton("$jupyter_icon  Books", "",['/project/new-jupyter-request-new']) ?>
+    </div>
+</div>
 <div class="row justify-content-center">
     <div class="col-md-4 project">
     <?= ToolButton::createButton("$ondemand_batch_icon  On-demand batch computations", "",['/project/new-ondemand-request']) ?>

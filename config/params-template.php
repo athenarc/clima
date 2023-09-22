@@ -1,6 +1,13 @@
 <?php
 
 return [
+    'jupyter_deployments_url' => 'jupyter delpoyment url',
+    'jupyter_services_url' => 'jupyter service url',
+    'jupyter_ingresses_url' => 'jupyter ingress url',
+    'jupyter_bearer_token' => 'jupyter auth token',
+    'tmpFolderPath' => 'json folder for jupyter',
+    'userDataPath' => '',
+    'systemUser' => '',
     'bsDependencyEnabled'=>false,
     'adminEmail' => 'admin@example.com',
     'senderEmail' => 'noreply@example.com',

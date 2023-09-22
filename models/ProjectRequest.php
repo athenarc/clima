@@ -36,7 +36,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
     public $usernameList;
     public $errors='';
 
-    const TYPES=[0=>'On-demand computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'Machine Compute'];
+    const TYPES=[0=>'On-demand computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'Machine Compute', 4=>'Jupyter Notebook'];
     const STATUSES=[-5=>'Expired',-4 =>'Deleted',-3 =>'Invalid due to modification',-2=>'Inactive',-1=>'Rejected',0=>'Pending', 1=>'Approved', 2=>'Auto-approved'];
 
     /**
@@ -189,6 +189,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
                     $details = MachineComputeRequest::find()->where(['request_id' => $this->id])->one();
                     $otherDetails = MachineComputeRequest::find()->where(['request_id' => $other->id])->one();
                     break;
+                case 4:
+                    $details = JupyterRequestNew::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = JupyterRequestNew::find()->where(['request_id' => $other->id])->one();
+                    break;
             }
 
             $diff['details'] = $details->getFormattedDiff($otherDetails);
@@ -245,6 +249,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 case 3:
                     $details = MachineComputeRequest::find()->where(['request_id' => $this->id])->one();
                     $otherDetails = MachineComputeRequest::find()->where(['request_id' => $other->id])->one();
+                    break;
+                case 4:
+                    $details = JupyterRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = JupyterRequest::find()->where(['request_id' => $other->id])->one();
                     break;
             }
             if ($details && $otherDetails) $diff['details'] = $details->getDiff($otherDetails);
@@ -321,8 +329,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
                 $project_typen = "24/7 Service";
             } elseif ($project_type == 2){
                 $project_typen = "Cold-Storage";
-            } else {
+            } elseif ($project_type == 3){
                 $project_typen = "Machine Compute";
+            } else {
+                $project_typen = "Jupyter Notebook";
             }
 
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$project_id'")->execute();
@@ -466,6 +476,11 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             $details=MachineComputeRequest::find()->where(['request_id'=>$this->id])->one();
             
+        } 
+        else if ($this->project_type==4)
+        {
+            $details=JupyterRequest::find()->where(['request_id'=>$this->id])->one();
+            
         }
 
         $newDetails=clone $details;
@@ -581,8 +596,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $project_typen = "24/7 Service";
         } elseif ($this->project_type == 2){
             $project_typen = "Cold-Storage";
-        } else {
+        } elseif ($this->project_type == 3) {
             $project_typen = "Machine Compute";
+        } else {
+            $project_typen = "Jupyter Notebook";
         }
 
         $message="We are happy to inform you that your project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
@@ -632,8 +649,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $project_typen = "24/7 Service";
         } elseif ($this->project_type == 2){
             $project_typen = "Cold-Storage";
-        } else {
+        } elseif ($this->project_type == 3) {
             $project_typen = "Machine Compute";
+        } else {
+            $project_typen = "Jupyter Notebook";
         }
         
 
@@ -1237,5 +1256,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
               ->innerJoin('user','pr.submitted_by="user".id')
               ->where(['pr.name' => $name]);
      }
+
+     public function GetProjectEndDate($name, $id, $pid) {
+        $query=new Query;
+        $query->select(['pr.end_date'])
+              ->from('project_request as pr')
+              ->innerJoin('jupyter_request_n as jup', 'jup.request_id=pr.id')
+              ->where(['=', 'pr.name', $name])
+              ->andwhere(['=', 'jup.request_id', $id]);
+        $result = $query->one();
+        return $result;
+    }
     
 }

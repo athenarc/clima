@@ -14,6 +14,9 @@ use app\models\MachineComputeRequest;
 use app\models\OndemandAutoaccept;
 use app\models\OndemandLimits;
 use app\models\OndemandRequest;
+use app\models\JupyterAutoaccept;
+use app\models\JupyterLimits;
+use app\models\JupyterRequestNew;
 use app\models\Project;
 use app\models\ProjectRequest;
 use app\models\ProjectRequestCold;
@@ -32,6 +35,9 @@ use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\UploadedFile;
+use yii\httpclient\Client;
+use app\models\JupyterServer;
+use app\models\JupyterImages;
 
 
 class ProjectController extends Controller
@@ -96,7 +102,7 @@ class ProjectController extends Controller
 
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user'];
+                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user', 4=>'/project/view-jupyter-request-user'];
 
        	$deleted=Project::getDeletedProjects();
         $owner=Project::getActiveProjectsOwner();
@@ -107,7 +113,22 @@ class ProjectController extends Controller
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
 		$all_projects=array_merge($owner,$participant);
-		
+
+        //if there are expired books projects, check if there are active servers and delete them
+
+        $expired_projects = $expired_owner;
+        foreach ($expired_projects as $expired_project){
+            if ($expired_project['project_type']==4){
+                $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$expired_project['name']])->all();
+                if (!empty($all_servers)){
+                    foreach ($all_servers as $server){
+                        $server->Stopserver();
+                    }
+                }
+
+            }
+        }
+
         $active=[];
         $expired=[];
       
@@ -741,6 +762,162 @@ class ProjectController extends Controller
                      'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed]);
     }
 
+    //jupyter notebooks controller
+
+    public function actionNewJupyterRequestNew()
+    {
+        $img=JupyterImages::find()->all();
+        $images=[];
+        foreach ($img as $i)
+        {
+            $description=$i->description;
+            if ($i->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
+
+            $images[$i->id]=$description;
+        }
+
+        $role=User::getRoleType();
+        $jupyter_limits= JupyterLimits::find()->where(['user_type'=>$role])->one();
+        $jupyter_maximum_number=$jupyter_limits->number_of_projects;
+        //need to change project type
+        $number_of_user_projects=ProjectRequest::find()->where(['status'=>[1,2],'project_type'=>4,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $new_project_allowed=($number_of_user_projects-$jupyter_maximum_number < 0) ? true :false;
+
+        if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)) )
+        {
+            return $this->render('no_project_allowed', ['project'=>"Jupyter notebooks", 'user_type'=>$role]);
+        } 
+
+        $jupyterModel=new JupyterRequestNew();
+        $projectModel=new ProjectRequest;
+        $limitsModel=new JupyterLimits;
+        $autoacceptModel=new JupyterAutoaccept;
+
+        
+        $jupyter_autoaccept= JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
+        $jupyter_autoaccept_number=$jupyter_autoaccept->autoaccept_number;
+        //change project type
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>4,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $autoaccept_allowed=($autoaccepted_num-$jupyter_autoaccept_number < 0) ? true :false; 
+
+
+        
+    
+        
+        $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
+        
+        $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
+       
+
+        //need to change project type
+        $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'jupyter'=>4];
+
+        $form_params =
+        [
+            'action' => URL::to(['project/new-jupyter-request-new']),
+            'options' => 
+            [
+                'class' => 'jupyter_project',
+                'id'=> "jupyter_project"
+            ],
+            'method' => 'POST'
+        ];
+
+        // $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+
+        $errors='';
+        $success='';
+        $warnings='';
+        $message='';
+        $username=Userw::getCurrentUser()['username'];
+        $user_split=explode('@',$username)[0];
+        $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
+                
+
+        if ( ($jupyterModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
+        {
+            $projectModel['user_num'] = $jupyterModel['participants_number'];
+            $participant_ids_tmp=[];
+            foreach ($participating as $participant)
+            {
+                $username=$participant . '@elixir-europe.org';
+                $pid=User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid]=null;
+            }
+
+            $participant_ids=[];
+            foreach ($participant_ids_tmp as $pid => $dummy)
+            {
+                $participant_ids[]=$pid;
+            }
+
+            $image_id = JupyterImages::find()->where(['description'=>$jupyterModel->image])->one();
+            // $jupyterModel->image_id = 8;
+
+            $projectModel->user_list=$participant_ids;
+
+            $isValid = $projectModel->validate();
+            $isValid = $jupyterModel->validate() && $isValid;
+
+            if ($isValid)
+            {
+                //need to change project type
+                $messages=$projectModel->uploadNew($project_types['jupyter']);
+                $errors.=$messages[0];
+                $success.=$messages[1];
+                $warnings.=$messages[2];
+                $requestId=$messages[3];
+                $submitted_email=$messages[4];
+                $project_id=$messages[5];
+
+                if ($requestId!=-1)
+                {
+                    $jupyterModel['participant_view'] = $jupyterModel['description'];
+                    $messages=$jupyterModel->uploadNew($requestId);
+                    $errors.=$messages[0];
+                    $success.=$messages[1];
+                    $warnings.=$messages[2];
+                    $message_autoaccept=$messages[3];
+                    $message_autoaccept_mod = $messages[5];
+                }
+
+                if (empty($errors))
+                {
+                    if(!empty($success))
+                    {
+                        Yii::$app->session->setFlash('success', "$success");
+                    }
+                    if(!empty($warnings))
+                    {
+                        Yii::$app->session->setFlash('warning', "$warnings");
+                    }
+
+                    if(empty($message_autoaccept))
+                    {
+                        EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
+
+                    }
+                    else
+                    {
+                        Yii::$app->session->setFlash('success', "$message_autoaccept");
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
+                        EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                    }
+                    
+                    return $this->redirect(['project/index']);
+                }
+            }
+        }
+        
+
+        return $this->render('new_jupyter_request',['jupyter'=>$jupyterModel, 'project'=>$projectModel, 
+                     'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'images'=>$images]);
+    }
+
+
 
 
     public function actionAutoCompleteNames($expansion, $max_num, $term)
@@ -821,6 +998,7 @@ class ProjectController extends Controller
 
     public function actionViewRequest($id,$filter='all')
     {
+        $image='';
         ProjectRequest::recordViewed($id);
         $project_request = ProjectRequest::findOne($id);
         $project_status = ProjectRequest::STATUSES[$project_request->status];
@@ -880,8 +1058,34 @@ class ProjectController extends Controller
                     $diff = $project_request->getFormattedDiff($previouslyApprovedProjectRequest);
                 }
             }
+        //added jupyter
+        } else if ($project_request->project_type==4)
+        {
+            
+            $details=JupyterRequestNew::findOne(['request_id'=>$id]);
+            $view_file='view_jupyter_request';
+            $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
+            $type="Books";
+            // $num_of_jobs=$details->num_of_jobs;
+            // $used_jobs=$usage['count'];
+            // $remaining_jobs=$num_of_jobs-$used_jobs;
+            $vm_type="";
+            if ($project_request->status == 0) { // Poll OpenStack only in case the request is pending
+                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();
+                if (isset($previouslyApprovedProjectRequest)) {
+                    $diff = $project_request->getFormattedDiff($previouslyApprovedProjectRequest);
+                }
+            }
+            $selected_image = JupyterImages::find()->where(['id'=>$details->image])->one();
+            $description=$selected_image->description;
+            if ($selected_image->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
 
-        }
+            $image=$description;
+
+        } 
         else if ($project_request->project_type==1)
         {
             $details = ServiceRequest::findOne(['request_id' => $id]);
@@ -1049,6 +1253,32 @@ class ProjectController extends Controller
                     $resourcesStats = array_merge($openStackCpuAndRam, $openStackIps, $openStackStorage);
                 }
             }
+        }else if ($project_request->project_type==4)
+        {
+            
+            $details=JupyterRequestNew::findOne(['request_id'=>$id]);
+            $view_file='view_jupyter_request';
+            $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
+            $type="Books";
+            // $num_of_jobs=$details->num_of_jobs;
+            // $used_jobs=$usage['count'];
+            // $remaining_jobs=$num_of_jobs-$used_jobs;
+            $vm_type="";
+            if ($project_request->status == 0) { // Poll OpenStack only in case the request is pending
+                $previouslyApprovedProjectRequest = $project_request->getPreviouslyApprovedProjectRequest();
+                if (isset($previouslyApprovedProjectRequest)) {
+                    $diff = $project_request->getFormattedDiff($previouslyApprovedProjectRequest);
+                }
+            }
+            $selected_image = JupyterImages::find()->where(['id'=>$details->image])->one();
+            $description=$selected_image->description;
+            if ($selected_image->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
+
+            $image=$description;
+        //added jupyter
         }
 
         // Configure general information about statistics and visualizations
@@ -1099,7 +1329,7 @@ class ProjectController extends Controller
             'remaining_time' => $remaining_time, 'project_owner' => $project_owner,
             'number_of_users' => $number_of_users, 'maximum_number_users' => $maximum_number_users,
             'remaining_jobs' => $remaining_jobs, 'expired' => $expired, 'resourcesStats' => $resourcesStats,
-            'requestHistory' => $requestHistory, 'project_status' => $project_status]);
+            'requestHistory' => $requestHistory, 'project_status' => $project_status, 'image'=>$image]);
 
 
     }
@@ -1107,6 +1337,8 @@ class ProjectController extends Controller
     public function actionViewRequestUser($id,$filter='all',$return='index')
     {
 
+        $active_servers = 0;
+        $image = '';
         ProjectRequest::recordViewed($id);
         $project_request=ProjectRequest::findOne($id);
         $project=Project::find()->where(['id'=>$project_request->project_id])->one();
@@ -1167,6 +1399,22 @@ class ProjectController extends Controller
             $num_of_jobs=$details->num_of_jobs;
             $used_jobs=$usage['count'];
             $remaining_jobs=$num_of_jobs-$used_jobs;
+        } else if ($project_request->project_type==4)
+        {
+            $details=JupyterRequestNew::findOne(['request_id'=>$id]);
+            $view_file='view_jupyter_request_user';
+            $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
+            $type="Books";
+            $active_servers=JupyterServer::find()->where(['active'=>true,'project'=>$project])->count();
+            $selected_image = JupyterImages::find()->where(['id'=>$details->image])->one();
+            $description=$selected_image->description;
+            if ($selected_image->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
+
+            $image=$description;
+
         }
         else if ($project_request->project_type==1)
         {
@@ -1227,7 +1475,7 @@ class ProjectController extends Controller
 
         return $this->render($view_file,['project'=>$project_request,'details'=>$details, 'return'=>$return,
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$username_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired]);
+        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'active_servers'=>$active_servers, 'image'=>$image]);
 
     }
 
@@ -2068,6 +2316,7 @@ class ProjectController extends Controller
 
     public function actionEditProject($id)
     {
+        $images = '';
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
         
         if (empty($prequest))
@@ -2122,7 +2371,11 @@ class ProjectController extends Controller
 
         $vm_exists=false;
 
-        $start=date('Y-m-d',strtotime($prequest->approval_date));
+        $date3=new \DateTime(date("Y-m-d"));
+        $start=new \DateTime($prequest->approval_date);
+        $today= new \DateTime();
+        
+        $interval=$start->diff($today)->format("%d" );
 
         $duration=$prequest->duration;
 
@@ -2229,8 +2482,31 @@ class ProjectController extends Controller
             $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
 
         }
+        else if ($prType==4)
+        {
+            $drequest=JupyterRequestNew::find()->where(['request_id'=>$id])->one();
+            $view_file='edit_jupyter';
+            $upperlimits=JupyterLimits::find()->where(['user_type'=>$role])->one();
+            $autoacceptlimits=JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
+            $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+            $prequest->end_date=$ends;
+            $img=JupyterImages::find()->all();
+            $images=[];
+            $users_list_bef = $prequest['user_list'];
+            foreach ($img as $i)
+            {
+                $description=$i->description;
+                if ($i->gpu==true)
+                {
+                    $description.=' (GPU)';
+                }
+    
+                $images[$i->id]=$description;
+            }
 
+        }
 
+//id= most recent project request
         $form_params =
         [
             'action' => URL::to(['project/edit-project', 'id'=>$id]),
@@ -2254,6 +2530,9 @@ class ProjectController extends Controller
 
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
+            if ($prType==4){
+                $prequest['user_num'] = $drequest['participants_number'];
+            }
             // Enforce one volume for 24/7 service
             if ($prType==2 && $drequest->vm_type==1) {
                 $drequest->num_of_volumes=1;
@@ -2303,6 +2582,58 @@ class ProjectController extends Controller
             
             if ($isValid)
             {   
+
+                if ($prType==4){
+    
+                    //if the owner removed users, find their active servers and delete them
+                    $removed_users = array();
+                    foreach ($pold['user_list'] as $prev_user){
+                        $found=0;
+                        foreach($prequest['user_list'] as $cur_user){
+                            if ($prev_user==$cur_user){
+                                $found=1;
+                            }
+                        }
+                        if ($found==0){
+                            $removed_users[] = $prev_user;
+                        } 
+                    }
+                    foreach ($removed_users as $removed_user) {
+                        $user=User::returnUsernameById($removed_user);
+                        $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>$user])->one();
+                        if(!empty($server)){
+                            $server->stopserver();
+                        }
+    
+                    }
+
+                    //if the expiration date changed, update all active servers of the project
+                    if (strtotime($pold['end_date'])!=strtotime($prequest['end_date'])){
+                        $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$pold['name']])->all();
+                        if(!empty($all_servers)){
+                            foreach ($all_servers as $server){
+                                Yii::$app->db->createCommand()->update('jupyter_server', ['expires_on'=>$pold['end_date']], 'server_id ='."'".$server['server_id']."'")->execute();
+
+                            }
+                        }
+
+                    }
+
+                    //if the cpu or ram changed, delete all active servers of the project
+                    if (($dold['ram']!=$drequest['ram']) || ($dold['cores']!=$drequest['cores'])){
+                        $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$pold['name']])->all();
+                        if(!empty($all_servers)){
+                            foreach ($all_servers as $server){
+                                $server->stopserver();
+                            }
+                        }
+
+                    }
+
+    
+    
+                }
+
                 if ($prType==2)
                 {
                     if ($volume_exists)
@@ -2385,8 +2716,77 @@ class ProjectController extends Controller
 
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval]);
 
+
+    }
+
+    public function actionDeleteUser($id, $pid, $user){
+
+        $errors = '';
+        $success = '';
+        $warnings = '';
+        $current_user=Userw::getCurrentUser()['username'];
+        $ruser_id=User::returnIdByUsername($user.'@elixir-europe.org');
+        $prequest_old=ProjectRequest::find()->where(['id'=>$id])->one();
+        $jrequest_old=JupyterRequestNew::find()->where(['request_id'=>$id])->one();
+
+        $new_user_list = array();
+        foreach ($prequest_old['user_list'] as $user_bef){
+            if ($ruser_id!=$user_bef) {
+                $new_user_list[] = $user_bef;
+            }
+        }
+        $prequest_new = new ProjectRequest();
+        $prequest_new['name'] = $prequest_old['name'];
+        $prequest_new['end_date'] = $prequest_old['end_date'];
+        $prequest_new['duration'] = $prequest_old['duration'];
+        $prequest_new['user_num'] = $prequest_old['user_num'] ;
+        $prequest_new['user_list'] = $new_user_list;
+        $prequest_new['backup_services'] = 0;
+        $prequest_new['project_id'] = $prequest_old['project_id'];
+
+        $messages = $prequest_new->uploadNewEdit(4, $prequest_old, $id);
+        $errors .= $messages[0];
+        $success .= $messages[1];
+        $warnings .= $messages[2];
+        $requestId = $messages[3];
+
+        if ($requestId!=-1) {
+            $jrequest_new = new JupyterRequestNew();
+            $jrequest_new['description'] = $jrequest_old['description'];
+            $jrequest_new['containerized'] = $jrequest_old['containerized'];
+            $jrequest_new['ram'] = $jrequest_old['ram'];
+            $jrequest_new['cores'] = $jrequest_old['cores'];
+            $jrequest_new['additional_resources'] = $jrequest_old['additional_resources'];
+            $jrequest_new['image'] = $jrequest_old['image'];
+            $jrequest_new['image_id'] = $jrequest_old['image_id'];
+            $jrequest_new['participants_number'] = $jrequest_old['participants_number'];
+            $jrequest_new['participant_view'] = $jrequest_old['participant_view'];
+            $messages=$jrequest_new->uploadNewEdit($requestId,false);
+            $errors.=$messages[0];
+            $success.=$messages[1];
+            $warnings.=$messages[2];
+        }
+
+        if (empty($errors)){
+
+            if(!empty($warnings)){
+                Yii::$app->session->setFlash('warning', "Your request for user removal will be reviewed.");
+                return $this->redirect(array('jupyter-index', 'id'=>$jrequest_old['request_id'], 'pid'=>$prequest_new['project_id']));
+
+            }
+            if(!empty($success)) {
+
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$prequest_old['name'], 'created_by'=>$user.'@elixir-europe.org'])->one();
+                if(!empty($server)){
+                    $server->Stopserver();
+                }
+                Yii::$app->session->setFlash('success', "The user " .$user." has been successfully removed from your project!");
+                return $this->redirect(array('jupyter-index', 'id'=>$requestId, 'pid'=>$prequest_new['project_id']));
+            }
+            
+        }
 
     }
 
@@ -3031,6 +3431,331 @@ class ProjectController extends Controller
     }
 
 
+    public function actionJupyterIndex($pid, $id)
+    {
+
+        $name = Project::find('name')->where(['id'=>$pid])->one();
+        $owner = Project::getProjectOwner($name['name']);
+        $current_user =  Userw::getCurrentUser()['id'];
+        //check if there is a server running, created by the current user
+        $server=JupyterServer::find()->where(['active'=>true,'project'=>$name['name'], 'created_by'=>Userw::getCurrentUser()['username']])->one();
+        $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$name['name']])->all();
+
+
+        ProjectRequest::recordViewed($id);
+        $project_request=ProjectRequest::findOne($id);
+        $project=Project::find()->where(['id'=>$project_request->project_id])->one();
+
+        $quot = JupyterRequestNew::GetProjectQuotas($pid);
+        $image_id = $quot['image'];
+        $images=JupyterImages::find()->where(['id'=>$image_id])->all();
+        $imageDrop=[];
+        foreach ($images as $image)
+        {
+            $im=$image->image;
+            $imageDrop[$image->id]=$im;
+        }
+        
+        $user_list=$project_request->user_list->getValue();
+        $users=User::find()->where(['id'=>$user_list])->all();
+        $username=explode('@',Userw::getCurrentUser()['username'])[0];
+        $userFolder=Yii::$app->params['userDataPath'] . $username;
+
+        if (!is_dir($userFolder))
+        {
+            JupyterServer::exec_log("mkdir $userFolder");
+            JupyterServer::exec_log("chmod 777 $userFolder");
+        }
+        
+        $jup = JupyterRequestNew::find()->where(['request_id'=>$id])->one();
+        $form_params =
+        [
+            'action' => URL::to(['project/jupyter-index', "pid"=>$pid, "id"=>$id]),
+            'options' => 
+            [
+                'class' => 'service_request_form',
+                'id'=> "service_request_form"
+            ],
+            'method' => 'POST'
+        ];
+
+
+        $quotas = JupyterRequestNew::GetProjectQuotas($pid);
+        $end_date = ProjectRequest::GetProjectEndDate($name['name'], $id, $pid);
+
+        $now = strtotime(date("Y-m-d"));
+        $end_project = strtotime($end_date['end_date']);
+        $remaining_secs=$end_project-$now;
+        $remaining_days=$remaining_secs/86400;
+        $remaining_months=round($remaining_days/30);
+        $days=$remaining_days. " days";
+
+        $img=JupyterImages::find()->all();
+        $images=[];
+        foreach ($img as $i)
+        {
+            $description=$i->description;
+            if ($i->gpu==true)
+            {
+                $description.=' (GPU)';
+            }
+
+            $images[$i->id]=$description;
+        }
+
+        foreach ($users as $user)
+        {
+            $username_list[]=explode('@',$user->username)[0];
+        }
+        $username_list=implode(',',$username_list);
+
+        if ($jup->load(Yii::$app->request->post()) ) {
+            Yii::$app->db->createCommand()->update('jupyter_request_n', ['participant_view'=>$jup['participant_view']], 'request_id ='.$id)->execute();
+            return $this->redirect(array('jupyter-index','name'=>$name,'ram'=>$quotas['ram'], 'cpu'=>$quotas['cores'],'images'=>$images, 'description'=>$quotas['description'], 'req'=>$quotas['request_id'], 'end_date'=>$days, 'pid'=>$pid, 'participants'=>$username_list, 'server'=>$server, 'id'=>$id, 'image_id'=>$imageDrop[$image->id], 'owner'=>$owner, 'current_user'=>$current_user, 'all_servers'=>$all_servers, 'form_params'=>$form_params, 'jup'=>$jup, 'view'=>$quotas['participant_view'] ));
+
+        }
+
+        return $this->render('jupyter_index',['name'=>$name,'ram'=>$quotas['ram'], 'cpu'=>$quotas['cores'],'images'=>$images, 'description'=>$quotas['description'], 'req'=>$quotas['request_id'], 'end_date'=>$days, 'pid'=>$pid, 'participants'=>$username_list, 'server'=>$server, 'id'=>$id, 'image_id'=>$imageDrop[$image->id], 'owner'=>$owner, 'current_user'=>$current_user, 'all_servers'=>$all_servers, 'form_params'=>$form_params, 'jup'=>$jup, 'view'=>$quotas['participant_view'] ]);
+        // return $this->render('jupyter_index',['null'=>$quotas]);
+
+    }
+
+    public function actionJupyterStartServer($project, $pid, $id)
+    {
+
+        $name = Project::find('name')->where(['id'=>$pid])->one();
+        $owner = Project::getProjectOwner($name['name']);
+        $current_user =  Userw::getCurrentUser()['id'];
+        $form_params =
+        [
+            'action' => URL::to(['jupyter-start-server', 'project'=>$project, 'pid'=>$pid, 'id'=>$id]),
+            'options' => 
+            [
+                'class' => 'jupyter_start_form',
+                'id'=> "jupyter_start_form"
+            ],
+            'method' => 'POST'
+        ];
+
+        // if (!Yii::$app->params['standalone'])
+        // {
+        //         /*
+        //          * Project does not exist. User is trying something illegal.
+        //          */
+        //         // $quotas=JupyterServer::getProjectQuotas($project);
+        //         $quotas=['cores'=>1,'ram'=>1,'end_date'=>'2250-12-31' ];
+    
+        //         // if (empty($quotas))
+        //         // {
+        //         //     return $this->render('project_error',['project'=>$project]);
+        //         // }
+        // }
+        // else
+        // {
+        //     /*
+        //      * Project not active in standalone mode, so there's no use searching.
+        //      */
+        //     $quotas=['cores'=>Yii::$app->params['standaloneResources']['maxCores'],'ram'=>Yii::$app->params['standaloneResources']['maxRam'],'end_date'=>'2250-12-31' ];
+        // }
+
+        // $username=User::getCurrentUser()['username'];
+        $quot = JupyterRequestNew::GetProjectQuotas($pid);
+        $end_date = ProjectRequest::GetProjectEndDate($project, $id, $pid);
+        $quotas=['cores'=>$quot['cores'],'ram'=>$quot['ram'],'end_date'=>$end_date['end_date'] ];
+        $days = $quotas ['end_date'];
+        $image_id = $quot['image'];
+        $username=Userw::getCurrentUser()['id'];
+
+        /*
+         * Server has already been activated. User is trying something illegal.
+         */
+        $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>Userw::getCurrentUser()['username']])->one();
+        // if (!empty($server))
+        // {
+        //     return $this->render('server_already_active');
+        // }
+
+        $images=JupyterImages::find()->where(['id'=>$image_id])->all();
+        $imageDrop=[];
+        foreach ($images as $image)
+        {
+            $description=$image->description;
+            if ($image->gpu)
+            {
+                $description.=" (GPU enabled)";
+            }
+            $imageDrop[$image->id]=$description;
+        }
+
+        $model = new JupyterServer;
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) 
+        {
+            $model->image_id = $image_id;
+            $model->cpu=$quotas['cores'];
+            $model->memory=$quotas['ram'];;
+            $model->expires_on=$quotas['end_date'];;
+            $model->project=$project;
+            $messages=$model->startServer();
+            $success=$messages[0];
+            $error=$messages[1];
+
+            if (!empty($error)) {
+                Yii::$app->session->setFlash('danger',$error);
+            }elseif (!empty($success)){
+                Yii::$app->session->setFlash('success',$success);
+            }
+            $quotas = JupyterRequestNew::GetProjectQuotas($pid);
+
+            ProjectRequest::recordViewed($id);
+            $project_request=ProjectRequest::findOne($id);
+            $project=Project::find()->where(['id'=>$project_request->project_id])->one();
+            
+            $user_list=$project_request->user_list->getValue();
+            $users=User::find()->where(['id'=>$user_list])->all();
+            foreach ($users as $user)
+            {
+                $username_list[]=explode('@',$user->username)[0];
+            }
+            $username_list=implode(',',$username_list);
+            $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$name['name']])->all();
+            $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>Userw::getCurrentUser()['username']])->one();
+            return $this->redirect(array('jupyter-index','name'=>$name,'ram'=>$quotas['ram'], 'cpu'=>$quotas['cores'],'images'=>$images, 'description'=>$quotas['description'], 'req'=>$quotas['request_id'], 'end_date'=>$days, 'pid'=>$pid, 'participants'=>$username_list, 'server'=>$server, 'id'=>$id, 'owner'=>$owner, 'current_user'=>$current_user, 'all_servers'=>$all_servers ));
+        
+        } 
+        
+
+        return $this->render('jupyter_start_server',['model'=>$model, 'imageDrop'=>$imageDrop,'form_params' => $form_params, 'project' => $project, 'pid'=>$pid, 'image__id'=>$image_id]);
+
+    }
+
+    public function actionJupyterStopServer($project,$return='s', $id, $pid, $user_delete)
+    {
+        $name = Project::find('name')->where(['id'=>$pid])->one();
+        $owner = Project::getProjectOwner($name['name']);
+        $current_user =  Userw::getCurrentUser()['id'];
+        $quot = JupyterRequestNew::GetProjectQuotas($pid);
+        $image_id = $quot['image'];
+        $images=JupyterImages::find()->where(['id'=>$image_id])->all();
+        $imageDrop=[];
+        foreach ($images as $image)
+        {
+            $im=$image->image;
+            $imageDrop[$image->id]=$im;
+        }
+        $end_date = ProjectRequest::GetProjectEndDate($project, $id, $pid);
+        $quotas=['cores'=>$quot['cores'],'ram'=>$quot['ram'],'end_date'=>$end_date['end_date'] ];
+        $days = $quotas ['end_date'];
+        $username=Userw::getCurrentUser()['id'];
+        if (!empty($user_delete)) {
+            if ($return=='a')
+            {
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>$user_delete.'@elixir-europe.org'])->one();
+            }
+            else
+            {
+                // $username=User::getCurrentUser()['username'];
+                $username = Userw::getCurrentUser()['username'];
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project,'created_by'=>$user_delete.'@elixir-europe.org'])->one();
+            }
+        } else {
+            if ($return=='a')
+            {
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>Userw::getCurrentUser()['username']])->one();
+            }
+            else
+            {
+                // $username=User::getCurrentUser()['username'];
+                $username = Userw::getCurrentUser()['username'];
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project,'created_by'=>Userw::getCurrentUser()['username']])->one();
+            }
+        }
+
+        if (empty($server))
+        {
+            return $this->render('jupyter_server_already_stopped');
+            //return $this->redirect(['index']);
+        }
+
+        $messages=$server->stopServer();
+        $success=$messages[0];
+        $error=$messages[1];
+
+        $quotas = JupyterRequestNew::GetProjectQuotas($pid);
+        ProjectRequest::recordViewed($id);
+        $project_request=ProjectRequest::findOne($id);
+        $project=Project::find()->where(['id'=>$project_request->project_id])->one();
+        
+        $user_list=$project_request->user_list->getValue();
+        $users=User::find()->where(['id'=>$user_list])->all();
+        foreach ($users as $user)
+        {
+            $username_list[]=explode('@',$user->username)[0];
+        }
+        $username_list=implode(',',$username_list);
+        $server=JupyterServer::find()->where(['active'=>true,'project'=>$project,'created_by'=>$username])->one();
+        $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$name['name']])->all();
+        $images=JupyterImages::find()->orderBy('description')->all();
+
+        if (!empty($error))
+        {
+            Yii::$app->session->setFlash('danger',$error);
+        }
+
+        if (!empty($success))
+        {
+            Yii::$app->session->setFlash('success',$success);
+        }
+        if ($return=='a')
+        {
+            return $this->redirect(['administration/view-active-jupyters']);
+        }
+        else
+        {
+            return $this->redirect(array('jupyter-index','name'=>$name,'ram'=>$quotas['ram'], 'cpu'=>$quotas['cores'],'images'=>$images, 'description'=>$quotas['description'], 'req'=>$quotas['request_id'], 'end_date'=>$days, 'pid'=>$pid, 'participants'=>$username_list, 'server'=>$server, 'id'=>$id, 'image_id'=>$imageDrop[$image->id], 'owner'=>$owner, 'current_user'=>$current_user, 'all_servers'=>$all_servers ));
+        
+        }
+
+    }
+
+    public function actionStopExpiredJupyterServers()
+    {
+
+        /*
+         * User is not admin
+         */
+        if (!Userw::hasRole("Admin", $superAdminAllowed = true))
+        {
+            return $this->render('unauthorized');
+        }
+        
+        /*
+         * Get expired servers
+         */
+        $servers=JupyterServer::find()->where(['active'=>true])->andWhere(['<','expires_on','NOW()'])->all();
+        
+        /*
+         * If no servers exist, return
+         */
+        if (empty($servers))
+        {
+            Yii::$app->session->setFlash('warning','No expired servers exist.');
+            return $this->redirect(['administration/view-active-jupyters']);
+        }
+
+        /*
+         * Stop servers and return
+         */
+        foreach($servers as $server)
+        {
+            $server->stopServer();
+        }
+
+
+        Yii::$app->session->setFlash('success','Successfully stopped all expired Jupyter servers');
+        
+        return $this->redirect(['administration/view-active-jupyters']);
+
+    }
 
 
 
