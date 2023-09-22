@@ -20,7 +20,7 @@ use app\models\ProjectRequest;
 class Project extends \yii\db\ActiveRecord
 {
 
-    const TYPES=[0=>'On-demand batch computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'On-demand computation machines'];
+    const TYPES=[0=>'On-demand batch computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'On-demand computation machines', 4=>'Books'];
     const STATUSES=[-5=>'Εxpired',-4 =>'Deleted',-1=>'Rejected',0=>'Pending', 1=>'Approved', 2=>'Auto-approved'];  
     /**
      * {@inheritdoc}
@@ -1171,5 +1171,24 @@ class Project extends \yii\db\ActiveRecord
         return $final;
     }
 
+    public static function getProjectOwner($project_name)
+    {
+        $query=new Query;
 
+
+        $query->select(['pr.submitted_by'])
+              ->from('project as p')
+              ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+              ->Where(['p.name'=>$project_name]);
+              
+        
+        $results=$query->one();
+      
+        return $results;
+
+
+
+    }
+
+    
 }

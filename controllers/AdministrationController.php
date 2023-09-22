@@ -12,9 +12,12 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\ServiceAutoaccept;
 use app\models\OndemandAutoaccept;
+use app\models\JupyterAutoaccept;
 use app\models\ColdStorageAutoaccept;
 use app\models\ServiceLimits;
 use app\models\OndemandLimits;
+use app\models\JupyterLimits;
+use app\models\JupyterServer;
 use app\models\ColdStorageLimits;
 use app\models\Configuration;
 use app\models\Openstack;
@@ -110,13 +113,18 @@ class AdministrationController extends Controller
         $smtp= Smtp::find()->one();
         $openstack=Openstack::find()->one();
         $openstackMachines=OpenstackMachines::find()->one();
+        $jupyter=JupyterAutoaccept::find()->where(['user_type'=>$currentUser])->one();
+        $jupyterLimits=JupyterLimits::find()->where(['user_type'=>$currentUser])->one();
+
+
+
 
         
         $general=Configuration::find()->one();
         $pages=Page::getPagesDropdown();
         
-        $activeButtons=['','','','','','','',''];
-        $activeTabs=['','','','','','','',''];
+        $activeButtons=['','','','','','','','',''];
+        $activeTabs=['','','','','','','','',''];
 
         if (!isset($_POST['hidden-active-button']))
         {
@@ -148,6 +156,7 @@ class AdministrationController extends Controller
             && ($coldStorageLimits->load(Yii::$app->request->post())) && ($serviceLimits->load(Yii::$app->request->post())) 
             && ($ondemandLimits->load(Yii::$app->request->post())) && ($smtp->load(Yii::$app->request->post())) 
             && ($openstack->load(Yii::$app->request->post())) && $openstackMachines->load(Yii::$app->request->post())
+            &&  ($jupyter->load(Yii::$app->request->post())) && ($jupyterLimits->load(Yii::$app->request->post())) 
             )
         {
             
@@ -171,6 +180,10 @@ class AdministrationController extends Controller
             $isValid = $coldStorageLimits->validate() && $isValid;
             $isValid = $serviceLimits->validate() && $isValid;
             $isValid = $ondemandLimits->validate() && $isValid;
+            $isValid = $jupyter->validate() && $isValid;
+            $isValid = $jupyterLimits->validate() && $isValid;
+            
+  
             if ($isValid)
             {
                 
@@ -227,6 +240,12 @@ class AdministrationController extends Controller
                     $ondemandLimits->updateDB($previousUserType);
                 }
 
+                $jupyter->updateDB($previousUserType);
+                $jupyterLimits->updateDB($previousUserType);
+                   
+
+
+                
                 $max_autoaccepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$previousUserType,2);
                 $max_accepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$previousUserType,[1,2]);
 
@@ -278,7 +297,8 @@ class AdministrationController extends Controller
                 $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
                 $machineComputationLimits=MachineComputeLimits::find()->where(['user_type'=>$currentUser])->one();
                 $general=Configuration::find()->one();
-
+                $jupyter=JupyterAutoaccept::find()->where(['user_type'=>$currentUser])->one();
+                $jupyterLimits=JupyterLimits::find()->where(['user_type'=>$currentUser])->one();
                 
 
                 $activeButton=$_POST['hidden-active-button'];
@@ -326,6 +346,14 @@ class AdministrationController extends Controller
                     $activeButtons[7]='button-active';
                     $activeTabs[7]='tab-active';
                     $hiddenActiveButton='openstack-machines-button';
+
+
+
+                } else if ($activeButton=='jupyter-button')
+                {
+                    $activeButtons[8]='button-active';
+                    $activeTabs[8]='tab-active';
+                    $hiddenActiveButton='jupyter-button';
                 }
                 else
                 {
@@ -342,6 +370,7 @@ class AdministrationController extends Controller
 
             return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'general'=>$general,
+                                'jupyter'=>$jupyter, 'jupyterLimits'=>$jupyterLimits,
                                 'coldStorage'=>$coldStorage, 'success'=>$success,
                                 "hiddenUser" => $currentUser,'userTypes'=>$userTypes, 'serviceLimits'=>$serviceLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,
@@ -354,6 +383,7 @@ class AdministrationController extends Controller
         $openstackMachines->decode();
         return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
                                 'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
+                                'jupyter'=>$jupyter, 'jupyterLimits'=>$jupyterLimits,
                                 'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,
                                 'userTypes'=>$userTypes, 'success'=>'',"hiddenUser" => $currentUser,
                                 'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,
@@ -579,7 +609,7 @@ class AdministrationController extends Controller
 
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user'];
+                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user', 4=>'/project/view-jupyter-request-user'];
 
         
         $deleted=Project::getAllDeletedProjects();
@@ -824,5 +854,19 @@ class AdministrationController extends Controller
         
         return $this->render('user_stats_list', ['users'=>$users,'username'=>$username, 'activeFilter'=>$activeFilter, 
                 'activeFilterDrop'=>$activeFilterDrop, 'activeUsers'=>$activeUsers, 'totalUsers'=>$totalUsers]);
+    }
+
+    public function actionViewActiveJupyters()
+    {
+
+        if (!Userw::hasRole("Admin", $superAdminAllowed = true))
+        {
+            return $this->render('unauthorized');
+        }
+
+        $servers=JupyterServer::find()->where(['active'=>true])->all();
+
+        return $this->render('view_active_jupyters',['servers'=>$servers]);
+
     }
 }

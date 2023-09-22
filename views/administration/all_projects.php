@@ -124,6 +124,17 @@ foreach ($active as $res)
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
 		$title='On-demand batch computation project';
+	} 
+	else if ($res['project_type']==4){
+		
+		$projectLink=$schema_url;
+		if(empty($schema_url))
+        {
+            $ondemand_access_class='disabled';
+        }
+		$projectTarget='_blank';
+		$project_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
+		$title='Jupyter Notebook';
 	}
 	else if ($res['project_type']==1) 
 	{

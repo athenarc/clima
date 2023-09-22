@@ -45,6 +45,8 @@ if (!empty($success))
 		<div class="col-md-3 tab-button <?=$activeButtons[5]?>" data-controlling="tab-email-configuration" id='email-button'><div class="button-text"> SMTP configuration</div></div>
 		<div class="col-md-3 tab-button <?=$activeButtons[6]?>" data-controlling="tab-openstack-configuration" id='openstack-button'><div class="button-text"> OpenStack configuration</div></div>
 		<div class="col-md-3 tab-button <?=$activeButtons[7]?>" data-controlling="tab-openstack-machines-configuration" id='openstack-machines-button'><div class="button-text"> OpenStack Machines configuration</div></div>
+		<div class="col-md-3 tab-button <?=$activeButtons[8]?>" data-controlling="tab-jupyter-autoaccept"  id='jupyter-button' ><div class="button-text"> Books projects</div></div>
+
 	</div>
 
 	<div class="row">&nbsp;</div>
@@ -178,6 +180,29 @@ if (!empty($success))
 				<?=$form->field($openstackMachines, 'cred_id')->passwordInput() ?>
 				<?=$form->field($openstackMachines, 'cred_secret')->passwordInput() ?>
 			</div>
+	</div>
+
+	<div class="tab-jupyter-autoaccept tab <?=$activeTabs[8]?>">
+
+		<div class="row"><h2 class="col-md-12">Automatically accepted projects</h2></div>
+		<?= $form->field($jupyter, 'autoaccept_number')->label("") ?>
+
+		<div class="row"><h2 class="col-md-12">Maximum number of accepted projects</h2></div>
+		<?= $form->field($jupyterLimits, 'number_of_projects')->label("") ?>
+
+		<div class="row"><h2 class="col-md-12">Upper limits for approval without review for books projects</h2></div>
+		<?= $form->field($jupyter, 'cores') ?>
+		<?= $form->field($jupyter, 'ram') ?>
+		
+		
+		
+
+	
+	<div class="row"><h2 class="col-md-12">Upper limits for resources for books projects</h2></div>
+		<?= $form->field($jupyterLimits, 'participants') ?>
+		<?= $form->field($jupyterLimits, 'duration') ?>
+		<?= $form->field($jupyterLimits, 'cores') ?>
+		<?= $form->field($jupyterLimits, 'ram') ?>
 	</div>
 
 	<div class="form-group">

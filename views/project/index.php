@@ -139,6 +139,7 @@ foreach ($active as $res)
 	{
 		
 		$projectLink=$schema_url;
+
 		if(empty($schema_url))
         {
            $ondemand_access_class='disabled';
@@ -170,6 +171,23 @@ foreach ($active as $res)
 		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
 		$title='On-demand computation machines';
 		$days=$res[1]. " days";
+	}
+	else if ($res['project_type']==4){
+	
+	// $projectLink=$schema_url;
+	//access button of on demand batch computation project redirects to schema test and not schema
+	// $projectLink='http://62.217.122.26/schema-test/web/index.php';
+	$projectLink=Url::to(['/project/jupyter-index','pid'=>$res['project_id'],'id'=>$res['id']]);
+	if(empty($schema_url))
+	{
+	   $ondemand_access_class='disabled';
+	}
+
+	$projectTarget='_self';
+	$project_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
+	// $title='Jupyter Notebook';
+	$title='Books project';
+	$days=$res[1]. " days";
 	}
 	else
 	{
@@ -265,6 +283,15 @@ foreach ($expired as $res)
 		$projectTarget='_blank';
 		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
 		$title='On-demand batch computation project';
+		
+	} 
+	else if ($res['project_type']==4){
+		// $projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
+		$projectLink=Url::to(['/project/jupyter-index']);
+		$projectTarget='_blank';
+		$project_icon='<i class="fa fa-circle" aria-hidden="true"></i>';
+		// $title='Jupyter Notebook';
+		$title='Books project';
 		
 	}
 	else if ($res['project_type']==1) 

@@ -70,13 +70,16 @@ class NotificationWidget //extends Widget
 ;
         $items[]="<li class='dropdown-header'>You have $notifCount new messages.</li>";
 
+        $items[]=['label'=>'View notification history', 'url'=>['site/notification-history'],'options'=>['class'=>'notification-history']];
+
+
         foreach ($notifications as $notification)
         {
             $type=$typeClass[$notification->type];
             $items[]=['label'=>$notification->message, 'url'=>['/site/notification-redirect','id'=>$notification->id], 
                                                        'options'=>['class'=>"notification $type"]];
         }
-        $items[]=['label'=>'View notification history', 'url'=>['site/notification-history'],'options'=>['class'=>'notification-history']];
+ //       $items[]=['label'=>'View notification history', 'url'=>['site/notification-history'],'options'=>['class'=>'notification-history']];
         if ($notifCount!=0)
         {
                 $items[]=['label'=>'Mark all as seen','options'=>['id'=>'mark_all_seen']];

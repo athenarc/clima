@@ -56,7 +56,14 @@ if (!empty($notifications))
 		?>
 			
 			<tr class="<?=$typeClass[$notif['type']]?>">
-				<td class="col-md-10"><?=Html::a($notif['message'],$notif['url'])?></th>
+			<?php if ($notif['type']==0){
+                    $ticket_id = substr($notif['url'], -2);
+                    $url = 'index.php?r=ticket-user%2Fview&id='.$ticket_id;
+                    ?>
+                    <td class="col-md-10"><?=Html::a($notif['message'],$url)?></th>
+                <?php }else {?>
+                    <td class="col-md-10"><?=Html::a($notif['message'],$notif['url'])?></th>
+                <?php }?>   
 				<td class="col-md-2"><?= date("j-m-Y, H:i:s",strtotime($notif['created_at']))?></td>
 			</tr>
 		<?php 		

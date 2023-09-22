@@ -113,10 +113,19 @@ class TicketUserController extends Controller
             $username=explode('@',$newTicket->name_user)[0];
             $message="User <strong>$username</strong> posted an answer for ticket <strong>$ticket->topic</strong>.";
             $url=Url::to(['/ticket-user/view','id'=>$id]);
-            foreach (TicketConfig::adminId as $admin)
+            
+            //added to fix the following error
+            foreach (User::getAdminIds() as $admin)
             {
                 Notification::notify($admin, $message, '0' ,$url);
             }
+            //EmailEventsAdmin::NotifyByEmail('new_ticket',-1, $message);
+
+            //error: unknown adminId
+            // foreach (TicketConfig::adminId as $admin)
+            // {
+            //     Notification::notify($admin, $message, '0' ,$url);
+            // }
         
 
             $this->redirect(Url::to(['/ticket-user/index']));

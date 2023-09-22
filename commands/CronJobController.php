@@ -13,6 +13,7 @@ use app\models\Project;
 use app\models\Notification;
 use app\models\User;
 use app\models\Email;
+use app\models\JupyterServer;
 use webvimark\modules\UserManagement\models\User as Userw;
 
 
@@ -25,6 +26,8 @@ class CronJobController extends Controller {
     }
 
    public function actionInit($from, $to){
+
+
         $dates  = CronJob::getDateRange($from, $to);
         $command = CronJob::run($this->id, $this->action->id, 0, CronJob::countDateRange($dates));
 
@@ -136,6 +139,39 @@ class CronJobController extends Controller {
 
      public function actionYesterday(){
         return $this->actionInit(date("Y-m-d", strtotime("-1 days")), date("Y-m-d", strtotime("-1 days")));
+    }
+
+    public function actionDeleteServers($from, $to){
+
+        $dates  = CronJob::getDateRange($from, $to);
+        $command = CronJob::run($this->id, $this->action->id, 0, CronJob::countDateRange($dates));
+        if ($command === false)
+        {
+            return Controller::EXIT_CODE_ERROR;
+        }
+        else
+        {
+            $expired_owner=Project::getExpiredProjects();
+            $expired_projects = $expired_owner;
+            foreach ($expired_projects as $expired_project){
+                if ($expired_project['project_type']==4){
+                    $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$expired_project['name']])->all();
+                    if (!empty($all_servers)){
+                        foreach ($all_servers as $server){
+                            $server->Stopserver();
+                        }
+                    }
+
+                }
+            }
+        
+            $command->finish();
+            return Controller::EXIT_CODE_NORMAL;
+        }
+    }
+
+    public function actionToday(){
+        return $this->actionDeleteServers(date("Y-m-d"), date("Y-m-d"));
     }
     
 

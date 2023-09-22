@@ -260,7 +260,17 @@ class SiteController extends Controller
         {
             return $this->redirect(['project/index']);
         }
-
+        // if ($notification->type == 0 && Userw::hasRole('Admin', $superadminAllowed=true)){
+        //     $url=$notification->url.'&mode=0';
+        //     return $this->redirect($url);
+        // } else {
+        //     $ticket_id = substr($notification->url, -2);
+        //     $url = 'index.php?r=ticket-user%2Fview&id='.$ticket_id;
+        //     // $url=$notification->url.'&mode=0';
+        //     Yii::$app->session->setFlash('success', "HEY");
+        //     return $this->redirect($url);
+        // }
+        // Yii::$app->session->setFlash('success', "HEY 2");
         return $this->redirect($notification->url);
 
 
