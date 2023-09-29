@@ -358,9 +358,6 @@ class JupyterServer extends \yii\db\ActiveRecord
             return ['',$error,''];
 
         } else{
-            ob_start();
-            echo 'hi' . '<br />';
-            ob_end_flush();
             $service = [];
             $service = array (
                 'metadata' => array (
