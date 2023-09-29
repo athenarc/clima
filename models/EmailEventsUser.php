@@ -241,7 +241,127 @@ class EmailEventsUser extends \yii\db\ActiveRecord
 
     }
 
+    public static function NotifyByEmailUserUpgrade($user_id, $revoke, $assign){
 
+        $smtp=Smtp::find()->one();
+        $encrypted_password=$smtp->password;
+        $decrypted_password= base64_decode($encrypted_password);
+        $name=Yii::$app->params['name'];
+        $mailer = Yii::$app->mailer->setTransport([
+
+            'class' => 'Swift_SmtpTransport',
+            'host' => $smtp->host,
+            'username' => $smtp->username,
+            'password' => $decrypted_password,
+            'port' => $smtp->port,
+            'encryption' => $smtp->encryption,
+
+        ]);
+
+        $user=self::getUpgradedUser($user_id);
+        $ids=array($user[2]);
+        $subject='User upgrade';
+        //return $user;
+
+        $roles_assign = array();
+        $roles_revoke = array();
+        $assign_bronze = 0;
+        $assign_silver = 0;
+        $assign_gold = 0;
+        $revoke_bronze = 0;
+        $revoke_silver = 0;
+        $revoke_gold = 0;
+        $role_assigned='';
+
+        foreach ($revoke as $re) {
+            array_push($roles_revoke, $re);
+        }
+        foreach ($assign as $as) {
+            array_push($roles_assign, $as);
+            if ($as=='Bronze'){
+                $assign_bronze=1;
+            } elseif($as=='Silver'){
+                $assign_silver = 1;
+            } elseif($as=='Gold'){
+                $assign_gold = 1;
+            }
+        }
+        foreach ($revoke as $rev) {
+            array_push($roles_revoke, $re);
+            if ($re=='Bronze'){
+                $revoke_bronze=1;
+            } elseif($re=='Silver'){
+                $revoke_silver = 1;
+            } elseif($re=='Gold'){
+                $revoke_gold = 1;
+            }
+        }
+
+        if ($assign_silver==1 && $revoke_gold!=1 && $assign_gold!=1){
+            $role_assigned='silver';
+        }
+        if ($assign_gold==1){
+            $role_assigned='gold';
+        }
+        $message = "We would like to inform you that you have been upgraded to " .$role_assigned. " user." ;
+        if (!empty($role_assigned)) {
+            if (!isset(Yii::$app->params['disableEmail']))
+            {
+                try
+                {
+                    Yii::$app->mailer->compose()
+                            ->setFrom("$smtp->username")
+                            ->setTo($user[0])
+                            ->setSubject($subject)
+                            ->setTextBody('Plain text content')
+                            ->setHtmlBody("Dear ". explode('@',$user[1])[0] . ",  <br /> <br /> $message 
+                            <br /> <br /> Sincerely, <br /> the $name Administration team.")
+                            ->send();
+                            usleep(2000);
+                }
+                catch (Throwable $e)
+                {
+                    ;
+                }
+                catch (\Swift_TransportException $e)
+                {
+                    ;
+                }
+            
+
+                Yii::$app->db->createCommand()->insert('email', [
+                            'recipient_ids' => $ids,
+                            'type'=>'user_upgrade',
+                            'sent_at' => 'NOW()',
+                            'message' => $message
+                    ])->execute();
+            }
+        }
+
+    }
+
+
+    public static function getUpgradedUser($user_id) {
+
+        // $project=Project::find()->where(['id'=>$project_id])->one();
+        // $project_request_id=$project->latest_project_request_id;
+        // $project_request=ProjectRequest::find()->where(['id'=>$project_request_id])->one();
+
+        $query=new Query;
+        $user=$query->select(['u.id','u.email','u.username'])
+            ->from('user as u')
+            ->where(['not',['u.email'=>null]])
+            ->andWhere(["u.id"=>$user_id])
+            ->one();
+    
+        $up_user = array($user['email'], $user['username'], $user['id']);
+
+        // $up_user[$user['id']]=['email'=>$user['email'], 'username'=>$user['username']];
+
+        return $up_user;
+
+
+    }
 
 
 
