@@ -73,26 +73,6 @@ class JupyterServer extends \yii\db\ActiveRecord
         ];
     }
 
-    // public static function getActiveProjects()
-    // {
-    //     $username=User::getCurrentUser()['username']; 
-    //     $client = new Client();
-    //     $response = $client->createRequest()
-    //             ->setMethod('GET')
-    //             ->setUrl(Yii::$app->params['egciActiveQuotas'] . "&username=$username")
-    //             ->send();
-
-    //     $apiProjects=$response->data;
-    //     $projects=[];
-
-    //     foreach ($apiProjects as $project)
-    //     {
-    //         $projects[$project['name']]=['cpu'=>$project['cores'], 'memory'=>$project['ram'], 'expires'=>$project['end_date']];
-    //     }
-
-    //     return $projects;
-
-    // }
 
 
     public static function matchServersWithProjects($projects)
@@ -138,25 +118,6 @@ class JupyterServer extends \yii\db\ActiveRecord
         return $projects;
     }
 
-    // public static function getProjectQuotas($project)
-    // {
-    //     $username=User::getCurrentUser()['username']; 
-    //     $url=Yii::$app->params['egciSingleProjecteQuotas'] . "&username=$username&project=$project";
-        
-    //     $client = new Client();
-    //     $response = $client->createRequest()
-    //             ->setMethod('GET')
-    //             ->setUrl($url)
-    //             ->send();
-    //     $quotas=$response->data;
-
-    //     if (!empty($quotas))
-    //     {
-    //         $quotas=$quotas[0];
-    //     }
-    //     return $quotas;
-
-    // }
 
     public function startServer()
     {
@@ -178,31 +139,6 @@ class JupyterServer extends \yii\db\ActiveRecord
             $error='Image not found. Please try again or contact an administrator';
             return ['',$error];
         }
-
-        // $data=[];
-        // if (file_exists('/data/containerized'))
-        // {
-        //     $nfs="container";
-        // }
-        // else
-        // {
-        //     $nfs=Yii::$app->params['nfsIp'];
-        // }
-
-        // $data['nfs']=$nfs;
-        // $data['image']=$image->image;
-        // $data['image_id']=$this->image_id;
-        // $data['gpu']=$image->gpu;
-        // $data['id']=$sid;
-        // $data['folder']=Yii::$app->params['tmpFolderPath'] . '/' . $sid . '/';
-        // $data['mountFolder']=Yii::$app->params['userDataPath'] . $user . '/';
-        // $data['password']=$this->password;
-        // $data['expires']=$this->expires_on;
-        // $data['project']=$this->project;
-        // $data['user']=$username;
-        // $data['resources']=['cpu'=>$this->cpu,'mem'=>$this->memory];
-
-        // $file=$data['folder'] . $sid . '.json';
 
         $tmpf=Yii::$app->params['tmpFolderPath'];
         if (!is_dir($tmpf))
@@ -247,7 +183,8 @@ class JupyterServer extends \yii\db\ActiveRecord
                                 'command' => array (
                                     "start-notebook.sh",
                                     "--NotebookApp.password=". "'sha256:" . $salt . ":" .$password_hash."'",
-                                    "--NotebookApp.notebook_dir='/home/jovyan/work"
+                                    "--NotebookApp.notebook_dir='/home/jovyan/work'",
+                                    "--NotebookApp.base_url='/".$sid."/'"
                                 ),
                                 'resources' => array(
                                     'requests' => array (
@@ -402,18 +339,17 @@ class JupyterServer extends \yii\db\ActiveRecord
                     'name' => $sid,
                     'annotations' => array(
                         'kubernetes.io/ingress.class' => 'nginx',
-                        'cert-manager.io/cluster-issuer' => 'letsencrypt-prod',
-                        'kubernetes.io/tls-acme' => 'true'
+
                     )
                 ),
                 'spec' => array (
                     'rules' => array (
                         array (
-                            'host' => $sid . '.jupyter.'.Yii::$app->params['schema_domain'],
+                            'host' => 'jupyter.'.Yii::$app->params['schema_domain'],
                             'http' => array (
                                 'paths' => array (
                                     array (
-                                        'path' => '/',
+                                        'path' => '/'.$sid,
                                         'pathType' => 'Prefix',
                                         'backend' => array (
                                             'service' => array (
@@ -430,8 +366,8 @@ class JupyterServer extends \yii\db\ActiveRecord
                     ),
                     'tls' => array(
                         array(
-                            'hosts'=>array($sid . '.jupyter.'.Yii::$app->params['schema_domain']),
-                            'secretName' => $sid.'-ingress-secret'
+                            'hosts'=>array('jupyter.'.Yii::$app->params['schema_domain']),
+                            'secretName' => 'jupyter-ssl'
                         )
                     )
                 )
@@ -459,25 +395,13 @@ class JupyterServer extends \yii\db\ActiveRecord
             mkdir ($folder, 0777, true);
             
             exec ("chmod 777 -R " . $folder);
-            // file_put_contents($file, $json_data);
             file_put_contents($file_deploy, $json_data_deploy);
             file_put_contents($file_service, $json_data_service);
             file_put_contents($file_ingress, $json_data_ingress);
 
-            // $command=Yii::$app->params['scriptsFolder'] . "jupyterServerStart.py " . self::enclose($file) . ' 2>&1' ;
-            // //print_r($command);exit(0);
-            // //$command=JupyterServer::sudoWrap($command);
-            // $command;
-            // exec($command,$out,$ret);
-            // $out3 = $sid;
-            // $out1 = $out3 . '  ' . $out6;
-            // $success='';
-            // $error='';
-            // $status='';
-            // session_write_close();
 
             $manifest = Yii::$app->params['tmpFolderPath'] . $sid  ;
-            $url = 'https://'.$sid.'.jupyter.'.Yii::$app->params['schema_domain'];
+            $url = 'https://jupyter.'.Yii::$app->params['schema_domain'].'/'.$sid;
 
             //insert to jupyterserver
 
@@ -502,8 +426,6 @@ class JupyterServer extends \yii\db\ActiveRecord
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET"); 
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-                // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
                 curl_exec($ch);
                 $code =curl_getinfo($ch, CURLINFO_HTTP_CODE);
