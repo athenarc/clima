@@ -358,7 +358,6 @@ class JupyterServer extends \yii\db\ActiveRecord
             return ['',$error,''];
 
         } else{
-
             $service = [];
             $service = array (
                 'metadata' => array (
@@ -496,9 +495,23 @@ class JupyterServer extends \yii\db\ActiveRecord
                 'state' => 'spawning',
                 'image_id'=> $this->image_id
             ])->execute();
+            $code=0;
+            while ($code!=200){
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $url);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET"); 
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+                curl_exec($ch);
+                $code =curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                sleep(5);
+            }
 
-
-            $success = 'Server was started successfully! It can be accessed <a href="' . $url . '" target="blank">here</a>.';
+            $success = 'Server was started successfully! It can be accessed <a href="' . $url . ' " target="blank">here</a>.';
             return [$success,'',''];
         }
        
@@ -613,6 +626,8 @@ class JupyterServer extends \yii\db\ActiveRecord
             return "sudo -u ". Yii::$app->params['systemUser'] . " " . $command;
         }
     }
+
+
 
 
 }
