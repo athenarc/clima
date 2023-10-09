@@ -260,18 +260,22 @@ class SiteController extends Controller
         {
             return $this->redirect(['project/index']);
         }
-        // if ($notification->type == 0 && Userw::hasRole('Admin', $superadminAllowed=true)){
+         if ($notification->type == 0 && Userw::hasRole('Admin', $superadminAllowed=true)){
         //     $url=$notification->url.'&mode=0';
-        //     return $this->redirect($url);
-        // } else {
-        //     $ticket_id = substr($notification->url, -2);
-        //     $url = 'index.php?r=ticket-user%2Fview&id='.$ticket_id;
+             return $this->redirect($notification->url);
+        } elseif ($notification->type == 0) {
+            $url_split = explode('=', $notification->url);
+            $ticket_id = $url_split[2];
+            $url = 'index.php?r=ticket-user%2Fview&id='.$ticket_id;
         //     // $url=$notification->url.'&mode=0';
         //     Yii::$app->session->setFlash('success', "HEY");
         //     return $this->redirect($url);
         // }
         // Yii::$app->session->setFlash('success', "HEY 2");
-        return $this->redirect($notification->url);
+            return $this->redirect($url);
+        } else{
+            return $this->redirect($notification->url);
+        }
 
 
     }
@@ -290,7 +294,7 @@ class SiteController extends Controller
         $notifications=$results[1];
 
 
-        return $this->render('notification_history',['notifications'=>$notifications,'pages'=>$pages,'typeClass'=>$typeClass,]);
+        return $this->render('notification_history',['notifications'=>$notifications,'pages'=>$pages,'typeClass'=>$typeClass]);
     }
 
     public function actionSshTutorial()

@@ -10,6 +10,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
+use webvimark\modules\UserManagement\models\User as Userw;
 
 $this->title="Notification History";
 
@@ -38,9 +39,10 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
 
 if (!empty($notifications))
 {
+//table-striped didn't show the correct color for every second same type notification
 ?>
 
-<table class="table table-responsive table-striped">
+<table class="table table-responsive table">
 	<thead>
 		<tr>
 			<th class="col-md-10">Notification message</th>
@@ -56,15 +58,29 @@ if (!empty($notifications))
 		?>
 			
 			<tr class="<?=$typeClass[$notif['type']]?>">
-			<?php if ($notif['type']==0){
-                    $ticket_id = substr($notif['url'], -2);
-                    $url = 'index.php?r=ticket-user%2Fview&id='.$ticket_id;
-                    ?>
-                    <td class="col-md-10"><?=Html::a($notif['message'],$url)?></th>
-                <?php }else {?>
-                    <td class="col-md-10"><?=Html::a($notif['message'],$notif['url'])?></th>
-                <?php }?>   
+			<?php 
+			if ($notif['type']==0 && Userw::hasRole('Admin')){
+				$url_split = explode('=', $notif['url']);
+				$ticket_id = $url_split[2];
+				$url = 'index.php?r=ticket-admin%2Fanswer&id='.$ticket_id;
+            ?>
+                <td class="col-md-10"><?=Html::a($notif['message'],$url)?></th>
 				<td class="col-md-2"><?= date("j-m-Y, H:i:s",strtotime($notif['created_at']))?></td>
+            <?php 
+			}elseif ($notif['type']==0) {
+				$url_split = explode('=', $notif['url']);
+				$ticket_id = $url_split[2];
+				$url = 'index.php?r=ticket-user%2Fview&id='.$ticket_id;
+			?>
+                <td class="col-md-10"><?=Html::a($notif['message'],$url)?></th>
+				<td class="col-md-2"><?= date("j-m-Y, H:i:s",strtotime($notif['created_at']))?></td>
+            <?php
+			}elseif($notif['type']!=0){
+			?>
+				<td class="col-md-10"><?=Html::a($notif['message'],$notif['url'])?>
+				<td class="col-md-2"><?= date("j-m-Y, H:i:s",strtotime($notif['created_at']))?></td>
+			<?php
+			}?>   
 			</tr>
 		<?php 		
 		}

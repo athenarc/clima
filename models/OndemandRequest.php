@@ -198,7 +198,8 @@ class OndemandRequest extends \yii\db\ActiveRecord
             {
                 
             
-                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
+                // Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
+                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
             }
             
             $project->latest_project_request_id=$request->id;
@@ -279,8 +280,8 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
             foreach ($request->user_list as $user) 
             {
-                
-                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
+                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
+                // Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
             }
 
 

@@ -200,8 +200,8 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
             foreach ($request->user_list as $user) 
             {
                 
-                //need to create a new type of notifications
-                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
+                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
+                // Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
             }
             
             $project->latest_project_request_id=$request->id;
@@ -297,8 +297,8 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
 
             foreach ($request->user_list as $user) 
             {
-                
-                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
+                Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'auto-approved']));
+                // Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
             }
 
 

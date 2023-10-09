@@ -112,7 +112,7 @@ class TicketUserController extends Controller
 
             $username=explode('@',$newTicket->name_user)[0];
             $message="User <strong>$username</strong> posted an answer for ticket <strong>$ticket->topic</strong>.";
-            $url=Url::to(['/ticket-user/view','id'=>$id]);
+            $url=Url::to(['/ticket-admin/answer','id'=>$id, 'mode'=>0]);
             
             //added to fix the following error
             foreach (User::getAdminIds() as $admin)
@@ -193,7 +193,7 @@ class TicketUserController extends Controller
 
                     $username=explode('@',$ticketBody->name_user)[0];
                     $message="User <strong>$username</strong> created a new <strong>$ticketHead->department</strong> ticket with the following topic:  <br /> <strong>$ticketHead->topic</strong>.";
-                    $url=Url::to(['/ticket-admin/answer','id'=>$ticketHead->id]);
+                    $url=Url::to(['/ticket-admin/answer','id'=>$ticketHead->id, 'mode'=>0]);
                     foreach (User::getAdminIds() as $admin)
                     {
                         Notification::notify($admin, $message, '0' ,$url);
