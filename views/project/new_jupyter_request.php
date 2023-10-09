@@ -60,7 +60,7 @@ if (!empty($errors))
 
 <?php Headers::begin(); ?>
 <?php echo Headers::widget(
-['title'=>'Request a new books project', 
+['title'=>'Request a new on-demand notebooks project', 
 ])
 ?>
 <?Headers::end()?>

@@ -73,6 +73,11 @@ class NotificationWidget //extends Widget
         $items[]=['label'=>'View notification history', 'url'=>['site/notification-history'],'options'=>['class'=>'notification-history']];
 
 
+        if ($notifCount!=0)
+        {
+                $items[]=['label'=>'Mark all as seen','options'=>['id'=>'mark_all_seen']];
+        }
+
         foreach ($notifications as $notification)
         {
             $type=$typeClass[$notification->type];
@@ -80,10 +85,6 @@ class NotificationWidget //extends Widget
                                                        'options'=>['class'=>"notification $type"]];
         }
  //       $items[]=['label'=>'View notification history', 'url'=>['site/notification-history'],'options'=>['class'=>'notification-history']];
-        if ($notifCount!=0)
-        {
-                $items[]=['label'=>'Mark all as seen','options'=>['id'=>'mark_all_seen']];
-        }
         return [$label,$items];
 
 

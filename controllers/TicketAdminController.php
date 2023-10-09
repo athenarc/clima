@@ -103,7 +103,7 @@ class TicketAdminController extends Controller
 
                     $username=explode('@',$newTicket->name_user)[0];
                     $message="Administrator <strong>$username</strong> posted an answer for ticket <strong>$ticketHead->topic.</strong>";
-                    $url=Url::to(['/ticket-admin/view','id'=>$id]);
+                    $url=Url::to(['/ticket-admin/view','id'=>$id, 'mode'=>$mode]);
                     $currentUser=Yii::$app->user->identity->id;
 
                     /*
@@ -117,9 +117,20 @@ class TicketAdminController extends Controller
                                ->andWhere(['<>','u.id',$currentUser])
                                ->all();
                     
+                     //but send only one notification to each user, despite of how many times he answered to the ticket
+                    $id_already_sent = array();
                     foreach ($ids as $id)
                     {
-                        Notification::notify($id['id'], $message, Notification::NORMAL ,$url);
+                        $found=0;
+                        foreach ($id_already_sent as $id_already){
+                            if ($id_already==$id['id']){
+                                $found=1;
+                            }
+                        }
+                        if ($found==0){
+                            array_push($id_already_sent, $id['id']);
+                            Notification::notify($id['id'], $message, Notification::NORMAL ,$url);
+                        }
                     }
 
                     return $this->redirect(Url::to(['/ticket-admin/index']));

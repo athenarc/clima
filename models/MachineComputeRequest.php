@@ -89,6 +89,8 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         $flavors=$response->data['flavors'];
         // print_r($flavors);
         // exit(0);
+        usort($flavors, "self::cmp");
+
         foreach ($flavors as $flavor)
         {
             $name=$flavor['name'];
@@ -388,5 +390,9 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         }
 
         return $diff;
+    }
+
+    public function cmp($a, $b){
+        return strcmp($a['vcpus'], $b['vcpus']);
     }
 }
