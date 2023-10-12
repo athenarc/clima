@@ -98,6 +98,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
         $errors='';
         $success='';
         $warnings='';
+        $message_autoaccept_mod='';
 
         Yii::$app->db->createCommand()->insert('cold_storage_request', [
 
