@@ -19,6 +19,10 @@ $(document).ready(function(){
       $('#filters-form').submit();
     });
 
+    $("#expiry_date").change(function(){
+      $('#filters-form').submit();
+    });
+
   $(".reactivate_btn").click(function(){
       var modal_id='#' + $(this).data()['modalId'];
       
