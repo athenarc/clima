@@ -390,6 +390,19 @@ foreach ($expired as $res)
 
 		<div class="row">&nbsp;</div>
 
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::label('By expiration date:')?>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::dropDownList('expiry_date_t',$filters['exp'],$expiry_date,['class'=>'expiry_date','id'=>'expiry_date'])?>
+			</div>
+		</div>
+
+		<div class="row">&nbsp;</div>
+
 
 	<?=Html::endForm()?>
 </div>

@@ -614,9 +614,9 @@ class AdministrationController extends Controller
         
         $deleted=Project::getAllDeletedProjects();
 
-        $filters=['user'=>Yii::$app->request->post('username',''), 'type'=>Yii::$app->request->post('project_type','-1')];
-        $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type']);
-        $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type']);
+        $filters=['exp'=>Yii::$app->request->post('expiry_date_t','-1'),'user'=>Yii::$app->request->post('username',''), 'type'=>Yii::$app->request->post('project_type','-1')];
+        $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type'],$filters['exp']);
+        $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type'],$filters['exp']);
         $resources=Project::getActiveResources();
         $role=User::getRoleType();
         $username=Userw::getCurrentUser()['username'];
@@ -669,12 +669,12 @@ class AdministrationController extends Controller
         $number_of_active=count($all_projects);
         $number_of_expired=count($expired);
         
-        $types_dropdown=['-1'=>'','0'=>'On-demand batch computations', '1'=>'24/7 Services', '2'=>'Storage volumes', '3'=>'On-demand computation machines'];
-       
+        $types_dropdown=['-1'=>'','0'=>'On-demand batch computations', '1'=>'24/7 Services', '2'=>'Storage volumes', '3'=>'On-demand computation machines', '4'=>'On demand notebooks'];
+        $expiry_date = ['-1'=>'','0'=>'Ascending', '1'=>'Descending'];
         return $this->render('all_projects',['button_links'=>$button_links,
             'project_types'=>$project_types,'role'=>$role, 'types_dropdown'=>$types_dropdown, 'filters'=>$filters,
             'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 
-            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url, 'active_resources'=>$resources]);
+            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url, 'active_resources'=>$resources, 'expiry_date'=>$expiry_date]);
     }
 
     public function actionManageAnalytics()
