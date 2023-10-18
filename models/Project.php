@@ -671,7 +671,7 @@ class Project extends \yii\db\ActiveRecord
         return $max_per_role[$requested_role];
     }
 
-    public static function userStatisticsParticipant($uid)
+    public static function userStatisticsParticipant($uid, $username)
     {
         $query=new Query;
 
@@ -894,6 +894,63 @@ class Project extends \yii\db\ActiveRecord
                         ->andWhere("$uid = ANY(pr.user_list)")
                         ->andWhere(['<>','pr.submitted_by',$uid])
                         ->count();
+
+        $query=new Query;
+        $active_notebooks=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['>','pr.end_date','NOW()'])
+                        ->andWhere("$uid = ANY(pr.user_list)")
+                        ->andWhere(['<>','pr.submitted_by',$uid])
+                        ->count();
+
+        $query=new Query;
+        $expired_notebooks=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['<=','pr.end_date','NOW()'])
+                        ->andWhere("$uid = ANY(pr.user_list)")
+                        ->andWhere(['<>','pr.submitted_by',$uid])
+                        ->count();
+
+        $query=new Query;
+        $total_notebooks=$query->select(['pr.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere("$uid = ANY(pr.user_list)")
+                        ->andWhere(['<>','pr.submitted_by',$uid])
+                        ->count();
+
+        $query=new Query;
+        $active_servers=$query->select(['s.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+                        ->innerJoin('jupyter_server as s','pr.name=s.project')
+                        ->where(['s.created_by'=>$username])
+                        ->andwhere(['IN','pr.status',[1,2]])
+                        ->andWhere(['s.active'=>'t'])
+                        ->andWhere("$uid = ANY(pr.user_list)")
+                        ->andWhere(['<>','pr.submitted_by',$uid])
+                        ->count();
+
+        $query=new Query;
+        $inactive_servers=$query->select(['s.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+                        ->innerJoin('jupyter_server as s','pr.name=s.project')
+                        ->andwhere(['IN','pr.status',[1,2]])
+                        ->where(['s.created_by'=>$username])
+                        ->andWhere(['s.active'=>'f'])
+                        ->andWhere("$uid = ANY(pr.user_list)")
+                        ->andWhere(['<>','pr.submitted_by',$uid])
+                        ->count();
+
+        $total_servers=$active_servers+$inactive_servers;
+                                
+
         
 
         $final=[
@@ -931,13 +988,19 @@ class Project extends \yii\db\ActiveRecord
             'number_volumes_machines'=>$volumes_machines['number'],
             'size_storage_service'=>$volumes_service['total']/1024.0,
             'size_storage_machines'=>$volumes_machines['total']/1024.0,
+            'active_notebooks'=>$active_notebooks,
+            'expired_notebooks'=>$expired_notebooks,
+            'total_notebooks'=>$total_notebooks,
+            'active_servers'=>$active_servers,
+            'inactive_servers'=>$inactive_servers,
+            'total_servers'=>$total_servers,
 
 
         ];
         return $final;
     }
 
-    public static function userStatisticsOwner($uid)
+    public static function userStatisticsOwner($uid, $username)
     {
         $query=new Query;
 
@@ -1148,6 +1211,54 @@ class Project extends \yii\db\ActiveRecord
                         ->andWhere(['pr.submitted_by'=>$uid])
                         ->count();
 
+        $query=new Query;
+        $active_notebooks=$query->select(['p.id'])
+            ->from('project_request as pr')
+            ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
+            ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->andWhere(['>','pr.end_date','NOW()'])
+            ->andWhere(['pr.submitted_by'=>$uid])
+            ->count();
+
+        $query=new Query;
+
+        $expired_notebooks=$query->select(['p.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
+                        ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['<','pr.end_date','NOW()'])
+                        ->andWhere(['pr.submitted_by'=>$uid])
+                        ->count();
+
+        $query=new Query;
+
+        $total_notebooks=$query->select(['p.id'])
+                        ->from('project_request as pr')
+                        ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
+                        ->innerJoin('jupyter_request_n as o','o.request_id=pr.id')
+                        ->where(['IN','pr.status',[1,2]])
+                        ->andWhere(['pr.submitted_by'=>$uid])
+                        ->count();
+
+        $query=new Query;
+        $active_servers=$query->select(['s.id'])
+                        ->from('jupyter_server as s')
+                        ->where(['s.created_by'=>$username])
+                        ->andWhere(['s.active'=>'t'])
+                        ->count();
+
+        $query=new Query;
+        $inactive_servers=$query->select(['s.id'])
+                        ->from('jupyter_server as s')
+                        ->where(['s.created_by'=>$username])
+                        ->andWhere(['s.active'=>'f'])
+                        ->count();
+
+        $total_servers=$active_servers+$inactive_servers;
+                
+
         $final=[
             'active_services'=>$active_services,
             'expired_services'=>$expired_services,
@@ -1183,6 +1294,12 @@ class Project extends \yii\db\ActiveRecord
             'number_volumes_machines'=>$volumes_machines['number'],
             'size_storage_service'=>$volumes_service['total']/1024.0,
             'size_storage_machines'=>$volumes_machines['total']/1024.0,
+            'active_notebooks'=>$active_notebooks,
+            'expired_notebooks'=>$expired_notebooks,
+            'total_notebooks'=>$total_notebooks,
+            'active_servers'=>$active_servers,
+            'inactive_servers'=>$inactive_servers,
+            'total_servers'=>$total_servers,
 
 
         ];
