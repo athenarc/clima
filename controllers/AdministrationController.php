@@ -832,8 +832,8 @@ class AdministrationController extends Controller
             return $this->redirect(['/administration/user-stats-list']);
         }
         $username=explode('@',$user->username)[0];
-        $usage_owner=Project::userStatisticsOwner($user->id);
-        $usage_participant=Project::userStatisticsParticipant($user->id);
+        $usage_owner=Project::userStatisticsOwner($user->id,$user->username);
+        $usage_participant=Project::userStatisticsParticipant($user->id,$user->username);
         
         return $this->render('user_statistics', ['usage_participant'=>$usage_participant,'usage_owner'=>$usage_owner, 'username'=>$username]);
     }
