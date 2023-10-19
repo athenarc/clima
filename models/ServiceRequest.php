@@ -162,6 +162,14 @@ class ServiceRequest extends \yii\db\ActiveRecord
         if($flag)
         {
             $flavors=$response->data['flavors'];
+            
+            //sort by cpu. If cpu is the same, sort by ram
+            usort($flavors, function ($a, $b) {
+                if ($a['vcpus'] == $b['vcpus']) {
+                    return $a['ram'] - $b['ram'];
+                }
+                return $a['vcpus'] - $b['vcpus'];
+            });
 
             foreach ($flavors as $flavor)
             {
@@ -204,7 +212,6 @@ class ServiceRequest extends \yii\db\ActiveRecord
             }
             // $this->flavour=(!empty($this->vm_flavour)) ? $this->flavourIdName[$this->vm_flavour] : '';
 
-            asort($this->flavours);
         }
         // print_r($this->vm_flavour);
         // print_r($this->flavour);
@@ -575,5 +582,4 @@ class ServiceRequest extends \yii\db\ActiveRecord
 
         return $diff;
     }
-
 }
