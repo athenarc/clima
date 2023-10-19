@@ -89,7 +89,16 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         $flavors=$response->data['flavors'];
         // print_r($flavors);
         // exit(0);
-        usort($flavors, "self::cmp");
+
+        //sort by cpu. If cpu is the same, sort by ram. If ram is the same sort by disk
+        usort($flavors, function ($a, $b) {
+            if ($a['vcpus'] !== $b['vcpus']) {
+                return $a['vcpus'] - $b['vcpus'];
+            } elseif($a['ram'] !== $b['ram']) {
+                return $a['ram'] - $b['ram'];
+            }
+            return $a['disk'] - $b['disk'];
+        });
 
         foreach ($flavors as $flavor)
         {
@@ -120,9 +129,6 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
             $this->flavourIdName[$id]=$name;
             
         }
-       
-        asort($this->flavours);
-        
     }
     /**
      * {@inheritdoc}
@@ -390,9 +396,5 @@ class MachineComputeRequest extends \yii\db\ActiveRecord
         }
 
         return $diff;
-    }
-
-    public function cmp($a, $b){
-        return strcmp($a['vcpus'], $b['vcpus']);
     }
 }

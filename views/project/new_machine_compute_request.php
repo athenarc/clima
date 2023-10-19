@@ -99,7 +99,7 @@ if (!empty($errors))
         </div>
         <div class="row">&nbsp;</div>
 
-        <?= $form->field($service,'flavour')->dropDownList(array_reverse($service->flavours))->label($flavour_label)?>
+        <?= $form->field($service,'flavour')->dropDownList($service->flavours)->label($flavour_label)?>
         <?= $form->field($service,'num_of_vms')->dropDownList($num_vms_dropdown)?>
 
         <div class="row">

@@ -126,7 +126,7 @@ if (!empty($errors))
         </div>
         <div class="row">&nbsp;</div>
 
-        <?= $form->field($service,'flavour')->dropDownList(array_reverse($service->flavours))->label($flavour_label)?>
+        <?= $form->field($service,'flavour')->dropDownList($service->flavours)->label($flavour_label)?>
 
 
         <div class="row">
