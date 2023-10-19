@@ -46,49 +46,24 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
         </thead>
         <tbody>
             <tr>
-                <th class="text-left" scope="row">Active projects</th>
-                <td class="text-center" ><?= $usage_owner['active_services'] ?></td>
-                <td class="text-center"><?= $usage_participant['active_services'] ?></td>
+                <th class="text-left" scope="row">Projects</th>
+                <td class="text-center" ><?=$usage_owner['total_services']." (".$usage_owner['active_services']." active, ". $usage_owner['expired_services']. " expired)" ?></td>
+                <td class="text-center"><?= $usage_participant['total_services']." (".$usage_participant['active_services']." active, ". $usage_participant['expired_services']. " expired)"  ?></td>
             </tr>
             <tr>
-                <th class="text-left" scope="row">Expired projects</th>
-                <td class="text-center" ><?= $usage_owner['expired_services'] ?></td>
-                <td class="text-center"><?= $usage_participant['expired_services'] ?></td>
+                <th class="text-left" scope="row">VMs</th>
+                <td class="text-center" ><?= $usage_owner['vms_services_total']." (". $usage_owner['vms_services_active']." active)" ?></td>
+                <td class="text-center"><?= $usage_participant['vms_services_total']." (". $usage_participant['vms_services_active']." active)" ?></td>
             </tr>
             <tr>
-                <th class="text-left" scope="row">Total projects</th>
-                <td class="text-center" ><?= $usage_owner['total_services'] ?></td>
-                <td class="text-center"><?= $usage_participant['total_services'] ?></td>
+                <th class="text-left" scope="row">Virtual CPUs</th>
+                <td class="text-center" ><?= (empty($usage_owner['total_services_cores'])?'0':$usage_owner['total_services_cores']) . " (" . (empty($usage_owner['active_services_cores'])?'0':$usage_owner['active_services_cores']) . " active)" ?></td>
+                <td class="text-center"><?= (empty($usage_participant['total_services_cores'])?'0':$usage_participant['total_services_cores']) . " (" . (empty($usage_participant['active_services_cores'])?'0':$usage_participant['active_services_cores']) . " active)" ?></td>
             </tr>
             <tr>
-                <th class="text-left" scope="row">Active VMs</th>
-                <td class="text-center" ><?= $usage_owner['vms_services_active'] ?></td>
-                <td class="text-center"><?= $usage_participant['vms_services_active'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total VMs</th>
-                <td class="text-center" ><?= $usage_owner['vms_services_total'] ?></td>
-                <td class="text-center"><?= $usage_participant['vms_services_total'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Active used virtual CPUs</th>
-                <td class="text-center" ><?= empty($usage_owner['active_services_cores'])?'0':$usage_owner['active_services_cores'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['active_services_cores'])?'0':$usage_participant['active_services_cores'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total used virtual CPUs</th>
-                <td class="text-center" ><?= empty($usage_owner['total_services_cores'])?'0':$usage_owner['total_services_cores'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['total_services_cores'])?'0':$usage_participant['total_services_cores'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Active used RAM(GB)</th>
-                <td class="text-center" ><?= empty($usage_owner['active_services_ram'])?'0':$usage_owner['active_services_ram'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['active_services_ram'])?'0':$usage_participant['active_services_ram'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total used RAM(GB)</th>
-                <td class="text-center" ><?= empty($usage_owner['total_services_ram'])?'0':$usage_owner['total_services_ram'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['total_services_ram'])?'0':$usage_participant['total_services_ram'] ?></td>
+                <th class="text-left" scope="row">RAM(GBs)</th>
+                <td class="text-center" ><?= (empty($usage_owner['total_services_ram'])?'0':$usage_owner['total_services_ram']) . " (" . (empty($usage_owner['active_services_ram'])?'0':$usage_owner['active_services_ram']) . " active)" ?></td>
+                <td class="text-center"><?= (empty($usage_participant['total_services_ram'])?'0':$usage_participant['total_services_ram']) . " (" . (empty($usage_participant['active_services_ram'])?'0':$usage_participant['active_services_ram']) . " active)" ?></td>
             </tr>
         </tbody>
     </table>
@@ -109,49 +84,24 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
         </thead>
         <tbody>
             <tr>
-                <th class="text-left" scope="row">Active projects</th>
-                <td class="text-center" ><?= $usage_owner['active_machines'] ?></td>
-                <td class="text-center"><?= $usage_participant['active_machines'] ?></td>
+                <th class="text-left" scope="row">Projects</th>
+                <td class="text-center" ><?=$usage_owner['total_machines']." (".$usage_owner['active_machines']." active, ". $usage_owner['expired_machines']. " expired)" ?></td>
+                <td class="text-center"><?= $usage_participant['total_machines']." (".$usage_participant['active_machines']." active, ". $usage_participant['expired_machines']. " expired)"  ?></td>
             </tr>
             <tr>
-                <th class="text-left" scope="row">Expired projects</th>
-                <td class="text-center" ><?= $usage_owner['expired_machines'] ?></td>
-                <td class="text-center"><?= $usage_participant['expired_machines'] ?></td>
+                <th class="text-left" scope="row">VMs</th>
+                <td class="text-center" ><?= $usage_owner['vms_machines_total']." (". $usage_owner['vms_machines_active']." active)" ?></td>
+                <td class="text-center"><?= $usage_participant['vms_machines_total']." (". $usage_participant['vms_machines_active']." active)" ?></td>
             </tr>
             <tr>
-                <th class="text-left" scope="row">Total projects</th>
-                <td class="text-center" ><?= $usage_owner['total_machines'] ?></td>
-                <td class="text-center"><?= $usage_participant['total_machines'] ?></td>
+                <th class="text-left" scope="row">Virtual CPUs</th>
+                <td class="text-center" ><?= (empty($usage_owner['total_machines_cores'])?'0':$usage_owner['total_machines_cores']) . " (" . (empty($usage_owner['active_machines_cores'])?'0':$usage_owner['active_machines_cores']) . " active)" ?></td>
+                <td class="text-center"><?= (empty($usage_participant['total_machines_cores'])?'0':$usage_participant['total_machines_cores']) . " (" . (empty($usage_participant['active_machines_cores'])?'0':$usage_participant['active_machines_cores']) . " active)" ?></td>
             </tr>
             <tr>
-                <th class="text-left" scope="row">Active VMs</th>
-                <td class="text-center" ><?= $usage_owner['vms_machines_active'] ?></td>
-                <td class="text-center"><?= $usage_participant['vms_machines_active'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total VMs</th>
-                <td class="text-center" ><?= $usage_owner['vms_machines_total'] ?></td>
-                <td class="text-center"><?= $usage_participant['vms_machines_total'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Active used virtual CPUs</th>
-                <td class="text-center" ><?= empty($usage_owner['active_machines_cores'])?'0': $usage_owner['active_machines_cores'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['active_machines_cores'])?'0': $usage_participant['active_machines_cores'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total used virtual CPUs</th>
-                <td class="text-center" ><?= empty($usage_owner['total_machines_cores'])?'0': $usage_owner['total_machines_cores'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['total_machines_cores'])?'0': $usage_participant['total_machines_cores'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Active used RAM(GB)</th>
-                <td class="text-center" ><?= empty($usage_owner['active_machines_ram'])?'0': $usage_owner['active_machines_ram'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['active_machines_ram'])?'0': $usage_participant['active_machines_ram'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total used RAM(GB)</th>
-                <td class="text-center" ><?= empty($usage_owner['total_machines_ram'])?'0': $usage_owner['total_machines_ram'] ?></td>
-                <td class="text-center"><?= empty($usage_participant['total_machines_ram'])?'0': $usage_participant['total_machines_ram'] ?></td>
+                <th class="text-left" scope="row">RAM(GBs)</th>
+                <td class="text-center" ><?= (empty($usage_owner['total_machines_ram'])?'0':$usage_owner['total_machines_ram']) . " (" . (empty($usage_owner['active_machines_ram'])?'0':$usage_owner['active_machines_ram']) . " active)" ?></td>
+                <td class="text-center"><?= (empty($usage_participant['total_machines_ram'])?'0':$usage_participant['total_machines_ram']) . " (" . (empty($usage_participant['active_machines_ram'])?'0':$usage_participant['active_machines_ram']) . " active)" ?></td>
             </tr>
         </tbody>
     </table>
@@ -172,19 +122,9 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
         </thead>
         <tbody>
             <tr>
-                <th class="text-left" scope="row">Active projects</th>
-                <td class="text-center" ><?= $usage_owner['active_ondemand'] ?></td>
-                <td class="text-center"><?= $usage_participant['active_ondemand'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Expired projects</th>
-                <td class="text-center" ><?= $usage_owner['expired_ondemand'] ?></td>
-                <td class="text-center"><?= $usage_participant['expired_ondemand'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total projects</th>
-                <td class="text-center" ><?= $usage_owner['total_ondemand'] ?></td>
-                <td class="text-center"><?= $usage_participant['total_ondemand'] ?></td>
+                <th class="text-left" scope="row">Projects</th>
+                <td class="text-center" ><?=$usage_owner['total_ondemand']." (".$usage_owner['active_ondemand']." active, ". $usage_owner['expired_ondemand']. " expired)" ?></td>
+                <td class="text-center"><?= $usage_participant['total_ondemand']." (".$usage_participant['active_ondemand']." active, ". $usage_participant['expired_ondemand']. " expired)"  ?></td>
             </tr>
         </tbody>
     </table>
@@ -205,34 +145,14 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
         </thead>
         <tbody>
             <tr>
-                <th class="text-left" scope="row">Active projects</th>
-                <td class="text-center" ><?= $usage_owner['active_notebooks'] ?></td>
-                <td class="text-center"><?= $usage_participant['active_notebooks'] ?></td>
+                <th class="text-left" scope="row">Projects</th>
+                <td class="text-center" ><?=$usage_owner['total_notebooks']." (".$usage_owner['active_notebooks']." active, ". $usage_owner['expired_notebooks']. " expired)" ?></td>
+                <td class="text-center"><?= $usage_participant['total_notebooks']." (".$usage_participant['active_notebooks']." active, ". $usage_participant['expired_notebooks']. " expired)"  ?></td>
             </tr>
             <tr>
-                <th class="text-left" scope="row">Expired projects</th>
-                <td class="text-center" ><?= $usage_owner['expired_notebooks'] ?></td>
-                <td class="text-center"><?= $usage_participant['expired_notebooks'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total projects</th>
-                <td class="text-center" ><?= $usage_owner['total_notebooks'] ?></td>
-                <td class="text-center"><?= $usage_participant['total_notebooks'] ?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Active servers</th>
-                <td class="text-center" ><?= $usage_owner['active_servers'] ?></td>
-                <td class="text-center"><?=$usage_participant['active_servers']?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Deleted servers</th>
-                <td class="text-center" ><?= $usage_owner['inactive_servers'] ?></td>
-                <td class="text-center"><?=$usage_participant['inactive_servers']?></td>
-            </tr>
-            <tr>
-                <th class="text-left" scope="row">Total servers</th>
-                <td class="text-center" ><?= $usage_owner['total_servers'] ?></td>
-                <td class="text-center"><?=$usage_participant['total_servers']?></td>
+                <th class="text-left" scope="row">Servers</th>
+                <td class="text-center" ><?=$usage_owner['total_servers']." (".$usage_owner['active_servers']." active, ". $usage_owner['inactive_servers']. " deleted)" ?></td>
+                <td class="text-center"><?= $usage_participant['total_servers']." (".$usage_participant['active_servers']." active, ". $usage_participant['inactive_servers']. " deleted)"  ?></td>
             </tr>
         </tbody>
     </table>

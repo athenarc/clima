@@ -997,6 +997,12 @@ class Project extends \yii\db\ActiveRecord
 
 
         ];
+
+        foreach ($final as $f){
+            if (empty($f)){
+                $f=0;
+            }
+        }
         return $final;
     }
 
@@ -1303,6 +1309,11 @@ class Project extends \yii\db\ActiveRecord
 
 
         ];
+        foreach ($final as $f){
+            if (empty($f)){
+                $f=0;
+            }
+        }
         return $final;
     }
 
