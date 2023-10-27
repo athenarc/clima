@@ -85,7 +85,8 @@ Headers::begin() ?>
         
         <?= $form->field($project, 'name')->textInput(['readonly' => true, 'value' =>$project['name']]) ?>
         <div style="margin-bottom: 20px;">
-        <?php echo '<label>  Project end date *  </label>';
+        <?php if($exceed_limits == 0){ 
+            echo '<label>  Project end date *  </label>';
             echo DatePicker::widget([
             'model' => $project, 
             'attribute' => 'end_date',
@@ -94,7 +95,17 @@ Headers::begin() ?>
             'autoclose'=>true,
             'format'=>'yyyy-m-d'
             ]
-        ]);?>
+        ]);}?>
+        <?php if($exceed_limits == 1){ 
+            echo '<label>  Project end date *  </label>';
+            echo DatePicker::widget([
+            'model' => $project, 
+            'attribute' => 'end_date',
+            'pluginOptions' => [
+            'autoclose'=>true,
+            'format'=>'yyyy-m-d'
+            ]
+        ]);}?>
         </div>
         <?= $form->field($details, 'participants_number')->label($participants_label) ?>
         

@@ -236,6 +236,8 @@ class ProjectController extends Controller
         $limitsModel=new ServiceLimits;
         $autoacceptModel=new ServiceAutoaccept;
 
+        $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
+
         $service_autoaccept= ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
         $service_autoaccept_number=$service_autoaccept->autoaccept_number;
 
@@ -350,7 +352,7 @@ class ProjectController extends Controller
         
 
         return $this->render('new_service_request',['service'=>$serviceModel, 'project'=>$projectModel, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'upperlimits'=>$upperlimits]);
 
 
 
@@ -423,7 +425,7 @@ class ProjectController extends Controller
             $projectModel->user_list=$participant_ids;
             $isValid = $projectModel->validate();
             $isValid = $serviceModel->validate() && $isValid;
-            $isValid = $projectModel->machinesDuration30() && $isValid;
+            // $isValid = $projectModel->machinesDuration30() && $isValid;
 
             if ($isValid)
             {   
@@ -489,7 +491,7 @@ class ProjectController extends Controller
         $coldStorageModel=new ColdStorageRequest;
         $projectModel=new ProjectRequest;
         // $projectModel->duration=36;
-        $projectModel->end_date='2100-1-1';
+        // $projectModel->end_date='2100-1-1';
         $projectModel->backup_services=false;
 
         $limitsModel=new ColdStorageLimits;
@@ -566,7 +568,7 @@ class ProjectController extends Controller
             $projectModel->user_list=$participant_ids;
             $isValid = $projectModel->validate();
             $isValid = $coldStorageModel->validate() && $isValid;
-            $projectModel->end_date='2100-1-1';
+            // $projectModel->end_date='2100-1-1';
 
             if ($isValid)
             {    
@@ -646,6 +648,7 @@ class ProjectController extends Controller
         $limitsModel=new OndemandLimits;
         $autoacceptModel=new OndemandAutoaccept;
 
+        $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
         
         $ondemand_autoaccept= OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
         $ondemand_autoaccept_number=$ondemand_autoaccept->autoaccept_number;
@@ -759,7 +762,7 @@ class ProjectController extends Controller
         
 
         return $this->render('new_ondemand_request',['ondemand'=>$ondemandModel, 'project'=>$projectModel, 
-                     'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed]);
+                     'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'upperlimits'=>$upperlimits]);
     }
 
     //jupyter notebooks controller
@@ -1337,6 +1340,10 @@ class ProjectController extends Controller
     public function actionViewRequestUser($id,$filter='all',$return='index')
     {
 
+        $superAdmin = 0;
+        if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Admin', $superadminAllowed=false)) || (Userw::hasRole('Moderator', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=false))){
+            $superAdmin = 1;
+        }
         $active_servers = 0;
         $image = '';
         ProjectRequest::recordViewed($id);
@@ -1475,7 +1482,7 @@ class ProjectController extends Controller
 
         return $this->render($view_file,['project'=>$project_request,'details'=>$details, 'return'=>$return,
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$username_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'active_servers'=>$active_servers, 'image'=>$image]);
+        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'active_servers'=>$active_servers, 'image'=>$image, 'superAdmin'=>$superAdmin]);
 
     }
 
@@ -2318,7 +2325,10 @@ class ProjectController extends Controller
     {
         $images = '';
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
-        
+        $exceed_limits = 0;
+        if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))){
+            $exceed_limits = 1;
+        }
         if (empty($prequest))
         {
             return $this->render('error_unauthorized');
@@ -2461,7 +2471,8 @@ class ProjectController extends Controller
             for ($i=1; $i<31; $i++)
                 $num_vms_dropdown[$i]=$i;
             
-            $prequest->end_date='2100-1-1';
+            // $prequest->end_date='2100-1-1';
+            $prequest->end_date=$ends;
             $volume='';
             if ($drequest->type=='hot')
             {
@@ -2556,10 +2567,10 @@ class ProjectController extends Controller
 
             $isValid = $prequest->validate();
             $isValid = $drequest->validate() && $isValid;
-            if($prType==3)
-            {
-                $isValid = $prequest->machinesDuration30() && $isValid;
-            }
+            // if($prType==3)
+            // {
+            //     $isValid = $prequest->machinesDuration30() && $isValid;
+            // }
             
             $pchanged_tmp= ProjectRequest::ProjectModelChanged($pold,$prequest);
             $pchanged=$pchanged_tmp[0];
@@ -2716,7 +2727,7 @@ class ProjectController extends Controller
 
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval, 'exceed_limits'=>$exceed_limits]);
 
 
     }
