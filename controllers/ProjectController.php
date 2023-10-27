@@ -2805,6 +2805,10 @@ class ProjectController extends Controller
     public function actionModifyRequest($id)
     {
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
+        $exceed_limits = 0;
+        if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))|| (Userw::hasRole('Moderator', $superadminAllowed=false))){
+            $exceed_limits = 1;
+        }
         if (empty($prequest))
         {
             return $this->render('error_unauthorized');
@@ -3033,7 +3037,7 @@ class ProjectController extends Controller
         }
 
         return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown,'volume_exists'=>$volume_exists]);
+                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown,'volume_exists'=>$volume_exists, 'exceed_limits'=>$exceed_limits]);
 
 
     }
