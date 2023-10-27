@@ -41,7 +41,7 @@ $update_icon='<i class="fas fa-pencil-alt"></i>';
  */
 Headers::begin() ?>
 <?php
-if ($project_owner & (($project->status==1) || ($project->status==2)) & $expired!=1)
+if (($project_owner || $superAdmin) & (($project->status==1) || ($project->status==2)) & $expired!=1)
 {
 	if ($return == 'user_request') {
 		echo Headers::widget(

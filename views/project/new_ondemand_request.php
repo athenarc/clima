@@ -80,8 +80,9 @@ if (!empty($errors))
             echo DatePicker::widget([
             'model' => $project, 
             'attribute' => 'end_date',
-            'options' => ['placeholder' => 'Enter date'],
+            'options' => array('placeholder' => 'Enter date'),
             'pluginOptions' => [
+            'endDate'=>"+".$upperlimits->duration."D",
             'autoclose'=>true,
             'padding-top'=>"500px;"
             ]

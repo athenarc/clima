@@ -59,7 +59,7 @@ else if (($bar_percentage>75) && ($bar_percentage<=100))
  */
 Headers::begin() ?>
 <?php
-if ($project_owner & (($project->status==1) || ($project->status==2)) & $expired!=1)
+if (($project_owner || $superAdmin) & (($project->status==1) || ($project->status==2)) & $expired!=1)
 {
 	if ($return == 'user_request') {
 		echo Headers::widget(

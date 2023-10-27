@@ -69,7 +69,30 @@ Headers::begin() ?>
             <div class="col-md-12">
                 <h3>Project details</h3>
            
-        <?= $form->field($project, 'name') ?>
+        <?= $form->field($project, 'name')->textInput(['readonly' => true, 'value' =>$project['name']]) ?>
+        <div style="margin-bottom: 20px;">
+        <?php if($exceed_limits == 0){ 
+            echo '<label>  Project end date *  </label>';
+            echo DatePicker::widget([
+            'model' => $project, 
+            'attribute' => 'end_date',
+            'pluginOptions' => [
+            'endDate'=>"+".($upperlimits->duration-$interval)."D",
+            'autoclose'=>true,
+            'format'=>'yyyy-m-d'
+            ]
+        ]);}?>
+        <?php if($exceed_limits == 1){ 
+            echo '<label>  Project end date *  </label>';
+            echo DatePicker::widget([
+            'model' => $project, 
+            'attribute' => 'end_date',
+            'pluginOptions' => [
+            'autoclose'=>true,
+            'format'=>'yyyy-m-d'
+            ]
+        ]);}?>
+        </div>
         <?= $form->field($project, 'user_num') ?>
         
         <?= Html::label($participating_label, 'user_search_box', ['class'=>'blue-label']) ?>

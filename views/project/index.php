@@ -195,7 +195,7 @@ foreach ($active as $res)
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
 		$title="Storage volume project";
-		$days='N/A';
+		$days=$res[1]. " days";
 	}
 
 

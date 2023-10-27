@@ -45,16 +45,22 @@ Headers::begin() ?>
         <div class="row box">
             <div class="col-md-6">
                 <h3>Project details</h3>
-                <?= $form->field($project, 'name') ?>
+                <?= $form->field($project, 'name')->textInput(['readonly' => true, 'value' =>$project['name']]) ?>
                  <div style="margin-bottom: 20px;">
                 <?php echo '<label>  Project end date *  </label>';
-                      echo  $form->field($project, 'end_date')->widget(DatePicker::className(),[
+                      if($exceed_limits == 0){echo  $form->field($project, 'end_date')->widget(DatePicker::className(),[
                         'pluginOptions' => [
                         'autoclose'=>true,
                         'format'=>'yyyy-m-d',
-                        'endDate'=>'+30d'
+                        'endDate'=>'+'.(90-$interval)."d"
                         ]
-                    ])->label("");
+                    ])->label("");}
+                    if($exceed_limits == 1){echo  $form->field($project, 'end_date')->widget(DatePicker::className(),[
+                        'pluginOptions' => [
+                        'autoclose'=>true,
+                        'format'=>'yyyy-m-d'
+                        ]
+                    ])->label("");}
                 ?>
                 </div>
         <?= $form->field($project, 'user_num') ?>

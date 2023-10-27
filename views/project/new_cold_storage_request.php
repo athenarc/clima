@@ -65,6 +65,20 @@ if (!empty($errors))
                 <h3>Project details</h3>
         
         <?= $form->field($project, 'name') ?>
+        <!-- <?= $form->field($project, 'duration') ?> -->
+        <div style="margin-bottom: 20px;">
+        <?php echo '<label>  Project end date *  </label>';
+            echo DatePicker::widget([
+            'model' => $project, 
+            'attribute' => 'end_date',
+            'options' => array('placeholder' => 'Enter date'),
+            'pluginOptions' => [
+            'endDate'=>"+".$upperlimits->duration."D",
+            'autoclose'=>true,
+            'padding-top'=>"500px;"
+            ]
+        ]);?>
+        </div>
         <?= $form->field($project, 'user_num') ?>
         <?= Html::label($participating_label, 'user_search_box', ['class'=>'blue-label']) ?>
         <br/>
