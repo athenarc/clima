@@ -2988,10 +2988,7 @@ class ProjectController extends Controller
 
             if ($isValid)
             {   
-                if ($prType==2)
-                {
-                    $prequest->end_date='2100-1-1';
-                }
+
                 if ($prType==1 || $prType==3)
                 {
                     if ($dold->flavour != $drequest->flavour)
