@@ -212,8 +212,9 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
             $username = User::returnUsernameById($request->submitted_by);
 
             $message_autoaccept="We are happy to inform you that your project '$project->name' has been automatically approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website"; 
-            $message_autoaccept_mod="We would like to inform you that the On-demand computation project '$project->name', submitted by user $username, has been automatically approved.";
-            
+            // $message_autoaccept_mod="We would like to inform you that the On-demand computation project '$project->name', submitted by user $username, has been automatically approved.";
+            $message_autoaccept_mod="We would like to inform you that the On-demand notebooks project '$project->name', submitted by user $username, has been automatically approved.";
+
         }
 
         else
@@ -332,7 +333,7 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
             $username = User::returnUsernameById($submitted_by);
             $warnings=  'Your request'.$autoaccept_allowed.' will be reviewed.';
             $project_id=$project->id;
-            $message="The books project '$project->name', created by user $username, has been modified and is pending approval.";
+            $message="The On-demand notebooks project '$project->name', created by user $username, has been modified and is pending approval.";
             EmailEventsModerator::NotifyByEmail('edit_project', $project_id,$message);
         }
 

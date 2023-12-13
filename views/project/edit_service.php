@@ -69,6 +69,7 @@ Headers::begin() ?>
                     echo DatePicker::widget([
                     'model' => $project, 
                     'attribute' => 'end_date',
+                    'options' => array('readonly' => 'readonly'),
                     'pluginOptions' => [
                     'endDate'=>"+".($upperlimits->duration-$interval)."D",
                     'autoclose'=>true,
@@ -80,6 +81,7 @@ Headers::begin() ?>
                     echo DatePicker::widget([
                     'model' => $project, 
                     'attribute' => 'end_date',
+                    'options' => array('readonly' => 'readonly'),
                     'pluginOptions' => [
                     'autoclose'=>true,
                     'format'=>'yyyy-m-d'

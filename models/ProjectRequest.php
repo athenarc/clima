@@ -332,7 +332,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             } elseif ($project_type == 3){
                 $project_typen = "Machine Compute";
             } else {
-                $project_typen = "Jupyter Notebook";
+                $project_typen = "On-demand Notebooks";
             }
 
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$project_id'")->execute();

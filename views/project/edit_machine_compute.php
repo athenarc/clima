@@ -49,6 +49,7 @@ Headers::begin() ?>
                  <div style="margin-bottom: 20px;">
                 <?php echo '<label>  Project end date *  </label>';
                       if($exceed_limits == 0){echo  $form->field($project, 'end_date')->widget(DatePicker::className(),[
+                        'options' => array('readonly' => 'readonly'),
                         'pluginOptions' => [
                         'autoclose'=>true,
                         'format'=>'yyyy-m-d',
@@ -56,6 +57,7 @@ Headers::begin() ?>
                         ]
                     ])->label("");}
                     if($exceed_limits == 1){echo  $form->field($project, 'end_date')->widget(DatePicker::className(),[
+                        'options' => array('readonly' => 'readonly'),
                         'pluginOptions' => [
                         'autoclose'=>true,
                         'format'=>'yyyy-m-d'
