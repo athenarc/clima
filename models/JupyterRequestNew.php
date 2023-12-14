@@ -331,7 +331,7 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
             $request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
             $submitted_by = $request->submitted_by;
             $username = User::returnUsernameById($submitted_by);
-            $warnings=  'Your request'.$autoaccept_allowed.' will be reviewed.';
+            $warnings=  'Your request will be reviewed.';
             $project_id=$project->id;
             $message="The On-demand notebooks project '$project->name', created by user $username, has been modified and is pending approval.";
             EmailEventsModerator::NotifyByEmail('edit_project', $project_id,$message);
