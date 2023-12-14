@@ -358,6 +358,7 @@ class ServiceRequest extends \yii\db\ActiveRecord
 
         
         $message_autoaccept='';
+        $message_autoaccept_mod='';
         if (($this->num_of_cores<=$row['cores']) && ($this->ram <=$row['ram']) && ($this->storage<=$row['storage']) 
             && ($this->num_of_ips <=$row['ips']) && ($this->num_of_vms <=$row['vms']) && ($autoaccept_allowed) )
         {
