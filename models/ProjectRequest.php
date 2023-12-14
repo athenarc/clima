@@ -600,6 +600,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $project_typen = "Machine Compute";
         } else {
             $project_typen = "Jupyter Notebook";
+        } 
+
+        if ($this->project_type == 4){
+            $servers=JupyterServer::find()->where(['active'=>true,'project'=>$this->name])->all();
+            if(!empty($servers)){
+                foreach ($servers as $server) {
+                    $server->expires_on = $this->end_date;
+                    $server->save(false);
+                }
+            }
         }
 
         $message="We are happy to inform you that your project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  

@@ -2623,8 +2623,8 @@ class ProjectController extends Controller
                         $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$pold['name']])->all();
                         if(!empty($all_servers)){
                             foreach ($all_servers as $server){
-                                Yii::$app->db->createCommand()->update('jupyter_server', ['expires_on'=>$pold['end_date']], 'server_id ='."'".$server['server_id']."'")->execute();
-
+                                $server->expires_on = $prequest['end_date'];
+                                $server->save(false);
                             }
                         }
 
