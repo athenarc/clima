@@ -291,7 +291,17 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
         if (((($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ( $autoaccept_allowed)) || $uchanged))
         {
             
-            
+            //when autoapproved change the active servers end date
+
+            $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$request->name])->all();
+            if(!empty($all_servers)){
+                foreach ($all_servers as $server){
+                    $server->expires_on = $request->end_date;
+                    $server->save(false);
+                }
+            }
+
+
             
             $message="Updates to project '$request->name' have been automatically approved.";
             

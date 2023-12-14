@@ -2618,18 +2618,6 @@ class ProjectController extends Controller
     
                     }
 
-                    //if the expiration date changed, update all active servers of the project
-                    if (strtotime($pold['end_date'])!=strtotime($prequest['end_date'])){
-                        $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$pold['name']])->all();
-                        if(!empty($all_servers)){
-                            foreach ($all_servers as $server){
-                                $server->expires_on = $prequest['end_date'];
-                                $server->save(false);
-                            }
-                        }
-
-                    }
-
                     //if the cpu or ram changed, delete all active servers of the project
                     if (($dold['ram']!=$drequest['ram']) || ($dold['cores']!=$drequest['cores'])){
                         $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$pold['name']])->all();
