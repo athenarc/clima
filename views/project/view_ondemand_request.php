@@ -80,7 +80,7 @@ Headers::begin() ?>
 			<tr>
 				<th class="col-md-6 text-right" scope="col">Started on:</th>
 				<td class="col-md-6 text-left" scope="col">
-                    <?= ProjectValueDisplay::startDate($start,$requestHistory); ?>
+					<?= $start ?>
                 </td>
 			</tr>
 			<tr>

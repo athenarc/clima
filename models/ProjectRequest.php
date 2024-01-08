@@ -300,7 +300,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {            
             $submitted_by=User::findByUsername(Userw::getCurrentUser()['username'])->id;
 
-            Yii::$app->db->createCommand()->insert('project', ['name' => $this->name,'project_type'=> $project_type])->execute();
+            Yii::$app->db->createCommand()->insert('project', ['name' => $this->name,'project_type'=> $project_type, 'start_date' => 'NOW()'])->execute();
             $project_id=$id = Yii::$app->db->getLastInsertID();
 
             Yii::$app->db->createCommand()->insert('project_request', [
