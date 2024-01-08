@@ -1006,19 +1006,22 @@ class ProjectController extends Controller
         $project_request = ProjectRequest::findOne($id);
         $project_status = ProjectRequest::STATUSES[$project_request->status];
 
+        $project=Project::find()->where(['id'=>$project_request->project_id])->one();
+        $start = date('Y-m-d', strtotime($project->start_date));
+
         if (!Userw::hasRole('Admin',$superadminAllowed=true) && (!Userw::hasRole('Moderator',$superadminAllowed=true)) )
         {
             return $this->render('//site/error_unauthorized');
         }
 
-        if(is_null($project_request->approval_date))
-        {
-            $start = date('Y-m-d', strtotime($project_request->submission_date));
-        }
-        else
-        {
-            $start = date('Y-m-d', strtotime($project_request->approval_date));
-        }
+        // if(is_null($project_request->approval_date))
+        // {
+        //     $start = date('Y-m-d', strtotime($project_request->submission_date));
+        // }
+        // else
+        // {
+        //     $start = date('Y-m-d', strtotime($project_request->approval_date));
+        // }
         if(is_null($project_request->end_date))
         {
             $ends=date('Y-m-d', strtotime($start. " + $project_request->duration months"));
@@ -1349,6 +1352,8 @@ class ProjectController extends Controller
         ProjectRequest::recordViewed($id);
         $project_request=ProjectRequest::findOne($id);
         $project=Project::find()->where(['id'=>$project_request->project_id])->one();
+
+        $start = date('Y-m-d', strtotime($project->start_date));
         
         $user_list=$project_request->user_list->getValue();
         $users=User::find()->where(['id'=>$user_list])->all();
@@ -1367,14 +1372,15 @@ class ProjectController extends Controller
         // }
       
 
-        if(is_null($project_request->approval_date))
-        {
-            $start = date('Y-m-d', strtotime($project_request->submission_date));
-        }
-        else
-        {
-            $start = date('Y-m-d', strtotime($project_request->approval_date));
-        }
+        // if(is_null($project_request->approval_date))
+        // {
+        //     $start = date('Y-m-d', strtotime($project_request->submission_date));
+        // }
+        // else
+        // {
+        //     $start = date('Y-m-d', strtotime($project_request->approval_date));
+        // }
+
         if(is_null($project_request->end_date))
         {
             $ends=date('Y-m-d', strtotime($start. " + $project_request->duration months"));
@@ -2325,6 +2331,7 @@ class ProjectController extends Controller
     {
         $images = '';
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
+        $project=Project::find()->where(['id'=>$prequest->project_id])->one();
         $exceed_limits = 0;
         if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))){
             $exceed_limits = 1;
@@ -2382,7 +2389,7 @@ class ProjectController extends Controller
         $vm_exists=false;
 
         $date3=new \DateTime(date("Y-m-d"));
-        $start=new \DateTime($prequest->approval_date);
+        $start=new \DateTime($project->start_date);
         $today= new \DateTime();
         
         $interval=$start->diff($today)->format("%d" );
