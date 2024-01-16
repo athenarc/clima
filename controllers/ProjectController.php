@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\components\EmailVerifiedFilter;
 use app\models\ColdStorageAutoaccept;
 use app\models\ColdStorageLimits;
 use app\models\ColdStorageRequest;
@@ -69,6 +70,9 @@ class ProjectController extends Controller
                     'logout' => ['post'],
                 ],
             ],
+            'EmailVerifiedFilter' => [
+                'class' => EmailVerifiedFilter::className()
+            ]
         ];
     }
 
