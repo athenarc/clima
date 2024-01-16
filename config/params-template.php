@@ -43,5 +43,10 @@ return [
     inputs, which is also a safe default. This however, gets inefficient quickly with the increase of the user-base.
     Thus, consider defining the minimum username length used throughout the deployment.
     */
-    'minUsernameLength' => 1
+    'minUsernameLength' => 1,
+    'email_verification' => [
+        'validity_period' => '1 day', // Value should be a string literal that can be added on a date('c') object
+        'email_verification_url' => 'url to the email verification view'
+    ]
+
 ];

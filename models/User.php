@@ -173,7 +173,9 @@ class User extends UserIdentity
             'status' => self::STATUS_ACTIVE,
             'created_at' => time(),
             'updated_at' => time(),
-            'email_confirmed' => 1,
+            // 'email_confirmed' => 1,
+            // when a new user is created, the email is not confirmed
+            'email_confirmed' => 0,
         ])->execute();
 
         $userId=Yii::$app->db->getLastInsertID();
