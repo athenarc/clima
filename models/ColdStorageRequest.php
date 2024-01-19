@@ -468,6 +468,98 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
 
     }
 
+    public static function getExpiredProjectsAdmin()
+    {
+        $user=Userw::getCurrentUser()['id'];
+        $query=new Query;
+        $date=date("Y-m-d");
+        $status=[1,2];
+        $results=$query->select(['p.id','u.username','c.vm_type','p.name', 'c.num_of_volumes as vnum'])
+                          ->from('project as p')
+                          ->innerJoin('project_request as pr','p.latest_project_request_id=pr.id')
+                          ->innerJoin('cold_storage_request as c','c.request_id=pr.id')
+                          ->innerJoin('user as u','pr.submitted_by=u.id')
+                          ->where(['<', 'end_date', $date])
+                          ->andWhere(['IN','pr.status',$status])
+                          ->orderBy('pr.submission_date DESC')
+                          ->all();
+        $machines=[];
+        $services=[];
+        $project_ids=[];
+
+        foreach ($results as $res) 
+        {   
+            $project_ids[]=$res['id'];
+            if($res['vm_type']==1)
+            {
+                $services[$res['id']]=$res;
+                $services[$res['id']]['created_at']='';
+                $services[$res['id']]['mountpoint']='';
+                $services[$res['id']]['vol_id']='';
+                $services[$res['id']]['mult_order']='';
+                $services[$res['id']]['vname']='';
+                $services[$res['id']]['username']=explode('@',$res['username'])[0];
+
+
+            }
+            else
+            {
+                if (!isset($machines[$res['id']]))
+                {
+                    $machines[$res['id']]=['count'=>$res['vnum'],'name'=>$res['name']];
+                    for ($i=1; $i<=$res['vnum']; $i++)
+                    {
+                        $machines[$res['id']][$i]=$res;
+                        $machines[$res['id']][$i]['created_at']='';
+                        $machines[$res['id']][$i]['mountpoint']='';
+                        $machines[$res['id']][$i]['vol_id']='';
+                        $machines[$res['id']][$i]['vmachname']='';
+                        $machines[$res['id']][$i]['username']=explode('@',$machines[$res['id']][$i]['username'])[0];
+                    }
+
+                }
+
+            }
+
+        }
+
+        $query=new Query;
+        $date=date("Y-m-d");
+
+        $results=$query->select(['h.project_id', 'h.id as vol_id', 'h.created_at', 'h.mountpoint', 
+                'h.active', 'h.mult_order', 'v.name as vname', 'h.vm_type', 'vmach.name as vmachname'])
+                          ->from('hot_volumes as h')
+                          ->leftJoin('vm as v','v.id=h.vm_id')
+                          ->leftJoin('vm_machines as vmach','vmach.id=h.vm_id')
+                          ->where(['IN','h.project_id',$project_ids])
+                          ->andWhere(['h.active'=>true])
+                          ->all();
+
+        foreach ($results as $res)
+        {
+            if($res['vm_type']==1)
+            {
+                $services[$res['project_id']]['created_at']=$res['created_at'];
+                $services[$res['project_id']]['mountpoint']=$res['mountpoint'];
+                $services[$res['project_id']]['vol_id']=$res['vol_id'];
+                $services[$res['project_id']]['mult_order']=$res['mult_order'];
+                $services[$res['project_id']]['vname']=$res['vname'];
+
+            }
+            else
+            {
+                $machines[$res['project_id']][$res['mult_order']]['created_at']=$res['created_at'];
+                $machines[$res['project_id']][$res['mult_order']]['mountpoint']=$res['mountpoint'];
+                $machines[$res['project_id']][$res['mult_order']]['vol_id']=$res['vol_id'];
+                $machines[$res['project_id']][$res['mult_order']]['vmachname']=$res['vmachname'];
+            }
+
+        }
+
+        return [$services,$machines];
+
+    }
+
     public function changed($new)
     {
         $changed=false;

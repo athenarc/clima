@@ -245,8 +245,8 @@ foreach ($expired as $res)
 	{
 		$projectLink="https://schema.imsi.athenarc.gr?r=software/index&selected_project=". $res['name'];
 		$projectTarget='_blank';
-		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
-		$title='On-demand batch computation';
+		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';
+		$title='On-demand batch computation project';
 		if (isset($active_resources[0][$res['name']]))
 		{
 			$active=true;
@@ -257,12 +257,31 @@ foreach ($expired as $res)
 		}
 		
 	}
+	else if ($res['project_type']==4) {
+		
+		$projectLink=$schema_url;
+		if(empty($schema_url))
+        {
+            $ondemand_access_class='disabled';
+        }
+		$projectTarget='_blank';
+		$project_icon='<i class="fa fa-book" aria-hidden="true"></i>';
+		$title='On demand notebooks';
+		if (isset($active_resources[4][$res['project_id']]))
+		{
+			$active=true;
+		}
+		else
+		{
+			$active=false;
+		}
+	}
 	else if ($res['project_type']==1) 
 	{
 		$projectLink=Url::to(['/project/configure-vm','id'=>$res['id']]);
 		$projectTarget='_self';
-		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
-		$title='24/7 Service';
+		$project_icon='<i class="fa fa-leaf" aria-hidden="true"></i>';
+		$title='24/7 service project';
 		if (isset($active_resources[1][$res['project_id']]))
 		{
 			$active=true;
@@ -277,8 +296,8 @@ foreach ($expired as $res)
 	{
 		$projectLink=Url::to(['/project/machine-compute-configure-vm','id'=>$res['id']]);
 		$projectTarget='_self';
-		$project_icon='<i class="fa fa-server" aria-hidden="true"></i>';
-		$title='On-demand computation machines';
+		$project_icon='<i class="fa fa-bolt" aria-hidden="true"></i>';
+		$title='On-demand computation machines project';
 		if (isset($active_resources[2][$res['project_id']]))
 		{
 			$active=true;
@@ -294,7 +313,7 @@ foreach ($expired as $res)
 		$projectLink=Url::to(['/site/under-construction']);
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-database" aria-hidden="true"></i>';
-		$title='Cold Storage';
+		$title='Storage volume project';
 		$active=false;
 
 	}
@@ -364,6 +383,7 @@ foreach ($expired as $res)
 <div class="filters-div">
 	<h4 class="text-center">Filter</h4>
 	<?=Html::beginForm(['administration/all-projects'],'post',['id'=>'filters-form'])?>
+	
 		<div class="row">
 			<div class="col-md-12 text-center">
 				<?=Html::label('By project type:')?>
@@ -376,7 +396,6 @@ foreach ($expired as $res)
 		</div>
 
 		<div class="row">&nbsp;</div>
-
 		<div class="row">
 			<div class="col-md-12 text-center">
 				<?=Html::label('By owner:')?>
@@ -384,12 +403,23 @@ foreach ($expired as $res)
 		</div>
 		<div class="row">
 			<div class="col-md-12 text-center">
-				<?=Html::input(null,'username',$filters['user'],['class'=>'username_field'])?>
+				<?=Html::input(null,'username',$filters['user'],['class'=>'username_field','id'=>'username'])?>
 			</div>
 		</div>
 
 		<div class="row">&nbsp;</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::label('By project name:')?>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<?=Html::input(null,'project_name',$filters['name'],['class'=>'projectname_field','id'=>'project_name'])?>
+			</div>
+		</div>
 
+		<div class="row">&nbsp;</div>
 		<div class="row">
 			<div class="col-md-12 text-center">
 				<?=Html::label('By expiration date:')?>
@@ -400,6 +430,7 @@ foreach ($expired as $res)
 				<?=Html::dropDownList('expiry_date_t',$filters['exp'],$expiry_date,['class'=>'expiry_date','id'=>'expiry_date'])?>
 			</div>
 		</div>
+
 
 		<div class="row">&nbsp;</div>
 

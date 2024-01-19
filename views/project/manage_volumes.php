@@ -10,6 +10,11 @@ use app\components\Headers;
 // $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $this->title="Manage volume";
 
+if ($ret == 'a'){
+	$return='administration/storage-volumes';
+}else{
+	$return='project/storage-volumes';
+}
 $unlink_icon='<i class="fas fa-unlink"></i>';
 $link_icon='<i class="fas fa-link"></i>'; 
 ?>
@@ -23,7 +28,7 @@ Headers::begin() ?>
 'buttons'=>
     [
         
-        ['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/storage-volumes'],
+        ['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>[$return],
          'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
     ],
 ])

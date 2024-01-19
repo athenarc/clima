@@ -21,10 +21,13 @@ Headers::begin() ?>
 ['title'=>$this->title, 
     'buttons'=>
     [
-        ['fontawesome_class'=>$expired_icon,'name'=> 'Clear expired project servers', 'action'=>['project/stop-expired-jupyter-servers'],
-        'options'=>['class'=>"btn btn-danger btn-md delete-volume-btn"], 'type'=>'a'],
+
+        ['fontawesome_class'=>$expired_icon, "name"=> 'Clear expired servers','action'=>['project/stop-expired-jupyter-servers'],'options'=>['class'=>"btn btn-danger btn-md delete-volume-btn",'data' => [
+            'confirm' => 'Are you sure you want to delete all the expired servers ?',
+            'method' => 'post',
+            ],], 'type'=>'a'],
         ['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>['administration/index'],
-        'options'=>['class'=>'btn btn-default'], 'type'=>'a'],
+        'options'=>['class'=>'btn btn-default'], 'type'=>'a']
         
     ],
 ])
