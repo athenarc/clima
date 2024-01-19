@@ -598,7 +598,7 @@ class AdministrationController extends Controller
         return $this->render('view-page',['page'=>$page]);
     }
 
-    public function actionAllProjects()
+    public function actionAllProjects($exp=-1, $pr_drp=-1, $user='', $project='')
     {
         if (!Userw::hasRole('Admin',$superadminAllowed=true))      
         {
@@ -614,9 +614,9 @@ class AdministrationController extends Controller
         
         $deleted=Project::getAllDeletedProjects();
 
-        $filters=['exp'=>Yii::$app->request->post('expiry_date_t','-1'),'user'=>Yii::$app->request->post('username',''), 'type'=>Yii::$app->request->post('project_type','-1')];
-        $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type'],$filters['exp']);
-        $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type'],$filters['exp']);
+        $filters=['exp'=>Yii::$app->request->post('expiry_date_t','-1'),'user'=>Yii::$app->request->post('username',''), 'type'=>Yii::$app->request->post('project_type','-1'), 'name'=>Yii::$app->request->post('project_name','')];
+        $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type'],$filters['exp'], $filters['name']);
+        $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type'],$filters['exp'], $filters['name']);
         $resources=Project::getActiveResources();
         $role=User::getRoleType();
         $username=Userw::getCurrentUser()['username'];
@@ -769,11 +769,14 @@ class AdministrationController extends Controller
         /*
          * Get storage active projects for user
          */
-        $results=ColdStorageRequest::getActiveProjectsAdmin();
-        $services=$results[0];
-        $machines=$results[1];
+        $results_active=ColdStorageRequest::getActiveProjectsAdmin();
+        $active_services=$results_active[0];
+        $active_machines=$results_active[1];
+        $results_expired=ColdStorageRequest::getExpiredProjectsAdmin();
+        $expired_services=$results_expired[0];
+        $expired_machines=$results_expired[1];
         
-        return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
+        return $this->render('storage_volumes', ['services'=>$active_services, 'machines'=>$active_machines, 'results'=>$results_active,'expired_services'=>$expired_services, 'expired_machines'=>$expired_machines, 'expired_results'=>$results_expired]);
     }
 
     public function actionReactivate($id)

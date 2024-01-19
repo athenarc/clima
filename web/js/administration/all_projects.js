@@ -18,10 +18,15 @@ $(document).ready(function(){
   $("#types_dropdown").change(function(){
       $('#filters-form').submit();
     });
-
-    $("#expiry_date").change(function(){
-      $('#filters-form').submit();
-    });
+  $("#expiry_date").change(function(){
+    $('#filters-form').submit();
+  });
+  $("#username").change(function(){
+    $('#filters-form').submit();
+  });
+  $("#project_name").change(function(){
+    $('#filters-form').submit();
+  });
 
   $(".reactivate_btn").click(function(){
       var modal_id='#' + $(this).data()['modalId'];

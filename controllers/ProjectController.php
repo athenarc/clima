@@ -3380,7 +3380,7 @@ class ProjectController extends Controller
 
         $form_params=
         [
-            'action' => URL::to(['project/manage-volumes','id'=>$id, 'vid'=>$vid,'ret'=>$ret]),
+            'action' => URL::to(['project/manage-volumes','id'=>$id, 'vid'=>$vid,'ret'=>$ret,'return'=>$return]),
             'method' => 'POST'
         ];
 

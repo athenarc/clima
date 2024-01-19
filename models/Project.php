@@ -454,7 +454,7 @@ class Project extends \yii\db\ActiveRecord
 
     }
 
-    public static function getAllExpiredProjects($user='',$type='-1',$exp='-1')
+    public static function getAllExpiredProjects($user='',$type='-1',$exp='-1', $name='')
     {
         $query=new Query;
 
@@ -485,6 +485,9 @@ class Project extends \yii\db\ActiveRecord
         if (intval($exp)==0){
 
             $query->orderBy('pr.end_date ASC');
+        }
+        if (!empty($name)){
+            $query->andWhere("p.name like '%$name%'");
         }
         $results=$query->all();
         
@@ -551,7 +554,7 @@ class Project extends \yii\db\ActiveRecord
         return [$active_jupyter, $active_vms, $active_machines, $active_volumes];
     }
 
-    public static function getAllActiveProjectsAdm($user='',$type='-1', $exp='-1')
+    public static function getAllActiveProjectsAdm($user='',$type='-1', $exp='-1', $name='')
     {
         $query=new Query;
         $date=date("Y-m-d");
@@ -583,6 +586,9 @@ class Project extends \yii\db\ActiveRecord
         if (intval($exp)==0){
 
             $query->orderBy('pr.end_date ASC');
+        }
+        if(!empty($name)){
+            $query->andWhere("p.name like '%$name%'");
         }
 
         $results=$query->all();

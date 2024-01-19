@@ -1146,17 +1146,13 @@ class Vm extends \yii\db\ActiveRecord
     {
         $vmid=$this->id;
         $user=Userw::getCurrentUser()['id'];
-        Yii::$app->db->createCommand()
-                     ->update('vm',['deleted_by'=>$user,], "id=$this->id")
-                     ->execute();
-
         $result=self::authenticate();
         $this->token=$result[0];
         $message=$result[1];
 
         if (empty($this->token))
         {
-            return [1,$this->$delete_errors[1],$message];
+            return [1,$this->delete_errors[1],$message];
         }
 
         $result=$this->deleteIP();
@@ -1165,7 +1161,7 @@ class Vm extends \yii\db\ActiveRecord
 
         if (!$ipDeleted)
         {
-            return [2,$this->$delete_errors[2],$message];
+            return [2,$this->delete_errors[2],$message];
         }
 
         $result=$this->deleteServer();
@@ -1173,7 +1169,7 @@ class Vm extends \yii\db\ActiveRecord
         $message=$result[1];
         if (!$serverDeleted)
         {
-            return [3,$this->$delete_errors[3],$message];
+            return [3,$this->delete_errors[3],$message];
         }
 
         $result=$this->deleteKey($this->keypair_name);
@@ -1183,6 +1179,10 @@ class Vm extends \yii\db\ActiveRecord
         {
             return [4,$this->$delete_errors[4],$message];
         }
+
+        Yii::$app->db->createCommand()
+        ->update('vm',['deleted_by'=>$user,], "id=$this->id")
+        ->execute();
 
         Yii::$app->db->createCommand()
                      ->update('vm',['active'=>false,'deleted_at'=>'NOW()'], "id=$this->id")
