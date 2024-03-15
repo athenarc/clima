@@ -20,6 +20,8 @@ use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\EmailEventsAdmin;
 use app\models\Page;
 use app\models\Analytics;
+use app\models\Project;
+use app\models\ProjectRequest;
 
 class SiteController extends Controller
 {
@@ -252,6 +254,11 @@ class SiteController extends Controller
 
     public function actionNotificationRedirect($id)
     {
+
+        //type -1 -> reject
+        //type 0 -> new ticket
+        //type 1 -> expiration
+        //type 2 -> approved, auto-approved
         $notification=Notification::find()->where(['id'=>$id])->one();
 
         $notification->markAsSeen();
@@ -261,19 +268,27 @@ class SiteController extends Controller
             return $this->redirect(['project/index']);
         }
          if ($notification->type == 0 && Userw::hasRole('Admin', $superadminAllowed=true)){
-        //     $url=$notification->url.'&mode=0';
              return $this->redirect($notification->url);
         } elseif ($notification->type == 0) {
             $url_split = explode('=', $notification->url);
             $ticket_id = $url_split[2];
             $url = 'index.php?r=ticket-user%2Fview&id='.$ticket_id;
-        //     // $url=$notification->url.'&mode=0';
-        //     Yii::$app->session->setFlash('success', "HEY");
-        //     return $this->redirect($url);
-        // }
-        // Yii::$app->session->setFlash('success', "HEY 2");
             return $this->redirect($url);
-        } else{
+        } elseif ($notification->type == -1 || $notification->type == 2) {
+            $current_user=Userw::getCurrentUser()['id'];
+            $message_split = explode("'", $notification->message);
+            $project_name = $message_split[1];
+            $project=Project::find()->where(['name'=>$project_name])->one();
+            $latest_request=ProjectRequest::find()->where(['id'=>$project['latest_project_request_id']])->one();
+            $owner=$latest_request['submitted_by'];
+            //if the current user is the owner of the project, redirect him to his requests
+            if ($owner==$current_user){
+                return $this->redirect($notification->url);
+            //if the currect user is not the owner redirect him to project details page
+            } else{
+                return $this->redirect(['/project/view-request-user','id'=>$project['latest_project_request_id']]);
+            }
+        }else{
             return $this->redirect($notification->url);
         }
 

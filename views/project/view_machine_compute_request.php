@@ -37,7 +37,7 @@ Headers::begin() ?>
 	'buttons'=>
 	[
 		
-		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/request-list', 'filter'=>$filter],
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/request-list', 'filter'=>$filter, 'page'=>$page],
 		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
 	],
 ])

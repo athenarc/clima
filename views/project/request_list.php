@@ -112,7 +112,7 @@ foreach ($results as $res)
 						}
 						?>
 						<td class="col-md-1 align-middle"><?=$statuses[$res['status']]?></td>
-						<td class="col-md-1 align-middle"><?=Html::a("$view_icon Details",['/project/view-request','id'=>$res['id'],'filter'=>$filter],['class'=>'btn btn-primary btn-md'])?></td>
+						<td class="col-md-1 align-middle"><?=Html::a("$view_icon Details",['/project/view-request','id'=>$res['id'],'filter'=>$filter, 'page'=>$page],['class'=>'btn btn-primary btn-md'])?></td>
 				</tr>
 
 <?php

@@ -110,7 +110,7 @@ foreach ($results as $res)
 				}
 				?>
 				<td class="col-md-2"><?=$statuses[$res['status']]?></td>
-				<td class="col-md-1"><?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'filter'=>$filter, 'expired'=>$expired, 'return'=>'user_request'],['class'=>'btn btn-primary btn-md'])?></td>
+				<td class="col-md-1"><?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'filter'=>$filter, 'expired'=>$expired, 'return'=>'user_request', 'page'=>$page],['class'=>'btn btn-primary btn-md'])?></td>
 			</tr>
 
 <?php

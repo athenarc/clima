@@ -32,6 +32,7 @@ $bar_percentage=round(($usage['count'])/$details->num_of_jobs*100);
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
+$delete_icon='<i class="fa fa-trash" aria-hidden="true"></i>';
 //added the next line
 //$access_icon='<i class="fas fa-external-link-square-alt"></i>';
 
@@ -59,7 +60,7 @@ else if (($bar_percentage>75) && ($bar_percentage<=100))
  */
 Headers::begin() ?>
 <?php
-if (($project_owner || $superAdmin) & (($project->status==1) || ($project->status==2)) & $expired!=1)
+if (($project_owner || $superAdmin) && $expired!=1)
 {
 	if ($return == 'user_request') {
 		echo Headers::widget(
@@ -69,7 +70,24 @@ if (($project_owner || $superAdmin) & (($project->status==1) || ($project->statu
 					//added the access button that redirects you to schema
 					//['fontawesome_class'=>$access_icon,'name'=> 'Access', 'action'=> ['/site/index','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-success btn-md'] ],
 					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
-					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link, 'filter'=>$filter], 'type'=>'a', 
+					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link, 'filter'=>$filter, 'page'=>$page], 'type'=>'a', 
+					'options'=>['class'=>'btn btn-default']] 
+				],
+			]);
+	} elseif ($return == 'admin') {
+		echo Headers::widget(
+			['title'=>"Project details", 'subtitle'=>$project->name,
+				'buttons'=>
+				[
+					//added the next line
+					// ['fontawesome_class'=>$access_icon,'name'=> 'Access','action'=> ['/project/storage-volumes'], 'type'=>'a', 
+					// 'options'=>['class'=>'btn btn-success']],
+					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
+					['fontawesome_class'=>$delete_icon, "name"=> 'Delete','action'=>['project/delete-project', 'pid'=>$project->project_id, 'pname'=>$project->name],'options'=>['class'=>"btn btn-danger btn-md delete-volume-btn",'data' => [
+						'confirm' => 'Are you sure you want to delete the project with name '.$project->name.'?'."\r\n".'If you have active resources, all of them will be deleted as well.',
+						'method' => 'post',
+						],], 'type'=>'a'],
+					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link, 'ptype'=>$ptype, 'exp'=>$exp, 'user'=>$puser, 'project'=>$pproject], 'type'=>'a', 
 					'options'=>['class'=>'btn btn-default']] 
 				],
 			]);
@@ -81,6 +99,10 @@ if (($project_owner || $superAdmin) & (($project->status==1) || ($project->statu
 					//added the access button that redirects you to schema
 					//['fontawesome_class'=>$access_icon,'name'=> 'Access', 'action'=> ['/site/index','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-success btn-md'] ],
 					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
+					['fontawesome_class'=>$delete_icon, "name"=> 'Delete','action'=>['project/delete-project', 'pid'=>$project->project_id, 'pname'=>$project->name],'options'=>['class'=>"btn btn-danger btn-md delete-volume-btn",'data' => [
+						'confirm' => 'Are you sure you want to delete the project with name '.$project->name.'?'."\r\n".'If you have active resources, all of them will be deleted as well.',
+						'method' => 'post',
+						],], 'type'=>'a'],
 					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link], 'type'=>'a', 
 					'options'=>['class'=>'btn btn-default']] 
 				],
