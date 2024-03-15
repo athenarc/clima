@@ -37,7 +37,7 @@ Headers::begin() ?>
 	'buttons'=>
 	[
 		
-		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/request-list', 'filter'=>$filter],
+		['fontawesome_class'=>'<i class="fas fa-arrow-left"></i>','name'=> 'Back', 'action'=>['/project/request-list', 'filter'=>$filter, 'page'=>$page],
 		 'options'=>['class'=>'btn btn-default'], 'type'=>'a'] 
 	],
 ])
@@ -104,6 +104,12 @@ Headers::begin() ?>
 	<div class="table-responsive">
 		<table class="table table-striped">
 			<tbody>
+                <tr>
+                    <th class="col-md-6 text-right" scope="col">VM flavour:</th>
+                    <td class="col-md-6" scope="col">
+                        <?= $vm_flavour ?>
+                    </td>
+                </tr>
                 <tr>
                     <th class="col-md-6 text-right" scope="col">Number of VMs:</th>
                     <td class="col-md-6" scope="col">

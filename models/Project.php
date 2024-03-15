@@ -1342,5 +1342,236 @@ class Project extends \yii\db\ActiveRecord
 
     }
 
-    
+    //to 'delete' a project set the end date of the latest request to a previous date
+    //if the project has active resources delete them
+    public static function DeleteProject($pid){
+
+        $project=Project::find()->where(['id'=>$pid])->one();
+        $latest_pr = $project['latest_project_request_id'];
+
+        //on demand batch computation
+        if ($project['project_type']==0){
+            if (!empty($project['pending_request_id'])) {
+                $pending_req=ProjectRequest::find()->where(['id'=>$project['pending_request_id']])->one();
+                $pending_req->cancel();
+            }
+            Yii::$app->db->createCommand()->update('project_request',['end_date'=>date('Y-m-d',strtotime("-1 days"))], "id='$latest_pr'")->execute();
+            return 0;
+
+        //24-7 service
+        } elseif ($project['project_type']==1){
+            $vm=Vm::find()->where(['project_id'=>$pid])->andwhere(['active'=>'t'])->one();
+            $owner=Project::userInProject($pid);
+            if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) ){
+                return $this->render('error_unauthorized');
+            }
+            if (!empty($vm)){
+                $volumes=HotVolumes::find()->where(['vm_id'=>$vm->id])->all();
+                foreach ($volumes as $volume)
+                {
+                    $volume->vm_id=null;
+                    $volume->mountpoint=null;
+                    $volume->save();
+                }
+        
+                $result=$vm->deleteVM();
+                $error=$result[0];
+                $message=$result[1];
+                $openstackMessage=$result[2];
+                if ($error!=0) {
+                    $eror_message = 'The project was not deleted. '.$message.'. Please contact an administrator with the following error code:'.$error.' ,'.$openstackMessage;
+                    Yii::$app->session->setFlash('danger', $eror_message);
+                    return 1;
+                }
+            }
+            if (!empty($project['pending_request_id'])) {
+                $pending_req=ProjectRequest::find()->where(['id'=>$project['pending_request_id']])->one();
+                $pending_req->cancel();
+            }
+            Yii::$app->db->createCommand()->update('project_request',['end_date'=>date('Y-m-d',strtotime("-1 days"))], "id='$latest_pr'")->execute();
+            return 0;
+        
+        //storage volume
+        } elseif($project['project_type']==2){
+            $results=ColdStorageRequest::getActiveProjects();
+            $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$latest_pr])->one();
+            //services
+            if ($cold_storage_request['vm_type']==1){
+                $volumes=$results[0];
+            //machines
+            } elseif($cold_storage_request['vm_type']==2){
+                $volumes=$results[1];
+            }
+            $created_at='';
+            $mountpoint='';
+            $vol_id='';
+            $mult_order='';
+            $vname='';
+            if ($cold_storage_request['vm_type']==1){
+                foreach($volumes as $volume => $res){
+                    if ($res['name']==$project->name){
+                        $created_at=$res['created_at'];
+                        $mountpoint=$res['mountpoint'];
+                        $vol_id=$res['vol_id'];
+                        $mult_order=$res['mult_order'];
+                        $vname=$res['vname'];
+                    }
+                }
+            } else{
+                //on demand machines storage volumes can have more than one volumes, delete all of them
+                foreach($volumes as $volume => $proj){
+                    for ($i=1; $i<=$proj['count']; $i++) {	
+                        if ($proj[$i]['name']==$project->name){
+                            $created_at=$proj[$i]['created_at'];
+                            $mountpoint=$proj[$i]['mountpoint'];
+                            $vol_id=$proj[$i]['vol_id'];
+                            $vname=$proj[$i]['vmachname'];
+                            if (!empty($created_at)){
+                                //if that volume is attached to a vm, first detach it, then delete it
+                                $participant=Project::userInProject($pid);
+                                if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) ){
+                                    return $this->render('error_unauthorized');
+                                }
+                                $volume=HotVolumes::find()->where(['id'=>$vol_id, 'project_id'=>$pid])->one();
+                                if (empty($volume)){
+                                    Yii::$app->session->setFlash('danger', "Volume does not exist. Please create it and try again");
+                                    return 1;
+                                }
+                                if (!empty($vname)){
+                                    $volume->initialize($volume->vm_type);
+                                    $volume->authenticate();
+                                    if (!empty($volume->errorMessage))
+                                    {
+                                        Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                                        return 1;
+                                    }
+                                    $volume->detach();
+                                    if (!empty($volume->errorMessage))
+                                    {
+                                        Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                                        return 1;
+                                    }   
+                                }
+                                //delete the volume
+                                $volume->initialize($volume->vm_type);
+                                $volume->authenticate();
+                                if (!empty($hotvolume->errorMessage)){
+                                    Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                                    return 1;
+                                }
+                                $volume->deleteVolume();
+                                if (!empty($volume->errorMessage)){
+                                    Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                                    return 1;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!empty($project['pending_request_id'])) {
+                    $pending_req=ProjectRequest::find()->where(['id'=>$project['pending_request_id']])->one();
+                    $pending_req->cancel();
+                }
+                Yii::$app->db->createCommand()->update('project_request',['end_date'=>date('Y-m-d',strtotime("-1 days"))], "id='$latest_pr'")->execute();
+                return 0;
+            }
+            //if the project has a created volume
+            if (!empty($created_at)){
+                //if that volume is attached to a vm, first detach it, then delete it
+                $participant=Project::userInProject($pid);
+                if ( (empty($participant)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) ){
+                    return $this->render('error_unauthorized');
+                }
+                $volume=HotVolumes::find()->where(['id'=>$vol_id, 'project_id'=>$pid])->one();
+                if (empty($volume)){
+                    Yii::$app->session->setFlash('danger', "Volume does not exist. Please create it and try again");
+                    return 1;
+                }
+                if (!empty($vname)){
+                    $volume->initialize($volume->vm_type);
+                    $volume->authenticate();
+                    if (!empty($volume->errorMessage))
+                    {
+                        Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                        return 1;
+                    }
+                    $volume->detach();
+                    if (!empty($volume->errorMessage))
+                    {
+                        Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                        return 1;
+                    }   
+                }
+                //delete the volume
+                $volume->initialize($volume->vm_type);
+                $volume->authenticate();
+                if (!empty($hotvolume->errorMessage)){
+                    Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                    return 1;
+                }
+                $volume->deleteVolume();
+                if (!empty($volume->errorMessage)){
+                    Yii::$app->session->setFlash('danger', $volume->errorMessage);
+                    return 1;
+                }
+            }
+            if (!empty($project['pending_request_id'])) {
+                $pending_req=ProjectRequest::find()->where(['id'=>$project['pending_request_id']])->one();
+                $pending_req->cancel();
+            }
+            Yii::$app->db->createCommand()->update('project_request',['end_date'=>date('Y-m-d',strtotime("-1 days"))], "id='$latest_pr'")->execute();
+            return 0;
+
+        //on demand computation machines
+        } elseif($project['project_type']==3){
+            $vms=VmMachines::find()->where(['project_id'=>$pid])->andwhere(['active'=>'t'])->all();
+            $owner=Project::userInProject($pid);
+            if ( (empty($owner)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) ){
+                return $this->render('error_unauthorized');
+            }
+            if (!empty($vms)){
+                foreach ($vms as $vm){
+                    $volumes=HotVolumes::find()->where(['vm_id'=>$vm->id])->all();
+                    foreach ($volumes as $volume)
+                    {
+                        $volume->vm_id=null;
+                        $volume->mountpoint=null;
+                        $volume->save();
+                    }
+            
+                    $result=$vm->deleteVM();
+                    $error=$result[0];
+                    $message=$result[1];
+                    $openstackMessage=$result[2];
+                    if ($error!=0) {
+                        $eror_message = 'The project was not deleted. '.$message.'. Please contact an administrator with the following error code:'.$error.' ,'.$openstackMessage;
+                        Yii::$app->session->setFlash('danger', $eror_message);
+                        return 1;
+                    }
+                }
+            }   
+            if (!empty($project['pending_request_id'])) {
+                $pending_req=ProjectRequest::find()->where(['id'=>$project['pending_request_id']])->one();
+                $pending_req->cancel();
+            }
+            Yii::$app->db->createCommand()->update('project_request',['end_date'=>date('Y-m-d',strtotime("-1 days"))], "id='$latest_pr'")->execute();
+            return 0;
+
+        //on demand notebooks    
+        }elseif($project['project_type']==4){
+            $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$project->name])->all();
+            if (!empty($all_servers)){
+                foreach ($all_servers as $server){
+                    $server->Stopserver();
+                }
+            }
+            if (!empty($project['pending_request_id'])) {
+                $pending_req=ProjectRequest::find()->where(['id'=>$project['pending_request_id']])->one();
+                $pending_req->cancel();
+            }
+            Yii::$app->db->createCommand()->update('project_request',['end_date'=>date('Y-m-d',strtotime("-1 days"))], "id='$latest_pr'")->execute();
+            return 0;
+        }
+
+    }
 }

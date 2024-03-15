@@ -598,7 +598,7 @@ class AdministrationController extends Controller
         return $this->render('view-page',['page'=>$page]);
     }
 
-    public function actionAllProjects($exp=-1, $pr_drp=-1, $user='', $project='')
+    public function actionAllProjects($exp='-1', $ptype='-1', $user='', $project='')
     {
         if (!Userw::hasRole('Admin',$superadminAllowed=true))      
         {
@@ -614,7 +614,7 @@ class AdministrationController extends Controller
         
         $deleted=Project::getAllDeletedProjects();
 
-        $filters=['exp'=>Yii::$app->request->post('expiry_date_t','-1'),'user'=>Yii::$app->request->post('username',''), 'type'=>Yii::$app->request->post('project_type','-1'), 'name'=>Yii::$app->request->post('project_name','')];
+        $filters=['exp'=>Yii::$app->request->post('expiry_date_t',$exp),'user'=>Yii::$app->request->post('username',$user), 'type'=>Yii::$app->request->post('project_type',$ptype), 'name'=>Yii::$app->request->post('project_name',$project)];
         $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type'],$filters['exp'], $filters['name']);
         $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type'],$filters['exp'], $filters['name']);
         $resources=Project::getActiveResources();
@@ -674,7 +674,8 @@ class AdministrationController extends Controller
         return $this->render('all_projects',['button_links'=>$button_links,
             'project_types'=>$project_types,'role'=>$role, 'types_dropdown'=>$types_dropdown, 'filters'=>$filters,
             'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 
-            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url, 'active_resources'=>$resources, 'expiry_date'=>$expiry_date]);
+            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url, 'active_resources'=>$resources, 'expiry_date'=>$expiry_date,
+            'ptype'=>$ptype, 'exp'=>$exp, 'user'=>$user, 'project'=>$project]);
     }
 
     public function actionManageAnalytics()

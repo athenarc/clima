@@ -11,6 +11,8 @@
 use yii\helpers\Html;
 use yii\widgets\LinkPager;
 use webvimark\modules\UserManagement\models\User as Userw;
+use app\models\Project;
+use app\models\ProjectRequest;
 
 $this->title="Notification History";
 
@@ -74,7 +76,27 @@ if (!empty($notifications))
 			?>
                 <td class="col-md-10"><?=Html::a($notif['message'],$url)?></th>
 				<td class="col-md-2"><?= date("j-m-Y, H:i:s",strtotime($notif['created_at']))?></td>
-            <?php
+			<?php
+			}elseif($notif['type']==-1 || $notif['type']==2){
+				$current_user=Userw::getCurrentUser()['id'];
+				$message_split = explode("'", $notif['message']);
+				$project_name = $message_split[1];
+				$project=Project::find()->where(['name'=>$project_name])->one();
+				$latest_request=ProjectRequest::find()->where(['id'=>$project['latest_project_request_id']])->one();
+				$owner=$latest_request['submitted_by'];
+				//if the current user is the owner of the project, redirect him to his requests
+				if ($owner==$current_user){
+					?>
+						<td class="col-md-10"><?=Html::a($notif['message'],$notif['url'])?>
+						<td class="col-md-2"><?= date("j-m-Y, H:i:s",strtotime($notif['created_at']))?></td>
+					<?php
+				//if the currect user is not the owner redirect him to project details page
+				} else{
+					?>
+						<td class="col-md-10"><?=Html::a($notif['message'],['/project/view-request-user','id'=>$project['latest_project_request_id']])?>
+						<td class="col-md-2"><?= date("j-m-Y, H:i:s",strtotime($notif['created_at']))?></td>
+					<?php
+				}
 			}elseif($notif['type']!=0){
 			?>
 				<td class="col-md-10"><?=Html::a($notif['message'],$notif['url'])?>

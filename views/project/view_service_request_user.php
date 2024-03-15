@@ -21,6 +21,7 @@ $this->registerJsFile('@web/js/project/view-request-user.js', ['depends' => [\yi
 $approve_icon='<i class="fas fa-check"></i>';
 $reject_icon='<i class="fas fa-times"></i>';
 $back_icon='<i class="fas fa-arrow-left"></i>';
+$delete_class='';
 #$back_link=($return=='index') ? '/project/index' : '/administration/all-projects';
 if ($return == 'user_request'){
 	$back_link='/project/user-request-list';
@@ -32,30 +33,43 @@ if ($return == 'user_request'){
 $cancel_icon='<i class="fas fa-times"></i>';
 $edit_icon='<i class="fas fa-pencil-alt"></i>';
 $update_icon='<i class="fas fa-pencil-alt"></i>';
-//added the next line
-//$access_icon='<i class="fas fa-external-link-square-alt"></i>';
+$delete_icon='<i class="fa fa-trash" aria-hidden="true"></i>';
 
+if($expired==1){
+   $delete_class='disabled';
+}
 
 
 
 Headers::begin() ?>
 <?php
-if (($project_owner || $superAdmin) & (($project->status==1) || ($project->status==2)) & $expired!=1)
-{
+if ((($project_owner || $superAdmin) ) && $expired==0){
 	if ($return == 'user_request'){
 		echo Headers::widget(
 			['title'=>"Project details", 'subtitle'=>$project->name,
 				'buttons'=>
 				[
-					//added the next line
-					//['fontawesome_class'=>'<i class="fas fa-check"></i>','name'=> 'Create','options'=>['class'=>'btn btn-primary create-vm-btn'], 'type'=>'submitButton' ],
-					
-					// ['fontawesome_class'=>$access_icon,'name'=> 'Access','action'=> ['/project/configure-vm','id'=>$project->project_id], 'type'=>'a', 
-					// 'options'=>['class'=>'btn btn-success']],
 					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
-					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link, 'filter'=>$filter], 'type'=>'a', 
+					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link, 'filter'=>$filter, 'page'=>$page], 'type'=>'a', 
 					'options'=>['class'=>'btn btn-default']] 
 		
+				],
+			]);
+	} elseif ($return == 'admin') {
+		echo Headers::widget(
+			['title'=>"Project details", 'subtitle'=>$project->name,
+				'buttons'=>
+				[
+					//added the next line
+					// ['fontawesome_class'=>$access_icon,'name'=> 'Access','action'=> ['/project/storage-volumes'], 'type'=>'a', 
+					// 'options'=>['class'=>'btn btn-success']],
+					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
+					['fontawesome_class'=>$delete_icon, "name"=> 'Delete','action'=>['project/delete-project', 'pid'=>$project->project_id, 'pname'=>$project->name],'options'=>['class'=>"btn btn-danger btn-md delete-volume-btn",'data' => [
+						'confirm' => 'Are you sure you want to delete the project with name '.$project->name.'?'."\r\n".'If you have active resources, all of them will be deleted as well.',
+						'method' => 'post',
+						],], 'type'=>'a'],
+					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link, 'ptype'=>$ptype, 'exp'=>$exp, 'user'=>$puser, 'project'=>$pproject], 'type'=>'a', 
+					'options'=>['class'=>'btn btn-default']] 
 				],
 			]);
 	} else {
@@ -63,12 +77,11 @@ if (($project_owner || $superAdmin) & (($project->status==1) || ($project->statu
 			['title'=>"Project details", 'subtitle'=>$project->name,
 				'buttons'=>
 				[
-					//added the next line
-					//['fontawesome_class'=>'<i class="fas fa-check"></i>','name'=> 'Create','options'=>['class'=>'btn btn-primary create-vm-btn'], 'type'=>'submitButton' ],
-					
-					// ['fontawesome_class'=>$access_icon,'name'=> 'Access','action'=> ['/project/configure-vm','id'=>$project->project_id], 'type'=>'a', 
-					// 'options'=>['class'=>'btn btn-success']],
 					['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
+					['fontawesome_class'=>$delete_icon, "name"=> 'Delete','action'=>['project/delete-project', 'pid'=>$project->project_id, 'pname'=>$project->name],'options'=>['class'=>"btn btn-danger btn-md delete-volume-btn btn-md $delete_class",'data' => [
+						'confirm' => 'Are you sure you want to delete the project with name '.$project->name.'?'."\r\n".'If you have active resources, all of them will be deleted as well.',
+						'method' => 'post',
+						],], 'type'=>'a'],
 					['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>[$back_link], 'type'=>'a', 
 					'options'=>['class'=>'btn btn-default']] 
 		
@@ -76,8 +89,7 @@ if (($project_owner || $superAdmin) & (($project->status==1) || ($project->statu
 			]);
 	}
 
-}
-else
+}else
 {
 	echo Headers::widget(
 	['title'=>"Project details", 'subtitle'=>$project->name,
@@ -137,6 +149,11 @@ else
 	<div class="table-responsive">
 		<table class="table table-striped">
 			<tbody>
+			<tr>
+				<th class="col-md-6 text-right" scope="col">VM flavour: </th>
+				<td class="col-md-6 text-left" scope="col"><?= $vm_flavour ?></td>
+			</tr>
+			<tr>
 				<th class="col-md-6 text-right" scope="col">CPU cores:</th>
 				<td class="col-md-6 text-left" scope="col"><?= $details->num_of_cores ?></td>
 			</tr>

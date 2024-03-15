@@ -943,7 +943,7 @@ class ProjectController extends Controller
         return $names;       
     }
 
-    public function actionRequestList($filter='all')
+    public function actionRequestList($filter='all', $page=1)
     {
         
         $statuses=ProjectRequest::STATUSES;
@@ -968,11 +968,11 @@ class ProjectController extends Controller
 
         return $this->render('request_list',['results'=>$results,'pages'=>$pages,'statuses'=>$statuses,
                                 'sideItems'=>$sidebarItems,'project_types'=>$project_types,
-                                'line_classes'=>$line_classes,'filter'=>$filter]);
+                                'line_classes'=>$line_classes,'filter'=>$filter, 'page'=>$page]);
     }
 
 
-    public function actionUserRequestList($filter='all')
+    public function actionUserRequestList($filter='all', $page=1)
     {
         $statuses=ProjectRequest::STATUSES;
         
@@ -1000,11 +1000,12 @@ class ProjectController extends Controller
 
         return $this->render('request_list_user',['results'=>$results,'pages'=>$pages,'statuses'=>$statuses,
                                 'sideItems'=>$sidebarItems,'project_types'=>$project_types,
-                                'filter'=>$filter,'line_classes'=>$line_classes, 'expired'=>$expired]);
+                                'filter'=>$filter,'line_classes'=>$line_classes, 'expired'=>$expired, 'page'=>$page]);
     }
 
-    public function actionViewRequest($id,$filter='all')
+    public function actionViewRequest($id,$filter='all', $page=1)
     {
+        $vm_flavour='';
         $image='';
         ProjectRequest::recordViewed($id);
         $project_request = ProjectRequest::findOne($id);
@@ -1098,6 +1099,10 @@ class ProjectController extends Controller
         } 
         else if ($project_request->project_type==1)
         {
+            $vm=Vm::find()->where(['project_id'=>$project['id']])->andwhere(['active'=>true])->one();
+            if (!empty($vm)){
+                $vm_flavour = $vm['image_name'];
+            }
             $details = ServiceRequest::findOne(['request_id' => $id]);
             $view_file = 'view_service_request';
             $type = "24/7 Service";
@@ -1339,12 +1344,12 @@ class ProjectController extends Controller
             'remaining_time' => $remaining_time, 'project_owner' => $project_owner,
             'number_of_users' => $number_of_users, 'maximum_number_users' => $maximum_number_users,
             'remaining_jobs' => $remaining_jobs, 'expired' => $expired, 'resourcesStats' => $resourcesStats,
-            'requestHistory' => $requestHistory, 'project_status' => $project_status, 'image'=>$image]);
+            'requestHistory' => $requestHistory, 'project_status' => $project_status, 'image'=>$image, 'page'=>$page, 'vm_flavour'=>$vm_flavour]);
 
 
     }
 
-    public function actionViewRequestUser($id,$filter='all',$return='index')
+    public function actionViewRequestUser($id,$filter='all',$return='index', $page=1, $ptype='-1', $exp='-1',$puser='', $pproject='')
     {
 
         $superAdmin = 0;
@@ -1356,6 +1361,7 @@ class ProjectController extends Controller
         ProjectRequest::recordViewed($id);
         $project_request=ProjectRequest::findOne($id);
         $project=Project::find()->where(['id'=>$project_request->project_id])->one();
+        $vm_flavour='';
 
         $start = date('Y-m-d', strtotime($project->start_date));
         
@@ -1435,6 +1441,10 @@ class ProjectController extends Controller
         }
         else if ($project_request->project_type==1)
         {
+            $vm=Vm::find()->where(['project_id'=>$project['id']])->andwhere(['active'=>true])->one();
+            if (!empty($vm)){
+                $vm_flavour = $vm['image_name'];
+            }
             $details=ServiceRequest::findOne(['request_id'=>$id]);
             $view_file='view_service_request_user';
             $type="24/7 Service";
@@ -1491,8 +1501,9 @@ class ProjectController extends Controller
         $expired=0;
 
         return $this->render($view_file,['project'=>$project_request,'details'=>$details, 'return'=>$return,
-            'filter'=>$filter,'usage'=>$usage,'user_list'=>$username_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time,
-        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'active_servers'=>$active_servers, 'image'=>$image, 'superAdmin'=>$superAdmin]);
+            'filter'=>$filter,'usage'=>$usage,'user_list'=>$username_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time, 'vm_flavour'=>$vm_flavour,
+        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'active_servers'=>$active_servers, 'image'=>$image, 'superAdmin'=>$superAdmin, 'page'=>$page,
+            'ptype'=>$ptype,'exp'=>$exp, 'puser'=>$puser, 'pproject'=>$pproject]);
 
     }
 
@@ -3766,6 +3777,25 @@ class ProjectController extends Controller
         
         return $this->redirect(['administration/view-active-jupyters']);
 
+    }
+
+    public function actionDeleteProject($pid, $pname){
+
+        $project=Project::find()->where(['id'=>$pid])->one();
+        $latest_request=ProjectRequest::find()->where(['id'=>$project['latest_project_request_id']])->one();
+        $date1 = new \DateTime($latest_request->end_date);
+        $date2 = new \DateTime('now');
+        if (($date1->format("Y-m-d")!=$date2->format("Y-m-d")) && ($date2>$date1))
+        {
+            return $this->render('error_expired');
+        }
+
+        $error=Project::DeleteProject($pid);
+        if ($error==0){
+            Yii::$app->session->setFlash('success', "The project ".$pname.' was deleted successfully!');
+        }
+        // Yii::$app->session->setFlash('success', $error);
+        return $this->redirect(['project/index']);
     }
 
 

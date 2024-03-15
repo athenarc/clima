@@ -38,7 +38,7 @@ Headers::begin() ?>
 ['title'=>"All projects", 
 	'buttons'=>
 	[
-		['fontawesome_class'=>$back_icon,'name'=> 'Project requests', 'action'=> ['/administration/index'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
+		['fontawesome_class'=>$back_icon,'name'=> 'Admin options', 'action'=> ['/administration/index'], 'type'=>'a', 'options'=>['class'=>'btn btn-default'] ],
 	],
 ])
 ?>
@@ -173,7 +173,7 @@ foreach ($active as $res)
 				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?> days</td>
 				<td class="col-md-3 text-right">
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'admin','expired'=>0],['class'=>'btn btn-secondary btn-md'])?> 
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'admin','expired'=>0, 'ptype'=>$filters['type'], 'exp'=>$filters['exp'], 'puser'=>$filters['user'], 'pproject'=>$filters['name']],['class'=>'btn btn-secondary btn-md'])?> 
 				</td>	
 			</tr>
 
@@ -326,7 +326,7 @@ foreach ($expired as $res)
 				<td class="col-md-3 text-center" style="vertical-align: middle!important;"><?=$res[0]?></td>
 				<td class="col-md-2 text-center" style="vertical-align: middle!important;"><?=$res[1]?></td>
 				<td class="col-md-3 text-right">
-					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','return'=>'admin','expired'=>1],['class'=>'btn btn-secondary btn-md'])?>
+					<?=Html::a("$view_icon Details",['/project/view-request-user','id'=>$res['id'],'return'=>'index','return'=>'admin','expired'=>1, 'ptype'=>$filters['type'], 'exp'=>$filters['exp'], 'puser'=>$filters['user'], 'pproject'=>$filters['name']],['class'=>'btn btn-secondary btn-md'])?>
 					<?=Html::a("$reactivate_icon Re-activate",null,['class'=>'btn btn-primary btn-md reactivate_btn', 'title'=>'Re-activate project', 'data-modal-id'=> "reactivate-$res[name]-modal"])?> 
 				</td>
 			</tr>
