@@ -33,6 +33,7 @@ use app\models\Page;
 use app\models\Analytics;
 use app\models\ColdStorageRequest;
 use webvimark\modules\UserManagement\models\User as Userw;
+use app\models\Schema;
 
 class AdministrationController extends Controller
 {
