@@ -1,0 +1,60 @@
+
+.limits-label {
+    color: grey;
+}
+
+.autoaccept_not_allowed {
+    color: red;
+    font-weight: 400;
+}
+
+.hidden {
+    display: none;
+}
+
+.ow-anywhere {
+    overflow-wrap: anywhere;
+}
+
+.ow-break-word {
+    overflow-wrap: break-word;
+}
+
+.word-break {
+    word-break: break-all;
+}
+
+.hyphens {
+    hyphens: auto;
+}
+
+* {
+    --main-color: #333;
+    --contrast-color: white;
+}
+
+.source-content {
+    font-size: 1.2em;
+    font-family: monospace;
+    word-wrap: break-word;
+    padding: 10px;
+    border: 1px solid var(--main-color);
+    border-radius: 5px;
+    position: relative
+}
+
+.source-content .header {
+    position: absolute;
+    top: 0;
+    left:0;
+    transition: opacity 0.5s;
+    background-color: var(--main-color);
+    color: var(--contrast-color);
+    opacity: 0.5;
+    padding: 2px;
+    cursor: default;
+}
+
+.source-content .header:hover {
+    opacity: 1;
+}

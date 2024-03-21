@@ -138,12 +138,13 @@ foreach ($active as $res)
 	if ($res['project_type']==0)
 	{
 		
-		$projectLink=$schema_url;
+		// $projectLink=$schema_url;
+		$projectLink=Url::to(['/project/on-demand-access','id'=>$res['project_id']]);
 
-		if(empty($schema_url))
-        {
-           $ondemand_access_class='disabled';
-        }
+		// if(empty($schema_url))
+        // {
+        //    $ondemand_access_class='disabled';
+        // }
 
 		$projectTarget='_self';
 		$project_icon='<i class="fa fa-rocket" aria-hidden="true"></i>';

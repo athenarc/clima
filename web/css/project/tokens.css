@@ -1,0 +1,140 @@
+.header-button-area .btn-success
+{
+	margin-right:10px;
+}
+
+.table-responsive
+{
+	margin-left:10px;
+	margin-right:10px;
+}
+
+
+
+.bronze-user
+{
+
+	color:#cd7f32;
+}
+
+.silver-user
+{
+	color:#e0e0e0;
+}
+
+.gold-user
+{
+	color:#f37d30;
+}
+
+.fa-exclamation-triangle
+{
+	color:#E6833B!important;
+}
+
+.favorite
+{
+	cursor: pointer;
+	color:red;
+}
+
+
+
+    .button {
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+      }
+      p.start {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 17px;
+        line-height: 22px;
+        text-align: justify;
+        display: inline;
+    }
+
+    dd {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 20px;
+        line-height: 22px;
+        text-align: justify;
+        display: inline;
+    }
+
+    p {
+        color: rgb(59, 59, 65);
+    }
+    
+    h4.start {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 17px;
+        line-height: 22px;
+        margin: 0;
+        display: inline-block;
+    }
+    #containerIntro dd,
+      #containerIntro h4,
+      #containerIntro p {
+        display: inline;
+        vertical-align: top;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 17px;
+        line-height: 22px;
+    }
+    .justified-adjustment { text-align: justify; }
+
+    .justified-adjustment > * {
+       display: inline-block;
+       vertical-align: middle;
+    }
+    
+    .justified-adjustment::after {
+       content: "";
+       width: 100%;
+       display: inline-block;
+    }
+
+.p1 {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 17px;
+  line-height: 22px;
+  margin: 0;
+}
+
+
+.button-41 {
+  background-color: initial;
+  background-image: linear-gradient(-180deg, #00D775, #00BD68);
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Inter,-apple-system,system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+  height: 44px;
+  line-height: 44px;
+  outline: 0;
+  overflow: hidden;
+  padding: 0 20px;
+  pointer-events: auto;
+  position: relative;
+  text-align: center;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: top;
+  white-space: nowrap;
+  width: 100%;
+  z-index: 9;
+  border: 0;
+}
+
+.button-41:hover {
+  background: #00bd68;
+}
+

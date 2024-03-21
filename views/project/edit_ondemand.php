@@ -19,11 +19,11 @@ $cancel_icon='<i class="fas fa-times"></i>';
 
 if($autoacceptlimits->ram==$upperlimits->ram)
 {
-    $ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $upperlimits->ram] </span>";
+    $ram_label= "Maximum allowed memory (in GBs) * <span class=limits-label> [upper limits: $upperlimits->ram] </span>";
 }
 else
 {
-    $ram_label= "Maximum allowed memory per job (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with review)] </span>";
+    $ram_label= "Maximum allowed memory (in GBs) * <span class=limits-label> [upper limits: $autoacceptlimits->ram (automatically accepted),  $upperlimits->ram (with review)] </span>";
 }
 
 if($autoacceptlimits->num_of_jobs==$upperlimits->num_of_jobs)
@@ -37,11 +37,11 @@ else
 
 if($autoacceptlimits->cores==$upperlimits->cores)
 {
-    $cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores] </span>" ;
+    $cores_label= "Available cores * <span class=limits-label> [upper limits: $autoacceptlimits->cores] </span>" ;
 }
 else
 {
-    $cores_label= "Available cores per job * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with review)] </span>" ;
+    $cores_label= "Available cores * <span class=limits-label> [upper limits: $autoacceptlimits->cores (automatically accepted), $upperlimits->cores (with review)] </span>" ;
 }
 
 
