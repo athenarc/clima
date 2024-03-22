@@ -339,7 +339,7 @@ class JupyterServer extends \yii\db\ActiveRecord
                     'name' => $sid,
                     'annotations' => array(
                         'kubernetes.io/ingress.class' => 'nginx',
-
+                        'nginx.ingress.kubernetes.io/proxy-body-size' => Yii::$app->params['jupyter_ingress_proxy_body_size'] ?? "100m"
                     )
                 ),
                 'spec' => array (

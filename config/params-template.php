@@ -5,6 +5,7 @@ return [
     'jupyter_services_url' => 'jupyter service url',
     'jupyter_ingresses_url' => 'jupyter ingress url',
     'jupyter_bearer_token' => 'jupyter auth token',
+    'jupyter_ingress_proxy_body_size' => 'max size of request',
     'tmpFolderPath' => 'json folder for jupyter',
     'userDataPath' => '',
     'systemUser' => '',
