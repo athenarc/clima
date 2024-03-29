@@ -121,17 +121,25 @@ class JupyterServer extends \yii\db\ActiveRecord
 
     public function startServer()
     {
+	Yii::debug('Inside models.JupyterServer.startServer()');
+
+        Yii::debug('Looking for existing active server');
         $server=JupyterServer::find()->where(['active'=>true,'project'=>$this->project, 'created_by'=> User::getCurrentUser()['username']])->one();
         if (!empty($server))
-        {
+	{
+            Yii::debug('An active server exists');
             $success = '';
-            $error = 'You already have an active server';
+	    $error = 'You already have an active server';
+	    Yii::debug('Exiting models.JupyterServer.startServer()');
             return [$success, $error];
-        } 
+	}
+	Yii::debug("No active server was found");
         $ssid=uniqid();
         $sid = 'a'.$ssid;
         $username=User::getCurrentUser()['username'];
-        $user=explode('@',$username)[0];
+	$user=explode('@',$username)[0];
+
+	Yii::debug("User: ".$user);
 
         $image=JupyterImages::find()->where(['id'=>$this->image_id])->one();
         if (empty($image))
@@ -244,7 +252,8 @@ class JupyterServer extends \yii\db\ActiveRecord
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	Yii::debug('Creating deployment');
         $out2 = curl_exec($ch);
 
         if(curl_errno($ch)){
@@ -263,13 +272,26 @@ class JupyterServer extends \yii\db\ActiveRecord
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        $count=0;
+	$count=0;
+	Yii::debug('Asserting deployment status');
         $out10 = curl_exec($ch);
         curl_close($ch);
         $deploym = json_decode($out10, true);
-        $condition2=$deploym['status']['conditions'][0]['status'];
-        $condition1=$deploym['status']['conditions'][1]['status'];
-        while ($condition1=='True' && $condition2=='False') {
+        // $cond1=$deploym['status']['conditions'][0]['status'];
+        // $cond2=$deploym['status']['conditions'][1]['status'];
+        $available='False';
+        $progressing='True';
+        if ($deploym['status']['conditions'][0]['type']=='Available'){
+            $available=$deploym['status']['conditions'][0]['status'];
+        } elseif ($deploym['status']['conditions'][0]['type']=='Progressing'){
+            $progressing=$available=$deploym['status']['conditions'][0]['status'];
+        }
+        if ($deploym['status']['conditions'][1]['type']=='Available'){
+            $available=$deploym['status']['conditions'][1]['status'];
+        } elseif ($deploym['status']['conditions'][1]['type']=='Progressing'){
+            $progressing=$available=$deploym['status']['conditions'][1]['status'];
+        }
+        while ($progressing=='True' && $available=='False') {
         //while ($count<60 && $condition=='False') {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, Yii::$app->params['jupyter_deployments_url'] .'/'.$sid);
@@ -278,23 +300,64 @@ class JupyterServer extends \yii\db\ActiveRecord
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	    Yii::debug('Asserting deployment status');
             $out10 = curl_exec($ch);
             $deploym = json_decode($out10, true);
-            $condition2=$deploym['status']['conditions'][0]['status'];
-            $condition1=$deploym['status']['conditions'][1]['status'];
+            if ($deploym['status']['conditions'][0]['type']=='Available'){
+                $available=$deploym['status']['conditions'][0]['status'];
+            } elseif ($deploym['status']['conditions'][0]['type']=='Progressing'){
+                $progressing=$available=$deploym['status']['conditions'][0]['status'];
+            }
+            if ($deploym['status']['conditions'][1]['type']=='Available'){
+                $available=$deploym['status']['conditions'][1]['status'];
+            } elseif ($deploym['status']['conditions'][1]['type']=='Progressing'){
+                $progressing=$available=$deploym['status']['conditions'][1]['status'];
+            }
             curl_close($ch);
             $count = $count+1;
             sleep(5);
         }
 
 
-        if ($deploym['status']['conditions'][0]['status']=='False'){
+        if ($progressing=='False' && $available=='False'){
 
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, Yii::$app->params['jupyter_ingresses_url'] . '/' .$sid);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            $out1 = curl_exec($ch);
+            $out4 = ' ';
+            if(curl_errno($ch)){
+                $out4=curl_error($ch);
+                $error_c=1;
+            }
+            curl_close($ch);
+
+            curl_close($ch);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, Yii::$app->params['jupyter_deployments_url'] . '/' . $sid);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            $out3 = curl_exec($ch);
+            $out6 = ' ';
+            if(curl_errno($ch)){
+                $out6=curl_error($ch);
+                $error_c=1;
+            }
+            curl_close($ch);
+    
             $error = 'Your request could not be fulfilled at the current time due to insufficient resources at the cluster:  '. $deploym['status']['conditions'][0]['message'];
             return ['',$error,''];
 
-        } else{
+        } elseif($progressing=='True' && $available=='True'){
             $service = [];
             $service = array (
                 'metadata' => array (
@@ -325,7 +388,8 @@ class JupyterServer extends \yii\db\ActiveRecord
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	    Yii::debug('Creating service');
             $out5 = curl_exec($ch);
 
             if(curl_errno($ch)){
@@ -384,7 +448,8 @@ class JupyterServer extends \yii\db\ActiveRecord
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	    Yii::debug('Creating ingress');
             $out6 = curl_exec($ch);
 
             if(curl_errno($ch)){
@@ -441,7 +506,10 @@ class JupyterServer extends \yii\db\ActiveRecord
 
     public function stopServer()
     {
-        $username=User::getCurrentUser()['username'];
+	Yii::debug("Entering models.JupyterServer.stopServer()");
+
+	$username=User::getCurrentUser()['username'];
+	Yii::debug("Current user: ".$username);
         $error_c = 0;
 
         $headers = [
@@ -449,6 +517,9 @@ class JupyterServer extends \yii\db\ActiveRecord
             'Content-Type: application/json'
         ];
 
+	Yii::debug("Deleting corresponding Kubernetes resources");
+
+	Yii::debug("Deleting ingress...");
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, Yii::$app->params['jupyter_ingresses_url'] . '/' .  $this->server_id);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

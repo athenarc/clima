@@ -3491,9 +3491,9 @@ class ProjectController extends Controller
 
     public function actionJupyterIndex($pid, $id)
     {
-
+        Yii::debug("Inside controllers.ProjectController.actionJupyterIndex()");
         $name = Project::find('name')->where(['id'=>$pid])->one();
-        $owner = Project::getProjectOwner($name['name']);
+	$owner = Project::getProjectOwner($name['name']);
         $current_user =  Userw::getCurrentUser()['id'];
         //check if there is a server running, created by the current user
         $server=JupyterServer::find()->where(['active'=>true,'project'=>$name['name'], 'created_by'=>Userw::getCurrentUser()['username']])->one();
