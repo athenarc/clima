@@ -47,12 +47,24 @@ $config = [
             ],
         ],
         'log' => [
-            'traceLevel' => YII_DEBUG ? 3 : 0,
+	    'traceLevel' => YII_DEBUG ? 3 : 0,
+	    'flushInterval' => 1,
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
-                ],
+		],
+                [
+	            'class' => 'yii\log\FileTarget',
+		    'categories' => ['application'],
+                    'levels' => ['error', 'warning', 'info','trace'],
+                    'exportInterval' => 1,  // Export (write) the message to file after every log message
+		    'logFile' => '@runtime/logs/debug.log',
+                    'logVars' => [],
+                    'maxFileSize' => 1024 * 2, // Maximum file size in kilobytes (2MB here)
+		    'maxLogFiles' => 10, // Max number of log files before rotation
+		    'except' => ['yii\db*']
+                ]
             ],
         ],
         'db' => $db,
