@@ -214,7 +214,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
         <div class="row footer-first-line">
             <div class="col-md-3 text-center copyright">
                 <?=isset(Yii::$app->params['copyright']) && !empty(Yii::$app->params['copyright']) ? '&copy; ' . Yii::$app->params['copyright'] : '' ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                Powered <?=Html::a('CLIMA', 'https://github.com/athenarc/clima', ['target'=>'_blank'])?>
+                Powered By <?=Html::a('CLIMA', 'https://github.com/athenarc/clima', ['target'=>'_blank'])?>
              </div>
             <div class="col-md-offset-2 col-md-1 text-right logo-footer"><?= (isset(Yii::$app->params['logo-footer']) && !empty(Yii::$app->params['logo-footer'])) ? Html::img(Yii::$app->params['logo-footer'],['class'=>"navbar-logo"]) : ''?> </div>
             <div class="col-md-offset-2 col-md-2 text-right privacy"><?=Html::a('Privacy & cookie policy',['site/privacy'])?></div>
