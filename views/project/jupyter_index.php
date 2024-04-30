@@ -49,7 +49,7 @@ if ($owner['submitted_by'] != $current_user) {
 
     <div class="row">
         <div class="col-md-12">
-            <div class="well details-form" id="tag" style="margin: 2px;
+            <div class="well details-form" style="margin: 2px;
                                                            background-color: white !important;
                                                            -webkit-appearance: none;
                                                            ">
@@ -57,25 +57,7 @@ if ($owner['submitted_by'] != $current_user) {
             </div>
         </div>
     </div>
-    <!-- <br></br> -->
-    <!-- <font size="4"> <b>Owner of the project</b><br></font>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="well details-form" id="tag" style="margin: 2px;
-                                                           background-color: white !important;
-                                                           -webkit-appearance: none;
-                                                           ">
-                <?= explode('@', $owner_username)[0] ?>
-            </div>
-        </div>
-    </div> -->
-    <!-- <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-warning" role="alert">
-                <?= explode('@', $owner_username)[0] ?>
-            </div>
-        </div>
-    </div> -->
+
     <div class=" table-responsive">
         <table class="table table-striped">
             <thead>
