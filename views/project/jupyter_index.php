@@ -7,14 +7,16 @@ use app\models\User;
 use yii\widgets\ActiveForm;
 
 
-
 $delete_icon = '<i class="fas fa-times"></i>';
 $back_icon = '<i class="fas fa-arrow-left"></i>';
 $back_link = 'index';
 $start_icon = '<i class="fas fa-play"></i>';
 $stop_icon = '<i class="fas fa-stop"></i>';
+
 $this->title = $name['name'];
 $this->registerJsFile('@web/js/administration/edit-text-area.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
+// echo Html::CssFile('@web/css/project/project-request.css');
+// $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 Headers::begin()
     ?>
 <script src="https://cdn.ckeditor.com/ckeditor5/41.3.0/classic/ckeditor.js"></script>
@@ -39,10 +41,12 @@ $owner_username = User::returnUsernameById($owner['submitted_by']);
 // $remove_url=Url::to(['index.php?r=project%2Findex','id'=>$id]);
 $remove_url = Url::to(['delete-user', 'id' => $id, 'pid' => $pid]);
 //participants view
+
 if ($owner['submitted_by'] != $current_user) {
     ?>
 
     <font size="4"> <b>Project description</b><br></font>
+
     <div class="row">
         <div class="col-md-12">
             <div class="well details-form" id="tag" style="margin: 2px;
@@ -53,22 +57,25 @@ if ($owner['submitted_by'] != $current_user) {
             </div>
         </div>
     </div>
-    <!-- <div class="row">
+    <!-- <br></br> -->
+    <!-- <font size="4"> <b>Owner of the project</b><br></font>
+    <div class="row">
         <div class="col-md-12">
-            <div class="alert alert-warning" role="alert">
-                <?= $view ?>
+            <div class="well details-form" id="tag" style="margin: 2px;
+                                                           background-color: white !important;
+                                                           -webkit-appearance: none;
+                                                           ">
+                <?= explode('@', $owner_username)[0] ?>
             </div>
         </div>
-    </div>
-    <font size="4"> <b>Owner of the project</b><br></font>
-    <div class="row">
+    </div> -->
+    <!-- <div class="row">
         <div class="col-md-12">
             <div class="alert alert-warning" role="alert">
                 <?= explode('@', $owner_username)[0] ?>
             </div>
         </div>
     </div> -->
-
     <div class=" table-responsive">
         <table class="table table-striped">
             <thead>
@@ -135,58 +142,48 @@ if ($owner['submitted_by'] != $current_user) {
     // owner's view 
 } else {
     ?>
-
     <div class="row">
         <div class="col-md-12">
-            <?php $form = ActiveForm::begin(); ?>
-            <h4><b>Description</b>
-                <?= Html::button('<i class="fas fa-edit"></i> Edit', [
+            <font size="4" style="display: inline-block;">
+                <b>Project description</b>
+            
+                <!-- <?= Html::button('<i class="fas fa-edit"></i> Edit', [
                     'class' => 'btn btn-default',
                     'id' => 'Edit',
+                    'style' => '',
                     'value' => 'Edit'
-                ]) ?>
-                <?= Html::submitButton('<i class="fas fa-save"></i> Save', [
-                    'class' => 'btn btn-default',
-                    'id' => 'save',
-                    'style' => 'display:none;',
-                    'value' => 'Save'
-                ]) ?>
-                <?= Html::button('<i class="fas fa-window-close"></i> Cancel', [
-                    'class' => 'btn btn-default',
-                    'id' => 'cancel',
-                    'style' => 'display:none;',
-                    'value' => 'Cancel'
-                ]) ?>
-            </h4>
-            <div class="well details-form" id="tag" style="background-color: white !important; -webkit-appearance: none; ">
-                <div><?= $view ?></div>
+                ]) ?> -->
+            </font>
+
+            <div class='btn-toolbar pull-right'>
+                <div class="btn-toolbar">
+                    <div class="btn-group">
+                        <?php $form = ActiveForm::begin(); ?>
+                        <?= Html::submitButton('<i class="fas fa-save"></i> Save', [
+                            'class' => 'btn btn-link',
+                            'id' => 'save',
+                            'style' => 'display:none; padding-right: 0!important; color: #069;',
+                            'value' => 'Save'
+                        ]) ?>
+                        <?= Html::button('<i class="fas fa-window-close"></i> Cancel', [
+                            'class' => 'btn btn-link',
+                            'id' => 'cancel',
+                            'style' => 'display:none; padding-right: 0!important; color: #069;',
+                            'value' => 'Cancel'
+                        ]) ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="well details-form" id="tag"
+                style="background-color: white !important; -webkit-appearance: none; cursor: pointer;">
+                <div><?=$view?></div>
             </div>
             <?= $form->field($jup, 'participant_view')->label('')->textarea(['style' => 'width: 100%; display: none;', 'id' => 'mytextarea']) ?>
 
             <?php ActiveForm::end(); ?>
         </div>
     </div>
-
-    <!-- <div class="row">
-        <div class="col-md-12">
-            <div class="alert alert-warning" role="alert">
-                <?php $form = ActiveForm::begin($form_params); ?>
-                <div class="row box">
-                    <div class="col-md-10">
-                        <?= $form->field($jup, 'participant_view')->label('Use the following editor to provide further description visible to the project’s participant.')->textarea(['style' => 'width: 1070px; height: 80px;']) ?>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-1">
-                        <?= Html::submitButton('<i class="fas fa-check"></i> Submit', ['class' => 'btn btn-primary']) ?>
-                    </div>
-                </div>
-                <?php ActiveForm::end(); ?>
-
-
-            </div>
-        </div>
-    </div> -->
 
     <div class=" table-responsive">
         <table class="table table-striped">
@@ -402,6 +399,7 @@ if ($owner['submitted_by'] != $current_user) {
                         ?>
             </tbody>
         </table>
+
     </div>
     <?php
 }

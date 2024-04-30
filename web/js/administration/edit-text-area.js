@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  $("#Edit").on('click', Edit);
+  $("#tag").on('click', Edit);
   $("#cancel").on('click', Cancel);
 });
 
