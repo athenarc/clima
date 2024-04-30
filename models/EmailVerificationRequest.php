@@ -62,6 +62,7 @@ class EmailVerificationRequest extends \yii\db\ActiveRecord
     }
 
     public static function sendVerificationEmail($emailVerification) {
+
         $hashed_token = password_hash($emailVerification->verification_token, PASSWORD_DEFAULT);
         $token = $emailVerification->verification_token;
         Yii::$app->db->createCommand()->update('email_verification',['verification_token'=>$hashed_token], "verification_token='$emailVerification->verification_token'")->execute();

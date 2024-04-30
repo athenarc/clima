@@ -3,6 +3,7 @@ $(document).ready(function () {
   $("#cancel").on('click', Cancel);
 });
 
+
 function Edit() {
   var btn = $("#Edit");
   ClassicEditor
@@ -21,6 +22,7 @@ function Edit() {
   $('#cancel').show();
   btn.hide();
 }
+
 
 function Cancel() {
   const domEditableElement = document.querySelector('.ck-editor__editable');
