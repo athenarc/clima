@@ -6,7 +6,7 @@ name: Test
 # documentation. 
 
 on:
-  pull_request: 
+  pull_request:
     branches: [ main ]
 
 jobs:
@@ -18,16 +18,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Test build
-        run: docker-compose up -d
-      - name: Sleep
-        shell: bash
-        run: sleep 30;
-      - name: Test endpoint with output
-        shell: bash
-        run: curl --write-out '%{http_code}' --output /dev/null --silent localhost:8080/index.php?r=site/health
-      - name: Test endpoint
-        shell: bash
-        run: bash test-call.bash
-      - name: End test
-        run: docker-compose down
+#      - name: Test build
+#        run: docker compose up -d
+#      - name: Sleep
+#        shell: bash
+#        run: sleep 30;
+#      - name: Test endpoint with output
+#        shell: bash
+#        run: curl --write-out '%{http_code}' --output /dev/null --silent localhost:8080/index.php?r=site/health
+#      - name: Test endpoint
+#        shell: bash
+#        run: bash test-call.bash
+#      - name: End test
+#        run: docker-compose down

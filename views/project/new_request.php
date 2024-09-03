@@ -49,7 +49,7 @@ Headers::begin() ?>
 </div>
 <div class="row justify-content-center">
     <div class="col-md-4 project">
-    <?= ToolButton::createButton("$ondemand_batch_icon  On-demand batch computations", "",["#"/*‘/project/new-ondemand-request’*/], ["class"=>"btn btn-default btn-lg btn-block tool-button disabled"]) ?>    </div>
+    <?= ToolButton::createButton("$ondemand_batch_icon  On-demand batch computations", "",["/project/new-ondemand-request"], ["class"=>"btn btn-default btn-lg btn-block tool-button"]) ?>    </div>
 </div>
 <?php
 if (Userw::hasRole('Gold',$superAdminAllowed=true))

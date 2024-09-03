@@ -39,7 +39,7 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
 <div class="code ">mkpart primary 2048s 100% </div>
 <div class="col-md-12">See the created partition and exit:</div>
 <div class="code ">print </div>
-<div class="code ">exit </div>
+<div class="code ">quit </div>
 
 <div class="row">&nbsp;</div>
 
