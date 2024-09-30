@@ -15,6 +15,7 @@ class EmailVerifiedFilter extends ActionFilter {
 
         // 2. Check whether the user is authenticated. If the current user is a guest, then move on
         if (!$currentUser) return parent::beforeAction($action);
+        
         // 3. Check if the user has already a pending email verification request
         $email_request=EmailVerificationRequest::find()->where(['user_id'=>$currentUser->id, 'status'=>0])->andwhere(['>', 'expiry', date('c')])->orderBy('created_at DESC')->one();
         // if the user has no valid pending email verification request && his email is not set or confirmed

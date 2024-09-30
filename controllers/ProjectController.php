@@ -78,6 +78,16 @@ class ProjectController extends Controller
         ];
     }
 
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+
+        // Continue with the action
+        return true;
+    }
+
     /**
      * {@inheritdoc}
      */
