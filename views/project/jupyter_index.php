@@ -14,6 +14,8 @@ $start_icon = '<i class="fas fa-play"></i>';
 $stop_icon = '<i class="fas fa-stop"></i>';
 
 $this->title = $name['name'];
+
+$this->registerCssFile('@web/css/project/my-textarea.css');
 $this->registerJsFile('@web/js/administration/edit-text-area.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 // echo Html::CssFile('@web/css/project/project-request.css');
 // $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
