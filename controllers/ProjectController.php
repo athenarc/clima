@@ -84,9 +84,6 @@ class ProjectController extends Controller
             return false;
         }
 
-        // Set the flash message
-        Yii::$app->session->setFlash('danger', 'Dear HYPATIA users,</p><p>We would like to inform you that we are aware of a major issue on the infrastructure causing problems during the allocation and connection to resources. We are currently investigating the issue and trying to resolve it as soon as possible.</p><p>HYPATIA support team</p>');
-
         // Continue with the action
         return true;
     }
