@@ -547,7 +547,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         return [$pages,$results];
     }
 
-    public function recordViewed($id)
+    public static function recordViewed($id)
     {
         Yii::$app->db->createCommand()->update('project_request',['viewed'=>'0'], "id='$id'")->execute();
     }
@@ -1267,7 +1267,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
               ->where(['pr.name' => $name]);
      }
 
-     public function GetProjectEndDate($name, $id, $pid) {
+     public static function GetProjectEndDate($name, $id, $pid) {
         $query=new Query;
         $query->select(['pr.end_date'])
               ->from('project_request as pr')

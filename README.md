@@ -22,21 +22,31 @@ The node running the installation of SCHeMa should have the following PHP packag
 
 ## Installing CLIMA
 
-1. Install the Yii2 framework([tutorial](https://www.yiiframework.com/doc/guide/2.0/en/start-installation)) and install the following plugins:
-  * [Webvimark User management](https://github.com/webvimark/user-management) without migrating the database.
-  * [DatePicker](https://demos.krajee.com/widget-details/datepicker)
-  * [Yii2 Bootstrap4](https://github.com/yiisoft/yii2-bootstrap4)
-  * [Yii http requests](https://github.com/yiisoft/yii2-httpclient)
-
-2. Download the CLIMA code from GitHub and replace the files inside the Yii project folder.
+1. Download the CLIMA code from GitHub.
+2. Navigate to the project directory and run the following command to install dependencies: ```composer install```
 
 3. Create a postgres database named "clima" for user "clima".
 
 4. Restore the .sql file inside the "database_schema" folder as user "postgres" to the database created in the previous step:
-  ```sudo -u postgres psql -d clima -f <path_to_database_schema>/db_structure.sql```
+   ```sudo -u postgres psql -d clima -f <path_to_database_schema>/db_structure.sql```
 
 5. Inside the project folder edit the following files:
-  * config/db.php: add the database credentials.
-  * config/params-template.php: rename to config/params.php and fill the information according to the description provided.
+* config/db.php: add the database credentials.
+* config/params-template.php: rename to config/params.php and fill the information according to the description provided.
 
+6. Log in with the username ```superadmin``` and the password ```superadmin```
+
+## Creating a New User via Migration
+
+1. Open the file ```migrations/migration.php``` and copy the code for inserting a user. 
+   Adjust the following credentials as needed:
+
+* username: Set the desired username.
+* password: Set the desired password.
+* email: Set the user’s email address.
+* superadmin: Set to 1 if this user should have superadmin privileges.
+
+2. Create a new migration file using the command: ```php yii migrate/create insert_new_user```
+3. Open the newly created migration file in the migrations folder and paste the copied code.
+4. Run the migration: ```php yii migrate```
 

@@ -305,7 +305,7 @@ class ProjectController extends Controller
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                $username=$participant . '@elixir-europe.org';
+                $username=$participant;
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
             }
@@ -430,7 +430,7 @@ class ProjectController extends Controller
             foreach ($participating as $participant)
             {
                
-                $username=$participant . '@elixir-europe.org';
+                $username=$participant;
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
             }
@@ -573,7 +573,7 @@ class ProjectController extends Controller
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                $username=$participant . '@elixir-europe.org';
+                $username=$participant;
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
             }
@@ -714,7 +714,7 @@ class ProjectController extends Controller
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                $username=$participant . '@elixir-europe.org';
+                $username=$participant;
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
             }
@@ -865,7 +865,7 @@ class ProjectController extends Controller
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                $username=$participant . '@elixir-europe.org';
+                $username=$participant;
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
             }
@@ -2589,7 +2589,7 @@ class ProjectController extends Controller
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                $username=$participant . '@elixir-europe.org';
+                $username=$participant;
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
             }
@@ -2797,7 +2797,7 @@ class ProjectController extends Controller
         $success = '';
         $warnings = '';
         $current_user=Userw::getCurrentUser()['username'];
-        $ruser_id=User::returnIdByUsername($user.'@elixir-europe.org');
+        $ruser_id=User::returnIdByUsername($user);
         $prequest_old=ProjectRequest::find()->where(['id'=>$id])->one();
         $jrequest_old=JupyterRequestNew::find()->where(['request_id'=>$id])->one();
 
@@ -2848,7 +2848,7 @@ class ProjectController extends Controller
             }
             if(!empty($success)) {
 
-                $server=JupyterServer::find()->where(['active'=>true,'project'=>$prequest_old['name'], 'created_by'=>$user.'@elixir-europe.org'])->one();
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$prequest_old['name'], 'created_by'=>$user])->one();
                 if(!empty($server)){
                     $server->Stopserver();
                 }
@@ -3022,7 +3022,7 @@ class ProjectController extends Controller
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-                $username=$participant . '@elixir-europe.org';
+                $username=$participant ;
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
             }
@@ -3720,13 +3720,13 @@ class ProjectController extends Controller
         if (!empty($user_delete)) {
             if ($return=='a')
             {
-                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>$user_delete.'@elixir-europe.org'])->one();
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>$user_delete])->one();
             }
             else
             {
                 // $username=User::getCurrentUser()['username'];
                 $username = Userw::getCurrentUser()['username'];
-                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project,'created_by'=>$user_delete.'@elixir-europe.org'])->one();
+                $server=JupyterServer::find()->where(['active'=>true,'project'=>$project,'created_by'=>$user_delete])->one();
             }
         } else {
             if ($return=='a')

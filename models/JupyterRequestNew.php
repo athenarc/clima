@@ -375,7 +375,7 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
         return $diff;
     }
 
-    public function GetProjectQuotas($pid) {
+    public static function GetProjectQuotas($pid) {
         $query=new Query;
         $query->select(['jup.ram','jup.cores','jup.description','jup.request_id', 'jup.image', 'jup.participant_view'])
               ->from('project as p')

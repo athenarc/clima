@@ -1,0 +1,406 @@
+a:14:{s:6:"config";s:2567:"a:5:{s:10:"phpVersion";s:5:"8.2.4";s:10:"yiiVersion";s:6:"2.0.51";s:11:"application";a:8:{s:3:"yii";s:6:"2.0.51";s:4:"name";s:14:"My Application";s:7:"version";s:3:"1.0";s:8:"language";s:5:"en-US";s:14:"sourceLanguage";s:5:"en-US";s:7:"charset";s:5:"UTF-8";s:3:"env";s:3:"dev";s:5:"debug";b:1;}s:3:"php";a:5:{s:7:"version";s:5:"8.2.4";s:6:"xdebug";b:0;s:3:"apc";b:0;s:8:"memcache";b:0;s:9:"memcached";b:0;}s:10:"extensions";a:10:{s:22:"yiisoft/yii2-bootstrap";a:3:{s:4:"name";s:22:"yiisoft/yii2-bootstrap";s:7:"version";s:8:"2.0.11.0";s:5:"alias";a:1:{s:14:"@yii/bootstrap";s:62:"C:\xampp\htdocs\clima-commit\vendor/yiisoft/yii2-bootstrap/src";}}s:18:"yiisoft/yii2-faker";a:3:{s:4:"name";s:18:"yiisoft/yii2-faker";s:7:"version";s:7:"2.0.5.0";s:5:"alias";a:1:{s:10:"@yii/faker";s:58:"C:\xampp\htdocs\clima-commit\vendor/yiisoft/yii2-faker/src";}}s:26:"yiisoft/yii2-symfonymailer";a:3:{s:4:"name";s:26:"yiisoft/yii2-symfonymailer";s:7:"version";s:7:"2.0.4.0";s:5:"alias";a:1:{s:18:"@yii/symfonymailer";s:66:"C:\xampp\htdocs\clima-commit\vendor/yiisoft/yii2-symfonymailer/src";}}s:18:"yiisoft/yii2-debug";a:3:{s:4:"name";s:18:"yiisoft/yii2-debug";s:7:"version";s:8:"2.1.25.0";s:5:"alias";a:1:{s:10:"@yii/debug";s:58:"C:\xampp\htdocs\clima-commit\vendor/yiisoft/yii2-debug/src";}}s:16:"yiisoft/yii2-gii";a:3:{s:4:"name";s:16:"yiisoft/yii2-gii";s:7:"version";s:7:"2.2.6.0";s:5:"alias";a:1:{s:8:"@yii/gii";s:56:"C:\xampp\htdocs\clima-commit\vendor/yiisoft/yii2-gii/src";}}s:23:"yiisoft/yii2-httpclient";a:3:{s:4:"name";s:23:"yiisoft/yii2-httpclient";s:7:"version";s:8:"2.0.15.0";s:5:"alias";a:1:{s:15:"@yii/httpclient";s:63:"C:\xampp\htdocs\clima-commit\vendor/yiisoft/yii2-httpclient/src";}}s:24:"rmrevin/yii2-fontawesome";a:3:{s:4:"name";s:24:"rmrevin/yii2-fontawesome";s:7:"version";s:7:"3.7.0.0";s:5:"alias";a:1:{s:24:"@rmrevin/yii/fontawesome";s:60:"C:\xampp\htdocs\clima-commit\vendor/rmrevin/yii2-fontawesome";}}s:25:"kartik-v/yii2-krajee-base";a:3:{s:4:"name";s:25:"kartik-v/yii2-krajee-base";s:7:"version";s:7:"3.0.5.0";s:5:"alias";a:1:{s:12:"@kartik/base";s:65:"C:\xampp\htdocs\clima-commit\vendor/kartik-v/yii2-krajee-base/src";}}s:31:"kartik-v/yii2-widget-datepicker";a:3:{s:4:"name";s:31:"kartik-v/yii2-widget-datepicker";s:7:"version";s:10:"dev-master";s:5:"alias";a:1:{s:12:"@kartik/date";s:71:"C:\xampp\htdocs\clima-commit\vendor/kartik-v/yii2-widget-datepicker/src";}}s:16:"yiisoft/yii2-jui";a:3:{s:4:"name";s:16:"yiisoft/yii2-jui";s:7:"version";s:7:"2.0.7.0";s:5:"alias";a:1:{s:8:"@yii/jui";s:52:"C:\xampp\htdocs\clima-commit\vendor/yiisoft/yii2-jui";}}}}";s:3:"log";s:9765:"a:1:{s:8:"messages";a:14:{i:0;a:6:{i:0;s:19:"Loading module: gii";i:1;i:8;i:2;s:26:"yii\base\Module::getModule";i:3;d:1729492701.205062;i:4;a:0:{}i:5;i:6384600;}i:1;a:6:{i:0;s:42:"Bootstrap with yii\gii\Module::bootstrap()";i:1;i:8;i:2;s:31:"yii\base\Application::bootstrap";i:3;d:1729492701.205234;i:4;a:0:{}i:5;i:6409200;}i:3;a:6:{i:0;s:38:"Route requested: 'project/new-request'";i:1;i:8;i:2;s:34:"yii\web\Application::handleRequest";i:3;d:1729492701.20577;i:4;a:0:{}i:5;i:6535512;}i:4;a:6:{i:0;s:33:"Route to run: project/new-request";i:1;i:8;i:2;s:30:"yii\base\Controller::runAction";i:3;d:1729492701.208557;i:4;a:0:{}i:5;i:7165280;}i:5;a:6:{i:0;s:35:"SELECT * FROM "user" WHERE "id"=217";i:1;i:4;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.210428;i:4;a:3:{i:0;a:5:{s:4:"file";s:84:"C:\xampp\htdocs\clima-commit\vendor\webvimark\module-user-management\models\User.php";s:4:"line";i:71;s:8:"function";s:7:"findOne";s:5:"class";s:23:"yii\db\BaseActiveRecord";s:4:"type";s:2:"::";}i:1;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:14;s:8:"function";s:14:"getCurrentUser";s:5:"class";s:44:"webvimark\modules\UserManagement\models\User";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7517352;}i:8;a:6:{i:0;s:147:"SELECT * FROM "email_verification" WHERE (("user_id"=217) AND ("status"=0)) AND ("expiry" > '2024-10-21T08:38:21+02:00') ORDER BY "created_at" DESC";i:1;i:4;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.211518;i:4;a:2:{i:0;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:19;s:8:"function";s:3:"one";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7588632;}i:11;a:6:{i:0;s:69:"Running action: app\controllers\ProjectController::actionNewRequest()";i:1;i:8;i:2;s:36:"yii\base\InlineAction::runWithParams";i:3;d:1729492701.212207;i:4;a:0:{}i:5;i:7608992;}i:12;a:6:{i:0;s:79:"Rendering view file: C:\xampp\htdocs\clima-commit\views\project\new_request.php";i:1;i:8;i:2;s:25:"yii\base\View::renderFile";i:3;d:1729492701.212881;i:4;a:1:{i:0;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:7741888;}i:13;a:6:{i:0;s:78:"Rendering view file: C:\xampp\htdocs\clima-commit\components\views\headers.php";i:1;i:8;i:2;s:25:"yii\base\View::renderFile";i:3;d:1729492701.214589;i:4;a:3:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\components\Headers.php";s:4:"line";i:48;s:8:"function";s:6:"render";s:5:"class";s:15:"yii\base\Widget";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:58:"C:\xampp\htdocs\clima-commit\views\project\new_request.php";s:4:"line";i:34;s:8:"function";s:6:"widget";s:5:"class";s:15:"yii\base\Widget";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8552944;}i:14;a:6:{i:0;s:72:"Rendering view file: C:\xampp\htdocs\clima-commit\views\layouts\main.php";i:1;i:8;i:2;s:25:"yii\base\View::renderFile";i:3;d:1729492701.216205;i:4;a:1:{i:0;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8810536;}i:15;a:6:{i:0;s:25:"SELECT * FROM "analytics"";i:1;i:4;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.217291;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8948072;}i:18;a:6:{i:0;s:2815:"SELECT
+    d.nspname AS table_schema,
+    c.relname AS table_name,
+    a.attname AS column_name,
+    COALESCE(td.typname, tb.typname, t.typname) AS data_type,
+    COALESCE(td.typtype, tb.typtype, t.typtype) AS type_type,
+    (SELECT nspname FROM pg_namespace WHERE oid = COALESCE(td.typnamespace, tb.typnamespace, t.typnamespace)) AS type_scheme,
+    a.attlen AS character_maximum_length,
+    pg_catalog.col_description(c.oid, a.attnum) AS column_comment,
+    a.atttypmod AS modifier,
+    a.attnotnull = false AS is_nullable,
+    CAST(pg_get_expr(ad.adbin, ad.adrelid) AS varchar) AS column_default,
+    coalesce(pg_get_expr(ad.adbin, ad.adrelid) ~ 'nextval',false) OR attidentity != '' AS is_autoinc,
+    pg_get_serial_sequence(quote_ident(d.nspname) || '.' || quote_ident(c.relname), a.attname) AS sequence_name,
+    CASE WHEN COALESCE(td.typtype, tb.typtype, t.typtype) = 'e'::char
+        THEN array_to_string((SELECT array_agg(enumlabel) FROM pg_enum WHERE enumtypid = COALESCE(td.oid, tb.oid, a.atttypid))::varchar[], ',')
+        ELSE NULL
+    END AS enum_values,
+    CASE atttypid
+         WHEN 21 /*int2*/ THEN 16
+         WHEN 23 /*int4*/ THEN 32
+         WHEN 20 /*int8*/ THEN 64
+         WHEN 1700 /*numeric*/ THEN
+              CASE WHEN atttypmod = -1
+               THEN null
+               ELSE ((atttypmod - 4) >> 16) & 65535
+               END
+         WHEN 700 /*float4*/ THEN 24 /*FLT_MANT_DIG*/
+         WHEN 701 /*float8*/ THEN 53 /*DBL_MANT_DIG*/
+         ELSE null
+      END   AS numeric_precision,
+      CASE
+        WHEN atttypid IN (21, 23, 20) THEN 0
+        WHEN atttypid IN (1700) THEN
+        CASE
+            WHEN atttypmod = -1 THEN null
+            ELSE (atttypmod - 4) & 65535
+        END
+           ELSE null
+      END AS numeric_scale,
+    CAST(
+             information_schema._pg_char_max_length(information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t))
+             AS numeric
+    ) AS size,
+    a.attnum = any (ct.conkey) as is_pkey,
+    COALESCE(NULLIF(a.attndims, 0), NULLIF(t.typndims, 0), (t.typcategory='A')::int) AS dimension
+FROM
+    pg_class c
+    LEFT JOIN pg_attribute a ON a.attrelid = c.oid
+    LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+    LEFT JOIN pg_type t ON a.atttypid = t.oid
+    LEFT JOIN pg_type tb ON (a.attndims > 0 OR t.typcategory='A') AND t.typelem > 0 AND t.typelem = tb.oid OR t.typbasetype > 0 AND t.typbasetype = tb.oid
+    LEFT JOIN pg_type td ON t.typndims > 0 AND t.typbasetype > 0 AND tb.typelem = td.oid
+    LEFT JOIN pg_namespace d ON d.oid = c.relnamespace
+    LEFT JOIN pg_constraint ct ON ct.conrelid = c.oid AND ct.contype = 'p'
+WHERE
+    a.attnum > 0 AND t.typname != '' AND NOT a.attisdropped
+    AND c.relname = 'analytics'
+    AND d.nspname = 'public'
+ORDER BY
+    a.attnum;";i:1;i:4;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.217728;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8960680;}i:21;a:6:{i:0;s:877:"select
+    ct.conname as constraint_name,
+    a.attname as column_name,
+    fc.relname as foreign_table_name,
+    fns.nspname as foreign_table_schema,
+    fa.attname as foreign_column_name
+from
+    (SELECT ct.conname, ct.conrelid, ct.confrelid, ct.conkey, ct.contype, ct.confkey, generate_subscripts(ct.conkey, 1) AS s
+       FROM pg_constraint ct
+    ) AS ct
+    inner join pg_class c on c.oid=ct.conrelid
+    inner join pg_namespace ns on c.relnamespace=ns.oid
+    inner join pg_attribute a on a.attrelid=ct.conrelid and a.attnum = ct.conkey[ct.s]
+    left join pg_class fc on fc.oid=ct.confrelid
+    left join pg_namespace fns on fc.relnamespace=fns.oid
+    left join pg_attribute fa on fa.attrelid=ct.confrelid and fa.attnum = ct.confkey[ct.s]
+where
+    ct.contype='f'
+    and c.relname='analytics'
+    and ns.nspname='public'
+order by
+    fns.nspname, fc.relname, a.attnum";i:1;i:4;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.219931;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8967696;}i:24;a:6:{i:0;s:74:"SELECT * FROM "notification" WHERE ("seen"=FALSE) AND ("recipient_id"=217)";i:1;i:4;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.223214;i:4;a:3:{i:0;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\components\NotificationWidget.php";s:4:"line";i:52;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:158;s:8:"function";s:14:"createMenuItem";s:5:"class";s:33:"app\components\NotificationWidget";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:9327480;}}}";s:9:"profiling";s:14900:"a:3:{s:6:"memory";i:9549192;s:4:"time";d:0.06274104118347168;s:8:"messages";a:12:{i:6;a:6:{i:0;s:35:"SELECT * FROM "user" WHERE "id"=217";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.210443;i:4;a:3:{i:0;a:5:{s:4:"file";s:84:"C:\xampp\htdocs\clima-commit\vendor\webvimark\module-user-management\models\User.php";s:4:"line";i:71;s:8:"function";s:7:"findOne";s:5:"class";s:23:"yii\db\BaseActiveRecord";s:4:"type";s:2:"::";}i:1;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:14;s:8:"function";s:14:"getCurrentUser";s:5:"class";s:44:"webvimark\modules\UserManagement\models\User";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7520312;}i:7;a:6:{i:0;s:35:"SELECT * FROM "user" WHERE "id"=217";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.210691;i:4;a:3:{i:0;a:5:{s:4:"file";s:84:"C:\xampp\htdocs\clima-commit\vendor\webvimark\module-user-management\models\User.php";s:4:"line";i:71;s:8:"function";s:7:"findOne";s:5:"class";s:23:"yii\db\BaseActiveRecord";s:4:"type";s:2:"::";}i:1;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:14;s:8:"function";s:14:"getCurrentUser";s:5:"class";s:44:"webvimark\modules\UserManagement\models\User";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7523904;}i:9;a:6:{i:0;s:147:"SELECT * FROM "email_verification" WHERE (("user_id"=217) AND ("status"=0)) AND ("expiry" > '2024-10-21T08:38:21+02:00') ORDER BY "created_at" DESC";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.211534;i:4;a:2:{i:0;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:19;s:8:"function";s:3:"one";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7591392;}i:10;a:6:{i:0;s:147:"SELECT * FROM "email_verification" WHERE (("user_id"=217) AND ("status"=0)) AND ("expiry" > '2024-10-21T08:38:21+02:00') ORDER BY "created_at" DESC";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.211966;i:4;a:2:{i:0;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:19;s:8:"function";s:3:"one";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7593200;}i:16;a:6:{i:0;s:25:"SELECT * FROM "analytics"";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.217305;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8949616;}i:17;a:6:{i:0;s:25:"SELECT * FROM "analytics"";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.21764;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8953016;}i:19;a:6:{i:0;s:2815:"SELECT
+    d.nspname AS table_schema,
+    c.relname AS table_name,
+    a.attname AS column_name,
+    COALESCE(td.typname, tb.typname, t.typname) AS data_type,
+    COALESCE(td.typtype, tb.typtype, t.typtype) AS type_type,
+    (SELECT nspname FROM pg_namespace WHERE oid = COALESCE(td.typnamespace, tb.typnamespace, t.typnamespace)) AS type_scheme,
+    a.attlen AS character_maximum_length,
+    pg_catalog.col_description(c.oid, a.attnum) AS column_comment,
+    a.atttypmod AS modifier,
+    a.attnotnull = false AS is_nullable,
+    CAST(pg_get_expr(ad.adbin, ad.adrelid) AS varchar) AS column_default,
+    coalesce(pg_get_expr(ad.adbin, ad.adrelid) ~ 'nextval',false) OR attidentity != '' AS is_autoinc,
+    pg_get_serial_sequence(quote_ident(d.nspname) || '.' || quote_ident(c.relname), a.attname) AS sequence_name,
+    CASE WHEN COALESCE(td.typtype, tb.typtype, t.typtype) = 'e'::char
+        THEN array_to_string((SELECT array_agg(enumlabel) FROM pg_enum WHERE enumtypid = COALESCE(td.oid, tb.oid, a.atttypid))::varchar[], ',')
+        ELSE NULL
+    END AS enum_values,
+    CASE atttypid
+         WHEN 21 /*int2*/ THEN 16
+         WHEN 23 /*int4*/ THEN 32
+         WHEN 20 /*int8*/ THEN 64
+         WHEN 1700 /*numeric*/ THEN
+              CASE WHEN atttypmod = -1
+               THEN null
+               ELSE ((atttypmod - 4) >> 16) & 65535
+               END
+         WHEN 700 /*float4*/ THEN 24 /*FLT_MANT_DIG*/
+         WHEN 701 /*float8*/ THEN 53 /*DBL_MANT_DIG*/
+         ELSE null
+      END   AS numeric_precision,
+      CASE
+        WHEN atttypid IN (21, 23, 20) THEN 0
+        WHEN atttypid IN (1700) THEN
+        CASE
+            WHEN atttypmod = -1 THEN null
+            ELSE (atttypmod - 4) & 65535
+        END
+           ELSE null
+      END AS numeric_scale,
+    CAST(
+             information_schema._pg_char_max_length(information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t))
+             AS numeric
+    ) AS size,
+    a.attnum = any (ct.conkey) as is_pkey,
+    COALESCE(NULLIF(a.attndims, 0), NULLIF(t.typndims, 0), (t.typcategory='A')::int) AS dimension
+FROM
+    pg_class c
+    LEFT JOIN pg_attribute a ON a.attrelid = c.oid
+    LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+    LEFT JOIN pg_type t ON a.atttypid = t.oid
+    LEFT JOIN pg_type tb ON (a.attndims > 0 OR t.typcategory='A') AND t.typelem > 0 AND t.typelem = tb.oid OR t.typbasetype > 0 AND t.typbasetype = tb.oid
+    LEFT JOIN pg_type td ON t.typndims > 0 AND t.typbasetype > 0 AND tb.typelem = td.oid
+    LEFT JOIN pg_namespace d ON d.oid = c.relnamespace
+    LEFT JOIN pg_constraint ct ON ct.conrelid = c.oid AND ct.contype = 'p'
+WHERE
+    a.attnum > 0 AND t.typname != '' AND NOT a.attisdropped
+    AND c.relname = 'analytics'
+    AND d.nspname = 'public'
+ORDER BY
+    a.attnum;";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.217747;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8962224;}i:20;a:6:{i:0;s:2815:"SELECT
+    d.nspname AS table_schema,
+    c.relname AS table_name,
+    a.attname AS column_name,
+    COALESCE(td.typname, tb.typname, t.typname) AS data_type,
+    COALESCE(td.typtype, tb.typtype, t.typtype) AS type_type,
+    (SELECT nspname FROM pg_namespace WHERE oid = COALESCE(td.typnamespace, tb.typnamespace, t.typnamespace)) AS type_scheme,
+    a.attlen AS character_maximum_length,
+    pg_catalog.col_description(c.oid, a.attnum) AS column_comment,
+    a.atttypmod AS modifier,
+    a.attnotnull = false AS is_nullable,
+    CAST(pg_get_expr(ad.adbin, ad.adrelid) AS varchar) AS column_default,
+    coalesce(pg_get_expr(ad.adbin, ad.adrelid) ~ 'nextval',false) OR attidentity != '' AS is_autoinc,
+    pg_get_serial_sequence(quote_ident(d.nspname) || '.' || quote_ident(c.relname), a.attname) AS sequence_name,
+    CASE WHEN COALESCE(td.typtype, tb.typtype, t.typtype) = 'e'::char
+        THEN array_to_string((SELECT array_agg(enumlabel) FROM pg_enum WHERE enumtypid = COALESCE(td.oid, tb.oid, a.atttypid))::varchar[], ',')
+        ELSE NULL
+    END AS enum_values,
+    CASE atttypid
+         WHEN 21 /*int2*/ THEN 16
+         WHEN 23 /*int4*/ THEN 32
+         WHEN 20 /*int8*/ THEN 64
+         WHEN 1700 /*numeric*/ THEN
+              CASE WHEN atttypmod = -1
+               THEN null
+               ELSE ((atttypmod - 4) >> 16) & 65535
+               END
+         WHEN 700 /*float4*/ THEN 24 /*FLT_MANT_DIG*/
+         WHEN 701 /*float8*/ THEN 53 /*DBL_MANT_DIG*/
+         ELSE null
+      END   AS numeric_precision,
+      CASE
+        WHEN atttypid IN (21, 23, 20) THEN 0
+        WHEN atttypid IN (1700) THEN
+        CASE
+            WHEN atttypmod = -1 THEN null
+            ELSE (atttypmod - 4) & 65535
+        END
+           ELSE null
+      END AS numeric_scale,
+    CAST(
+             information_schema._pg_char_max_length(information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t))
+             AS numeric
+    ) AS size,
+    a.attnum = any (ct.conkey) as is_pkey,
+    COALESCE(NULLIF(a.attndims, 0), NULLIF(t.typndims, 0), (t.typcategory='A')::int) AS dimension
+FROM
+    pg_class c
+    LEFT JOIN pg_attribute a ON a.attrelid = c.oid
+    LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+    LEFT JOIN pg_type t ON a.atttypid = t.oid
+    LEFT JOIN pg_type tb ON (a.attndims > 0 OR t.typcategory='A') AND t.typelem > 0 AND t.typelem = tb.oid OR t.typbasetype > 0 AND t.typbasetype = tb.oid
+    LEFT JOIN pg_type td ON t.typndims > 0 AND t.typbasetype > 0 AND tb.typelem = td.oid
+    LEFT JOIN pg_namespace d ON d.oid = c.relnamespace
+    LEFT JOIN pg_constraint ct ON ct.conrelid = c.oid AND ct.contype = 'p'
+WHERE
+    a.attnum > 0 AND t.typname != '' AND NOT a.attisdropped
+    AND c.relname = 'analytics'
+    AND d.nspname = 'public'
+ORDER BY
+    a.attnum;";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.219806;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8971184;}i:22;a:6:{i:0;s:877:"select
+    ct.conname as constraint_name,
+    a.attname as column_name,
+    fc.relname as foreign_table_name,
+    fns.nspname as foreign_table_schema,
+    fa.attname as foreign_column_name
+from
+    (SELECT ct.conname, ct.conrelid, ct.confrelid, ct.conkey, ct.contype, ct.confkey, generate_subscripts(ct.conkey, 1) AS s
+       FROM pg_constraint ct
+    ) AS ct
+    inner join pg_class c on c.oid=ct.conrelid
+    inner join pg_namespace ns on c.relnamespace=ns.oid
+    inner join pg_attribute a on a.attrelid=ct.conrelid and a.attnum = ct.conkey[ct.s]
+    left join pg_class fc on fc.oid=ct.confrelid
+    left join pg_namespace fns on fc.relnamespace=fns.oid
+    left join pg_attribute fa on fa.attrelid=ct.confrelid and fa.attnum = ct.confkey[ct.s]
+where
+    ct.contype='f'
+    and c.relname='analytics'
+    and ns.nspname='public'
+order by
+    fns.nspname, fc.relname, a.attnum";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.219947;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8969240;}i:23;a:6:{i:0;s:877:"select
+    ct.conname as constraint_name,
+    a.attname as column_name,
+    fc.relname as foreign_table_name,
+    fns.nspname as foreign_table_schema,
+    fa.attname as foreign_column_name
+from
+    (SELECT ct.conname, ct.conrelid, ct.confrelid, ct.conkey, ct.contype, ct.confkey, generate_subscripts(ct.conkey, 1) AS s
+       FROM pg_constraint ct
+    ) AS ct
+    inner join pg_class c on c.oid=ct.conrelid
+    inner join pg_namespace ns on c.relnamespace=ns.oid
+    inner join pg_attribute a on a.attrelid=ct.conrelid and a.attnum = ct.conkey[ct.s]
+    left join pg_class fc on fc.oid=ct.confrelid
+    left join pg_namespace fns on fc.relnamespace=fns.oid
+    left join pg_attribute fa on fa.attrelid=ct.confrelid and fa.attnum = ct.confkey[ct.s]
+where
+    ct.contype='f'
+    and c.relname='analytics'
+    and ns.nspname='public'
+order by
+    fns.nspname, fc.relname, a.attnum";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.221217;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8970856;}i:25;a:6:{i:0;s:74:"SELECT * FROM "notification" WHERE ("seen"=FALSE) AND ("recipient_id"=217)";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.223229;i:4;a:3:{i:0;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\components\NotificationWidget.php";s:4:"line";i:52;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:158;s:8:"function";s:14:"createMenuItem";s:5:"class";s:33:"app\components\NotificationWidget";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:9330448;}i:26;a:6:{i:0;s:74:"SELECT * FROM "notification" WHERE ("seen"=FALSE) AND ("recipient_id"=217)";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.223624;i:4;a:3:{i:0;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\components\NotificationWidget.php";s:4:"line";i:52;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:158;s:8:"function";s:14:"createMenuItem";s:5:"class";s:33:"app\components\NotificationWidget";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:9332672;}}}";s:2:"db";s:14844:"a:1:{s:8:"messages";a:12:{i:6;a:6:{i:0;s:35:"SELECT * FROM "user" WHERE "id"=217";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.210443;i:4;a:3:{i:0;a:5:{s:4:"file";s:84:"C:\xampp\htdocs\clima-commit\vendor\webvimark\module-user-management\models\User.php";s:4:"line";i:71;s:8:"function";s:7:"findOne";s:5:"class";s:23:"yii\db\BaseActiveRecord";s:4:"type";s:2:"::";}i:1;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:14;s:8:"function";s:14:"getCurrentUser";s:5:"class";s:44:"webvimark\modules\UserManagement\models\User";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7520312;}i:7;a:6:{i:0;s:35:"SELECT * FROM "user" WHERE "id"=217";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.210691;i:4;a:3:{i:0;a:5:{s:4:"file";s:84:"C:\xampp\htdocs\clima-commit\vendor\webvimark\module-user-management\models\User.php";s:4:"line";i:71;s:8:"function";s:7:"findOne";s:5:"class";s:23:"yii\db\BaseActiveRecord";s:4:"type";s:2:"::";}i:1;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:14;s:8:"function";s:14:"getCurrentUser";s:5:"class";s:44:"webvimark\modules\UserManagement\models\User";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7523904;}i:9;a:6:{i:0;s:147:"SELECT * FROM "email_verification" WHERE (("user_id"=217) AND ("status"=0)) AND ("expiry" > '2024-10-21T08:38:21+02:00') ORDER BY "created_at" DESC";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.211534;i:4;a:2:{i:0;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:19;s:8:"function";s:3:"one";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7591392;}i:10;a:6:{i:0;s:147:"SELECT * FROM "email_verification" WHERE (("user_id"=217) AND ("status"=0)) AND ("expiry" > '2024-10-21T08:38:21+02:00') ORDER BY "created_at" DESC";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.211966;i:4;a:2:{i:0;a:5:{s:4:"file";s:63:"C:\xampp\htdocs\clima-commit\components\EmailVerifiedFilter.php";s:4:"line";i:19;s:8:"function";s:3:"one";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:83;s:8:"function";s:12:"beforeAction";s:5:"class";s:18:"yii\web\Controller";s:4:"type";s:2:"->";}}i:5;i:7593200;}i:16;a:6:{i:0;s:25:"SELECT * FROM "analytics"";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.217305;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8949616;}i:17;a:6:{i:0;s:25:"SELECT * FROM "analytics"";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.21764;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8953016;}i:19;a:6:{i:0;s:2815:"SELECT
+    d.nspname AS table_schema,
+    c.relname AS table_name,
+    a.attname AS column_name,
+    COALESCE(td.typname, tb.typname, t.typname) AS data_type,
+    COALESCE(td.typtype, tb.typtype, t.typtype) AS type_type,
+    (SELECT nspname FROM pg_namespace WHERE oid = COALESCE(td.typnamespace, tb.typnamespace, t.typnamespace)) AS type_scheme,
+    a.attlen AS character_maximum_length,
+    pg_catalog.col_description(c.oid, a.attnum) AS column_comment,
+    a.atttypmod AS modifier,
+    a.attnotnull = false AS is_nullable,
+    CAST(pg_get_expr(ad.adbin, ad.adrelid) AS varchar) AS column_default,
+    coalesce(pg_get_expr(ad.adbin, ad.adrelid) ~ 'nextval',false) OR attidentity != '' AS is_autoinc,
+    pg_get_serial_sequence(quote_ident(d.nspname) || '.' || quote_ident(c.relname), a.attname) AS sequence_name,
+    CASE WHEN COALESCE(td.typtype, tb.typtype, t.typtype) = 'e'::char
+        THEN array_to_string((SELECT array_agg(enumlabel) FROM pg_enum WHERE enumtypid = COALESCE(td.oid, tb.oid, a.atttypid))::varchar[], ',')
+        ELSE NULL
+    END AS enum_values,
+    CASE atttypid
+         WHEN 21 /*int2*/ THEN 16
+         WHEN 23 /*int4*/ THEN 32
+         WHEN 20 /*int8*/ THEN 64
+         WHEN 1700 /*numeric*/ THEN
+              CASE WHEN atttypmod = -1
+               THEN null
+               ELSE ((atttypmod - 4) >> 16) & 65535
+               END
+         WHEN 700 /*float4*/ THEN 24 /*FLT_MANT_DIG*/
+         WHEN 701 /*float8*/ THEN 53 /*DBL_MANT_DIG*/
+         ELSE null
+      END   AS numeric_precision,
+      CASE
+        WHEN atttypid IN (21, 23, 20) THEN 0
+        WHEN atttypid IN (1700) THEN
+        CASE
+            WHEN atttypmod = -1 THEN null
+            ELSE (atttypmod - 4) & 65535
+        END
+           ELSE null
+      END AS numeric_scale,
+    CAST(
+             information_schema._pg_char_max_length(information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t))
+             AS numeric
+    ) AS size,
+    a.attnum = any (ct.conkey) as is_pkey,
+    COALESCE(NULLIF(a.attndims, 0), NULLIF(t.typndims, 0), (t.typcategory='A')::int) AS dimension
+FROM
+    pg_class c
+    LEFT JOIN pg_attribute a ON a.attrelid = c.oid
+    LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+    LEFT JOIN pg_type t ON a.atttypid = t.oid
+    LEFT JOIN pg_type tb ON (a.attndims > 0 OR t.typcategory='A') AND t.typelem > 0 AND t.typelem = tb.oid OR t.typbasetype > 0 AND t.typbasetype = tb.oid
+    LEFT JOIN pg_type td ON t.typndims > 0 AND t.typbasetype > 0 AND tb.typelem = td.oid
+    LEFT JOIN pg_namespace d ON d.oid = c.relnamespace
+    LEFT JOIN pg_constraint ct ON ct.conrelid = c.oid AND ct.contype = 'p'
+WHERE
+    a.attnum > 0 AND t.typname != '' AND NOT a.attisdropped
+    AND c.relname = 'analytics'
+    AND d.nspname = 'public'
+ORDER BY
+    a.attnum;";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.217747;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8962224;}i:20;a:6:{i:0;s:2815:"SELECT
+    d.nspname AS table_schema,
+    c.relname AS table_name,
+    a.attname AS column_name,
+    COALESCE(td.typname, tb.typname, t.typname) AS data_type,
+    COALESCE(td.typtype, tb.typtype, t.typtype) AS type_type,
+    (SELECT nspname FROM pg_namespace WHERE oid = COALESCE(td.typnamespace, tb.typnamespace, t.typnamespace)) AS type_scheme,
+    a.attlen AS character_maximum_length,
+    pg_catalog.col_description(c.oid, a.attnum) AS column_comment,
+    a.atttypmod AS modifier,
+    a.attnotnull = false AS is_nullable,
+    CAST(pg_get_expr(ad.adbin, ad.adrelid) AS varchar) AS column_default,
+    coalesce(pg_get_expr(ad.adbin, ad.adrelid) ~ 'nextval',false) OR attidentity != '' AS is_autoinc,
+    pg_get_serial_sequence(quote_ident(d.nspname) || '.' || quote_ident(c.relname), a.attname) AS sequence_name,
+    CASE WHEN COALESCE(td.typtype, tb.typtype, t.typtype) = 'e'::char
+        THEN array_to_string((SELECT array_agg(enumlabel) FROM pg_enum WHERE enumtypid = COALESCE(td.oid, tb.oid, a.atttypid))::varchar[], ',')
+        ELSE NULL
+    END AS enum_values,
+    CASE atttypid
+         WHEN 21 /*int2*/ THEN 16
+         WHEN 23 /*int4*/ THEN 32
+         WHEN 20 /*int8*/ THEN 64
+         WHEN 1700 /*numeric*/ THEN
+              CASE WHEN atttypmod = -1
+               THEN null
+               ELSE ((atttypmod - 4) >> 16) & 65535
+               END
+         WHEN 700 /*float4*/ THEN 24 /*FLT_MANT_DIG*/
+         WHEN 701 /*float8*/ THEN 53 /*DBL_MANT_DIG*/
+         ELSE null
+      END   AS numeric_precision,
+      CASE
+        WHEN atttypid IN (21, 23, 20) THEN 0
+        WHEN atttypid IN (1700) THEN
+        CASE
+            WHEN atttypmod = -1 THEN null
+            ELSE (atttypmod - 4) & 65535
+        END
+           ELSE null
+      END AS numeric_scale,
+    CAST(
+             information_schema._pg_char_max_length(information_schema._pg_truetypid(a, t), information_schema._pg_truetypmod(a, t))
+             AS numeric
+    ) AS size,
+    a.attnum = any (ct.conkey) as is_pkey,
+    COALESCE(NULLIF(a.attndims, 0), NULLIF(t.typndims, 0), (t.typcategory='A')::int) AS dimension
+FROM
+    pg_class c
+    LEFT JOIN pg_attribute a ON a.attrelid = c.oid
+    LEFT JOIN pg_attrdef ad ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+    LEFT JOIN pg_type t ON a.atttypid = t.oid
+    LEFT JOIN pg_type tb ON (a.attndims > 0 OR t.typcategory='A') AND t.typelem > 0 AND t.typelem = tb.oid OR t.typbasetype > 0 AND t.typbasetype = tb.oid
+    LEFT JOIN pg_type td ON t.typndims > 0 AND t.typbasetype > 0 AND tb.typelem = td.oid
+    LEFT JOIN pg_namespace d ON d.oid = c.relnamespace
+    LEFT JOIN pg_constraint ct ON ct.conrelid = c.oid AND ct.contype = 'p'
+WHERE
+    a.attnum > 0 AND t.typname != '' AND NOT a.attisdropped
+    AND c.relname = 'analytics'
+    AND d.nspname = 'public'
+ORDER BY
+    a.attnum;";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.219806;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8971184;}i:22;a:6:{i:0;s:877:"select
+    ct.conname as constraint_name,
+    a.attname as column_name,
+    fc.relname as foreign_table_name,
+    fns.nspname as foreign_table_schema,
+    fa.attname as foreign_column_name
+from
+    (SELECT ct.conname, ct.conrelid, ct.confrelid, ct.conkey, ct.contype, ct.confkey, generate_subscripts(ct.conkey, 1) AS s
+       FROM pg_constraint ct
+    ) AS ct
+    inner join pg_class c on c.oid=ct.conrelid
+    inner join pg_namespace ns on c.relnamespace=ns.oid
+    inner join pg_attribute a on a.attrelid=ct.conrelid and a.attnum = ct.conkey[ct.s]
+    left join pg_class fc on fc.oid=ct.confrelid
+    left join pg_namespace fns on fc.relnamespace=fns.oid
+    left join pg_attribute fa on fa.attrelid=ct.confrelid and fa.attnum = ct.confkey[ct.s]
+where
+    ct.contype='f'
+    and c.relname='analytics'
+    and ns.nspname='public'
+order by
+    fns.nspname, fc.relname, a.attnum";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.219947;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8969240;}i:23;a:6:{i:0;s:877:"select
+    ct.conname as constraint_name,
+    a.attname as column_name,
+    fc.relname as foreign_table_name,
+    fns.nspname as foreign_table_schema,
+    fa.attname as foreign_column_name
+from
+    (SELECT ct.conname, ct.conrelid, ct.confrelid, ct.conkey, ct.contype, ct.confkey, generate_subscripts(ct.conkey, 1) AS s
+       FROM pg_constraint ct
+    ) AS ct
+    inner join pg_class c on c.oid=ct.conrelid
+    inner join pg_namespace ns on c.relnamespace=ns.oid
+    inner join pg_attribute a on a.attrelid=ct.conrelid and a.attnum = ct.conkey[ct.s]
+    left join pg_class fc on fc.oid=ct.confrelid
+    left join pg_namespace fns on fc.relnamespace=fns.oid
+    left join pg_attribute fa on fa.attrelid=ct.confrelid and fa.attnum = ct.confkey[ct.s]
+where
+    ct.contype='f'
+    and c.relname='analytics'
+    and ns.nspname='public'
+order by
+    fns.nspname, fc.relname, a.attnum";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.221217;i:4;a:2:{i:0;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:28;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:8970856;}i:25;a:6:{i:0;s:74:"SELECT * FROM "notification" WHERE ("seen"=FALSE) AND ("recipient_id"=217)";i:1;i:80;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.223229;i:4;a:3:{i:0;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\components\NotificationWidget.php";s:4:"line";i:52;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:158;s:8:"function";s:14:"createMenuItem";s:5:"class";s:33:"app\components\NotificationWidget";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:9330448;}i:26;a:6:{i:0;s:74:"SELECT * FROM "notification" WHERE ("seen"=FALSE) AND ("recipient_id"=217)";i:1;i:96;i:2;s:21:"yii\db\Command::query";i:3;d:1729492701.223624;i:4;a:3:{i:0;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\components\NotificationWidget.php";s:4:"line";i:52;s:8:"function";s:3:"all";s:5:"class";s:18:"yii\db\ActiveQuery";s:4:"type";s:2:"->";}i:1;a:5:{s:4:"file";s:51:"C:\xampp\htdocs\clima-commit\views\layouts\main.php";s:4:"line";i:158;s:8:"function";s:14:"createMenuItem";s:5:"class";s:33:"app\components\NotificationWidget";s:4:"type";s:2:"::";}i:2;a:5:{s:4:"file";s:62:"C:\xampp\htdocs\clima-commit\controllers\ProjectController.php";s:4:"line";i:233;s:8:"function";s:6:"render";s:5:"class";s:19:"yii\base\Controller";s:4:"type";s:2:"->";}}i:5;i:9332672;}}}";s:5:"event";s:9460:"a:54:{i:0;a:5:{s:4:"time";d:1729492701.175517;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:18:"yii\db\ActiveQuery";}i:1;a:5:{s:4:"time";d:1729492701.192492;s:4:"name";s:9:"afterOpen";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:17:"yii\db\Connection";}i:2;a:5:{s:4:"time";d:1729492701.201795;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:44:"webvimark\modules\UserManagement\models\User";}i:3;a:5:{s:4:"time";d:1729492701.201818;s:4:"name";s:9:"afterFind";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:44:"webvimark\modules\UserManagement\models\User";}i:4;a:5:{s:4:"time";d:1729492701.203445;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:44:"webvimark\modules\UserManagement\models\User";}i:5;a:5:{s:4:"time";d:1729492701.205754;s:4:"name";s:13:"beforeRequest";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:19:"yii\web\Application";}i:6;a:5:{s:4:"time";d:1729492701.208629;s:4:"name";s:12:"beforeAction";s:5:"class";s:20:"yii\base\ActionEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:19:"yii\web\Application";}i:7;a:5:{s:4:"time";d:1729492701.210397;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:18:"yii\db\ActiveQuery";}i:8;a:5:{s:4:"time";d:1729492701.210786;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:44:"webvimark\modules\UserManagement\models\User";}i:9;a:5:{s:4:"time";d:1729492701.210816;s:4:"name";s:9:"afterFind";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:44:"webvimark\modules\UserManagement\models\User";}i:10;a:5:{s:4:"time";d:1729492701.211112;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:18:"yii\db\ActiveQuery";}i:11;a:5:{s:4:"time";d:1729492701.212028;s:4:"name";s:12:"beforeAction";s:5:"class";s:20:"yii\base\ActionEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:33:"app\controllers\ProjectController";}i:12;a:5:{s:4:"time";d:1729492701.212879;s:4:"name";s:12:"beforeRender";s:5:"class";s:18:"yii\base\ViewEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:13;a:5:{s:4:"time";d:1729492701.214482;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:22:"app\components\Headers";}i:14;a:5:{s:4:"time";d:1729492701.214491;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:22:"app\components\Headers";}i:15;a:5:{s:4:"time";d:1729492701.214552;s:4:"name";s:9:"beforeRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:22:"app\components\Headers";}i:16;a:5:{s:4:"time";d:1729492701.214587;s:4:"name";s:12:"beforeRender";s:5:"class";s:18:"yii\base\ViewEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:17;a:5:{s:4:"time";d:1729492701.214691;s:4:"name";s:11:"afterRender";s:5:"class";s:18:"yii\base\ViewEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:18;a:5:{s:4:"time";d:1729492701.214695;s:4:"name";s:8:"afterRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:22:"app\components\Headers";}i:19;a:5:{s:4:"time";d:1729492701.216166;s:4:"name";s:11:"afterRender";s:5:"class";s:18:"yii\base\ViewEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:20;a:5:{s:4:"time";d:1729492701.216203;s:4:"name";s:12:"beforeRender";s:5:"class";s:18:"yii\base\ViewEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:21;a:5:{s:4:"time";d:1729492701.217269;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:18:"yii\db\ActiveQuery";}i:22;a:5:{s:4:"time";d:1729492701.217701;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:20:"app\models\Analytics";}i:23;a:5:{s:4:"time";d:1729492701.221316;s:4:"name";s:9:"afterFind";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:20:"app\models\Analytics";}i:24;a:5:{s:4:"time";d:1729492701.22136;s:4:"name";s:9:"beginPage";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:25;a:5:{s:4:"time";d:1729492701.221393;s:4:"name";s:9:"beginBody";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:26;a:5:{s:4:"time";d:1729492701.222645;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:20:"yii\bootstrap\NavBar";}i:27;a:5:{s:4:"time";d:1729492701.223173;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:18:"yii\db\ActiveQuery";}i:28;a:5:{s:4:"time";d:1729492701.224082;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:17:"yii\bootstrap\Nav";}i:29;a:5:{s:4:"time";d:1729492701.224094;s:4:"name";s:9:"beforeRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:17:"yii\bootstrap\Nav";}i:30;a:5:{s:4:"time";d:1729492701.224297;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:22:"yii\bootstrap\Dropdown";}i:31;a:5:{s:4:"time";d:1729492701.224302;s:4:"name";s:9:"beforeRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:22:"yii\bootstrap\Dropdown";}i:32;a:5:{s:4:"time";d:1729492701.224412;s:4:"name";s:8:"afterRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:22:"yii\bootstrap\Dropdown";}i:33;a:5:{s:4:"time";d:1729492701.224424;s:4:"name";s:8:"afterRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:17:"yii\bootstrap\Nav";}i:34;a:5:{s:4:"time";d:1729492701.22443;s:4:"name";s:9:"beforeRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:20:"yii\bootstrap\NavBar";}i:35;a:5:{s:4:"time";d:1729492701.224434;s:4:"name";s:8:"afterRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:20:"yii\bootstrap\NavBar";}i:36;a:5:{s:4:"time";d:1729492701.22456;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:23:"yii\widgets\Breadcrumbs";}i:37;a:5:{s:4:"time";d:1729492701.224563;s:4:"name";s:9:"beforeRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:23:"yii\widgets\Breadcrumbs";}i:38;a:5:{s:4:"time";d:1729492701.224566;s:4:"name";s:8:"afterRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:23:"yii\widgets\Breadcrumbs";}i:39;a:5:{s:4:"time";d:1729492701.224672;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:17:"app\widgets\Alert";}i:40;a:5:{s:4:"time";d:1729492701.224676;s:4:"name";s:9:"beforeRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:17:"app\widgets\Alert";}i:41;a:5:{s:4:"time";d:1729492701.224827;s:4:"name";s:4:"init";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:19:"yii\bootstrap\Alert";}i:42;a:5:{s:4:"time";d:1729492701.224841;s:4:"name";s:9:"beforeRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:19:"yii\bootstrap\Alert";}i:43;a:5:{s:4:"time";d:1729492701.224849;s:4:"name";s:8:"afterRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:19:"yii\bootstrap\Alert";}i:44;a:5:{s:4:"time";d:1729492701.224854;s:4:"name";s:8:"afterRun";s:5:"class";s:20:"yii\base\WidgetEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:17:"app\widgets\Alert";}i:45;a:5:{s:4:"time";d:1729492701.225057;s:4:"name";s:7:"endBody";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:46;a:5:{s:4:"time";d:1729492701.225268;s:4:"name";s:7:"endPage";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:47;a:5:{s:4:"time";d:1729492701.22532;s:4:"name";s:11:"afterRender";s:5:"class";s:18:"yii\base\ViewEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:12:"yii\web\View";}i:48;a:5:{s:4:"time";d:1729492701.225333;s:4:"name";s:11:"afterAction";s:5:"class";s:20:"yii\base\ActionEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:33:"app\controllers\ProjectController";}i:49;a:5:{s:4:"time";d:1729492701.225337;s:4:"name";s:11:"afterAction";s:5:"class";s:20:"yii\base\ActionEvent";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:19:"yii\web\Application";}i:50;a:5:{s:4:"time";d:1729492701.225341;s:4:"name";s:12:"afterRequest";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:19:"yii\web\Application";}i:51;a:5:{s:4:"time";d:1729492701.225345;s:4:"name";s:10:"beforeSend";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:16:"yii\web\Response";}i:52;a:5:{s:4:"time";d:1729492701.225498;s:4:"name";s:12:"afterPrepare";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:16:"yii\web\Response";}i:53;a:5:{s:4:"time";d:1729492701.225515;s:4:"name";s:9:"afterSend";s:5:"class";s:14:"yii\base\Event";s:8:"isStatic";s:1:"0";s:11:"senderClass";s:16:"yii\web\Response";}}";s:4:"mail";s:6:"a:0:{}";s:8:"timeline";s:91:"a:3:{s:5:"start";d:1729492701.163233;s:3:"end";d:1729492701.226047;s:6:"memory";i:9549192;}";s:4:"dump";s:6:"a:0:{}";s:6:"router";s:318:"a:3:{s:8:"messages";a:1:{i:2;a:6:{i:0;s:56:"Pretty URL not enabled. Using default URL parsing logic.";i:1;i:8;i:2;s:32:"yii\web\UrlManager::parseRequest";i:3;d:1729492701.205759;i:4;a:0:{}i:5;i:6535608;}}s:5:"route";s:19:"project/new-request";s:6:"action";s:53:"app\controllers\ProjectController::actionNewRequest()";}";s:7:"request";s:4822:"a:15:{s:7:"flashes";a:0:{}s:10:"statusCode";i:200;s:14:"requestHeaders";a:16:{s:4:"host";s:14:"localhost:7777";s:10:"connection";s:10:"keep-alive";s:9:"sec-ch-ua";s:64:""Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"";s:16:"sec-ch-ua-mobile";s:2:"?0";s:18:"sec-ch-ua-platform";s:9:""Windows"";s:25:"upgrade-insecure-requests";s:1:"1";s:10:"user-agent";s:111:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36";s:6:"accept";s:135:"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7";s:14:"sec-fetch-site";s:11:"same-origin";s:14:"sec-fetch-mode";s:8:"navigate";s:14:"sec-fetch-user";s:2:"?1";s:14:"sec-fetch-dest";s:8:"document";s:7:"referer";s:49:"http://localhost:7777/index.php?r=project%2Findex";s:15:"accept-encoding";s:23:"gzip, deflate, br, zstd";s:15:"accept-language";s:35:"el-GR,el;q=0.9,en-GR;q=0.8,en;q=0.7";s:6:"cookie";s:307:"PHPSESSID=bv0hvma3gk5ogh9upp52t1hcdc; _csrf=e543ee8c02ffeda556abefc8c4ee01cb5488a0e570ab29124e6023429c7c4762a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22obUp7CurlaCPJRfWksAWz_K2f3m_3Ja_%22%3B%7D; _dd_s=logs=1&id=0da0fbdf-6ce0-406e-8a45-4ba82a42d398&created=1729490495715&expire=1729493600543";}s:15:"responseHeaders";a:8:{s:12:"X-Powered-By";s:9:"PHP/8.2.4";s:7:"Expires";s:29:"Thu, 19 Nov 1981 08:52:00 GMT";s:13:"Cache-Control";s:35:"no-store, no-cache, must-revalidate";s:6:"Pragma";s:8:"no-cache";s:12:"Content-Type";s:24:"text/html; charset=UTF-8";s:11:"X-Debug-Tag";s:13:"6715f6dd31fd9";s:16:"X-Debug-Duration";s:2:"63";s:12:"X-Debug-Link";s:53:"/index.php?r=debug%2Fdefault%2Fview&tag=6715f6dd31fd9";}s:5:"route";s:19:"project/new-request";s:6:"action";s:53:"app\controllers\ProjectController::actionNewRequest()";s:12:"actionParams";a:0:{}s:7:"general";a:5:{s:6:"method";s:3:"GET";s:6:"isAjax";b:0;s:6:"isPjax";b:0;s:7:"isFlash";b:0;s:18:"isSecureConnection";b:0;}s:11:"requestBody";a:0:{}s:6:"SERVER";a:31:{s:13:"DOCUMENT_ROOT";s:32:"C:\xampp\htdocs\clima-commit\web";s:11:"REMOTE_ADDR";s:3:"::1";s:11:"REMOTE_PORT";s:5:"55363";s:15:"SERVER_SOFTWARE";s:28:"PHP 8.2.4 Development Server";s:15:"SERVER_PROTOCOL";s:8:"HTTP/1.1";s:11:"SERVER_NAME";s:9:"localhost";s:11:"SERVER_PORT";s:4:"7777";s:11:"REQUEST_URI";s:34:"/index.php?r=project%2Fnew-request";s:14:"REQUEST_METHOD";s:3:"GET";s:11:"SCRIPT_NAME";s:10:"/index.php";s:15:"SCRIPT_FILENAME";s:42:"C:\xampp\htdocs\clima-commit\web\index.php";s:8:"PHP_SELF";s:10:"/index.php";s:12:"QUERY_STRING";s:23:"r=project%2Fnew-request";s:9:"HTTP_HOST";s:14:"localhost:7777";s:15:"HTTP_CONNECTION";s:10:"keep-alive";s:14:"HTTP_SEC_CH_UA";s:64:""Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"";s:21:"HTTP_SEC_CH_UA_MOBILE";s:2:"?0";s:23:"HTTP_SEC_CH_UA_PLATFORM";s:9:""Windows"";s:30:"HTTP_UPGRADE_INSECURE_REQUESTS";s:1:"1";s:15:"HTTP_USER_AGENT";s:111:"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36";s:11:"HTTP_ACCEPT";s:135:"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7";s:19:"HTTP_SEC_FETCH_SITE";s:11:"same-origin";s:19:"HTTP_SEC_FETCH_MODE";s:8:"navigate";s:19:"HTTP_SEC_FETCH_USER";s:2:"?1";s:19:"HTTP_SEC_FETCH_DEST";s:8:"document";s:12:"HTTP_REFERER";s:49:"http://localhost:7777/index.php?r=project%2Findex";s:20:"HTTP_ACCEPT_ENCODING";s:23:"gzip, deflate, br, zstd";s:20:"HTTP_ACCEPT_LANGUAGE";s:35:"el-GR,el;q=0.9,en-GR;q=0.8,en;q=0.7";s:11:"HTTP_COOKIE";s:307:"PHPSESSID=bv0hvma3gk5ogh9upp52t1hcdc; _csrf=e543ee8c02ffeda556abefc8c4ee01cb5488a0e570ab29124e6023429c7c4762a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22obUp7CurlaCPJRfWksAWz_K2f3m_3Ja_%22%3B%7D; _dd_s=logs=1&id=0da0fbdf-6ce0-406e-8a45-4ba82a42d398&created=1729490495715&expire=1729493600543";s:18:"REQUEST_TIME_FLOAT";d:1729492701.162458;s:12:"REQUEST_TIME";i:1729492701;}s:3:"GET";a:1:{s:1:"r";s:19:"project/new-request";}s:4:"POST";a:0:{}s:6:"COOKIE";a:3:{s:9:"PHPSESSID";s:26:"bv0hvma3gk5ogh9upp52t1hcdc";s:5:"_csrf";s:130:"e543ee8c02ffeda556abefc8c4ee01cb5488a0e570ab29124e6023429c7c4762a:2:{i:0;s:5:"_csrf";i:1;s:32:"obUp7CurlaCPJRfWksAWz_K2f3m_3Ja_";}";s:5:"_dd_s";s:89:"logs=1&id=0da0fbdf-6ce0-406e-8a45-4ba82a42d398&created=1729490495715&expire=1729493600543";}s:5:"FILES";a:0:{}s:7:"SESSION";a:11:{s:7:"__flash";a:0:{}s:16:"_um_last_attempt";i:1729492683;s:17:"_um_attempt_count";i:1;s:18:"__auth_last_update";i:1728377854;s:14:"__visitorToken";s:13:"6715f6cbecba5";s:11:"__returnUrl";s:32:"/index.php?r=ticket-user%2Findex";s:4:"__id";i:217;s:9:"__authKey";s:32:"gLMB9vX6J1Ww54AM6_yAmVl1DAKY1sBm";s:11:"__userRoles";a:0:{}s:17:"__userPermissions";a:0:{}s:12:"__userRoutes";a:0:{}}}";s:4:"user";s:1731:"a:5:{s:2:"id";i:217;s:8:"identity";a:15:{s:2:"id";s:3:"217";s:8:"username";s:12:"'superadmin'";s:8:"auth_key";s:34:"'gLMB9vX6J1Ww54AM6_yAmVl1DAKY1sBm'";s:13:"password_hash";s:62:"'$2y$13$ULo4XN7L0vTzfcbjDuaRGus2CyGHrn9bFv6h55WReV133hCRqeWTa'";s:18:"confirmation_token";s:4:"null";s:6:"status";s:1:"1";s:10:"superadmin";s:1:"1";s:10:"created_at";s:10:"1729492671";s:10:"updated_at";s:10:"1729492671";s:15:"registration_ip";s:4:"null";s:10:"bind_to_ip";s:4:"null";s:5:"email";s:18:"'user@example.com'";s:15:"email_confirmed";s:1:"1";s:4:"name";s:4:"null";s:7:"surname";s:4:"null";}s:10:"attributes";a:15:{i:0;a:2:{s:9:"attribute";s:2:"id";s:5:"label";s:2:"ID";}i:1;a:2:{s:9:"attribute";s:8:"username";s:5:"label";s:5:"Login";}i:2;a:2:{s:9:"attribute";s:8:"auth_key";s:5:"label";s:8:"Auth Key";}i:3;a:2:{s:9:"attribute";s:13:"password_hash";s:5:"label";s:13:"Password Hash";}i:4;a:2:{s:9:"attribute";s:18:"confirmation_token";s:5:"label";s:18:"Confirmation Token";}i:5;a:2:{s:9:"attribute";s:6:"status";s:5:"label";s:6:"Status";}i:6;a:2:{s:9:"attribute";s:10:"superadmin";s:5:"label";s:10:"Superadmin";}i:7;a:2:{s:9:"attribute";s:10:"created_at";s:5:"label";s:7:"Created";}i:8;a:2:{s:9:"attribute";s:10:"updated_at";s:5:"label";s:7:"Updated";}i:9;a:2:{s:9:"attribute";s:15:"registration_ip";s:5:"label";s:15:"Registration IP";}i:10;a:2:{s:9:"attribute";s:10:"bind_to_ip";s:5:"label";s:10:"Bind to IP";}i:11;a:2:{s:9:"attribute";s:5:"email";s:5:"label";s:6:"E-mail";}i:12;a:2:{s:9:"attribute";s:15:"email_confirmed";s:5:"label";s:16:"E-mail confirmed";}i:13;a:2:{s:9:"attribute";s:4:"name";s:5:"label";s:4:"Name";}i:14;a:2:{s:9:"attribute";s:7:"surname";s:5:"label";s:7:"Surname";}}s:13:"rolesProvider";N;s:19:"permissionsProvider";N;}";s:5:"asset";s:2684:"a:7:{s:19:"app\assets\AppAsset";a:9:{s:10:"sourcePath";N;s:8:"basePath";s:32:"C:\xampp\htdocs\clima-commit\web";s:7:"baseUrl";s:0:"";s:7:"depends";a:2:{i:0;s:16:"yii\web\YiiAsset";i:1;s:28:"yii\bootstrap\BootstrapAsset";}s:2:"js";a:0:{}s:3:"css";a:1:{i:0;s:12:"css/site.css";}s:9:"jsOptions";a:0:{}s:10:"cssOptions";a:0:{}s:14:"publishOptions";a:0:{}}s:16:"yii\web\YiiAsset";a:9:{s:10:"sourcePath";s:55:"C:\xampp\htdocs\clima-commit\vendor\yiisoft\yii2/assets";s:8:"basePath";s:47:"C:\xampp\htdocs\clima-commit\web\assets\3b797ec";s:7:"baseUrl";s:15:"/assets/3b797ec";s:7:"depends";a:1:{i:0;s:19:"yii\web\JqueryAsset";}s:2:"js";a:1:{i:0;s:6:"yii.js";}s:3:"css";a:0:{}s:9:"jsOptions";a:0:{}s:10:"cssOptions";a:0:{}s:14:"publishOptions";a:0:{}}s:19:"yii\web\JqueryAsset";a:9:{s:10:"sourcePath";s:59:"C:\xampp\htdocs\clima-commit\vendor/bower-asset/jquery/dist";s:8:"basePath";s:48:"C:\xampp\htdocs\clima-commit\web\assets\d14b0546";s:7:"baseUrl";s:16:"/assets/d14b0546";s:7:"depends";a:0:{}s:2:"js";a:1:{i:0;s:9:"jquery.js";}s:3:"css";a:0:{}s:9:"jsOptions";a:0:{}s:10:"cssOptions";a:0:{}s:14:"publishOptions";a:0:{}}s:28:"yii\bootstrap\BootstrapAsset";a:9:{s:10:"sourcePath";s:62:"C:\xampp\htdocs\clima-commit\vendor/bower-asset/bootstrap/dist";s:8:"basePath";s:48:"C:\xampp\htdocs\clima-commit\web\assets\ece30cab";s:7:"baseUrl";s:16:"/assets/ece30cab";s:7:"depends";a:0:{}s:2:"js";a:0:{}s:3:"css";a:1:{i:0;s:17:"css/bootstrap.css";}s:9:"jsOptions";a:0:{}s:10:"cssOptions";a:0:{}s:14:"publishOptions";a:0:{}}s:36:"/js/components/notificationWidget.js";a:9:{s:10:"sourcePath";N;s:8:"basePath";s:32:"C:\xampp\htdocs\clima-commit\web";s:7:"baseUrl";s:0:"";s:7:"depends";a:1:{i:0;s:19:"yii\web\JqueryAsset";}s:2:"js";a:1:{i:0;a:1:{i:0;s:35:"js/components/notificationWidget.js";}}s:3:"css";a:0:{}s:9:"jsOptions";a:0:{}s:10:"cssOptions";a:0:{}s:14:"publishOptions";a:0:{}}s:31:"/js/components/supportWindow.js";a:9:{s:10:"sourcePath";N;s:8:"basePath";s:32:"C:\xampp\htdocs\clima-commit\web";s:7:"baseUrl";s:0:"";s:7:"depends";a:1:{i:0;s:19:"yii\web\JqueryAsset";}s:2:"js";a:1:{i:0;a:1:{i:0;s:30:"js/components/supportWindow.js";}}s:3:"css";a:0:{}s:9:"jsOptions";a:0:{}s:10:"cssOptions";a:0:{}s:14:"publishOptions";a:0:{}}s:34:"yii\bootstrap\BootstrapPluginAsset";a:9:{s:10:"sourcePath";s:62:"C:\xampp\htdocs\clima-commit\vendor/bower-asset/bootstrap/dist";s:8:"basePath";s:48:"C:\xampp\htdocs\clima-commit\web\assets\ece30cab";s:7:"baseUrl";s:16:"/assets/ece30cab";s:7:"depends";a:2:{i:0;s:19:"yii\web\JqueryAsset";i:1;s:28:"yii\bootstrap\BootstrapAsset";}s:2:"js";a:1:{i:0;s:15:"js/bootstrap.js";}s:3:"css";a:0:{}s:9:"jsOptions";a:0:{}s:10:"cssOptions";a:0:{}s:14:"publishOptions";a:0:{}}}";s:7:"summary";a:13:{s:3:"tag";s:13:"6715f6dd31fd9";s:3:"url";s:55:"http://localhost:7777/index.php?r=project%2Fnew-request";s:4:"ajax";i:0;s:6:"method";s:3:"GET";s:2:"ip";s:3:"::1";s:4:"time";d:1729492701.162458;s:10:"statusCode";i:200;s:8:"sqlCount";i:6;s:21:"excessiveCallersCount";i:0;s:9:"mailCount";i:0;s:9:"mailFiles";a:0:{}s:10:"peakMemory";i:9549192;s:14:"processingTime";d:0.06274104118347168;}s:10:"exceptions";a:0:{}}
