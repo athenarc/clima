@@ -117,18 +117,18 @@ class ProjectController extends Controller
 
 
         $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user', 4=>'/project/view-jupyter-request-user'];
+        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user',
+            2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user', 4=>'/project/view-jupyter-request-user'];
 
-       	$deleted=Project::getDeletedProjects();
+        $deleted=Project::getDeletedProjects();
         $owner=Project::getActiveProjectsOwner();
         $participant=Project::getActiveProjectsParticipant();
         $expired_owner=Project::getExpiredProjects();
         $role=User::getRoleType();
-    
+
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
-		$all_projects=array_merge($owner,$participant);
+        $all_projects=array_merge($owner,$participant);
 
         //if there are expired books projects, check if there are active servers and delete them
 
@@ -147,10 +147,10 @@ class ProjectController extends Controller
 
         $active=[];
         $expired=[];
-      
-        foreach ($all_projects as $project) 
+
+        foreach ($all_projects as $project)
         {
-           	$now = strtotime(date("Y-m-d"));
+            $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($project['end_date']);
             $remaining_secs=$end_project-$now;
             $remaining_days=$remaining_secs/86400;
@@ -162,28 +162,28 @@ class ProjectController extends Controller
                 array_push($project, ['favorite'=>$project['favorite']]);
             }
             else
-           	{
+            {
                 array_push($project, "$project[username]");
                 array_push($project, $remaining_days);
                 array_push($project, ['favorite'=>$project['favorite']]);
-             }
-                $active[]=$project;
+            }
+            $active[]=$project;
         }
 
         $favorite = array_column($active, 'favorite');
         $submission_date = array_column($active, 'submission_date');
         array_multisort($favorite, SORT_DESC, $submission_date, SORT_DESC, $active);
-        
-        
 
-        foreach ($expired_owner as $project) 
+
+
+        foreach ($expired_owner as $project)
         {
-           	$now = strtotime(date("Y-m-d"));
+            $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($project['end_date']);
             $remaining_secs=$end_project-$now;
             $remaining_days=$remaining_secs/86400;
             $remaining_months=round($remaining_days/30);
-	        if($username==$project['username'])
+            if($username==$project['username'])
             {
                 array_push($project,'<b>You</b>');
                 array_push($project, $project['end_date']);
@@ -193,15 +193,15 @@ class ProjectController extends Controller
                 array_push($project, "$project[username]");
                 array_push($project, $project['end_date']);
             }
-			$expired[]=$project;
-		}
+            $expired[]=$project;
+        }
 
 
         $number_of_active=count($active);
         $number_of_expired=count($expired);
-        
-        
-       
+
+
+
         return $this->render('index',['owner'=>$owner,'participant'=>$participant,
             'button_links'=>$button_links,'project_types'=>$project_types,'role'=>$role,
             'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url]);
@@ -230,7 +230,7 @@ class ProjectController extends Controller
         return $this->render('new_request');
     }
 
-    
+
 
 
 
@@ -258,27 +258,27 @@ class ProjectController extends Controller
         $service_autoaccept_number=$service_autoaccept->autoaccept_number;
 
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>1,'submitted_by'=>Userw::getCurrentUser()['id'], ])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        
-        $autoaccept_allowed=($autoaccepted_num - $service_autoaccept_number < 0) ? true :false; 
 
-        
-        
+        $autoaccept_allowed=($autoaccepted_num - $service_autoaccept_number < 0) ? true :false;
+
+
+
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
-        
+
         $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
 
         $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2];
 
         $form_params =
-        [
-            'action' => URL::to(['project/new-service-request']),
-            'options' => 
             [
-                'class' => 'service_request_form',
-                'id'=> "service_request_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['project/new-service-request']),
+                'options' =>
+                    [
+                        'class' => 'service_request_form',
+                        'id'=> "service_request_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         $trls=[];
         $trls[0]='Unspecified';
@@ -293,7 +293,7 @@ class ProjectController extends Controller
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
-        
+
         if ( ($serviceModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
             /*
@@ -319,8 +319,8 @@ class ProjectController extends Controller
             $isValid = $serviceModel->validate() && $isValid;
 
             if ($isValid)
-            {   
-                
+            {
+
                 $messages=$projectModel->uploadNew($project_types['service']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
@@ -352,23 +352,23 @@ class ProjectController extends Controller
 
                     if(empty($message_autoaccept))
                     {
-                    	EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
+                        EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
                     }
                     else
                     {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                    	EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
-                    
+
                     return $this->redirect(['project/index']);
                 }
             }
         }
-        
 
-        return $this->render('new_service_request',['service'=>$serviceModel, 'project'=>$projectModel, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'upperlimits'=>$upperlimits]);
+
+        return $this->render('new_service_request',['service'=>$serviceModel, 'project'=>$projectModel,
+            'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'upperlimits'=>$upperlimits]);
 
 
 
@@ -376,8 +376,8 @@ class ProjectController extends Controller
 
     public function actionNewMachineComputeRequest()
     {
-        
-       
+
+
         $role=User::getRoleType();
         $machineLimits=MachineComputeLimits::find()->where(['user_type'=>$role])->one();
         $machine_maximum_number=$machineLimits->number_of_projects;
@@ -396,15 +396,15 @@ class ProjectController extends Controller
         $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'machine_compute'=>3];
 
         $form_params =
-        [
-            'action' => URL::to(['project/new-machine-compute-request']),
-            'options' => 
             [
-                'class' => 'machine_compute_request_form',
-                'id'=> "machine_compute_request_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['project/new-machine-compute-request']),
+                'options' =>
+                    [
+                        'class' => 'machine_compute_request_form',
+                        'id'=> "machine_compute_request_form"
+                    ],
+                'method' => 'POST'
+            ];
 
 
         $errors='';
@@ -420,13 +420,13 @@ class ProjectController extends Controller
         for ($i=1; $i<31; $i++)
             $num_vms_dropdown[$i]=$i;
 
-        
+
         if ( ($serviceModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
             {
-               
+
                 $username=$participant . '@elixir-europe.org';
                 $pid=User::findByUsername($username)->id;
                 $participant_ids_tmp[$pid]=null;
@@ -444,23 +444,23 @@ class ProjectController extends Controller
             // $isValid = $projectModel->machinesDuration30() && $isValid;
 
             if ($isValid)
-            {   
+            {
 
-                
+
                 $messages=$projectModel->uploadNew($project_types['machine_compute']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
                 $warnings.=$messages[2];
                 $requestId=$messages[3];
-                
-                
+
+
                 if ($requestId!=-1)
                 {
                     $messages=$serviceModel->uploadNew($requestId);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
-                   
+
                 }
 
                 if (empty($errors))
@@ -474,13 +474,13 @@ class ProjectController extends Controller
                         Yii::$app->session->setFlash('warning', "$warnings");
                     }
 
-                    
-                    
+
+
                     return $this->redirect(['project/index']);
                 }
             }
         }
-        
+
 
         return $this->render('new_machine_compute_request',['service'=>$serviceModel, 'project'=>$projectModel,  'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'new_project_allowed'=>$new_project_allowed,'num_vms_dropdown'=>$num_vms_dropdown]);
 
@@ -513,7 +513,7 @@ class ProjectController extends Controller
         $limitsModel=new ColdStorageLimits;
         $autoacceptModel=new ColdStorageAutoaccept;
 
-        
+
         $cold_autoaccept= ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
         $cold_autoaccept_number=$cold_autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
@@ -535,26 +535,26 @@ class ProjectController extends Controller
         {
             $multiple[$i]=$i;
         }
- 
-        
+
+
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
-        
+
         $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
-       
+
 
 
         $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2];
 
         $form_params =
-        [
-            'action' => URL::to(['project/new-cold-storage-request']),
-            'options' => 
             [
-                'class' => 'cold_storage_request_form',
-                'id'=> "cold_storage_request_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['project/new-cold-storage-request']),
+                'options' =>
+                    [
+                        'class' => 'cold_storage_request_form',
+                        'id'=> "cold_storage_request_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         $errors='';
         $success='';
@@ -564,7 +564,7 @@ class ProjectController extends Controller
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
 
 
-        
+
         if ( ($coldStorageModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
             $participant_ids_tmp=[];
@@ -587,8 +587,8 @@ class ProjectController extends Controller
             // $projectModel->end_date='2100-1-1';
 
             if ($isValid)
-            {    
-                
+            {
+
                 $messages=$projectModel->uploadNew($project_types['coldstorage']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
@@ -608,7 +608,7 @@ class ProjectController extends Controller
 
                 if (empty($errors))
                 {
-                    
+
                     if(!empty($success))
                     {
                         Yii::$app->session->setFlash('success', "$success");
@@ -628,18 +628,18 @@ class ProjectController extends Controller
                         EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
-                    
+
                     return $this->redirect(['project/index']);
 
                 }
             }
         }
-        
-        
-        return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel, 
-                'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
-                 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 
-                 'new_project_allowed'=>$new_project_allowed, 'vm_types'=>$vm_types, 'multiple' => $multiple]);
+
+
+        return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel,
+            'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
+            'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role,
+            'new_project_allowed'=>$new_project_allowed, 'vm_types'=>$vm_types, 'multiple' => $multiple]);
 
 
     }
@@ -657,7 +657,7 @@ class ProjectController extends Controller
         if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)) )
         {
             return $this->render('no_project_allowed', ['project'=>"On-demand batch computations", 'user_type'=>$role]);
-        } 
+        }
 
         $ondemandModel=new OndemandRequest();
         $projectModel=new ProjectRequest;
@@ -665,34 +665,34 @@ class ProjectController extends Controller
         $autoacceptModel=new OndemandAutoaccept;
 
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
-        
+
         $ondemand_autoaccept= OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
         $ondemand_autoaccept_number=$ondemand_autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>0,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $autoaccept_allowed=($autoaccepted_num-$ondemand_autoaccept_number < 0) ? true :false; 
+        $autoaccept_allowed=($autoaccepted_num-$ondemand_autoaccept_number < 0) ? true :false;
 
 
-        
-    
-        
+
+
+
         $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
-        
+
         $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
-       
+
 
 
         $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2];
 
         $form_params =
-        [
-            'action' => URL::to(['project/new-ondemand-request']),
-            'options' => 
             [
-                'class' => 'ondemand_project',
-                'id'=> "ondemand_project"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['project/new-ondemand-request']),
+                'options' =>
+                    [
+                        'class' => 'ondemand_project',
+                        'id'=> "ondemand_project"
+                    ],
+                'method' => 'POST'
+            ];
 
         $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
 
@@ -703,8 +703,8 @@ class ProjectController extends Controller
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
-      
-                
+
+
 
         if ( ($ondemandModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
@@ -770,171 +770,168 @@ class ProjectController extends Controller
                         EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
-                    
+
                     return $this->redirect(['project/index']);
                 }
             }
         }
-        
 
-        return $this->render('new_ondemand_request',['ondemand'=>$ondemandModel, 'project'=>$projectModel, 
-                     'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'upperlimits'=>$upperlimits]);
+
+        return $this->render('new_ondemand_request',['ondemand'=>$ondemandModel, 'project'=>$projectModel,
+            'maturities'=>$maturities, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'upperlimits'=>$upperlimits]);
     }
 
     //jupyter notebooks controller
 
     public function actionNewJupyterRequestNew()
     {
-        $img=JupyterImages::find()->all();
-        $images=[];
-        foreach ($img as $i)
-        {
-            $description=$i->description;
-            if ($i->gpu==true)
-            {
-                $description.=' (GPU)';
+        $img = JupyterImages::find()->all();
+        $images = [];
+        foreach ($img as $i) {
+            $description = $i->description;
+            if ($i->gpu == true) {
+                $description .= ' (GPU)';
             }
-
-            $images[$i->id]=$description;
+            $images[$i->id] = $description;
         }
 
-        $role=User::getRoleType();
-        $jupyter_limits= JupyterLimits::find()->where(['user_type'=>$role])->one();
-        $jupyter_maximum_number=$jupyter_limits->number_of_projects;
-        //need to change project type
-        $number_of_user_projects=ProjectRequest::find()->where(['status'=>[1,2],'project_type'=>4,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $new_project_allowed=($number_of_user_projects-$jupyter_maximum_number < 0) ? true :false;
+        $role = User::getRoleType();
+        $jupyter_limits = JupyterLimits::find()->where(['user_type' => $role])->one();
+        $jupyter_maximum_number = $jupyter_limits->number_of_projects;
 
-        if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)) )
-        {
-            return $this->render('no_project_allowed', ['project'=>"Jupyter notebooks", 'user_type'=>$role]);
-        } 
+        // Check if the user is allowed to create a new project
+        $number_of_user_projects = ProjectRequest::find()->where(['status' => [1, 2], 'project_type' => 4, 'submitted_by' => Userw::getCurrentUser()['id']])
+            ->andWhere(['>=', 'end_date', date("Y-m-d")])->count();
+        $new_project_allowed = ($number_of_user_projects - $jupyter_maximum_number < 0) ? true : false;
 
-        $jupyterModel=new JupyterRequestNew();
-        $projectModel=new ProjectRequest;
-        $limitsModel=new JupyterLimits;
+        if ((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed = true)) && (!Userw::hasRole('Moderator', $superadminAllowed = true))) {
+            return $this->render('no_project_allowed', ['project' => "Jupyter notebooks", 'user_type' => $role]);
+        }
+
+        $jupyterModel = new JupyterRequestNew();
+        $projectModel = new ProjectRequest;
         $autoacceptModel=new JupyterAutoaccept;
+        $limitsModel=new JupyterLimits;
+        // Resource limits based on user's role
+        $resource_limits = [
+            'num_of_jobs' => $jupyter_limits->num_of_jobs,
+            'cores' => $jupyter_limits->cores,
+            'ram' => $jupyter_limits->ram,
+        ];
 
-        
-        $jupyter_autoaccept= JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
-        $jupyter_autoaccept_number=$jupyter_autoaccept->autoaccept_number;
-        //change project type
-        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>4,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $autoaccept_allowed=($autoaccepted_num-$jupyter_autoaccept_number < 0) ? true :false; 
-
-
-        
-    
-        
-        $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
-        
-        $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
-       
-
-        //need to change project type
+        $autoaccept_allowed = false;
         $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'jupyter'=>4];
-
-        $form_params =
-        [
+        // Form parameters for rendering
+        $form_params = [
             'action' => URL::to(['project/new-jupyter-request-new']),
-            'options' => 
-            [
+            'options' => [
                 'class' => 'jupyter_project',
-                'id'=> "jupyter_project"
+                'id' => "jupyter_project"
             ],
             'method' => 'POST'
         ];
 
-        // $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+        // Initialize variables
+        $errors = '';
+        $success = '';
+        $warnings = '';
+        $message = '';
 
-        $errors='';
-        $success='';
-        $warnings='';
-        $message='';
-        $username=Userw::getCurrentUser()['username'];
-        $user_split=explode('@',$username)[0];
-        $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
-                
+        $username = Userw::getCurrentUser()['username'];
+        $user_split = explode('@', $username)[0];
+        $participating = isset($_POST['participating']) ? $_POST['participating'] : [$user_split];
 
-        if ( ($jupyterModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
-        {
+        if (($jupyterModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post()))) {
             $projectModel['user_num'] = $jupyterModel['participants_number'];
-            $participant_ids_tmp=[];
-            foreach ($participating as $participant)
-            {
-                $username=$participant . '@elixir-europe.org';
-                $pid=User::findByUsername($username)->id;
-                $participant_ids_tmp[$pid]=null;
+
+            // Prepare participant IDs
+            $participant_ids_tmp = [];
+            foreach ($participating as $participant) {
+                $username = $participant . '@elixir-europe.org';
+                $pid = User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid] = null;
             }
 
-            $participant_ids=[];
-            foreach ($participant_ids_tmp as $pid => $dummy)
-            {
-                $participant_ids[]=$pid;
-            }
+            $participant_ids = array_keys($participant_ids_tmp);
+            $projectModel->user_list = $participant_ids;
 
-            $image_id = JupyterImages::find()->where(['description'=>$jupyterModel->image])->one();
-            // $jupyterModel->image_id = 8;
+            // Retrieve requested resources from $jupyterModel
+            $requested_resources = [
+                'num_of_jobs' => $jupyterModel->num_of_jobs,
+                'cores' => $jupyterModel->cores,
+                'ram' => $jupyterModel->ram,
+            ];
 
-            $projectModel->user_list=$participant_ids;
+            // Auto-accept if the requested resources are within the limits
+            $autoaccept_allowed = (
+                $requested_resources['num_of_jobs'] <= $resource_limits['num_of_jobs'] &&
+                $requested_resources['cores'] <= $resource_limits['cores'] &&
+                $requested_resources['ram'] <= $resource_limits['ram']
+            );
 
+            // Validate models
             $isValid = $projectModel->validate();
             $isValid = $jupyterModel->validate() && $isValid;
 
-            if ($isValid)
-            {
-                //need to change project type
-                $messages=$projectModel->uploadNew($project_types['jupyter']);
-                $errors.=$messages[0];
-                $success.=$messages[1];
-                $warnings.=$messages[2];
-                $requestId=$messages[3];
-                $submitted_email=$messages[4];
-                $project_id=$messages[5];
+            if ($isValid) {
+                $messages = $projectModel->uploadNew($project_types['jupyter']);
+                $errors .= $messages[0];
+                $success .= $messages[1];
+                $warnings .= $messages[2];
+                $requestId = $messages[3];
+                $submitted_email = $messages[4];
+                $project_id = $messages[5];
 
-                if ($requestId!=-1)
-                {
+                if ($requestId != -1) {
                     $jupyterModel['participant_view'] = $jupyterModel['description'];
-                    $messages=$jupyterModel->uploadNew($requestId);
-                    $errors.=$messages[0];
-                    $success.=$messages[1];
-                    $warnings.=$messages[2];
-                    $message_autoaccept=$messages[3];
+                    $messages = $jupyterModel->uploadNew($requestId);
+                    $errors .= $messages[0];
+                    $success .= $messages[1];
+                    $warnings .= $messages[2];
+                    $message_autoaccept = $messages[3];
                     $message_autoaccept_mod = $messages[5];
                 }
 
-                if (empty($errors))
-                {
-                    if(!empty($success))
-                    {
+                if (empty($errors)) {
+                    if (!empty($success)) {
                         Yii::$app->session->setFlash('success', "$success");
                     }
-                    if(!empty($warnings))
-                    {
+                    if (!empty($warnings)) {
                         Yii::$app->session->setFlash('warning', "$warnings");
                     }
 
-                    if(empty($message_autoaccept))
-                    {
-                        EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
-
-                    }
-                    else
-                    {
+                    if (empty($message_autoaccept)) {
+                        EmailEventsModerator::NotifyByEmail('new_project', $project_id, $submitted_email);
+                    } else {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
-                        EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id, $message_autoaccept_mod);
+                        EmailEventsUser::NotifyByEmail('project_decision', $project_id, $message_autoaccept);
                     }
-                    
+
                     return $this->redirect(['project/index']);
                 }
             }
         }
-        
+        $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
 
-        return $this->render('new_jupyter_request',['jupyter'=>$jupyterModel, 'project'=>$projectModel, 
-                     'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'images'=>$images]);
+        $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
+
+// Now pass $autoacceptlimits to the render method
+        return $this->render('new_jupyter_request',
+            ['jupyter'=>$jupyterModel,
+                'project'=>$projectModel,
+                'form_params'=>$form_params,
+                'participating'=>$participating,
+                'errors'=>$errors,
+                'upperlimits'=>$upperlimits,
+                'autoacceptlimits'=>$autoacceptlimits,
+                'autoaccept_allowed' => $autoaccept_allowed,
+                'role'=>$role,
+                'new_project_allowed'=>$new_project_allowed,
+                'images'=>$images]);
     }
+
+
 
 
 
@@ -947,17 +944,17 @@ class ProjectController extends Controller
         $names = $model::getNamesAutoComplete($expansion, $max_num, $term);
         $namesDecoded=json_decode($names);
         //Check if results are empty
-        if(empty($namesDecoded)) 
+        if(empty($namesDecoded))
         {
             $names = json_encode(["No suggestions found"]);
-        }     
+        }
         //Return results - these are already encoded in json
-        return $names;       
+        return $names;
     }
 
     public function actionRequestList($filter='all', $page=1)
     {
-        
+
         $statuses=ProjectRequest::STATUSES;
         $filters=['all'=>'All','pending'=>'Pending','approved'=>'Approved','auto-approved'=>'Auto-approved','rejected'=>'Rejected'];
         $project_types=Project::TYPES;
@@ -979,24 +976,24 @@ class ProjectController extends Controller
         }
 
         return $this->render('request_list',['results'=>$results,'pages'=>$pages,'statuses'=>$statuses,
-                                'sideItems'=>$sidebarItems,'project_types'=>$project_types,
-                                'line_classes'=>$line_classes,'filter'=>$filter, 'page'=>$page]);
+            'sideItems'=>$sidebarItems,'project_types'=>$project_types,
+            'line_classes'=>$line_classes,'filter'=>$filter, 'page'=>$page]);
     }
 
 
     public function actionUserRequestList($filter='all', $page=1)
     {
         $statuses=ProjectRequest::STATUSES;
-        
+
         $filters=['all'=>'All','pending'=>'Pending','approved'=>'Approved','auto-approved'=>'Auto-approved','rejected'=>'Rejected'];
         $project_types=Project::TYPES;
-        // $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
+        // $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user',
         //                 2=>'/project/view-cold-storage-request-user'];
         $line_classes=[-5=>'expired',-4=>'deleted',-3=>'modified',-1=>'rejected',0=>'pending', 1=>'approved', 2=>'approved'];
         // $user=User::getCurrentUser()['username'];
 
         $results=ProjectRequest::getUserRequestList($filter);
-        
+
 
         $pages=$results[0];
         $results=$results[1];
@@ -1011,8 +1008,8 @@ class ProjectController extends Controller
         }
 
         return $this->render('request_list_user',['results'=>$results,'pages'=>$pages,'statuses'=>$statuses,
-                                'sideItems'=>$sidebarItems,'project_types'=>$project_types,
-                                'filter'=>$filter,'line_classes'=>$line_classes, 'expired'=>$expired, 'page'=>$page]);
+            'sideItems'=>$sidebarItems,'project_types'=>$project_types,
+            'filter'=>$filter,'line_classes'=>$line_classes, 'expired'=>$expired, 'page'=>$page]);
     }
 
     public function actionViewRequest($id,$filter='all', $page=1)
@@ -1053,7 +1050,7 @@ class ProjectController extends Controller
         $secs = $datetime2 - $datetime1;
         $remaining_time = $secs / 86400;
         if($remaining_time<=0)
-        {    
+        {
             $remaining_time=0;
         }
 
@@ -1066,7 +1063,7 @@ class ProjectController extends Controller
         //Request details must be retrieved by the project request id
         if ($project_request->project_type==0)
         {
-            
+
             $details=OndemandRequest::findOne(['request_id'=>$id]);
             $view_file='view_ondemand_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
@@ -1081,10 +1078,10 @@ class ProjectController extends Controller
                     $diff = $project_request->getFormattedDiff($previouslyApprovedProjectRequest);
                 }
             }
-        //added jupyter
+            //added jupyter
         } else if ($project_request->project_type==4)
         {
-            
+
             $details=JupyterRequestNew::findOne(['request_id'=>$id]);
             $view_file='view_jupyter_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
@@ -1108,7 +1105,7 @@ class ProjectController extends Controller
 
             $image=$description;
 
-        } 
+        }
         else if ($project_request->project_type==1)
         {
             $vm=Vm::find()->where(['project_id'=>$project['id']])->andwhere(['active'=>true])->one();
@@ -1282,7 +1279,7 @@ class ProjectController extends Controller
             }
         }else if ($project_request->project_type==4)
         {
-            
+
             $details=JupyterRequestNew::findOne(['request_id'=>$id]);
             $view_file='view_jupyter_request';
             $usage=ProjectRequest::getProjectSchemaUsage($project_request->name);
@@ -1305,7 +1302,7 @@ class ProjectController extends Controller
             }
 
             $image=$description;
-        //added jupyter
+            //added jupyter
         }
 
         // Configure general information about statistics and visualizations
@@ -1376,7 +1373,7 @@ class ProjectController extends Controller
         $vm_flavour='';
 
         $start = date('Y-m-d', strtotime($project->start_date));
-        
+
         $user_list=$project_request->user_list->getValue();
         $users=User::find()->where(['id'=>$user_list])->all();
 
@@ -1392,7 +1389,7 @@ class ProjectController extends Controller
         // {
         //     $return='index';
         // }
-      
+
 
         // if(is_null($project_request->approval_date))
         // {
@@ -1417,12 +1414,12 @@ class ProjectController extends Controller
         $secs = $datetime2 - $datetime1;
         $remaining_time = $secs / 86400;
         if($remaining_time<=0)
-        {    
+        {
             $remaining_time=0;
         }
         $usage=[];
         $remaining_jobs=0;
-        
+
 
         //Request details must be retrieved by the project request id
         if ($project_request->project_type==0)
@@ -1464,7 +1461,7 @@ class ProjectController extends Controller
             $total_vms=VM::find()->where(['project_id'=>$project->id])->count();
             $usage['active_vms']=$active_vms;
             $usage['total_vms']=$total_vms;
-            
+
 
         }
         else if ($project_request->project_type==3)
@@ -1476,7 +1473,7 @@ class ProjectController extends Controller
             $total_vms=VmMachines::find()->where(['project_id'=>$project->id])->count();
             $usage['active_vms']=$active_vms;
             $usage['total_vms']=$total_vms;
-           
+
         }
         else if ($project_request->project_type==2)
         {
@@ -1489,7 +1486,7 @@ class ProjectController extends Controller
             $usage['active_volumes']=$active_volumes;
             $usage['total_volumes']=$total_volumes;
         }
-        
+
 
         $submitted=User::find()->where(['id'=>$project_request->submitted_by])->one();
         $project_owner= ($submitted->username==Userw::getCurrentUser()['username']);
@@ -1497,7 +1494,7 @@ class ProjectController extends Controller
          * Fix username so that it is shown without @
          */
         $submitted->username=explode('@',$submitted->username)[0];
-        
+
         $maximum_number_users=$project_request->user_num;
 
 
@@ -1509,12 +1506,12 @@ class ProjectController extends Controller
 
 
         $number_of_users=count($users);
-        
+
         $expired=0;
 
         return $this->render($view_file,['project'=>$project_request,'details'=>$details, 'return'=>$return,
             'filter'=>$filter,'usage'=>$usage,'user_list'=>$username_list, 'submitted'=>$submitted,'request_id'=>$id, 'type'=>$type, 'ends'=>$ends, 'start'=>$start, 'remaining_time'=>$remaining_time, 'vm_flavour'=>$vm_flavour,
-        	'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'active_servers'=>$active_servers, 'image'=>$image, 'superAdmin'=>$superAdmin, 'page'=>$page,
+            'project_owner'=>$project_owner, 'number_of_users'=>$number_of_users, 'maximum_number_users'=>$maximum_number_users, 'remaining_jobs'=>$remaining_jobs, 'expired'=>$expired, 'active_servers'=>$active_servers, 'image'=>$image, 'superAdmin'=>$superAdmin, 'page'=>$page,
             'ptype'=>$ptype,'exp'=>$exp, 'puser'=>$puser, 'pproject'=>$pproject]);
 
     }
@@ -1567,8 +1564,8 @@ class ProjectController extends Controller
 
         $project=Project::find()->where(['id'=>$id])->one();
         $project_id=$project->id;
-        
-        
+
+
         if (empty($existing))
         {
             /*
@@ -1578,7 +1575,7 @@ class ProjectController extends Controller
             session_write_close();
             $avResources=VM::getOpenstackAvailableResources();
             session_start();
-            
+
             $project=Project::find()->where(['id'=>$id])->one();
             $latest_project_request_id=$project->latest_project_request_id;
             $service=ServiceRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
@@ -1587,19 +1584,19 @@ class ProjectController extends Controller
             {
                 return $this->render('service_unavailable_resources');
             }
-            
+
             $imageDD=Vm::getOpenstackImages();
 
             $form_params =
-            [
-                'action' => URL::to(['project/configure-vm','id'=>$id]),
-                'options' => 
                 [
-                    'class' => 'vm__form',
-                    'id'=> "vm_form"
-                ],
-                'method' => 'POST'
-            ];
+                    'action' => URL::to(['project/configure-vm','id'=>$id]),
+                    'options' =>
+                        [
+                            'class' => 'vm__form',
+                            'id'=> "vm_form"
+                        ],
+                    'method' => 'POST'
+                ];
 
             if ($model->load(Yii::$app->request->post()))
             {
@@ -1617,7 +1614,7 @@ class ProjectController extends Controller
                     $openstackMessage=$result[2];
                     if ($error!=0)
                     {
-                        
+
                         return $this->render('error_vm_creation',['error' => $error,'message'=>$message,'openstackMessage'=>$openstackMessage]);
                     }
 
@@ -1628,25 +1625,25 @@ class ProjectController extends Controller
                         $existing->getConsoleLink();
                         $existing->getServerStatus();
                         session_start();
-    
+
                         return $this->render('vm_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service,'backTarget'=>$backTarget]);
                     }
                 }
             }
-            
+
             return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service,'backTarget'=>$backTarget]);
         }
         else
         {
             $user_id=Userw::getCurrentUser()['id'];
             $volume_exists=HotVolumes::getCreatedVolumesServicesUser($user_id);
-           
+
 
             $hotvolume=HotVolumes::find()->where(['vm_id'=>$existing->id])->andWhere(['active'=>true])->all();
             $additional_storage=[];
             if(!empty($hotvolume))
             {
-                foreach ($hotvolume as $hot) 
+                foreach ($hotvolume as $hot)
                 {
                     $project=Project::find()->where(['id'=>$hot->project_id])->one();
                     $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
@@ -1655,10 +1652,10 @@ class ProjectController extends Controller
             }
             $attached_volumes_ids=array_column($hotvolume, 'id');
             $not_attached_volumes=HotVolumes::find()
-            ->where(['NOT',['id'=>$attached_volumes_ids]])
-            ->andWhere(['active'=>true])
-            ->andWhere(['vm_type'=>1])
-            ->all();
+                ->where(['NOT',['id'=>$attached_volumes_ids]])
+                ->andWhere(['active'=>true])
+                ->andWhere(['vm_type'=>1])
+                ->all();
 
 
             $service_old=ServiceRequest::find()->where(['request_id'=>$existing->request_id])->one();
@@ -1679,7 +1676,7 @@ class ProjectController extends Controller
             session_start();
             return $this->render('vm_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage]);
         }
-        
+
 
     }
 
@@ -1687,7 +1684,7 @@ class ProjectController extends Controller
     {
         /*
          * Check that someone is not trying to do something illegal
-         * by "hacking" at URLs 
+         * by "hacking" at URLs
          */
         $owner=Project::userInProject($id);
 
@@ -1715,14 +1712,14 @@ class ProjectController extends Controller
                 }
             }
         }
-        
-       
+
+
         if (empty($existing))
         {
             /*
              * Create new VM
              */
-            
+
             $model=new VmMachines;
 
             session_write_close();
@@ -1734,7 +1731,7 @@ class ProjectController extends Controller
             $service=MachineComputeRequest::find()->where(['request_id'=>$latest_project_request_id])->one();
 
             /*
-             * If someone is trying to do something fishy with the 
+             * If someone is trying to do something fishy with the
              * parameters in the URL to create more VMs than allowed,
              * stop them.
              */
@@ -1742,24 +1739,24 @@ class ProjectController extends Controller
             {
                 return $this->render('error_unauthorized');
             }
-            
+
             if ( ($service->num_of_ips>$avResources[2]) || ($service->ram>$avResources[1]) || ($service->num_of_cores > $avResources[0]) || ($service->storage > $avResources[3]) )
             {
                 return $this->render('service_unavailable_resources');
             }
-            
+
             $imageDD=VmMachines::getOpenstackImages();
 
             $form_params =
-            [
-                'action' => URL::to(['project/machine-compute-configure-vm','id'=>$id,'multOrder'=>$multOrder,'backTarget'=>'m']),
-                'options' => 
                 [
-                    'class' => 'vm__form',
-                    'id'=> "vm_form"
-                ],
-                'method' => 'POST'
-            ];
+                    'action' => URL::to(['project/machine-compute-configure-vm','id'=>$id,'multOrder'=>$multOrder,'backTarget'=>'m']),
+                    'options' =>
+                        [
+                            'class' => 'vm__form',
+                            'id'=> "vm_form"
+                        ],
+                    'method' => 'POST'
+                ];
 
             if ($model->load(Yii::$app->request->post()))
             {
@@ -1767,7 +1764,7 @@ class ProjectController extends Controller
                 $model->keyFile = UploadedFile::getInstance($model, 'keyFile');
                 if ($model->validate())
                 {
-                    
+
                     $model->project_multiple_order=$multOrder;
                     session_write_close();
                     $result=$model->createVM($latest_project_request_id,$service, $imageDD,$service->disk);
@@ -1777,7 +1774,7 @@ class ProjectController extends Controller
                     $openstackMessage=$result[2];
                     if ($error!=0)
                     {
-                        
+
                         return $this->render('error_vm_creation',['error' => $error,'message'=>$message,'openstackMessage'=>$openstackMessage]);
                     }
 
@@ -1785,12 +1782,12 @@ class ProjectController extends Controller
                     {
                         $existing=VmMachines::find()->where(['project_id'=>$id])->andWhere(['active'=>true])->one();
                         $existing->getConsoleLink();
-    
+
                         return $this->render('vm_machines_details',['model'=>$existing, 'requestId'=>$id, 'service'=>$service,'backTarget'=>$backTarget]);
                     }
                 }
             }
-            
+
             return $this->render('configure_vm',['model'=>$model,'form_params'=>$form_params,'imageDD'=>$imageDD,'service'=>$service,'backTarget'=>$backTarget,'project_id'=>$project->id]);
         }
         else
@@ -1799,7 +1796,7 @@ class ProjectController extends Controller
             $additional_storage=[];
             if(!empty($hotvolume))
             {
-                foreach ($hotvolume as $hot) 
+                foreach ($hotvolume as $hot)
                 {
                     $project=Project::find()->where(['id'=>$hot->project_id])->one();
                     $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
@@ -1809,15 +1806,15 @@ class ProjectController extends Controller
 
 
 
-        
+
             session_write_close();
             $existing->getConsoleLink();
             $existing->getServerStatus();
             session_start();
-            
-             return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage,'backTarget'=>$backTarget]);
+
+            return $this->render('vm_machines_details',['model'=>$existing,'requestId'=>$id, 'service'=>$service, 'additional_storage'=>$additional_storage,'backTarget'=>$backTarget]);
         }
-        
+
 
     }
 
@@ -1838,7 +1835,7 @@ class ProjectController extends Controller
 
         /*
          * if project has only one vm
-         * then redirect to the appropriate 
+         * then redirect to the appropriate
          * configure vm action
          */
         if ($details->num_of_vms == 1 )
@@ -1883,7 +1880,7 @@ class ProjectController extends Controller
                 }
                 $storage[$ord][]=['name'=>$volume->name,'mountpoint'=>$volume->mountpoint];
             }
-                
+
         }
 
 
@@ -1903,7 +1900,7 @@ class ProjectController extends Controller
         $vm = new Vm();
         $vm->vm_id=$vm_id;
         $status=empty($vm->getServerStatus($vm_id))? '' : $vm->status;
-        
+
         return $this->asJson($status);
 
     }
@@ -1985,7 +1982,7 @@ class ProjectController extends Controller
         $vm = new VmMachines();
         $vm->vm_id=$vm_id;
         $status=empty($vm->getServerStatus($vm_id))? '' : $vm->status;
-        
+
         return $this->asJson($status);
 
     }
@@ -2093,8 +2090,8 @@ class ProjectController extends Controller
         /*
          * If there are no errors, load the index page
          */
-        
-        
+
+
 
         $success='Successfully deleted VM.';
 
@@ -2102,10 +2099,10 @@ class ProjectController extends Controller
         {
             Yii::$app->session->setFlash('success', "$success");
         }
-        
-                    
+
+
         return $this->redirect(['project/index']);
-        
+
 
     }
 
@@ -2146,8 +2143,8 @@ class ProjectController extends Controller
         /*
          * If there are no errors, load the index page
          */
-        
-        
+
+
 
         $success='Successfully deleted VM.';
 
@@ -2155,10 +2152,10 @@ class ProjectController extends Controller
         {
             Yii::$app->session->setFlash('success', "$success");
         }
-        
-                    
+
+
         return $this->redirect(['project/index']);
-        
+
 
     }
 
@@ -2174,12 +2171,12 @@ class ProjectController extends Controller
 
         $new_results=[];
         $ips = array();
-        foreach ($results[1] as $res) 
+        foreach ($results[1] as $res)
         {
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($res['end_date']);
             $remaining=$now-$end_project;
-            
+
             $vm=VM::find()->where(['id'=>$res['vm_id']])->one();
             $ips[] = $vm->ip_address;
 
@@ -2197,23 +2194,23 @@ class ProjectController extends Controller
             {
                 $expired=0;
                 $res['expired']=$expired;
-                
 
-            }    
+
+            }
             else
-            {   
+            {
                 $expired=1;
                 $res['expired']=$expired;
-                
+
             }
             $new_results[]=$res;
-            
+
 
         }
 
         $pages=$results[0];
         $results=$new_results;
-      
+
         $sidebarItems=[];
         $filters=['all', 'active', 'deleted'];
         $filter_names=['all'=>'All','active'=>'Active','deleted'=>'Deleted'];
@@ -2225,14 +2222,14 @@ class ProjectController extends Controller
         }
 
         return $this->render('vm_list',['results'=>$results,'pages'=>$pages,
-                                'sideItems'=>$sidebarItems,'filter'=>$filter, "count_all"=>$vmcount_all, "count_active"=>$vmcount_active,"count_deleted"=>$vmcount_deleted, 
-                                'ips'=>$ips,'filters'=>$filters_search, 'search_user'=>$filters_search['user'], 'search_project'=>$filters_search['project'], 'ip_address'=>$filters_search['ip']]);
+            'sideItems'=>$sidebarItems,'filter'=>$filter, "count_all"=>$vmcount_all, "count_active"=>$vmcount_active,"count_deleted"=>$vmcount_deleted,
+            'ips'=>$ips,'filters'=>$filters_search, 'search_user'=>$filters_search['user'], 'search_project'=>$filters_search['project'], 'ip_address'=>$filters_search['ip']]);
     }
 
     public function actionVmMachinesList($filter='all')
     {
         $filters_search=['user'=>Yii::$app->request->get('username',''), 'project'=>Yii::$app->request->get('project_name',''), 'ip'=>Yii::$app->request->get('ip_address','')];
-        
+
         $results=ProjectRequest::getVmMachinesList($filter, $filters_search['user'], $filters_search['project'], $filters_search['ip']);
         $vmcount_all=ProjectRequest::getVmMachinesCount("all");
         $vmcount_active=ProjectRequest::getVmMachinesCount("active");
@@ -2240,9 +2237,9 @@ class ProjectController extends Controller
 
         $new_results=[];
         $ips = array();
-        foreach ($results[1] as $res) 
+        foreach ($results[1] as $res)
         {
-            
+
             $now = strtotime(date("Y-m-d"));
             $end_project = strtotime($res['end_date']);
             $remaining=$now-$end_project;
@@ -2264,21 +2261,21 @@ class ProjectController extends Controller
             {
                 $expired=0;
                 $res['expired']=$expired;
-                
 
-            }    
+
+            }
             else
-            {   
+            {
                 $expired=1;
                 $res['expired']=$expired;
-                
+
             }
             $new_results[]=$res;
         }
 
         $pages=$results[0];
         $results=$new_results;
-      
+
         $sidebarItems=[];
         $filters=['all', 'active', 'deleted'];
         $filter_names=['all'=>'All','active'=>'Active','deleted'=>'Deleted'];
@@ -2290,21 +2287,21 @@ class ProjectController extends Controller
         }
 
         return $this->render('vm_machines_list',['results'=>$results,'pages'=>$pages,
-                                'sideItems'=>$sidebarItems,'filter'=>$filter, "count_all"=>$vmcount_all, "count_active"=>$vmcount_active,"count_deleted"=>$vmcount_deleted, 'ips'=>$ips,
-                                'filters'=>$filters_search, 'search_user'=>$filters_search['user'], 'search_project'=>$filters_search['project'], 'ip_address'=>$filters_search['ip']]);
+            'sideItems'=>$sidebarItems,'filter'=>$filter, "count_all"=>$vmcount_all, "count_active"=>$vmcount_active,"count_deleted"=>$vmcount_deleted, 'ips'=>$ips,
+            'filters'=>$filters_search, 'search_user'=>$filters_search['user'], 'search_project'=>$filters_search['project'], 'ip_address'=>$filters_search['ip']]);
     }
 
 
     public function actionAdminVmDetails($id,$project_id,$filter,$pages=null)
     {
-        
+
         if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('error_unauthorized');
         }
         $project=Project::find()->where(['id'=>$project_id])->one();
         $project_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
-       // $project_request=ProjectRequest::find()->where(['id'=>$request_id])->one();
+        // $project_request=ProjectRequest::find()->where(['id'=>$request_id])->one();
         $projectOwner=User::returnUsernameById($project_request->submitted_by);
         $projectOwner=explode('@', $projectOwner)[0];
         $service=ServiceRequest::find()->where(['request_id'=>$project_request->id])->one();
@@ -2315,24 +2312,24 @@ class ProjectController extends Controller
         $deletedBy=explode('@', $deletedBy)[0];
 
 
-        
+
         return $this->render('vm_admin_details',['project'=>$project,'service'=>$service,
-                                'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
-                                'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id, 'pages'=>$pages]);
+            'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
+            'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id, 'pages'=>$pages]);
     }
 
-    
+
 
     public function actionAdminVmMachinesDetails($id,$project_id,$filter)
     {
-        
+
         if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('error_unauthorized');
         }
         $project=Project::find()->where(['id'=>$project_id])->one();
         $project_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
-       // $project_request=ProjectRequest::find()->where(['id'=>$request_id])->one();
+        // $project_request=ProjectRequest::find()->where(['id'=>$request_id])->one();
         $projectOwner=User::returnUsernameById($project_request->submitted_by);
         $projectOwner=explode('@', $projectOwner)[0];
         $service=MachineComputeRequest::find()->where(['request_id'=>$project_request->id])->one();
@@ -2343,10 +2340,10 @@ class ProjectController extends Controller
         $deletedBy=explode('@', $deletedBy)[0];
 
 
-        
+
         return $this->render('vm_machines_admin_details',['project'=>$project,'service'=>$service,
-                                'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
-                                'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
+            'vm'=>$vm, 'projectOwner'=>$projectOwner, 'createdBy'=>$createdBy,
+            'deletedBy'=>$deletedBy, 'filter'=>$filter, 'project_id'=>$project->id ]);
     }
 
     public function actionModeratorOptions()
@@ -2393,14 +2390,14 @@ class ProjectController extends Controller
 
         /*
          * Since datetime involves time too
-         * equality will not work. Instead, check that 
+         * equality will not work. Instead, check that
          * the date strings are not the same
          */
         if (($date1->format("Y-m-d")!=$date2->format("Y-m-d")) && ($date2>$date1))
         {
             return $this->render('error_expired');
         }
-        
+
         $prequest->fillUsernameList();
 
         $prType=$prequest->project_type;
@@ -2418,18 +2415,18 @@ class ProjectController extends Controller
         $date3=new \DateTime(date("Y-m-d"));
         $start=new \DateTime($project->start_date);
         $today= new \DateTime();
-        
+
         $interval=$start->diff($today)->format("%d" );
 
         $duration=$prequest->duration;
 
         if(empty($prequest->end_date))
         {
-                $ends=date('Y-m-d', strtotime($start. " + $duration months"));
+            $ends=date('Y-m-d', strtotime($start. " + $duration months"));
         }
         else
         {
-                $ends= explode(' ', $prequest->end_date)[0];
+            $ends= explode(' ', $prequest->end_date)[0];
         }
 
         $prequest->end_date=$ends;
@@ -2459,7 +2456,7 @@ class ProjectController extends Controller
             $upperlimits=ServiceLimits::find()->where(['user_type'=>$role])->one();
             $autoacceptlimits=ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
             $prequest->end_date=$ends;
-            
+
             $project_id=$prequest->project_id;
             $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
             if (!empty($vm))
@@ -2478,7 +2475,7 @@ class ProjectController extends Controller
             /* Get request quotas */
             $drequest=MachineComputeRequest::find()->where(['request_id'=>$id])->one();
             /*
-             * If flavor has been changed from openstack allow system to continue, in order to 
+             * If flavor has been changed from openstack allow system to continue, in order to
              * be able to update the flavor (provided that the VM does not exist).
              */
             $drequest->flavour=isset($drequest->flavourIdNameLimitless[$drequest->vm_flavour])?$drequest->flavourIdNameLimitless[$drequest->vm_flavour]:'';
@@ -2504,7 +2501,7 @@ class ProjectController extends Controller
             $view_file='edit_cold_storage';
             for ($i=1; $i<31; $i++)
                 $num_vms_dropdown[$i]=$i;
-            
+
             // $prequest->end_date='2100-1-1';
             $prequest->end_date=$ends;
             $volume='';
@@ -2529,12 +2526,7 @@ class ProjectController extends Controller
         }
         else if ($prType==4)
         {
-            $drequest=JupyterRequestNew::find()->where(['request_id'=>$id])->one();
-            $view_file='edit_jupyter';
-            $upperlimits=JupyterLimits::find()->where(['user_type'=>$role])->one();
-            $autoacceptlimits=JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
-            $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
-            $prequest->end_date=$ends;
+
             $img=JupyterImages::find()->all();
             $images=[];
             $users_list_bef = $prequest['user_list'];
@@ -2545,23 +2537,46 @@ class ProjectController extends Controller
                 {
                     $description.=' (GPU)';
                 }
-    
+
                 $images[$i->id]=$description;
+            }
+            // Fetch Jupyter request details
+            $drequest = JupyterRequestNew::find()->where(['request_id' => $id])->one();
+            $view_file = 'edit_jupyter';
+
+            // Fetch limits based on the user type
+            $upperlimits = JupyterLimits::find()->where(['user_type' => $role])->one();
+            $autoacceptlimits=JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
+             $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+            // Ensure the limits exist for the given user type
+            if ($upperlimits !== null) {
+                // Compare the requested resources with the limits
+                if ($drequest->cpu_cores <= $upperlimits->cores && $drequest->ram_size <= $upperlimits->ram) {
+                    // If the request is within the limits, auto-accept the request
+                    $prequest->status = ProjectRequest::AUTOAPPROVED;
+                    // Assuming status is set like this
+
+                    // Optionally, log the auto-accept action or add a session flash message
+                    Yii::$app->session->setFlash('success', 'Request auto-accepted because the resources are within the limits.');
+                }
+            } else {
+                // If no limits found for the given user type, log a message or handle accordingly
+                Yii::$app->session->setFlash('error', 'No limits found for the given user type.');
             }
 
         }
 
 //id= most recent project request
         $form_params =
-        [
-            'action' => URL::to(['project/edit-project', 'id'=>$id]),
-            'options' => 
             [
-                'class' => 'service_request_form',
-                'id'=> "service_request_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['project/edit-project', 'id'=>$id]),
+                'options' =>
+                    [
+                        'class' => 'service_request_form',
+                        'id'=> "service_request_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         $errors='';
         $success='';
@@ -2596,7 +2611,7 @@ class ProjectController extends Controller
             {
                 $participant_ids[]=$pid;
             }
-            
+
             $prequest->user_list=new yii\db\ArrayExpression($participant_ids, 'int4');
 
             $isValid = $prequest->validate();
@@ -2605,31 +2620,31 @@ class ProjectController extends Controller
             // {
             //     $isValid = $prequest->machinesDuration30() && $isValid;
             // }
-            
+
             $pchanged_tmp= ProjectRequest::ProjectModelChanged($pold,$prequest);
             $pchanged=$pchanged_tmp[0];
             $uchanged=$pchanged_tmp[1];
             $dchanged= ProjectRequest::modelChanged($dold,$drequest);
-            
+
             $project_id=$prequest->project_id;
             $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
-            
+
             if (!empty($vm))
             {
-                   
+
                 if(ServiceRequest::compareServices($dold,$drequest))
                 {
                     Yii::$app->session->setFlash('danger', "You are not allowed to request fewer resources, since you have already created a VM");
                     return $this->redirect(['project/edit-project', 'id'=>$id]);
-                 }
-                
+                }
+
             }
-            
+
             if ($isValid)
-            {   
+            {
 
                 if ($prType==4){
-    
+
                     //if the owner removed users, find their active servers and delete them
                     $removed_users = array();
                     foreach ($pold['user_list'] as $prev_user){
@@ -2641,7 +2656,7 @@ class ProjectController extends Controller
                         }
                         if ($found==0){
                             $removed_users[] = $prev_user;
-                        } 
+                        }
                     }
                     foreach ($removed_users as $removed_user) {
                         $user=User::returnUsernameById($removed_user);
@@ -2649,7 +2664,7 @@ class ProjectController extends Controller
                         if(!empty($server)){
                             $server->stopserver();
                         }
-    
+
                     }
 
                     //if the cpu or ram changed, delete all active servers of the project
@@ -2663,12 +2678,12 @@ class ProjectController extends Controller
 
                     }
 
-    
-    
+
+
                 }
 
                 if ($prType==0){
-    
+
                     //if the owner removed users, delete them from the schema api project
                     $removed_users = array();
                     $schema_api_url=Yii::$app->params['schema_api_url'];
@@ -2687,7 +2702,7 @@ class ProjectController extends Controller
                         }
                         if ($found==0){
                             $removed_users[] = $prev_user;
-                        } 
+                        }
                     }
                     foreach ($removed_users as $removed_user) {
                         $user=User::returnUsernameById($removed_user);
@@ -2696,9 +2711,9 @@ class ProjectController extends Controller
                         // ob_flush();
                         $URL = $schema_api_url."/api_auth/contexts/{$prequest->name}/users/{$username}";
                         Token::DeleteUserFromProject($URL, $headers);
-    
+
                     }
-    
+
                 }
 
                 if ($prType==2)
@@ -2757,7 +2772,7 @@ class ProjectController extends Controller
                             $success.=$messages[1];
                             $warnings.=$messages[2];
                         }
-                        
+
                     }
                 }
                 else
@@ -2775,15 +2790,15 @@ class ProjectController extends Controller
                     {
                         Yii::$app->session->setFlash('warning', "$warnings");
                     }
-                    
+
                     return $this->redirect(['project/index']);
                 }
             }
         }
 
 
-        return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval, 'exceed_limits'=>$exceed_limits]);
+        return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest,
+            'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval, 'exceed_limits'=>$exceed_limits]);
 
 
     }
@@ -2852,7 +2867,7 @@ class ProjectController extends Controller
                 Yii::$app->session->setFlash('success', "The user " .$user." has been successfully removed from your project!");
                 return $this->redirect(array('jupyter-index', 'id'=>$requestId, 'pid'=>$prequest_new['project_id']));
             }
-            
+
         }
 
     }
@@ -2881,18 +2896,18 @@ class ProjectController extends Controller
 
         if(empty($prequest->end_date))
         {
-                $ends=date('Y-m-d', strtotime($start. " + $duration months"));
+            $ends=date('Y-m-d', strtotime($start. " + $duration months"));
         }
         else
         {
-                $ends= explode(' ', $prequest->end_date)[0];
+            $ends= explode(' ', $prequest->end_date)[0];
         }
 
         $prequest->end_date=$ends;
         $num_vms_dropdown=[];
 
         $vm_exists=false;
-        
+
         $prequest->fillUsernameList();
 
         $prType=$prequest->project_type;
@@ -2903,7 +2918,6 @@ class ProjectController extends Controller
         $volume_exists=false;
 
         $role=User::getRoleType();
-
         if ($prType==0)
         {
             $drequest=OndemandRequest::find()->where(['request_id'=>$id])->one();
@@ -2913,8 +2927,32 @@ class ProjectController extends Controller
             $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
 
         }
+        else if ($prType==4)
+        {
+            $drequest=JupyterRequestNew::find()->where(['request_id'=>$id])->one();
+            $view_file='edit_jupyter';
+            $upperlimits=JupyterLimits::find()->where(['user_type'=>$role])->one();
+            $autoacceptlimits=JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
+            $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+            $prequest->end_date=$ends;
+            $img=JupyterImages::find()->all();
+            $images=[];
+            $users_list_bef = $prequest['user_list'];
+            foreach ($img as $i)
+            {
+                $description=$i->description;
+                if ($i->gpu==true)
+                {
+                    $description.=' (GPU)';
+                }
+
+                $images[$i->id]=$description;
+            }
+
+        }
         else if ($prType==1)
         {
+
             $drequest=ServiceRequest::find()->where(['request_id'=>$id])->one();
             $drequest->flavour=$drequest->flavourIdName[$drequest->vm_flavour];
             $view_file='edit_service';
@@ -2976,21 +3014,21 @@ class ProjectController extends Controller
             $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
         }
 
-        
+
 
         $form_params =
-        [
-            'action' => URL::to(['project/modify-request', 'id'=>$id]),
-            'options' => 
             [
-                'class' => 'service_request_form',
-                'id'=> "service_request_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['project/modify-request', 'id'=>$id]),
+                'options' =>
+                    [
+                        'class' => 'service_request_form',
+                        'id'=> "service_request_form"
+                    ],
+                'method' => 'POST'
+            ];
 
-        
-        
+
+
 
         $errors='';
         $success='';
@@ -2998,9 +3036,11 @@ class ProjectController extends Controller
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
         $participating= (isset($_POST['participating'])) ? $_POST['participating'] : $prequest->usernameList;
+
         $pold=clone $prequest;
+
         $dold=clone $drequest;
-        
+
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
 
@@ -3013,7 +3053,7 @@ class ProjectController extends Controller
             }
 
 
-            /* 
+            /*
              * Get participant ids
              */
             $participant_ids_tmp=[];
@@ -3030,20 +3070,20 @@ class ProjectController extends Controller
                 $participant_ids[]=$pid;
             }
 
-            
+
             $prequest->user_list=new yii\db\ArrayExpression($participant_ids, 'int4');
             $pchanged_tmp= ProjectRequest::ProjectModelChanged($pold,$prequest);
             $pchanged=$pchanged_tmp[0];
             $uchanged=$pchanged_tmp[1];
             $dchanged= ProjectRequest::modelChanged($dold,$drequest);
-            
+
             $project_id=$prequest->project_id;
             $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
 
-            
+
 
             if ($isValid)
-            {   
+            {
 
                 if ($prType==1 || $prType==3)
                 {
@@ -3083,14 +3123,14 @@ class ProjectController extends Controller
                     {
                         Yii::$app->session->setFlash('warning', "$warnings");
                     }
-                    
+
                     return $this->redirect(['project/index']);
                 }
             }
         }
 
-        return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest, 
-                    'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown,'volume_exists'=>$volume_exists, 'exceed_limits'=>$exceed_limits]);
+        return $this->render($view_file,['details'=>$drequest, 'images' => $images,'project'=>$prequest,
+            'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown,'volume_exists'=>$volume_exists, 'exceed_limits'=>$exceed_limits]);
 
 
     }
@@ -3124,7 +3164,7 @@ class ProjectController extends Controller
         {
             Yii::$app->session->setFlash('warning', "$warnings");
         }
-        
+
         return $this->redirect(['project/index']);
     }
 
@@ -3165,7 +3205,7 @@ class ProjectController extends Controller
         {
             Yii::$app->session->setFlash('warning', "$warnings");
         }
-        
+
         return $this->redirect(['project/index']);
     }
 
@@ -3191,18 +3231,18 @@ class ProjectController extends Controller
         $user=Userw::getCurrentUser();
         $user_id=$user->id;
         if (!Userw::hasRole('Moderator',$superadminAllowed=true))
-                
+
         {
             return $this->render('error_unauthorized');
         }
         $user_notifications=EmailEventsModerator::find()->where(['user_id'=>$user_id])->one();
         if(empty($user_notifications))
         {
-        		$user_notifications=new EmailEventsModerator;
-        		$user_notifications->user_id=$user_id;
-        		$user_notifications->save();
-        		
-       	}
+            $user_notifications=new EmailEventsModerator;
+            $user_notifications->user_id=$user_id;
+            $user_notifications->save();
+
+        }
 
         $smtp=Smtp::find()->one();
         $smtp_config=true;
@@ -3211,12 +3251,12 @@ class ProjectController extends Controller
             Yii::$app->session->setFlash('danger', "SMTP is not configured properly to enable email notifications");
             $smtp_config=false;
         }
-       	if($user->load(Yii::$app->request->post()) && $user_notifications->load(Yii::$app->request->post()))
+        if($user->load(Yii::$app->request->post()) && $user_notifications->load(Yii::$app->request->post()))
         {
-        	
+
             $user->update();
-           	$user_notifications->update();
-       		Yii::$app->session->setFlash('success', "Your changes have been successfully submitted");
+            $user_notifications->update();
+            Yii::$app->session->setFlash('success', "Your changes have been successfully submitted");
             return $this->redirect(['moderator-options']);
         }
 
@@ -3233,7 +3273,7 @@ class ProjectController extends Controller
         $results=ColdStorageRequest::getActiveProjects();
         $services=$results[0];
         $machines=$results[1];
-        
+
         return $this->render('storage_volumes', ['services'=>$services, 'machines'=>$machines, 'results'=>$results]);
     }
 
@@ -3285,15 +3325,15 @@ class ProjectController extends Controller
             /*
              * Create volume
              */
-            
+
             $hotvolume->create($project,$crequest,$order);
             if (!empty($hotvolume->errorMessage))
             {
-                Yii::$app->session->setFlash('danger', $hotvolume->errorMessage);  
+                Yii::$app->session->setFlash('danger', $hotvolume->errorMessage);
                 return $this->redirect($return);
             }
 
-            Yii::$app->session->setFlash('success', "Volume created successfully");  
+            Yii::$app->session->setFlash('success', "Volume created successfully");
             return $this->redirect($return);
         }
         else
@@ -3302,7 +3342,7 @@ class ProjectController extends Controller
              * This is a placeholder for when the cold storage
              * backend is provided;
              */
-            
+
         }
         $this->redirect($return);
 
@@ -3340,7 +3380,7 @@ class ProjectController extends Controller
             Yii::$app->session->setFlash('danger', $volume->errorMessage);
             return $this->redirect($return);
         }
-        
+
         $volume->deleteVolume();
 
         if (!empty($volume->errorMessage))
@@ -3351,7 +3391,7 @@ class ProjectController extends Controller
 
         Yii::$app->session->setFlash('success', "Volume $volume->name has been successfully deleted.");
         return $this->redirect($return);
-        
+
     }
 
     public function actionManageVolumes($id,$vid,$ret='u')
@@ -3432,14 +3472,14 @@ class ProjectController extends Controller
             return $this->redirect($return);
 
         }
-        
+
         $vm_name=(isset($volume->vm_dropdown[$volume->vm_id])) ? $volume->vm_dropdown[$volume->vm_id] : '';
 
         $form_params=
-        [
-            'action' => URL::to(['project/manage-volumes','id'=>$id, 'vid'=>$vid,'ret'=>$ret,'return'=>$return]),
-            'method' => 'POST'
-        ];
+            [
+                'action' => URL::to(['project/manage-volumes','id'=>$id, 'vid'=>$vid,'ret'=>$ret,'return'=>$return]),
+                'method' => 'POST'
+            ];
 
         return $this->render('manage_volumes', ['volume'=>$volume,'pid'=>$id, 'vm_name'=>$vm_name,'form_params'=>$form_params, 'ret'=>$ret]);
     }
@@ -3482,7 +3522,7 @@ class ProjectController extends Controller
             Yii::$app->session->setFlash('danger', $volume->errorMessage);
             return $this->redirect($return);
         }
-        
+
         Yii::$app->session->setFlash('success', "Volume has been successfully detached from the VM.");
         return $this->redirect($return);
 
@@ -3503,7 +3543,7 @@ class ProjectController extends Controller
     {
         Yii::debug("Inside controllers.ProjectController.actionJupyterIndex()");
         $name = Project::find('name')->where(['id'=>$pid])->one();
-	$owner = Project::getProjectOwner($name['name']);
+        $owner = Project::getProjectOwner($name['name']);
         $current_user =  Userw::getCurrentUser()['id'];
         //check if there is a server running, created by the current user
         $server=JupyterServer::find()->where(['active'=>true,'project'=>$name['name'], 'created_by'=>Userw::getCurrentUser()['username']])->one();
@@ -3523,7 +3563,7 @@ class ProjectController extends Controller
             $im=$image->image;
             $imageDrop[$image->id]=$im;
         }
-        
+
         $user_list=$project_request->user_list->getValue();
         $users=User::find()->where(['id'=>$user_list])->all();
         $username=explode('@',Userw::getCurrentUser()['username'])[0];
@@ -3534,18 +3574,18 @@ class ProjectController extends Controller
             JupyterServer::exec_log("mkdir $userFolder");
             JupyterServer::exec_log("chmod 777 $userFolder");
         }
-        
+
         $jup = JupyterRequestNew::find()->where(['request_id'=>$id])->one();
         $form_params =
-        [
-            'action' => URL::to(['project/jupyter-index', "pid"=>$pid, "id"=>$id]),
-            'options' => 
             [
-                'class' => 'service_request_form',
-                'id'=> "service_request_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['project/jupyter-index', "pid"=>$pid, "id"=>$id]),
+                'options' =>
+                    [
+                        'class' => 'service_request_form',
+                        'id'=> "service_request_form"
+                    ],
+                'method' => 'POST'
+            ];
 
 
         $quotas = JupyterRequestNew::GetProjectQuotas($pid);
@@ -3595,15 +3635,15 @@ class ProjectController extends Controller
         $owner = Project::getProjectOwner($name['name']);
         $current_user =  Userw::getCurrentUser()['id'];
         $form_params =
-        [
-            'action' => URL::to(['jupyter-start-server', 'project'=>$project, 'pid'=>$pid, 'id'=>$id]),
-            'options' => 
             [
-                'class' => 'jupyter_start_form',
-                'id'=> "jupyter_start_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['jupyter-start-server', 'project'=>$project, 'pid'=>$pid, 'id'=>$id]),
+                'options' =>
+                    [
+                        'class' => 'jupyter_start_form',
+                        'id'=> "jupyter_start_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         // if (!Yii::$app->params['standalone'])
         // {
@@ -3612,7 +3652,7 @@ class ProjectController extends Controller
         //          */
         //         // $quotas=JupyterServer::getProjectQuotas($project);
         //         $quotas=['cores'=>1,'ram'=>1,'end_date'=>'2250-12-31' ];
-    
+
         //         // if (empty($quotas))
         //         // {
         //         //     return $this->render('project_error',['project'=>$project]);
@@ -3656,7 +3696,7 @@ class ProjectController extends Controller
         }
 
         $model = new JupyterServer;
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) 
+        if ($model->load(Yii::$app->request->post()) && $model->validate())
         {
             $model->image_id = $image_id;
             $model->cpu=$quotas['cores'];
@@ -3677,7 +3717,7 @@ class ProjectController extends Controller
             ProjectRequest::recordViewed($id);
             $project_request=ProjectRequest::findOne($id);
             $project=Project::find()->where(['id'=>$project_request->project_id])->one();
-            
+
             $user_list=$project_request->user_list->getValue();
             $users=User::find()->where(['id'=>$user_list])->all();
             foreach ($users as $user)
@@ -3688,9 +3728,9 @@ class ProjectController extends Controller
             $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$name['name']])->all();
             $server=JupyterServer::find()->where(['active'=>true,'project'=>$project, 'created_by'=>Userw::getCurrentUser()['username']])->one();
             return $this->redirect(array('jupyter-index','name'=>$name,'ram'=>$quotas['ram'], 'cpu'=>$quotas['cores'],'images'=>$images, 'description'=>$quotas['description'], 'req'=>$quotas['request_id'], 'end_date'=>$days, 'pid'=>$pid, 'participants'=>$username_list, 'server'=>$server, 'id'=>$id, 'owner'=>$owner, 'current_user'=>$current_user, 'all_servers'=>$all_servers ));
-        
-        } 
-        
+
+        }
+
 
         return $this->render('jupyter_start_server',['model'=>$model, 'imageDrop'=>$imageDrop,'form_params' => $form_params, 'project' => $project, 'pid'=>$pid, 'image__id'=>$image_id]);
 
@@ -3752,7 +3792,7 @@ class ProjectController extends Controller
         ProjectRequest::recordViewed($id);
         $project_request=ProjectRequest::findOne($id);
         $project=Project::find()->where(['id'=>$project_request->project_id])->one();
-        
+
         $user_list=$project_request->user_list->getValue();
         $users=User::find()->where(['id'=>$user_list])->all();
         foreach ($users as $user)
@@ -3780,7 +3820,7 @@ class ProjectController extends Controller
         else
         {
             return $this->redirect(array('jupyter-index','name'=>$name,'ram'=>$quotas['ram'], 'cpu'=>$quotas['cores'],'images'=>$images, 'description'=>$quotas['description'], 'req'=>$quotas['request_id'], 'end_date'=>$days, 'pid'=>$pid, 'participants'=>$username_list, 'server'=>$server, 'id'=>$id, 'image_id'=>$imageDrop[$image->id], 'owner'=>$owner, 'current_user'=>$current_user, 'all_servers'=>$all_servers ));
-        
+
         }
 
     }
@@ -3795,12 +3835,12 @@ class ProjectController extends Controller
         {
             return $this->render('unauthorized');
         }
-        
+
         /*
          * Get expired servers
          */
         $servers=JupyterServer::find()->where(['active'=>true])->andWhere(['<','expires_on','NOW()'])->all();
-        
+
         /*
          * If no servers exist, return
          */
@@ -3820,7 +3860,7 @@ class ProjectController extends Controller
 
 
         Yii::$app->session->setFlash('success','Successfully stopped all expired Jupyter servers');
-        
+
         return $this->redirect(['administration/view-active-jupyters']);
 
     }
@@ -3923,10 +3963,10 @@ class ProjectController extends Controller
             $URL = $schema_api_url."/api_auth/contexts/{$pname}";
             //$project_post = $temp1.$temp4;
             $return=Token::EditToken($URL, $headers, $project_post);
-        //     $URL2 = "/tokens";
-        //     $URL = $URL1.$pname.$URL2;
-        //     $issued_tokens = Token::GetTokens($URL, $headers);
-            
+            //     $URL2 = "/tokens";
+            //     $URL = $URL1.$pname.$URL2;
+            //     $issued_tokens = Token::GetTokens($URL, $headers);
+
         }
         else {
             //placeholder for bad request
@@ -3935,7 +3975,7 @@ class ProjectController extends Controller
         $URL = $schema_api_url."/api_auth/contexts/{$pname}/users";
         //check if the user is registered to the project
         $user_registered = Token::IsUserRegisteredProject($URL, $headers, $username);
-        //user is not registered to the project 
+        //user is not registered to the project
         if ($user_registered == 0) {
             $temp1 = '{"username":';
             $temp2 = '"';
@@ -3943,19 +3983,19 @@ class ProjectController extends Controller
             $post_body = $temp1.$temp4;
             $return = Token::Register($URL, $headers, $post_body);
             return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>0,
-            'strArray'=>'', 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
+                'strArray'=>'', 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
         } else {
             // $URL = "http://62.217.122.242:8080/api_auth/contexts/{$pname}/users/{$username}/tokens?status=active";
             $URL = $schema_api_url."/api_auth/contexts/{$pname}/users/{$username}/tokens?status=active";
             //$URL = "http://62.217.122.242:8080/api_auth/contexts/context0/users/user0/tokens";
             $issued_tokens = Token::GetTokens($URL, $headers);
             return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>$issued_tokens[0],
-            'strArray'=>$issued_tokens[1], 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
+                'strArray'=>$issued_tokens[1], 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
         }
     }
 
     public function actionNewTokenRequest($id, $mode, $uuid){
-        //retrieve schema API base url and authentication token 
+        //retrieve schema API base url and authentication token
         // $schema_api=SchemaAPI::find()->one();
         $schema_api_url=Yii::$app->params['schema_api_url'];
         $schema_api_token=Yii::$app->params['schema_api_token'];
@@ -3981,7 +4021,7 @@ class ProjectController extends Controller
             $message=$model->validateDates($exp_date, $s_exp_date, $mode);
 
             if( $message=='ok'|| $message =='empty') {
-            // valid data received in $model
+                // valid data received in $model
                 if ($message!='ok' && $message!='empty' && !empty($prequest)){
                     Yii::$app->session->setFlash('danger', "$message");
                     return $this->redirect(['project/token-management', 'id'=>$id]);
@@ -3989,7 +4029,7 @@ class ProjectController extends Controller
 
                 } elseif($message=='empty'&& !empty($prequest) && $mode==0 ) {
                     $s_exp_date = $exp_date;
-                } 
+                }
 
                 $time = date('h:i:s');
                 if ($mode == 1){
@@ -4029,13 +4069,13 @@ class ProjectController extends Controller
                     }
                     return $this->redirect(['project/token-management','id'=>$id]);
                     //return $this->actionTokenManagement($project_id,$model->expiration_date);
-                } 
+                }
             } else {
 
                 Yii::$app->session->setFlash('danger', "$message");
                 //return $this->actionOnDemandLp($project_id,$model->expiration_date);
             }
-           
+
         } else {
 
             if ($mode == 1) {
@@ -4047,10 +4087,10 @@ class ProjectController extends Controller
                 $token_details = Token::GetTokenDetails($URL, $headers);
                 $exp_date = $token_details[1]->format('y-m-d');
                 return $this->render('new_token_request', ['model' => $model, 'requestId'=>$id, 'project'=>$project, 'mode'=>$mode, 'uuid'=>$uuid, 'title'=>$token_details[0], 'exp_date'=>$exp_date]);
-            
+
             } elseif ($mode==0) {
                 return $this->render('new_token_request', ['model' => $model, 'requestId'=>$id, 'project'=>$project, 'mode'=>$mode, 'uuid'=>$uuid]);
-            
+
             } else {
 
                 $pname = $project->name;
@@ -4065,9 +4105,9 @@ class ProjectController extends Controller
                 //return $this->actionTokenManagement($project_id);
                 return $this->redirect(['project/token-management', 'id'=>$id]);
 
-             }
+            }
             // either the page is initially displayed or there is some validation error
-            
+
         }
         if ($mode == 0){
             return $this->render('new_token_request', ['model' => $model, 'requestId'=>$id, 'project'=>$project, 'mode'=>$mode, 'uuid'=>$uuid]);
@@ -4075,14 +4115,14 @@ class ProjectController extends Controller
             $pname = $project->name;
             $user=Userw::getCurrentUser();
             $username=explode('@',$user['username'])[0];
-                // $URL = "http://62.217.122.242:8080/api_auth/contexts/{$pname}/users/{$username}/tokens/{$uuid}";
+            // $URL = "http://62.217.122.242:8080/api_auth/contexts/{$pname}/users/{$username}/tokens/{$uuid}";
             $URL = $schema_api_url."/api_auth/contexts/{$pname}/users/{$username}/tokens/{$uuid}";
-                //$URL = "http://62.217.122.242:8080/api_auth/contexts/context0/users/user0/tokens/{$uuid}";
+            //$URL = "http://62.217.122.242:8080/api_auth/contexts/context0/users/user0/tokens/{$uuid}";
             $token_details = Token::GetTokenDetails($URL, $headers);
             $exp_date = $token_details[1]->format('y-m-d');
             return $this->render('new_token_request', ['model' => $model, 'requestId'=>$id, 'project'=>$project, 'mode'=>$mode, 'uuid'=>$uuid, 'title'=>$token_details[0], 'exp_date'=>$exp_date]);
         }
-        
+
 
     }
 
@@ -4102,7 +4142,7 @@ class ProjectController extends Controller
         $remaining_jobs=$num_of_jobs-$used_jobs;
 
         return $this->render('on_demand_access', ['project'=>$project, 'details'=>$details,'initial_jobs'=>$num_of_jobs, 'remaining_jobs'=>$remaining_jobs, 'usage'=>$usage, 'request_id'=>$request_id, 'id'=>$id, 'compute'=>$schema_url ]);
-        
+
     }
 
 
