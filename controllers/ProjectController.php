@@ -132,18 +132,18 @@ class ProjectController extends Controller
 
         //if there are expired books projects, check if there are active servers and delete them
 
-        $expired_projects = $expired_owner;
-        foreach ($expired_projects as $expired_project){
-            if ($expired_project['project_type']==4){
-                $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$expired_project['name']])->all();
-                if (!empty($all_servers)){
-                    foreach ($all_servers as $server){
-                        $server->Stopserver();
-                    }
-                }
-
-            }
-        }
+//        $expired_projects = $expired_owner;
+//        foreach ($expired_projects as $expired_project){
+//            if ($expired_project['project_type']==4){
+//                $all_servers=JupyterServer::find()->where(['active'=>true,'project'=>$expired_project['name']])->all();
+//                if (!empty($all_servers)){
+//                    foreach ($all_servers as $server){
+//                        $server->Stopserver();
+//                    }
+//                }
+//
+//            }
+//        }
 
         $active=[];
         $expired=[];
