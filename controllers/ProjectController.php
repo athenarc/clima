@@ -785,153 +785,156 @@ class ProjectController extends Controller
 
     public function actionNewJupyterRequestNew()
     {
-        $img = JupyterImages::find()->all();
-        $images = [];
-        foreach ($img as $i) {
-            $description = $i->description;
-            if ($i->gpu == true) {
-                $description .= ' (GPU)';
+        $img=JupyterImages::find()->all();
+        $images=[];
+        foreach ($img as $i)
+        {
+            $description=$i->description;
+            if ($i->gpu==true)
+            {
+                $description.=' (GPU)';
             }
-            $images[$i->id] = $description;
+
+            $images[$i->id]=$description;
         }
 
-        $role = User::getRoleType();
-        $jupyter_limits = JupyterLimits::find()->where(['user_type' => $role])->one();
-        $jupyter_maximum_number = $jupyter_limits->number_of_projects;
+        $role=User::getRoleType();
+        $jupyter_limits= JupyterLimits::find()->where(['user_type'=>$role])->one();
+        $jupyter_maximum_number=$jupyter_limits->number_of_projects;
+        //need to change project type
+        $number_of_user_projects=ProjectRequest::find()->where(['status'=>[1,2],'project_type'=>4,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $new_project_allowed=($number_of_user_projects-$jupyter_maximum_number < 0) ? true :false;
 
-        // Check if the user is allowed to create a new project
-        $number_of_user_projects = ProjectRequest::find()->where(['status' => [1, 2], 'project_type' => 4, 'submitted_by' => Userw::getCurrentUser()['id']])
-            ->andWhere(['>=', 'end_date', date("Y-m-d")])->count();
-        $new_project_allowed = ($number_of_user_projects - $jupyter_maximum_number < 0) ? true : false;
-
-        if ((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed = true)) && (!Userw::hasRole('Moderator', $superadminAllowed = true))) {
-            return $this->render('no_project_allowed', ['project' => "Jupyter notebooks", 'user_type' => $role]);
+        if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)) )
+        {
+            return $this->render('no_project_allowed', ['project'=>"Jupyter notebooks", 'user_type'=>$role]);
         }
 
-        $jupyterModel = new JupyterRequestNew();
-        $projectModel = new ProjectRequest;
-        $autoacceptModel=new JupyterAutoaccept;
+        $jupyterModel=new JupyterRequestNew();
+        $projectModel=new ProjectRequest;
         $limitsModel=new JupyterLimits;
-        // Resource limits based on user's role
-        $resource_limits = [
-            'num_of_jobs' => $jupyter_limits->num_of_jobs,
-            'cores' => $jupyter_limits->cores,
-            'ram' => $jupyter_limits->ram,
-        ];
+        $autoacceptModel=new JupyterAutoaccept;
 
-        $autoaccept_allowed = false;
+
+        $jupyter_autoaccept= JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
+        $jupyter_autoaccept_number=$jupyter_autoaccept->autoaccept_number;
+        //change project type
+        $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>4,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
+        $autoaccept_allowed=($autoaccepted_num-$jupyter_autoaccept_number < 0) ? true :false;
+
+
+
+
+
+        $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
+
+        $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
+
+
+        //need to change project type
         $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'jupyter'=>4];
-        // Form parameters for rendering
-        $form_params = [
-            'action' => URL::to(['project/new-jupyter-request-new']),
-            'options' => [
-                'class' => 'jupyter_project',
-                'id' => "jupyter_project"
-            ],
-            'method' => 'POST'
-        ];
 
-        // Initialize variables
-        $errors = '';
-        $success = '';
-        $warnings = '';
-        $message = '';
-
-        $username = Userw::getCurrentUser()['username'];
-        $user_split = explode('@', $username)[0];
-        $participating = isset($_POST['participating']) ? $_POST['participating'] : [$user_split];
-
-        if (($jupyterModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post()))) {
-            $projectModel['user_num'] = $jupyterModel['participants_number'];
-
-            // Prepare participant IDs
-            $participant_ids_tmp = [];
-            foreach ($participating as $participant) {
-                $username = $participant . '@elixir-europe.org';
-                $pid = User::findByUsername($username)->id;
-                $participant_ids_tmp[$pid] = null;
-            }
-
-            $participant_ids = array_keys($participant_ids_tmp);
-            $projectModel->user_list = $participant_ids;
-
-            // Retrieve requested resources from $jupyterModel
-            $requested_resources = [
-                'num_of_jobs' => $jupyterModel->num_of_jobs,
-                'cores' => $jupyterModel->cores,
-                'ram' => $jupyterModel->ram,
+        $form_params =
+            [
+                'action' => URL::to(['project/new-jupyter-request-new']),
+                'options' =>
+                    [
+                        'class' => 'jupyter_project',
+                        'id'=> "jupyter_project"
+                    ],
+                'method' => 'POST'
             ];
 
-            // Auto-accept if the requested resources are within the limits
-            $autoaccept_allowed = (
-                $requested_resources['num_of_jobs'] <= $resource_limits['num_of_jobs'] &&
-                $requested_resources['cores'] <= $resource_limits['cores'] &&
-                $requested_resources['ram'] <= $resource_limits['ram']
-            );
+        // $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
 
-            // Validate models
+        $errors='';
+        $success='';
+        $warnings='';
+        $message='';
+        $username=Userw::getCurrentUser()['username'];
+        $user_split=explode('@',$username)[0];
+        $participating= (isset($_POST['participating'])) ? $_POST['participating'] : [ $user_split ];
+
+
+        if ( ($jupyterModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
+        {
+            $projectModel['user_num'] = $jupyterModel['participants_number'];
+            $participant_ids_tmp=[];
+            foreach ($participating as $participant)
+            {
+                $username=$participant . '@elixir-europe.org';
+                $pid=User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid]=null;
+            }
+
+            $participant_ids=[];
+            foreach ($participant_ids_tmp as $pid => $dummy)
+            {
+                $participant_ids[]=$pid;
+            }
+
+            $image_id = JupyterImages::find()->where(['description'=>$jupyterModel->image])->one();
+            // $jupyterModel->image_id = 8;
+
+            $projectModel->user_list=$participant_ids;
+
             $isValid = $projectModel->validate();
             $isValid = $jupyterModel->validate() && $isValid;
 
-            if ($isValid) {
-                $messages = $projectModel->uploadNew($project_types['jupyter']);
-                $errors .= $messages[0];
-                $success .= $messages[1];
-                $warnings .= $messages[2];
-                $requestId = $messages[3];
-                $submitted_email = $messages[4];
-                $project_id = $messages[5];
+            if ($isValid)
+            {
+                //need to change project type
+                $messages=$projectModel->uploadNew($project_types['jupyter']);
+                $errors.=$messages[0];
+                $success.=$messages[1];
+                $warnings.=$messages[2];
+                $requestId=$messages[3];
+                $submitted_email=$messages[4];
+                $project_id=$messages[5];
 
-                if ($requestId != -1) {
+                if ($requestId!=-1)
+                {
                     $jupyterModel['participant_view'] = $jupyterModel['description'];
-                    $messages = $jupyterModel->uploadNew($requestId);
-                    $errors .= $messages[0];
-                    $success .= $messages[1];
-                    $warnings .= $messages[2];
-                    $message_autoaccept = $messages[3];
+                    $messages=$jupyterModel->uploadNew($requestId);
+                    $errors.=$messages[0];
+                    $success.=$messages[1];
+                    $warnings.=$messages[2];
+                    $message_autoaccept=$messages[3];
                     $message_autoaccept_mod = $messages[5];
                 }
 
-                if (empty($errors)) {
-                    if (!empty($success)) {
+                if (empty($errors))
+                {
+                    if(!empty($success))
+                    {
                         Yii::$app->session->setFlash('success', "$success");
                     }
-                    if (!empty($warnings)) {
+                    if(!empty($warnings))
+                    {
                         Yii::$app->session->setFlash('warning', "$warnings");
                     }
 
-                    if (empty($message_autoaccept)) {
-                        EmailEventsModerator::NotifyByEmail('new_project', $project_id, $submitted_email);
-                    } else {
+                    if(empty($message_autoaccept))
+                    {
+                        EmailEventsModerator::NotifyByEmail('new_project', $project_id,$submitted_email);
+
+                    }
+                    else
+                    {
                         Yii::$app->session->setFlash('success', "$message_autoaccept");
-                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id, $message_autoaccept_mod);
-                        EmailEventsUser::NotifyByEmail('project_decision', $project_id, $message_autoaccept);
+                        EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
+                        EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
 
                     return $this->redirect(['project/index']);
                 }
             }
         }
-        $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
 
-        $upperlimits=$limitsModel::find()->where(['user_type'=>$role])->one();
 
-// Now pass $autoacceptlimits to the render method
-        return $this->render('new_jupyter_request',
-            ['jupyter'=>$jupyterModel,
-                'project'=>$projectModel,
-                'form_params'=>$form_params,
-                'participating'=>$participating,
-                'errors'=>$errors,
-                'upperlimits'=>$upperlimits,
-                'autoacceptlimits'=>$autoacceptlimits,
-                'autoaccept_allowed' => $autoaccept_allowed,
-                'role'=>$role,
-                'new_project_allowed'=>$new_project_allowed,
-                'images'=>$images]);
+        return $this->render('new_jupyter_request',['jupyter'=>$jupyterModel, 'project'=>$projectModel,
+            'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role, 'new_project_allowed'=>$new_project_allowed, 'images'=>$images]);
     }
-
-
 
 
 
@@ -1045,7 +1048,10 @@ class ProjectController extends Controller
             $ends= explode(' ', $project_request->end_date)[0];
         }
         $now=date('Y-m-d');
+        $end = date('Y-m-d', strtotime($project_request->end_date));
+        die(json_encode($end));
         $datetime1 = strtotime($now);
+
         $datetime2 = strtotime($ends);
         $secs = $datetime2 - $datetime1;
         $remaining_time = $secs / 86400;
@@ -2526,7 +2532,12 @@ class ProjectController extends Controller
         }
         else if ($prType==4)
         {
-
+            $drequest=JupyterRequestNew::find()->where(['request_id'=>$id])->one();
+            $view_file='edit_jupyter';
+            $upperlimits=JupyterLimits::find()->where(['user_type'=>$role])->one();
+            $autoacceptlimits=JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
+            $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+            $prequest->end_date=$ends;
             $img=JupyterImages::find()->all();
             $images=[];
             $users_list_bef = $prequest['user_list'];
@@ -2539,29 +2550,6 @@ class ProjectController extends Controller
                 }
 
                 $images[$i->id]=$description;
-            }
-            // Fetch Jupyter request details
-            $drequest = JupyterRequestNew::find()->where(['request_id' => $id])->one();
-            $view_file = 'edit_jupyter';
-
-            // Fetch limits based on the user type
-            $upperlimits = JupyterLimits::find()->where(['user_type' => $role])->one();
-            $autoacceptlimits=JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
-             $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
-            // Ensure the limits exist for the given user type
-            if ($upperlimits !== null) {
-                // Compare the requested resources with the limits
-                if ($drequest->cpu_cores <= $upperlimits->cores && $drequest->ram_size <= $upperlimits->ram) {
-                    // If the request is within the limits, auto-accept the request
-                    $prequest->status = ProjectRequest::AUTOAPPROVED;
-                    // Assuming status is set like this
-
-                    // Optionally, log the auto-accept action or add a session flash message
-                    Yii::$app->session->setFlash('success', 'Request auto-accepted because the resources are within the limits.');
-                }
-            } else {
-                // If no limits found for the given user type, log a message or handle accordingly
-                Yii::$app->session->setFlash('error', 'No limits found for the given user type.');
             }
 
         }
