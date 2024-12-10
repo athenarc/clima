@@ -51,7 +51,7 @@ echo Headers::widget(
 
 <h4><b>Gaining access</b></h4>
 <p>
-    In order to use the task execution infrastructure an API key is required. You can manage your API keys in the
+    In order to use the task execution infrastructure an API keys is required. You can manage your API keys in the
     page:
 </p>
 <div class="text-center">

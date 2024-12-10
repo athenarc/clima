@@ -20,7 +20,7 @@ $mode = 0;
 Headers::begin() ?>
 <?php
 	echo Headers::widget(
-	['title'=>'API tokens management'."</br>",
+	['title'=>'API keys management'."</br>",
 		'subtitle'=>$project->name,
 		'buttons'=>
 		[
@@ -37,7 +37,7 @@ Headers::begin() ?>
 ?>
 <?Headers::end()?>
 <br>
-<dd>This page allows for the creation and management of API authentication & authorization tokens that are used for running computational jobs in the context 
+<dd>This page allows for the creation and management of API authentication & authorization keys that are used for running computational jobs in the context
 	of an approved project. Keep in mind that the creation of multiple tokens for the same project is supported.
 </dd>
 
@@ -46,12 +46,13 @@ Headers::begin() ?>
 <br>
 
 <div style="float: right; ;text-align:center">
-			<?=Html::a("$new_icon New token",['/project/new-token-request','id'=>$requestId, 'mode'=>$mode, 'uuid'=>$mode],['class'=>'btn btn-success create-vm-btn', 'style'=>'width:110px'])?> 
+			<?=Html::a("$new_icon New API key",['/project/new-token-request','id'=>$requestId, 'mode'=>$mode, 'uuid'=>$mode],['class'=>'btn btn-success create-vm-btn', 'style'=>'width:120px'])?>
 					
 </div>
 
-<div class="row"><h3 class="col-md-12">Issued tokens(<?=$issued_tokens?>) 
-	<i class="fas fa-chevron-up" id="arrow" title="Hide tokens" style="cursor: pointer" ></i></h3> 
+
+<div class="row"><h3 class="col-md-12">Issued API keys(<?=$issued_tokens?>)
+	<i class="fas fa-chevron-up" id="arrow" title="Hide API keys" style="cursor: pointer" ></i></h3>
 </div>
 
 <div class="row">&nbsp;</div>

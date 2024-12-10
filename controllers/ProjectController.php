@@ -1049,7 +1049,6 @@ class ProjectController extends Controller
         }
         $now=date('Y-m-d');
         $end = date('Y-m-d', strtotime($project_request->end_date));
-        die(json_encode($end));
         $datetime1 = strtotime($now);
 
         $datetime2 = strtotime($ends);

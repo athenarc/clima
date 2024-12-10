@@ -15,9 +15,9 @@ echo Html::CssFile('@web/css/project/project-request.css');
 $this->registerJsFile('@web/js/project/project-request.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 $sub=$project->name;
 if ($mode==0){
-    $this->title='API token creation'.'<br>';
+    $this->title='API keys creation'.'<br>';
 }else {
-    $this->title='API token modification'.'<br>';
+    $this->title='API keys modification'.'<br>';
 
 }
 
@@ -38,13 +38,13 @@ Headers::begin() ?>
 <?php
 if ($mode == 0){
 ?>
-<dd>Please provide the specifications for a new API token to be created:</dd>
+<dd>Please provide the specifications for a new API keys to be created:</dd>
 <div class="row">&nbsp;</div>
 
 
 <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'name')->label('Name  <span class=limits-label>(select one that would be easy to remember, otherwise 8 first characters of the token will be selected)</span>')->textarea([ 'style'=>'width: 600px; height: 40px; resize:none', 'rows'=>1]) ?>
+    <?= $form->field($model, 'name')->label('Name  <span class=limits-label>(select one that would be easy to remember, otherwise 8 first characters of the api keys will be selected)</span>')->textarea([ 'style'=>'width: 600px; height: 40px; resize:none', 'rows'=>1]) ?>
 
     
     <div style="margin-bottom: 20px;">
@@ -74,7 +74,7 @@ if ($mode == 0){
             <div class="col-md-12">
                 <div class="alert alert-warning" role="alert">
                 <td class="col-md-2 align-middle"><?=$exclamation_icon ?></td>
-                Please keep in mind that for security reasons HYPATIA stores only a description of your assigned tokens and not your exact tokens.            
+                Please keep in mind that for security reasons HYPATIA stores only a description of your assigned API keys and not your exact API keys.
                  </div>
             </div>
         </div>
@@ -93,7 +93,7 @@ if ($mode == 0){
     <?= $form->field($model, 'name')->textInput(['value' => $title, 'style'=>'width: 600px; height: 40px; resize:none', 'rows'=>1]) ?>
 
     <div style="margin-bottom: 20px;">
-    <?php echo '<label>  Token expiration date  </label>';
+    <?php echo '<label>  API keys expiration date  </label>';
             echo DatePicker::widget([
             'model' => $model, 
             'attribute' => 'expiration_date',
@@ -119,8 +119,8 @@ if ($mode == 0){
             <div class="col-md-12">
                 <div class="alert alert-warning" role="alert">
                 <td class="col-md-2 align-middle"><?=$exclamation_icon ?></td>
-                Please keep in mind that for security reasons HYPATIA stores only a description of your assigned tokens and not your exact tokens. <b><font color="black">Thus, you are responsible for
-storing and retriving your tokens. </b>  </font>              
+                Please keep in mind that for security reasons HYPATIA stores only a description of your assigned API keys and not your exact API keys. <b><font color="black">Thus, you are responsible for
+storing and retriving your API keys. </b>  </font>
                  </div>
             </div>
         </div>
