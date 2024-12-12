@@ -36,7 +36,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
     public $usernameList;
     public $errors='';
 
-    const TYPES=[0=>'On-demand computation', 1=>'24/7 Service', 2=>'Cold-Storage', 3=>'Machine Compute', 4=>'Jupyter Notebook'];
+    const TYPES=[0=>'On-demand computation', 1=>'24/7 Service', 2=>'Storage', 3=>'Machine Compute', 4=>'Jupyter Notebook'];
     const STATUSES=[-5=>'Expired',-4 =>'Deleted',-3 =>'Invalid due to modification',-2=>'Inactive',-1=>'Rejected',0=>'Pending', 1=>'Approved', 2=>'Auto-approved'];
 
     /**

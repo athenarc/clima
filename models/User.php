@@ -70,7 +70,7 @@ class User extends UserIdentity
             'username' => 'Username',
             'auth_key' => 'Auth Key',
             'password_hash' => 'Password Hash',
-            'confirmation_token' => 'Confirmation Token',
+            'confirmation_token' => 'Confirmation Api Keys',
             'status' => 'Status',
             'superadmin' => 'Superadmin',
             'created_at' => 'Created At',
