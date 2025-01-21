@@ -1393,8 +1393,8 @@ class Project extends \yii\db\ActiveRecord
         
         //storage volume
         } elseif($project['project_type']==2){
-            $results=ColdStorageRequest::getActiveProjects();
-            $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$latest_pr])->one();
+            $results=StorageRequest::getActiveProjects();
+            $cold_storage_request=StorageRequest::find()->where(['request_id'=>$latest_pr])->one();
             //services
             if ($cold_storage_request['vm_type']==1){
                 $volumes=$results[0];

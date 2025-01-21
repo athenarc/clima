@@ -1,112 +1,148 @@
 <?php
 use yii\helpers\Html;
-use yii\widgets\LinkPager;
 use app\components\Headers;
 use app\models\Token;
 
 echo Html::CssFile('@web/css/project/tokens.css');
 $this->registerJsFile('@web/js/project/index.js', ['depends' => [\yii\web\JqueryAsset::className()]]);
 
-$back_icon='';
-$access_icon='<i class="fas fa-external-link-square-alt"></i>';
-$update_icon='';
-$back_link='/project/on-demand-access';
-$delete_icon='';
-$new_icon='<i class="fas fa-plus-circle"></i>';
-$exclamation_icon='<i class="fas fa-exclamation-triangle" style="color:orange" title="The Vm belongs to an expired project"></i>';
-$mode = 0;
+$back_icon = '';
+$new_icon = '<i class="fas fa-plus-circle"></i>';
 
-
-Headers::begin() ?>
-<?php
-	echo Headers::widget(
-	['title'=>'API keys management'."</br>",
-		'subtitle'=>$project->name,
-		'buttons'=>
-		[
-			// //added the access button that redirects you to schema
-			// ['fontawesome_class'=>$access_icon,'name'=> 'Access', 'action'=> ['/site/index'], 'type'=>'a', 'options'=>['class'=>'btn btn-success btn-md', 'style'=>'width: 100px'] ],
-			// //added the token button
-			
-			//['fontawesome_class'=>$new_icon,'name'=> 'New Token', 'action'=> ['/project/new-token-request','id'=>$requestId, 'mode'=>$mode, 'uuid'=>$mode], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
-			//['fontawesome_class'=>$update_icon,'name'=> 'Update', 'action'=> ['/project/edit-project','id'=>$request_id], 'type'=>'a', 'options'=>['class'=>'btn btn-secondary btn-md'] ],
-			['fontawesome_class'=>$back_icon,'name'=> 'Back', 'action'=>['project/on-demand-access', 'id'=>$project->id], 'type'=>'a', 
-			'options'=>['class'=>'btn btn-default', 'style'=>'width: 100px; color:grey ']] 
-		],
-	]);
+Headers::begin();
 ?>
-<?Headers::end()?>
+<?php
+echo Headers::widget([
+    'title' => 'API keys management',
+    'subtitle' => $project->name,
+    'buttons' => [
+        [
+            'fontawesome_class' => $back_icon,
+            'name' => 'Back',
+            'action' => ['project/on-demand-access', 'id' => $project->id],
+            'type' => 'a',
+            'options' => ['class' => 'btn btn-default', 'style' => 'width: 100px; color: grey']
+        ]
+    ],
+]);
+?>
+<?php Headers::end(); ?>
+
 <br>
-<dd>This page allows for the creation and management of API authentication & authorization keys that are used for running computational jobs in the context
-	of an approved project. Keep in mind that the creation of multiple tokens for the same project is supported.
-</dd>
-
-<?php
-?>
+<p>This page allows for the creation and management of API authentication & authorization keys that are used for running computational jobs in the context of an approved project. Keep in mind that the creation of multiple tokens for the same project is supported.</p>
 <br>
 
-<div style="float: right; ;text-align:center">
-			<?=Html::a("$new_icon New API key",['/project/new-token-request','id'=>$requestId, 'mode'=>$mode, 'uuid'=>$mode],['class'=>'btn btn-success create-vm-btn', 'style'=>'width:120px'])?>
-					
+<div style="float: right; text-align: center;">
+    <?= Html::a("$new_icon New API key", ['/project/new-token-request', 'id' => $requestId, 'mode' => 0], ['class' => 'btn btn-success create-vm-btn', 'style' => 'width:120px']) ?>
 </div>
 
-
-<div class="row"><h3 class="col-md-12">Issued API keys(<?=$issued_tokens?>)
-	<i class="fas fa-chevron-up" id="arrow" title="Hide API keys" style="cursor: pointer" ></i></h3>
+<!-- Active API Keys Section -->
+<div class="row">
+    <h3 class="col-md-12">
+        Active API keys (<?= count($active_tokens) ?>)
+        <i class="fas fa-chevron-up" id="active-arrow" title="Hide active API keys" style="cursor: pointer" onclick="toggleSection('active-table', 'active-arrow')"></i>
+    </h3>
 </div>
 
-<div class="row">&nbsp;</div>
+<?php if (!empty($active_tokens)): ?>
+    <div class="table-responsive" id="active-table" style="outline: thin solid;">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th class="col-md-2">Token name</th>
+                <th class="col-md-2">Expires in</th>
+                <th class="col-md-3">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($active_tokens as $token): ?>
+                <?php
+                $title = $token['title'] ?? 'Unknown';
+                $expiry_date = new DateTime($token['expiry']);
+                $remaining_days = $expiry_date->diff(new DateTime())->days;
+                $uuid = $token['uuid'];
+                ?>
+                <tr>
+                    <td><?= Html::encode($title) ?></td>
+                    <td><?= Html::encode($remaining_days) . " days" ?></td>
+                    <td>
+<!--                        --><?php //= Html::a("Edit", ['/project/new-token-request', 'id' => $requestId, 'mode' => 1, 'uuid' => $uuid], ['class' => 'btn btn-secondary', 'style' => 'width:90px']) ?>
+<!--                        --><?php //= Html::a("Delete", ['/project/new-token-request', 'id' => $requestId, 'mode' => 2, 'uuid' => $uuid], [
+//                            'class' => "btn btn-secondary",
+//                            'style' => 'width:90px',
+//                            'data' => [
+//                                'confirm' => "Are you sure you want to delete the token {$title}?",
+//                                'method' => 'post',
+//                            ],
+//                        ]) ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
 
-<?php
-if ($issued_tokens!=0) {
-?>
+<!-- Expired API Keys Section -->
+<div class="row">
+    <h3 class="col-md-12">
+        Expired API keys (<?= count($expired_tokens) ?>)
+        <i class="fas fa-chevron-up" id="expired-arrow" title="Hide expired API keys" style="cursor: pointer" onclick="toggleSection('expired-table', 'expired-arrow')"></i>
+    </h3>
+</div>
 
-<div class="table-responsive"  id="expired-table" style="outline: thin solid">
-   	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th class="col-md-2" scope="col">Token name</th>
-				<th class="col-md-2 ">Expires in</th>
-				<th class="col-md-2" scope="col">&nbsp;</th>
-			</tr>
-		</thead>
-		<tbody>
+<?php if (!empty($expired_tokens)): ?>
+    <div class="table-responsive" id="expired-table" style="outline: thin solid;">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th class="col-md-2">Token name</th>
+                <th class="col-md-2">Expired since</th>
+                <th class="col-md-3">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($expired_tokens as $token): ?>
+                <?php
+                $title = $token['title'] ?? 'Unknown';
+                $expiry_date = new DateTime($token['expiry']);
+                $expired_days = $expiry_date->diff(new DateTime())->days;
+                $uuid = $token['uuid'];
+                ?>
+                <tr>
+                    <td><?= Html::encode($title) ?></td>
+                    <td><?= Html::encode($expired_days) . " days ago" ?></td>
+                    <td>
+<!--                        --><?php //= Html::a("Edit", ['/project/new-token-request', 'id' => $requestId, 'mode' => 1, 'uuid' => $uuid], ['class' => 'btn btn-secondary', 'style' => 'width:90px']) ?>
+<!--                        --><?php //= Html::a("Delete", ['/project/new-token-request', 'id' => $requestId, 'mode' => 2, 'uuid' => $uuid], [
+//                            'class' => "btn btn-secondary",
+//                            'style' => 'width:90px',
+//                            'data' => [
+//                                'confirm' => "Are you sure you want to delete the token {$title}?",
+//                                'method' => 'post',
+//                            ],
+//                        ]) ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
 
-<?php
-	foreach ($strArray as $token){
-		if (empty($token) == false ){
-		//if (strcmp($token_name, "[{") != 0 and strcmp($token_name, "uuid") != 0 and strcmp($token_name, ":") != 0 and strcmp($token_name, "}]") != 0 and strcmp($token_name, "},{") != 0){
-			//echo "$token_name". "<br>";
-			$token_details = Token::SplitTokens($token);
-			$title = $token_details[0];
-			$exp_days = $token_details[2];
-			$active = $token_details[3];
-			$uuid = $token_details[4];
-			//echo "$token_details". "<br>";
-			// $token_details[1] = $token_details[1]->format('d/m/Y');
-			// echo $token_details[1];
+<script>
+    function toggleSection(tableId, arrowId) {
+        const table = document.getElementById(tableId);
+        const arrow = document.getElementById(arrowId);
 
-
-?>
-	<tr class="active" style="font-size: 14px;">
-		<td class="col-md-2" style="vertical-align: middle!important;"> <?=$title?></td>
-		<td class="col-md-2 " style="vertical-align: middle!important;"><?=$exp_days. " days "?></td>
-		<td class="col-md-3 text-right">
-			<?=Html::a("$update_icon Edit",['/project/new-token-request','id'=>$requestId, 'mode'=>1, 'uuid'=>$uuid],['class'=>'btn btn-secondary create-vm-btn', 'style'=>'width:90px'])?> 
-			<?=Html::a("$delete_icon Delete",['/project/new-token-request','id'=>$requestId, 'mode'=>2, 'uuid'=>$uuid],['class'=>"btn btn-secondary btn-md delete-volume-btn", 'style'=>'width:90px','data' => [
-                                'confirm' => 'Are you sure you want to delete the token with name '.$title. ' ?',
-                                'method' => 'post',
-                                ],])?>
-					
-		</td>
-	</tr>
-<?php
-				
-			
-		}
-	}
-} 
-?>
-			</tbody>
-		</table>
-	</div> <!--table-responsive-->
+        if (table.style.display === "none") {
+            table.style.display = "block";
+            arrow.classList.remove("fa-chevron-down");
+            arrow.classList.add("fa-chevron-up");
+        } else {
+            table.style.display = "none";
+            arrow.classList.remove("fa-chevron-up");
+            arrow.classList.add("fa-chevron-down");
+        }
+    }
+</script>

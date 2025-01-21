@@ -11,7 +11,7 @@ use app\models\LoginForm;
 use app\models\ContactForm;
 use app\models\ServiceAutoaccept;
 use app\models\OndemandAutoaccept;
-use app\models\ColdStorageAutoaccept;
+use app\models\StorageAutoaccept;
 use app\models\Configuration;
 use app\models\User;
 use yii\helpers\Url;

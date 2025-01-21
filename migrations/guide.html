@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<div class="container-fluid" style="padding: 20px; margin: 0; box-sizing: border-box;">
+    <div class="row">
+        <!-- Left Dropdown Menu -->
+        <div class="col-md-3">
+            <h5 style="color: rgb(230, 131, 59); cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#hypatiaMenu" class="collapsed">
+                HYPATIA User Guide
+                <span id="mainMenuArrow" class="float-end">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                        <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </span>
+            </h5>
+
+            <!-- Collapsible Menu -->
+            <div id="hypatiaMenu" class="collapse">
+                <ul style="list-style-type: none; padding: 0; margin-top: 15px;">
+                    <ul style="list-style-type: none; padding: 0; margin-top: 15px;">
+                        <!-- Submenu Example -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#generalInfoSubmenu" class="collapsed">
+                                General Information
+                                <span class="float-end">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </span>
+                            </h5>
+                            <div id="generalInfoSubmenu" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="user-type">What are the available user types in HYPATIA?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="project-type">What project types exist in HYPATIA?</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <!-- Submenu with collapsible functionality -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#connect" class="collapsed">
+                                How to connect
+                                <span class="float-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                </span>
+                            </h5>
+                            <div id="connect" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="hypatia-use">Who can use HYPATIA?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="aai-what">What is the LS AAI?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="aai-account">How to create an LS AAI account?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="aai-login">How do I login to HYPATIA using my newly created LS AAI account?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="new-proj">What data do you keep in the HYPATIA database regarding my LS AAI Account?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="forget-password">What happens if I forget my password?</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <!-- Submenu with collapsible functionality -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu2" class="collapsed">
+                                Creating Projects
+                                <span class="float-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                </span>
+                            </h5>
+                            <div id="hypatiaSubmenu2" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="new-project">How do I create a new project?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="24/7">How do I create a new “24/7 services” project?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="ondemand">How do I create a new “On-demand batch computations” project?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="machine">How do I create a new “On-demand computation machines” project (available only to gold users)?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="notebook">How do I create a new “On-demand notebook” project?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="storage">How do I create a new “Storage volume” project?</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <!-- Submenu with collapsible functionality -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu3" class="collapsed">
+                                Project Management
+                                <span class="float-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                </span>
+                            </h5>
+                            <div id="hypatiaSubmenu3" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="request">What happens after I submit a project request?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="notif">Why did I get a notification saying my project was automatically accepted?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="expire">What happens when my project is close to the expiration date?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="update">How do I update my projects?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="list">Is there a list of all my previous requests?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="forget">I forgot to update my project expiration date and it expired. What can I do?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="details">How do I view details about my projects?</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <!-- Submenu with collapsible functionality -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu4" class="collapsed">
+                                Virtual Machines (VMs)
+                                <span class="float-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                </span>
+                            </h5>
+                            <div id="hypatiaSubmenu4" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="access">My project was approved. How do I access the resources?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="vm">How do I create a VM (24/7 services, on-demand computation machines)?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="connection">What are the connection details for my VM?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="start">Can I stop/start or reboot my VM?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="console">How do I access my VM via the default console?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="delete">How do I delete a VM?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="activate">How do I activate the copy of Windows Server 2019 on my VM?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="multiple">How do I create multiple VMs (On-demand compute machines)?</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <!-- Submenu with collapsible functionality -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu5" class="collapsed">
+                                Storage Management
+                                <span class="float-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                </span>
+                            </h5>
+                            <div id="hypatiaSubmenu5" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="create-delete-volume">How can I create and delete a volume?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="manage">How do I manage volume attachments on my VM?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="volresize">How do I resize my volume?</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Submenu with collapsible functionality -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu6" class="collapsed">
+                                Feedback and Policies
+                                <span class="float-end">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                </span>
+                            </h5>
+                            <div id="hypatiaSubmenu6" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="email">How do I get notifications by e-mail instead of only on the interface?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="feedback">How do I submit a bug, proposed feature or feedback in general?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="resource-policy">HYPATIA’s Resource Management & Access Policy</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                    </ul>
+            </div>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="col-md-9">
+            <div id="hypatia" class="content-section">
+                <p>HYPATIA is the Cloud infrastructure that has been developed to support the computational needs of the ELIXIR-GR community, but also the broader community of life scientists in Greece and abroad.</p>
+            </div>
+            <div id="user-type" class="content-section" style="display: none;">
+                <h2>What are the available user types in HYPATIA?</h2>
+                <p>Currently, based on their position of each individual in their organisation, HYPATIA users will be classified in one of the following user types:
+                    <li>Bronze: This type of user is the one with the less privileges and the most limitations. It is assigned as the default type upon registration. It can be used for testing or educational purposes during training events (indicatively). </li>
+                    <li>Silver user: This type of user is suitable for regular lab members. </li>
+                    <li>Gold user: This type of user is for Principal Investigators and it comes with extended quotas and permissions.
+                        <br><br>In order to upgrade your account from bronze to silver or gold, click <a href="index.php?r=ticket-user%2Fopen&upgrade=1">here</a> to create a new ticket request, stating your position and your team’s Principal Investigator.  </li>
+                </p>
+            </div>
+            <div id="project-type" class="content-section" style="display: none;">
+                <h2>What project types exist in HYPATIA?</h2>
+                <p style="text-align: justify;">
+                <ul>
+                    <li>“24/7 services” projects. This type of project is suitable for hosting 24/7 services, following the Virtual Private Server (VPS) model. The focus is on relatively lightweight services (e.g., Web server, API endpoint, database); computationally intensive projects should be served by “on-demand batch computations” or “on-demand computation machine” projects (see below). </li>
+                    <li>On-demand batch computations” projects. This type of project is suitable for batches of computational tasks to be executed. Each computational task could involve the execution of a particular software product or of a workflow that combines many software products. </li>
+                    <li>“On-demand computation machines” projects. This type of project is suitable for (short-term) computational experiments that are not containerised. A VM having particular characteristics is provided to the user. It is available only for gold users. </li>
+                    <li>“On-demand notebook” projects. Provide customizable, pre-configured Jupyter environments tailored for interactive data analysis in fields like data science and machine learning, with flexible core and memory allocations, limited project durations, and extension options based on resource availability. </li>
+                    <li>“Storage volumes” projects. This type of project is suitable for creating storage volumes that can be attached to VMs that belong to “24/7 services” or “On-demand computation machines” projects. Storage volumes for “On-demand computation machines” projects are only available to gold users.</li>
+                </ul>
+                </p>
+            </div>
+            <div id="new-project" class="content-section" style="display: none;">
+                <h2>How do I create a new project?</h2>
+                <p style="text-align: justify;">Press the “New project” button on the top right corner:</p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/newproject.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;">The system will load a new page where you can select the project type you need:</p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/projects.png"  width="70%" alt="Screenshot of project type selection screen">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+            <div id="24/7" class="content-section" style="display: none;">
+                <h2>How do I create a new “24/7 services” project?</h2>
+                <p style="text-align: justify;">Press on the “24/7 service button” on the new project page. The following screen will appear:</p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/247.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;"> You then need to fill in the required information and click on the submit button:
+                <ul>
+                    <li> Name: The name of the project .</li>
+                    <li> End date: Use the pop-up calendar to provide an ending date for the project.</li>
+                    <li>Maximum number of participating users: Select the maximum number of users, who need to access the project’s resources.</li>
+                    <li>Participating users: Enter the usernames of the users you would like to add as participants and select the appropriate value from the auto-complete box.</li>
+                    <li>Technology Readiness Level (TRL): read more here: https://en.wikipedia.org/wiki/Technology_readiness_level.</li>
+                    <li>Name of the 24/7 service: name of an existing or proposed service, to which the requested resources will be allocated.</li>
+                    <li>Version of the 24/7 service: version of the service.</li>
+                    <li>Description of the 24/7 service: Write a short description regarding the existing/proposed service.</li>
+                    <li>Existing service URL: A URL to the existing service (if applicable).</li>
+                    <li>VM configuration: Select one of the available configurations for the VM you would like to create. (IMPORTANT: VMs with Solid State Disk (SSD) use ephemeral storage and therefore, we cannot guarantee the safety of the data).</li>
+                </ul>
+                </p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="ondemand" class="content-section" style="display: none;">
+                <h2>How do I create a new “On-demand batch computations” project?</h2>
+                <p style="text-align: justify;">Press on the “On-demand batch computations” project on the new project page. The following screen will appear:</p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/ondemand.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
+                <ul>
+                    <li>  Name: The name of the project
+                    <li>    End date: Use the pop-up calendar to provide an ending date for the project
+                    <li>    Maximum number of participating users: Select the maximum number of users, who need to access the project’s resources.
+                    <li>    Participating users: Enter the usernames of the users you would like to add as participants and select the appropriate value from the auto-complete box.
+                    <li>    Type of analysis: The type of analysis you would like to perform using containerized software.
+                    <li>    Maturity: Select the appropriate maturity level of the analysis
+                    <li>  Description: Write a short description of what the analysis does.
+                    <li>    Maximum number of jobs: The maximum number of jobs that will be run on HYPATIA-COMPUTE.
+                    <li>    Available cores per job: The maximum number of virtual cores that will be allocated per job.
+                    <li>    Maximum allowed memory: The maximum number of Random Access Memory (RAM) that will be allocated per job.
+                </ul>
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="machine" class="content-section" style="display: none;">
+                <h2>How do I create a new “On-demand computation machines” project (available only to gold users)?</h2>
+                <p style="text-align: justify;">Press on the “On-demand computation machines” project on the new project page. The following screen will appear:</p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/machine.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
+                <ul>
+                    <li>    Name: The name of the project. </li>
+                    <li>    End date: Use the pop-up calendar to provide an ending date for the project. Keep in mind that you cannot select a date that is later than 30 days.</li>
+                    <li>    Maximum number of participating users: Select the maximum number of users, who need to access the project’s resources.</li>
+                    <li>    Participating users: Enter the usernames of the users you would like to add as participants and select the appropriate value from the auto-complete box.</li>
+                    <li>    Analysis description: A short description of the analysis that will be performed on the VM.</li>
+                    <li>    VM configuration: select one of the available configurations for the VM you would like to create. (IMPORTANT: VMs with Solid State Disk (SSD) use ephemeral storage and therefore, we cannot guarantee the safety of the data).</li>
+                    <li>    Number of VMs: When a number of smaller VMs are required, then you can select up to 30 VMs.</li>
+                </ul>
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="notebook" class="content-section" style="display: none;">
+                <h2>HHow do I create a new “On-demand notebook” project?</h2>
+                <p style="text-align: justify;">Press on the “On-demand notebook” project on the new project page. The following screen will appear:</p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/notebook.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
+                <ul>
+                    <li>    Name: The name of the project. </li>
+                    <li>    End date: Use the pop-up calendar to provide an ending date for the project. Keep in mind that you cannot select a date that is later than 30 days.</li>
+                    <li>    Maximum number of participating users: Select the maximum number of users, who need to access the project’s resources.</li>
+                    <li>    Participating users: Enter the usernames of the users you would like to add as participants and select the appropriate value from the auto-complete box.</li>
+                    <li>    Description: A short description.</li>
+                    <li>    Jupyter server type: The type of Jupyter server you would like to perform.</li>
+                    <li>    Available cores: The maximum number of cores that will be allocated per server.
+                    <li>    Maximum allowed memory: The maximum number of Random Access Memory (RAM) that will be allocated per server.
+                </ul>
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="storage" class="content-section" style="display: none;">
+                <h2>How do I create a new “Storage volume” project?</h2>
+                <p style="text-align: justify;">Press on the “Storage volumes” project on the new project page. The following screen will appear:</p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/storage.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
+                <ul>
+                    <li>    Name: The name of the project. </li>
+                    <li>    Maximum number of participating users: Select the maximum number of users, who need to access the project’s resources.</li>
+                    <li>    Participating users: Enter the usernames of the users you would like to add as participants and select the appropriate value from the auto-complete box.</li>
+                    <li>    Description: A short description.</li>
+                    <li>    Volume type: At the moment, only “hot storage” is supported.</li>
+                    <li>    VM type: Storage projects can be created for 24/7 service VMs as well as on-demand computation machines VMs (available only to gold users). Note that, after submission the VM type cannot be changed.</li>
+                </ul>
+                After the acceptance of the project, you will need to create the volume from HYPATIA’s interfacea volume is created automatically. Keep in mind that a volume can be attached only to one VM at a time and multi-attach functionality is not supported.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="request" class="content-section" style="display: none;">
+                <h2>What happens after I submit a project request?</h2>
+                <p style="text-align: justify;">After you submit a project request, it is reviewed according to the access policy of HYPATIA. Once a decision is reached you will get notified on the website. If you would like to receive notifications via e-mail, then enter your e-mail address in the system (see question: “How do I get notifications by e-mail instead of only on the interface”).
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="notif" class="content-section" style="display: none;">
+                <h2>Why did I get a notification saying my project was automatically accepted?</h2>
+                <p style="text-align: justify;">Each user has a limited number of Automatically Accepted Projects (AAPs), i.e., projects that can be accepted without review: bronze users may create up to 1 AAP, silver users up to 3 AAPs, gold users up to 3 AAPs. On-demand compute machines projects are not automatically accepted.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="expire" class="content-section" style="display: none;">
+                <h2>What happens when my project is close to the expiration date?</h2>
+                <p style="text-align: justify;">You will get notifications on the interface 30, 15, 5 and 1 day before expiration. If you would like to receive notifications via e-mail, then enter your e-mail address in the system.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="email" class="content-section" style="display: none;">
+                <h2>How do I get notifications by e-mail instead of only on the interface?</h2>
+                <p style="text-align: justify;">You need to select “User options” from the top menu and then “Email notifications”. You will see the following page:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/email.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;">You will need to enter the e-mail address on which you would like to receive notifications and also select which notifications you would like to receive and finally press submit. These settings can be modified at any time.</p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="list" class="content-section" style="display: none;">
+                <h2>Is there a list of all my previous requests?</h2>
+                <p style="text-align: justify;">On your dashboard, press the “Project requests” button:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/userprojects.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="update" class="content-section" style="display: none;">
+                <h2>How do I update my projects?</h2>
+                <p style="text-align: justify;">You press the “Update” button for the project on your dashboard:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/update.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="forget" class="content-section" style="display: none;">
+                <h2>I forgot to update my project expiration date and it expired. What can I do??</h2>
+                <p style="text-align: justify;"> Please contact an administrator and provide the name of your project.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <div id="details" class="content-section" style="display: none;">
+                <h2>How do I view details about my projects?</h2>
+                <p style="text-align: justify;">You press the “Details” button for the project on your dashboard:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/details.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="access" class="content-section" style="display: none;">
+                <h2>My project was approved. How do I access the resources?</h2>
+                <p style="text-align: justify;">You press the “Access” button for the project on your dashboard:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/access.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="vm" class="content-section" style="display: none;">
+                <h2>How do I create a VM (24/7 services, on-demand computation machines)?</h2>
+                <p style="text-align: justify;">You press the “Access” button for the project and then you are transferred to the following page:You press the “Access” button for the project and then you are transferred to the following page:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/vmcreate.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;">You need to upload a file containing a public SSH key, select the Operating System (OS) image you would like to use from the list and press submit. The creation process
+                    may take up to several minutes to complete (especially for windows machines). After the VM is created, you can see its details on the “VM details page” (see below).
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/vmdetails.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="connection" class="content-section" style="display: none;">
+                <h2>What are the connection details for my VM?</h2>
+                <p style="text-align: justify;">You can view the IP address for the VM, as well as the default username with which the VM can be accessed. Also, you can see the storage that has been attached to the VM and you can shut down, start, reboot and access your VM via Console. Finally, by pressing the delete button you can delete your VM.
+                    For VMs using the Windows server OS, you will see a button titled “Retrieve password” where you can retrieve the password for the “Administrator” user. You need to save it because it cannot be retrieved again.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="start" class="content-section" style="display: none;">
+                <h2>Can I stop/start or reboot my VM?</h2>
+                <p style="text-align: justify;">Yes, you can, by pressing the appropriate buttons on the VM details page.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="console" class="content-section" style="display: none;">
+                <h2>How do I access my VM via the default console?</h2>
+                <p style="text-align: justify;">Press the appropriate button on the VM details page.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="delete" class="content-section" style="display: none;">
+                <h2>How do I delete a VM?</h2>
+                <p style="text-align: justify;"> Press the appropriate button on the VM details page.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="activate" class="content-section" style="display: none;">
+                <h2>How do I activate the copy of Windows Server 2019 on my VM?</h2>
+                <p style="text-align: justify;">  You need to acquire a valid Windows Server 2019 Standard Edition licence key. Then you need to open a console on the VM and enter the following command:
+                </p>
+                <i>DISM /online /Set-Edition:ServerStandard /ProductKey:XXXXX-XXXXX-XXXXX-XXXXX-XXXXX /AcceptEula</i><br><br>
+
+                Where XXX is your key. After that, you need to execute:<br><br>
+
+                <i>slmgr /xpr </i><br><br>
+
+                to check that the OS has been activated correctly.
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="multiple" class="content-section" style="display: none;">
+                <h2>How do I create multiple VMs (On-demand compute machines)?</h2>
+                <p style="text-align: justify;">Press the access button and the following page (where you can create and administer each VM will load:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/multiplevm.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="create-delete-volume" class="content-section" style="display: none;">
+                <h2>How do I create and delete a volume?</h2>
+                <p style="text-align: justify;">Press the “Access” button for the project and the following page will load:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/volcreatedel.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="manage" class="content-section" style="display: none;">
+                <h2>How do I manage volume attachments on my VM?</h2>
+                <p style="text-align: justify;">Press the “Access” button for the project and the following page will load
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/volumes.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;"> You can see the name of the volume, the creation date, and which machine to which it is attached. Moreover, by pressing the “Manage Attachment” button, the following page opens:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/manage.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+                <p style="text-align: justify;"> where you can select a VM from the drop-down list to which to attach the volume.
+                    If the volume is already attached, you will see the following page:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/detach.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <p style="text-align: justify;">where you can choose to detach the volume from the VM.</p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="volresize" class="content-section" style="display: none;">
+                <h2>How do I resize my volume?</h2>
+                <p style="text-align: justify;">You need to edit the appropriate volume storage project and enter the new value. Then you need to delete and re-create your volume.
+                </p>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="feedback" class="content-section" style="display: none;">
+                <h2>How do I submit a bug, proposed feature or feedback in general?</h2>
+                <p style="text-align: justify;">You can find the bug/suggestion box at the right side of the page:
+                </p>
+                <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="/img/faq/feedback.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
+                <div class="row spacer"></div>
+            </div>
+
+            <div id="resource-policy" class="content-section" style="display: none;">
+                <h2>HYPATIA’s Resource Management & Access Policy</h2>
+                <p style="text-align: justify;">You can find bellow the policy about HYPATIA, click <a href="/hypatias-policy.pdf">here</a>
+                </p>
+                <div class="row spacer"></div>
+            </div>
+            <!-- Section: Who can use HYPATIA -->
+            <div id="hypatia-use" class="content-section"style="display: none;">
+                <h2>Who can use HYPATIA?</h2>
+                <p> Anyone having an active LS AAI account can login to HYPATIA. For details about what an LS AAI account is and how to get one, see below.
+                </p>
+            </div>
+
+            <!-- Section: What is the LS AAI -->
+            <div id="aai-what" class="content-section" style="display: none;">
+                <h2>What is the LS AAI?</h2>
+                <p>The LS Authentication and Authorisation Infrastructure (AAI) is a Single Sign-On (SSO) service that enables researchers to use their home organization credentials or community or commercial identities (e.g. ORCID, LinkedIn) to sign in and access data and services they need. It also allows service providers (both in academia and industry) to control and manage the access rights of their users and create different access levels for research groups or international projects. This facilitates easy access to LS services and resources for researchers, by removing the need to remember different passwords for each service and instead using their institutional credentials to sign in via their home institution.</p>
+            </div>
+
+            <!-- Section: How to create LS AAI account -->
+            <div id="aai-account" class="content-section" style="display: none;">
+                <h2>How to create a LS AAI account?</h2>
+                <div class="row">&nbsp;</div>
+                <div class="text-center">
+                    <img src="/img/faq/about1.png" width="70%">
+                </div>
+                <div class="row">&nbsp;</div>
+                By pressing the “Login” button on the upper right-hand corner of the HYPATIA platform the following screen will be loaded:
+                <div class="row">&nbsp;</div>
+                <div class="text-center">
+                    <img src="/img/faq/register2.png" width="70%">
+                </div>
+                <div class="row">&nbsp;</div>
+                You will need press the register button, in order to be transferred to the LS AAI login page, where you will need to select your preferred method of login (Institutional account, LinkedIn, Apple, Google, ORCID, GitHub or LifeScience Hostel):
+                <div class="row">&nbsp;</div>
+                <div class="text-center">
+                    <img src="/img/faq/3elixir.png" width="70%">
+                </div>
+                <div class="row">&nbsp;</div>
+                If your institution does not appear in the list of available institutions, then you need to add it to the system by clicking on the “Cannot find your institution” button:
+                <div class="row">&nbsp;</div>
+                <div class="text-center">
+                    <img src="/img/faq/4search.png" width="70%">
+                </div>
+                <div class="row">&nbsp;</div>
+                After selecting the preferred method of login you will be transferred to the respective interface to login. Then you need to follow the instructions from the LS AAI interface to create a new account with a username of your choice.
+            </div>
+
+            <!-- Section: What project types exist -->
+            <div id="aai-login" class="content-section" style="display: none;">
+                <h2>How do I login to HYPATIA using my newly created LS AAI account?</h2>
+                <div class="row">&nbsp;</div>
+                You need to follow the same procedure as registering, but instead of pressing the “REGISTER”, you press the “LOGIN” button:
+                <div class="row">&nbsp;</div>
+                <div class="text-center">
+                    <img src="/img/faq/login5.png" width="70%">
+                </div>
+                <div class="row">&nbsp;</div>
+
+                Then you need to select your preferred login method, as before, and then you are redirected to the hypatia website where you have been logged-in using your LS AAI username:
+                <div class="row">&nbsp;</div>
+                <div class="text-center">
+                    <img src="/img/faq/active.png" width="70%">
+                </div>
+                <div class="row">&nbsp;</div>
+            </div>
+
+            <!-- Section: How to create a new project -->
+            <div id="new-proj" class="content-section" style="display: none;">
+                <h2>What data do you keep in the HYPATIA database regarding my LS AAI Account?</h2>
+                <p>In accordance with our Privacy policy, the only information stored in our database is your LS AAI username that you selected when you created your account, which is necessary for authentication purposes required by the HYPATIA website. The data are not shared with any third party and you reserve your right to ask for their deletion at any time, in accordance with the GDPR. No other sensitive information regarding your e-mail, institution or other personal information is retrieved from the service.
+                </p>
+            </div>
+            <div id="forget-password" class="content-section" style="display: none;">
+                <h2>What happens if I forget my password?</h2>
+                <p> Since we use a Single Sign-On service (SSO) your password is not stored by HYPATIA, but rather by your institution or the service that you use to login to the LS AAI, you need to follow the appropriate procedures of the respective organization to reset your password.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+    .nav-link {
+        color: #007bff;
+        text-decoration: none;
+        transition: padding-left 0.2s ease-in-out;
+    }
+
+    .nav-link:hover {
+        color: #0056b3;
+        padding-left: 5px;
+    }
+
+    h2 {
+        color: rgb(230, 131, 59);
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    /* Dropdown Arrow */
+    .float-end svg {
+        transition: transform 0.3s ease; /* Smooth rotation */
+    }
+
+    [data-bs-toggle="collapse"].collapsed .float-end svg {
+        transform: rotate(0deg); /* Arrow down */
+    }
+
+    [data-bs-toggle="collapse"]:not(.collapsed) .float-end svg {
+        transform: rotate(180deg); /* Arrow up */
+    }
+
+</style>
+
+<!-- JavaScript -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const navLinks = document.querySelectorAll(".nav-link");
+        const contentSections = document.querySelectorAll(".content-section");
+        const introSection = document.getElementById("hypatia");
+        const mainMenuToggle = document.querySelector('[data-bs-target="#hypatiaMenu"]');
+        const mainMenuArrow = mainMenuToggle.querySelector(".float-end svg");
+        const mainMenu = document.querySelector(mainMenuToggle.getAttribute("data-bs-target"));
+        const subMenuToggles = document.querySelectorAll('[data-bs-toggle="collapse"]:not([data-bs-target="#hypatiaMenu"])');
+
+        // Automatically expand the main menu on page load
+        if (mainMenu) {
+            mainMenu.classList.add("show"); // Expand the main menu
+            if (mainMenuArrow) {
+                mainMenuArrow.style.transform = "rotate(180deg)"; // Rotate arrow to expanded state
+            }
+        }
+
+        // Show the intro section on page load
+        introSection.style.display = "block";
+        introSection.classList.add("active");
+
+        // Handle menu link clicks
+        navLinks.forEach(link => {
+            link.addEventListener("click", function () {
+                const targetId = this.getAttribute("data-target");
+
+                // Hide all sections
+                contentSections.forEach(section => {
+                    section.classList.remove("active");
+                    section.style.display = "none";
+                });
+
+                // Show the selected section
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.style.display = "block";
+                    targetSection.classList.add("active");
+
+                    // If part of a collapsed dropdown, expand it
+                    const parentCollapse = link.closest(".collapse");
+                    if (parentCollapse) {
+                        parentCollapse.classList.add("show"); // Expand the dropdown
+                        const parentToggle = document.querySelector(
+                            `[data-bs-target="#${parentCollapse.id}"]`
+                        );
+                        if (parentToggle) {
+                            parentToggle.classList.remove("collapsed");
+                            const svg = parentToggle.querySelector(".float-end svg");
+                            if (svg) svg.style.transform = "rotate(180deg)";
+                        }
+                    }
+
+                    // Scroll to the top of the page
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+
+        // Main Menu Arrow Rotation (Isolated)
+        if (mainMenu && mainMenuArrow) {
+            mainMenu.addEventListener("hidden.bs.collapse", (event) => {
+                if (event.target === mainMenu) { // Ensure the event is for the main menu
+                    mainMenuArrow.style.transform = "rotate(0deg)"; // Rotate arrow down
+                }
+            });
+            mainMenu.addEventListener("shown.bs.collapse", (event) => {
+                if (event.target === mainMenu) { // Ensure the event is for the main menu
+                    mainMenuArrow.style.transform = "rotate(180deg)"; // Rotate arrow up
+                }
+            });
+        }
+
+        // Submenu Arrows Rotation (Isolated)
+        subMenuToggles.forEach(toggle => {
+            const subMenu = document.querySelector(toggle.getAttribute("data-bs-target"));
+            const subMenuArrow = toggle.querySelector(".float-end svg");
+
+            if (subMenu && subMenuArrow) {
+                subMenu.addEventListener("hidden.bs.collapse", (event) => {
+                    if (event.target === subMenu) { // Ensure the event is for the current submenu
+                        subMenuArrow.style.transform = "rotate(0deg)"; // Rotate arrow down
+                    }
+                });
+                subMenu.addEventListener("shown.bs.collapse", (event) => {
+                    if (event.target === subMenu) { // Ensure the event is for the current submenu
+                        subMenuArrow.style.transform = "rotate(180deg)"; // Rotate arrow up
+                    }
+                });
+            }
+        });
+    });
+
+
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</html>
