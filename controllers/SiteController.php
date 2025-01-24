@@ -183,7 +183,6 @@ class SiteController extends Controller
             else
             {
                 Yii::$app->user->login($identity,0);
-
                 return $this->redirect(['project/index']);
             }
             

@@ -84,8 +84,7 @@ class ProjectController extends Controller
         if (!parent::beforeAction($action)) {
             return false;
         }
-// Set the flash message
-        Yii::$app->session->setFlash('warning', 'Dear HYPATIA users,</p><p>We would like to inform you that our policy has recently been updated.</p><p>You can find bellow the policy about HYPATIA, click <a href="/hypatias-policy.pdf">here</a></p>');
+
         // Continue with the action
         return true;
     }
