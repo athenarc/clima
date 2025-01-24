@@ -45,7 +45,7 @@ echo Headers::widget([
 </div>
 
 <?php if (!empty($active_tokens)): ?>
-    <div class="table-responsive" id="active-table" style="outline: thin solid;">
+    <div class="table-responsive" id="active-table" >
         <table class="table table-striped">
             <thead>
             <tr>
@@ -92,7 +92,7 @@ echo Headers::widget([
 </div>
 
 <?php if (!empty($expired_tokens)): ?>
-    <div class="table-responsive" id="expired-table" style="outline: thin solid;">
+    <div class="table-responsive" id="expired-table" >
         <table class="table table-striped">
             <thead>
             <tr>
