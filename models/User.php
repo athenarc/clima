@@ -57,8 +57,6 @@ class User extends UserIdentity
             [['registration_ip'], 'string', 'max' => 15],
             [['email'], 'string', 'max' => 128],
             [['name', 'surname'], 'string', 'max' => 100],
-            [['policy_accepted'], 'boolean'], // Add this rule
-            [['policy_accepted'], 'default', 'value' => false], // Default to false
         ];
     }
 
@@ -282,7 +280,6 @@ class User extends UserIdentity
         
         return $results;
     }
-
     // public static function returnRegistrationIP($username)
     // {
     //     $query=new Query;

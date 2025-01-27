@@ -119,7 +119,7 @@ class ProjectController extends Controller
 
         $project_types=Project::TYPES;
         $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user',
-            2=>'/project/view-storage-request-user', 3=>'/project/view-machine-computation-request-user', 4=>'/project/view-jupyter-request-user'];
+            2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-computation-request-user', 4=>'/project/view-jupyter-request-user'];
 
         $deleted=Project::getDeletedProjects();
         $owner=Project::getActiveProjectsOwner();

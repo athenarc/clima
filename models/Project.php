@@ -862,7 +862,7 @@ class Project extends \yii\db\ActiveRecord
         $query=new Query;
 
         $volumes_service=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->innerJoin('hot_volumes as v','v.project_id=p.id')
@@ -872,7 +872,7 @@ class Project extends \yii\db\ActiveRecord
                         ->one();
         $query=new Query;
         $volumes_machines=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->innerJoin('hot_volumes as v','v.project_id=p.id')
@@ -883,7 +883,7 @@ class Project extends \yii\db\ActiveRecord
         
         $query=new Query;
         $number_storage_service_projects=$query->select(['id'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->where(['c.vm_type'=>1,'p.status'=>[1,2]])
@@ -893,7 +893,7 @@ class Project extends \yii\db\ActiveRecord
         
         $query=new Query;
         $number_storage_machines_projects=$query->select(['id'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->where(['c.vm_type'=>2,'p.status'=>[1,2]])
@@ -1188,7 +1188,7 @@ class Project extends \yii\db\ActiveRecord
         $query=new Query;
 
         $volumes_service=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->innerJoin('hot_volumes as v','v.project_id=p.id')
@@ -1197,7 +1197,7 @@ class Project extends \yii\db\ActiveRecord
                         ->one();
         $query=new Query;
         $volumes_machines=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->innerJoin('hot_volumes as v','v.project_id=p.id')
@@ -1207,7 +1207,7 @@ class Project extends \yii\db\ActiveRecord
         
         $query=new Query;
         $number_storage_service_projects=$query->select(['id'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->where(['c.vm_type'=>1,'p.status'=>[1,2]])
@@ -1216,7 +1216,7 @@ class Project extends \yii\db\ActiveRecord
         
         $query=new Query;
         $number_storage_machines_projects=$query->select(['id'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->where(['c.vm_type'=>2,'p.status'=>[1,2]])

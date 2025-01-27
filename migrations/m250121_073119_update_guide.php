@@ -13,7 +13,7 @@ class m250121_073119_update_guide extends Migration
     public function safeUp()
     {
         // Define the content to be updated
-        $content = file_get_contents('/data/www/georgiadimitriou/egci-test/migrations/guide.html');
+        $content = file_get_contents('/migrations/guide.html');
 
         // Update the content where the title is "Help page"
         $this->update('pages', ['content' => $content], ['title' => 'Help page']);
