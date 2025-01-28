@@ -48,6 +48,21 @@ return [
     'email_verification' => [
         'validity_period' => '1 day', // Value should be a string literal that can be added on a date('c') object
         'email_verification_url' => 'url to the email verification view'
-    ]
+    ],
+
+    /*
+     * Configure environment overlay ribbon: useful for visualizing different deployments to development team
+     * - environmentType: `test` for a test environment, `dev` for a dev environment, `production` or empty for
+     *      production
+     * - environmentName: name of the environment to be displayed on the overlay ribbon. If empty, it will be the
+     *      qualified value of `environmentType`
+     * - environmentRefUrl: optional URL to a page carrying information about the environment (e.g. pull request)
+     */
+    /*
+    'environmentOverlay'=> [
+        'environmentName'=>'string',
+        'environmentType'=>'string',
+        'environmentRefUrl'=>'string[URL]'
+    ]*/
 
 ];
