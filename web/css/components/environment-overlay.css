@@ -1,0 +1,48 @@
+:root {
+    --overlay-top-offset: 100px;
+    --overlay-thickness: 50px;
+}
+
+.environment-overlay {
+    position: fixed;
+    display: flex;
+    top: var(--overlay-top-offset);
+    left: -1px;
+    z-index: 9999;
+    margin: 1px;
+    border-radius: 2px;
+    padding: 5px;
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.4);
+    width: calc(((var(--overlay-thickness) + var(--overlay-top-offset)) / 0.7071) + 2px) ;
+    height: var(--overlay-thickness);
+    transform-origin: bottom left;
+    transform: rotate(-45deg);
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(138,138,138,0.6);
+}
+
+.environment-overlay>div {
+    max-width: calc((var(--overlay-top-offset) / 0.7071) - 2px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.environment-overlay>div>h4 {
+    margin: 0;
+}
+
+.environment-overlay a {
+    color: inherit;
+}
+
+.environment-overlay-test {
+    background-color: rgba(135,0,0,0.6);
+    color: white;
+}
+
+.environment-overlay-dev {
+    background-color: rgba(212,186,0,0.6);
+    color: black;
+}
