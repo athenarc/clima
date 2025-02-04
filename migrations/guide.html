@@ -4,43 +4,29 @@
     <div class="row">
         <!-- Left Dropdown Menu -->
         <div class="col-md-3">
-            <h5 style="color: rgb(230, 131, 59); cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#hypatiaMenu" class="collapsed">
-                HYPATIA User Guide
-                <span id="mainMenuArrow" class="float-end">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                        <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                </span>
+            <h5 style="color: rgb(230, 131, 59); cursor: pointer; display: flex; align-items: center; ">
+                <!-- Clickable Title -->
+                <a href="index.php?r=site%2Fhelp" id="hypatiaLink" style="text-decoration: none; color: inherit;">HYPATIA User Guide</a>
+
+                <!-- Collapsible Arrow (Bootstrap Controls This) -->
+                <span id="mainMenuArrow" class="float-end" data-bs-toggle="collapse" data-bs-target="#hypatiaMenu">
+        <svg id="arrowIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="transition: transform 0.3s ease;">
+            <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+    </span>
             </h5>
+
+
+
 
             <!-- Collapsible Menu -->
             <div id="hypatiaMenu" class="collapse">
                 <ul style="list-style-type: none; padding: 0; margin-top: 15px;">
                     <ul style="list-style-type: none; padding: 0; margin-top: 15px;">
-                        <!-- Submenu Example -->
-                        <li style="margin-bottom: 10px;">
-                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#generalInfoSubmenu" class="collapsed">
-                                General Information
-                                <span class="float-end">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </span>
-                            </h5>
-                            <div id="generalInfoSubmenu" class="collapse">
-                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
-                                    <li style="margin-bottom: 10px;">
-                                        <a href="javascript:void(0);" class="nav-link" data-target="user-type">What are the available user types in HYPATIA?</a>
-                                    </li>
-                                    <li style="margin-bottom: 10px;">
-                                        <a href="javascript:void(0);" class="nav-link" data-target="project-type">What project types exist in HYPATIA?</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
                         <!-- Submenu with collapsible functionality -->
                         <li style="margin-bottom: 10px;">
                             <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#connect" class="collapsed">
+                                <i data-feather="link" style="width:12px;height:12px;"></i>
                                 How to connect
                                 <span class="float-end">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -71,9 +57,32 @@
                                 </ul>
                             </div>
                         </li>
+                        <!-- Submenu Example -->
+                        <li style="margin-bottom: 10px;">
+                            <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#generalInfoSubmenu" class="collapsed">
+                                User & Project types
+                                <span class="float-end">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                    <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </span>
+                            </h5>
+                            <div id="generalInfoSubmenu" class="collapse">
+                                <ul style="list-style-type: none; padding-left: 15px; margin-top: 10px;">
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="user-type">What are the available user types in HYPATIA?</a>
+                                    </li>
+                                    <li style="margin-bottom: 10px;">
+                                        <a href="javascript:void(0);" class="nav-link" data-target="project-type">What project types exist in HYPATIA?</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
                         <!-- Submenu with collapsible functionality -->
                         <li style="margin-bottom: 10px;">
                             <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu2" class="collapsed">
+                                <i data-feather="folder" style="width:12px;height:12px;"></i>
                                 Creating Projects
                                 <span class="float-end">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -107,6 +116,7 @@
                         <!-- Submenu with collapsible functionality -->
                         <li style="margin-bottom: 10px;">
                             <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu3" class="collapsed">
+                                <i data-feather="bar-chart" style="width:12px;height:12px;"></i>
                                 Project Management
                                 <span class="float-end">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -143,6 +153,7 @@
                         <!-- Submenu with collapsible functionality -->
                         <li style="margin-bottom: 10px;">
                             <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu4" class="collapsed">
+                                <i data-feather="monitor" style="width:12px;height:12px;"></i>
                                 Virtual Machines (VMs)
                                 <span class="float-end">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -182,6 +193,7 @@
                         <!-- Submenu with collapsible functionality -->
                         <li style="margin-bottom: 10px;">
                             <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu5" class="collapsed">
+                                <i data-feather="hard-drive" style="width:12px;height:12px;"></i>
                                 Storage Management
                                 <span class="float-end">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -207,6 +219,7 @@
                         <!-- Submenu with collapsible functionality -->
                         <li style="margin-bottom: 10px;">
                             <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#hypatiaSubmenu6" class="collapsed">
+                                <i data-feather="file" style="width:12px;height:12px;"></i>
                                 Feedback and Policies
                                 <span class="float-end">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -236,15 +249,16 @@
         <!-- Right Content Area -->
         <div class="col-md-9">
             <div id="hypatia" class="content-section">
-                <p>HYPATIA is the Cloud infrastructure that has been developed to support the computational needs of the ELIXIR-GR community, but also the broader community of life scientists in Greece and abroad.</p>
+                <p>Welcome to the HYPATIA User Guide. This guide provides instructions on using HYPATIA's cloud infrastructure to support your computational needs. Click here to get started or explore the sections on the left for specific topics. </p>
             </div>
             <div id="user-type" class="content-section" style="display: none;">
                 <h2>What are the available user types in HYPATIA?</h2>
-                <p>Currently, based on their position of each individual in their organisation, HYPATIA users will be classified in one of the following user types:
-                    <li>Bronze: This type of user is the one with the less privileges and the most limitations. It is assigned as the default type upon registration. It can be used for testing or educational purposes during training events (indicatively). </li>
-                    <li>Silver user: This type of user is suitable for regular lab members. </li>
-                    <li>Gold user: This type of user is for Principal Investigators and it comes with extended quotas and permissions.
-                        <br><br>In order to upgrade your account from bronze to silver or gold, click <a href="index.php?r=ticket-user%2Fopen&upgrade=1">here</a> to create a new ticket request, stating your position and your team’s Principal Investigator.  </li>
+                <p>HYPATIA users are classified into the following types based on their role within their organization:
+                    <li>Bronze: This is the default user type assigned upon registration. It comes with the fewest privileges and most limitations, making it suitable for testing or educational purposes, such as training events.  </li>
+                    <li>Silver user: Designed for regular lab members, this user type offers more resources and capabilities than Bronze.  </li>
+                    <li>Gold user: Reserved for Principal Investigators (PIs), this user type provides extended quotas and permissions. </li>
+                    <br>Upgrading Your Account
+                        <br>To upgrade from Bronze to Silver or Gold, click <a href="index.php?r=ticket-user%2Fopen&upgrade=1">here</a> to submit a ticket request. Please include your position and your team’s Principal Investigator (PI) in your request.  </li>
                 </p>
             </div>
             <div id="project-type" class="content-section" style="display: none;">
@@ -264,13 +278,13 @@
                 <p style="text-align: justify;">Press the “New project” button on the top right corner:</p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/newproject.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/newproject.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;">The system will load a new page where you can select the project type you need:</p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/projects.png"  width="70%" alt="Screenshot of project type selection screen">
+                    <img src="img/faq/projects.png"  width="70%" alt="Screenshot of project type selection screen">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -279,7 +293,7 @@
                 <p style="text-align: justify;">Press on the “24/7 service button” on the new project page. The following screen will appear:</p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/247.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/247.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;"> You then need to fill in the required information and click on the submit button:
@@ -304,7 +318,7 @@
                 <p style="text-align: justify;">Press on the “On-demand batch computations” project on the new project page. The following screen will appear:</p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/ondemand.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/ondemand.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
@@ -328,7 +342,7 @@
                 <p style="text-align: justify;">Press on the “On-demand computation machines” project on the new project page. The following screen will appear:</p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/machine.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/machine.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
@@ -349,7 +363,7 @@
                 <p style="text-align: justify;">Press on the “On-demand notebook” project on the new project page. The following screen will appear:</p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/notebook.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/notebook.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
@@ -371,7 +385,7 @@
                 <p style="text-align: justify;">Press on the “Storage volumes” project on the new project page. The following screen will appear:</p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/storage.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/storage.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;">  You then need to fill in the required information and click on the submit button:
@@ -411,7 +425,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/email.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/email.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;">You will need to enter the e-mail address on which you would like to receive notifications and also select which notifications you would like to receive and finally press submit. These settings can be modified at any time.</p>
@@ -424,7 +438,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/userprojects.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/userprojects.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -435,7 +449,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/update.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/update.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -452,7 +466,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/details.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/details.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -463,7 +477,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/access.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/access.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -474,7 +488,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/vmcreate.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/vmcreate.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;">You need to upload a file containing a public SSH key, select the Operating System (OS) image you would like to use from the list and press submit. The creation process
@@ -482,7 +496,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/vmdetails.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/vmdetails.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -536,7 +550,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/multiplevm.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/multiplevm.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -547,7 +561,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/volcreatedel.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/volcreatedel.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -558,14 +572,14 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/volumes.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/volumes.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;"> You can see the name of the volume, the creation date, and which machine to which it is attached. Moreover, by pressing the “Manage Attachment” button, the following page opens:
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/manage.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/manage.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
                 <p style="text-align: justify;"> where you can select a VM from the drop-down list to which to attach the volume.
@@ -573,7 +587,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/detach.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/detach.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <p style="text-align: justify;">where you can choose to detach the volume from the VM.</p>
                 <div class="row spacer"></div>
@@ -592,7 +606,7 @@
                 </p>
                 <div class="row spacer"></div>
                 <div class="text-center">
-                    <img src="/img/faq/feedback.png"  width="70%" alt="Screenshot of new project button location">
+                    <img src="img/faq/feedback.png"  width="70%" alt="Screenshot of new project button location">
                 </div>
                 <div class="row spacer"></div>
             </div>
@@ -621,25 +635,25 @@
                 <h2>How to create a LS AAI account?</h2>
                 <div class="row">&nbsp;</div>
                 <div class="text-center">
-                    <img src="/img/faq/about1.png" width="70%">
+                    <img src="img/faq/about1.png" width="70%">
                 </div>
                 <div class="row">&nbsp;</div>
                 By pressing the “Login” button on the upper right-hand corner of the HYPATIA platform the following screen will be loaded:
                 <div class="row">&nbsp;</div>
                 <div class="text-center">
-                    <img src="/img/faq/register2.png" width="70%">
+                    <img src="img/faq/register2.png" width="70%">
                 </div>
                 <div class="row">&nbsp;</div>
                 You will need press the register button, in order to be transferred to the LS AAI login page, where you will need to select your preferred method of login (Institutional account, LinkedIn, Apple, Google, ORCID, GitHub or LifeScience Hostel):
                 <div class="row">&nbsp;</div>
                 <div class="text-center">
-                    <img src="/img/faq/3elixir.png" width="70%">
+                    <img src="img/faq/3elixir.png" width="70%">
                 </div>
                 <div class="row">&nbsp;</div>
                 If your institution does not appear in the list of available institutions, then you need to add it to the system by clicking on the “Cannot find your institution” button:
                 <div class="row">&nbsp;</div>
                 <div class="text-center">
-                    <img src="/img/faq/4search.png" width="70%">
+                    <img src="img/faq/4search.png" width="70%">
                 </div>
                 <div class="row">&nbsp;</div>
                 After selecting the preferred method of login you will be transferred to the respective interface to login. Then you need to follow the instructions from the LS AAI interface to create a new account with a username of your choice.
@@ -652,14 +666,14 @@
                 You need to follow the same procedure as registering, but instead of pressing the “REGISTER”, you press the “LOGIN” button:
                 <div class="row">&nbsp;</div>
                 <div class="text-center">
-                    <img src="/img/faq/login5.png" width="70%">
+                    <img src="img/faq/login5.png" width="70%">
                 </div>
                 <div class="row">&nbsp;</div>
 
                 Then you need to select your preferred login method, as before, and then you are redirected to the hypatia website where you have been logged-in using your LS AAI username:
                 <div class="row">&nbsp;</div>
                 <div class="text-center">
-                    <img src="/img/faq/active.png" width="70%">
+                    <img src="img/faq/active.png" width="70%">
                 </div>
                 <div class="row">&nbsp;</div>
             </div>
@@ -710,7 +724,6 @@
     [data-bs-toggle="collapse"]:not(.collapsed) .float-end svg {
         transform: rotate(180deg); /* Arrow up */
     }
-
 </style>
 
 <!-- JavaScript -->
@@ -723,20 +736,26 @@
         const mainMenuArrow = mainMenuToggle.querySelector(".float-end svg");
         const mainMenu = document.querySelector(mainMenuToggle.getAttribute("data-bs-target"));
         const subMenuToggles = document.querySelectorAll('[data-bs-toggle="collapse"]:not([data-bs-target="#hypatiaMenu"])');
+        const hypatiaLink = document.querySelector("#hypatiaLink");
 
-        // Automatically expand the main menu on page load
+        // ✅ Automatically expand the main menu on page load
         if (mainMenu) {
             mainMenu.classList.add("show"); // Expand the main menu
             if (mainMenuArrow) {
                 mainMenuArrow.style.transform = "rotate(180deg)"; // Rotate arrow to expanded state
             }
         }
-
-        // Show the intro section on page load
+        // Prevent arrow from toggling when the link is clicked
+        if (hypatiaLink) {
+            hypatiaLink.addEventListener("click", function (event) {
+                event.stopPropagation(); // Prevent event propagation to the parent toggle
+            });
+        }
+        // ✅ Show the intro section on page load
         introSection.style.display = "block";
         introSection.classList.add("active");
 
-        // Handle menu link clicks
+        // ✅ Handle menu link clicks
         navLinks.forEach(link => {
             link.addEventListener("click", function () {
                 const targetId = this.getAttribute("data-target");
@@ -753,66 +772,69 @@
                     targetSection.style.display = "block";
                     targetSection.classList.add("active");
 
-                    // If part of a collapsed dropdown, expand it
+                    // ✅ Expand parent menu if it's inside a collapsed submenu
                     const parentCollapse = link.closest(".collapse");
                     if (parentCollapse) {
-                        parentCollapse.classList.add("show"); // Expand the dropdown
-                        const parentToggle = document.querySelector(
-                            `[data-bs-target="#${parentCollapse.id}"]`
-                        );
+                        parentCollapse.classList.add("show"); // Expand submenu
+                        const parentToggle = document.querySelector(`[data-bs-target="#${parentCollapse.id}"]`);
                         if (parentToggle) {
                             parentToggle.classList.remove("collapsed");
                             const svg = parentToggle.querySelector(".float-end svg");
-                            if (svg) svg.style.transform = "rotate(180deg)";
+                            if (svg) svg.style.transform = "rotate(180deg)"; // Rotate submenu arrow
                         }
                     }
 
-                    // Scroll to the top of the page
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
+                    // ✅ Scroll to the top of the page
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                 }
             });
         });
 
-        // Main Menu Arrow Rotation (Isolated)
+        // ✅ Main Menu Arrow Rotation (Isolated)
         if (mainMenu && mainMenuArrow) {
-            mainMenu.addEventListener("hidden.bs.collapse", (event) => {
-                if (event.target === mainMenu) { // Ensure the event is for the main menu
+            mainMenu.addEventListener("hidden.bs.collapse", function (event) {
+                if (event.target === mainMenu) { // Ensure it's the main menu
                     mainMenuArrow.style.transform = "rotate(0deg)"; // Rotate arrow down
                 }
             });
-            mainMenu.addEventListener("shown.bs.collapse", (event) => {
-                if (event.target === mainMenu) { // Ensure the event is for the main menu
+            mainMenu.addEventListener("shown.bs.collapse", function (event) {
+                if (event.target === mainMenu) { // Ensure it's the main menu
                     mainMenuArrow.style.transform = "rotate(180deg)"; // Rotate arrow up
                 }
             });
         }
 
-        // Submenu Arrows Rotation (Isolated)
+        // ✅ Submenu Arrows Rotation (Independent from Main Menu)
         subMenuToggles.forEach(toggle => {
             const subMenu = document.querySelector(toggle.getAttribute("data-bs-target"));
             const subMenuArrow = toggle.querySelector(".float-end svg");
 
             if (subMenu && subMenuArrow) {
-                subMenu.addEventListener("hidden.bs.collapse", (event) => {
-                    if (event.target === subMenu) { // Ensure the event is for the current submenu
+                subMenu.addEventListener("hidden.bs.collapse", function (event) {
+                    if (event.target === subMenu) { // Ensure it's the current submenu
                         subMenuArrow.style.transform = "rotate(0deg)"; // Rotate arrow down
                     }
                 });
-                subMenu.addEventListener("shown.bs.collapse", (event) => {
-                    if (event.target === subMenu) { // Ensure the event is for the current submenu
+                subMenu.addEventListener("shown.bs.collapse", function (event) {
+                    if (event.target === subMenu) { // Ensure it's the current submenu
                         subMenuArrow.style.transform = "rotate(180deg)"; // Rotate arrow up
                     }
                 });
             }
         });
     });
-
-
 </script>
+
+
+
+<script src="https://unpkg.com/feather-icons"></script>
+<script>
+    feather.replace();
+</script>
+
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
 </html>
