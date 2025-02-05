@@ -60,7 +60,10 @@
                         <!-- Submenu Example -->
                         <li style="margin-bottom: 10px;">
                             <h5 style="cursor: pointer; color: #007bff;" data-bs-toggle="collapse" data-bs-target="#generalInfoSubmenu" class="collapsed">
-                                User & Project types
+                                <i data-feather="users" style="width:12px;height:12px;"></i>
+
+
+                                User & <i data-feather="folder" style="width:12px;height:12px;"></i> Project types
                                 <span class="float-end">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                                     <path d="M4.5 9l7.5 7.5L19.5 9" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -265,11 +268,11 @@
                 <h2>What project types exist in HYPATIA?</h2>
                 <p style="text-align: justify;">
                 <ul>
-                    <li>“24/7 services” projects. This type of project is suitable for hosting 24/7 services, following the Virtual Private Server (VPS) model. The focus is on relatively lightweight services (e.g., Web server, API endpoint, database); computationally intensive projects should be served by “on-demand batch computations” or “on-demand computation machine” projects (see below). </li>
-                    <li>On-demand batch computations” projects. This type of project is suitable for batches of computational tasks to be executed. Each computational task could involve the execution of a particular software product or of a workflow that combines many software products. </li>
-                    <li>“On-demand computation machines” projects. This type of project is suitable for (short-term) computational experiments that are not containerised. A VM having particular characteristics is provided to the user. It is available only for gold users. </li>
-                    <li>“On-demand notebook” projects. Provide customizable, pre-configured Jupyter environments tailored for interactive data analysis in fields like data science and machine learning, with flexible core and memory allocations, limited project durations, and extension options based on resource availability. </li>
-                    <li>“Storage volumes” projects. This type of project is suitable for creating storage volumes that can be attached to VMs that belong to “24/7 services” or “On-demand computation machines” projects. Storage volumes for “On-demand computation machines” projects are only available to gold users.</li>
+                <li><i class="fa fa-leaf" aria-hidden="true"></i> “24/7 services” projects. This type of project is suitable for hosting 24/7 services, following the Virtual Private Server (VPS) model. The focus is on relatively lightweight services (e.g., Web server, API endpoint, database); computationally intensive projects should be served by “on-demand batch computations” or “on-demand computation machine” projects (see below). </li>
+                    <li> <i class="fa fa-rocket" aria-hidden="true"></i> "On-demand batch computations” projects. This type of project is suitable for batches of computational tasks to be executed. Each computational task could involve the execution of a particular software product or of a workflow that combines many software products. </li>
+                    <li> <i class="fa fa-bolt" aria-hidden="true"></i> “On-demand computation machines” projects. This type of project is suitable for (short-term) computational experiments that are not containerised. A VM having particular characteristics is provided to the user. It is available only for gold users. </li>
+                    <li><i class="fa fa-book" aria-hidden="true"></i> “On-demand notebook” projects. Provide customizable, pre-configured Jupyter environments tailored for interactive data analysis in fields like data science and machine learning, with flexible core and memory allocations, limited project durations, and extension options based on resource availability. </li>
+                    <li><i class="fa fa-database" aria-hidden="true"></i> “Storage volumes” projects. This type of project is suitable for creating storage volumes that can be attached to VMs that belong to “24/7 services” or “On-demand computation machines” projects. Storage volumes for “On-demand computation machines” projects are only available to gold users.</li>
                 </ul>
                 </p>
             </div>
@@ -455,10 +458,13 @@
             </div>
 
             <div id="forget" class="content-section" style="display: none;">
-                <h2>I forgot to update my project expiration date and it expired. What can I do??</h2>
+                <h2>I forgot to update my project expiration date and it expired. What can I do?</h2>
                 <p style="text-align: justify;"> Please contact an administrator and provide the name of your project.
                 </p>
                 <div class="row spacer"></div>
+                <div class="text-center">
+                    <img src="img/faq/update-project.png"  width="70%" alt="Screenshot of new project button location">
+                </div>
             </div>
             <div id="details" class="content-section" style="display: none;">
                 <h2>How do I view details about my projects?</h2>
