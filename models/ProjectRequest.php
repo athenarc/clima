@@ -328,7 +328,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             } elseif ($project_type == 1){
                 $project_typen = "24/7 Service";
             } elseif ($project_type == 2){
-                $project_typen = "Cold-Storage";
+                $project_typen = "Storage";
             } elseif ($project_type == 3){
                 $project_typen = "Machine Compute";
             } else {
@@ -595,7 +595,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         } elseif ($this->project_type == 1){
             $project_typen = "24/7 Service";
         } elseif ($this->project_type == 2){
-            $project_typen = "Cold-Storage";
+            $project_typen = "Storage";
         } elseif ($this->project_type == 3) {
             $project_typen = "Machine Compute";
         } else {
@@ -658,7 +658,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         } elseif ($this->project_type == 1){
             $project_typen = "24/7 Service";
         } elseif ($this->project_type == 2){
-            $project_typen = "Cold-Storage";
+            $project_typen = "Storage";
         } elseif ($this->project_type == 3) {
             $project_typen = "Machine Compute";
         } else {
