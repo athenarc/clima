@@ -13,7 +13,6 @@ use app\components\SupportWindow;
 use webvimark\modules\UserManagement\models\User;
 use app\components\NotificationWidget;
 use app\models\Analytics;
-use app\components\EnvironmentOverlay;
 
 
 AppAsset::register($this);
@@ -56,7 +55,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
 </head>
 <body>
 <?php $this->beginBody() ?>
-<?= EnvironmentOverlay::widget(); ?>
+
 <div class="wrap">
     <?php
 
@@ -132,7 +131,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
     // print_r($menuItems);
     // exit(0);
 
-    $menuItems[]=['label' => 'Guide', 'url' => ['/site/help']];
+    $menuItems[]=['label' => 'User Guide', 'url' => ['/site/help']];
     if(Yii::$app->user->getIsGuest() == false)
     {
         // $menuItems[]=[
