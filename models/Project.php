@@ -39,7 +39,8 @@ class Project extends \yii\db\ActiveRecord
             [['status', 'latest_project_request_id'], 'default', 'value' => null],
             [['status', 'latest_project_request_id'], 'integer'],
             [['name'], 'string', 'max' => 200],
-            [['favorite'], 'boolean']
+            [['favorite'], 'boolean'],
+            [['project_end_date'], 'date', 'format' => 'php:Y-m-d'],
         ];
     }
 
@@ -53,6 +54,7 @@ class Project extends \yii\db\ActiveRecord
             'name' => 'Name',
             'status' => 'Status',
             'latest_project_request_id' => 'Latest Project Request ID',
+            'project_end_date' => 'End Date'
         ];
     }
 

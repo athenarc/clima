@@ -37,7 +37,7 @@ class ExtensionLimits extends ActiveRecord
             [['max_percent'], 'number', 'min' => 0, 'max' => 100],
             [['max_extension', 'max_days'], 'integer', 'min' => 0],
             [['user_type'], 'unique'],
-            [['created_at', 'updated_at'], 'safe'], // For handling timestamps
+            [['created_at', 'updated_at'], 'safe'],
         ];
     }
 

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ExtensionLimits;
 use app\models\Token;
 use app\models\NewTokenRequestForm;
 use app\components\EmailVerifiedFilter;
@@ -1530,8 +1531,46 @@ class ProjectController extends Controller
         }
 
         $request=ProjectRequest::find()->where(['id'=>$id])->one();
-        $request->approve();
+        $project = Project::findOne($request->project_id);
+        if (!$project) {
+            Yii::$app->session->setFlash('error', 'Associated project not found.');
+            return $this->redirect(['project/request-list']);
+        }
 
+        // Find the last approved request for this project
+        $lastApprovedRequest = ProjectRequest::find()
+            ->where(['project_id' => $project->id, 'status' =>  [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]])
+            ->orderBy(['approval_date' => SORT_DESC])
+            ->one();
+        // Get previous end date (either from the last approved request or from the project)
+        if ($lastApprovedRequest) {
+            $originalEndDate = new DateTime($lastApprovedRequest->end_date); // Use last approved end date
+        } elseif (!empty($project->project_end_date)) {
+            $originalEndDate = new DateTime($project->project_end_date); // Use existing project end date
+        } else {
+            $originalEndDate = null; // No previous end date (first-time approval)
+        }
+        $requestedEndDate = new DateTime($request->end_date);
+
+        // Check if this is an extension request
+        $isExtensionRequest = $requestedEndDate > $originalEndDate;
+
+        // Fetch extension limits for this user type
+        $extensionLimit = ExtensionLimits::findOne(['user_type' => User::getRoleType()]);
+
+        if ($isExtensionRequest) {
+            // Increase extension count
+            $project->extension_count += 1;
+            $project->updateAttributes(['extension_count' => $project->extension_count]);
+        }
+// ✅ Update the project's `end_date` to reflect the approved request
+        $project->project_end_date = $requestedEndDate->format('Y-m-d');
+        if (!$project->save(false, ['extension_count', 'project_end_date'])) {
+            Yii::$app->session->setFlash('error', 'Failed to update project.');
+            return $this->redirect(['project/request-list']);
+        }
+        $project->updateAttributes(['project_end_date' => $project->project_end_date]);
+        $request->approve();
         $message='Project approved.';
 
 
@@ -2566,6 +2605,7 @@ class ProjectController extends Controller
                 'method' => 'POST'
             ];
 
+
         $errors='';
         $success='';
         $warnings='';
@@ -2783,11 +2823,63 @@ class ProjectController extends Controller
                 }
             }
         }
+        $relatedProject = Project::findOne($prequest->project_id);
 
 
-        return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest,
-            'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval, 'exceed_limits'=>$exceed_limits]);
+        // Fetch extension limits for this user type
+        $extensionLimit = ExtensionLimits::findOne(['user_type' => $role]);
 
+
+
+        // Fetch project start-end date
+        $startDate = new DateTime($relatedProject->start_date);
+        $endDate = new DateTime($relatedProject->project_end_date);
+
+        // Calculate total project duration in days
+        $totalDurationDays = $startDate->diff($endDate)->days + 1;
+
+        // Calculate the maximum extension days allowed based on the extension limit percentage
+        $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+
+
+        $extension_count=$relatedProject->extension_count;
+        $max_extension= $extensionLimit->max_extension;
+
+//        print_r($startDate);
+//        echo "\ntotal-\n";
+//        print_r($totalDurationDays);
+//        echo "\nend-\n";
+//        print_r($endDate);
+//        echo "\nmaxdays-\n";
+//        print_r($maxExtensionDays);
+//        echo "\nextecou-\n";
+//        print_r($extension_count);
+//        echo "\nmax-\n";
+//        print_r($max_extension);
+//        echo "\n------------\n";
+//        die();
+        return $this->render($view_file, [
+            'details' => $drequest,
+            'project' => $prequest,
+            'maxExtensionDays' => $maxExtensionDays,
+            'extension_count' => $extension_count,
+            'max_extension' => $max_extension,
+            'trls' => $trls,
+            'form_params' => $form_params,
+            'participating' => $participating,
+            'errors' => $errors,
+            'upperlimits' => $upperlimits,
+            'autoacceptlimits' => $autoacceptlimits,
+            'maturities' => $maturities,
+            'vm_exists' => $vm_exists,
+            'ends' => $ends,
+            'role' => $role,
+            'num_vms_dropdown' => $num_vms_dropdown,
+            'volume_exists' => $volume_exists,
+            'images' => $images,
+            'interval' => $interval,
+            'exceed_limits' => $exceed_limits
+        ]);
 
     }
 
