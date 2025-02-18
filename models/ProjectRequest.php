@@ -11,7 +11,7 @@ use yii\data\Pagination;
 use yii\helpers\Url;
 use yii\httpclient\Client;
 use app\models\Smtp;
-use app\models\ColdStorageRequest;
+use app\models\StorageRequest;
 use app\models\HotVolumes;
 use app\models\EmailEventsUser;
 use app\models\EmailEventsModerator;
@@ -182,8 +182,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
                     $otherDetails = ServiceRequest::find()->where(['request_id' => $other->id])->one();
                     break;
                 case 2:
-                    $details = ColdStorageRequest::find()->where(['request_id' => $this->id])->one();
-                    $otherDetails = ColdStorageRequest::find()->where(['request_id' => $other->id])->one();
+                    $details = StorageRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = StorageRequest::find()->where(['request_id' => $other->id])->one();
                     break;
                 case 3:
                     $details = MachineComputeRequest::find()->where(['request_id' => $this->id])->one();
@@ -243,8 +243,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
                     $otherDetails = ServiceRequest::find()->where(['request_id' => $other->id])->one();
                     break;
                 case 2:
-                    $details = ColdStorageRequest::find()->where(['request_id' => $this->id])->one();
-                    $otherDetails = ColdStorageRequest::find()->where(['request_id' => $other->id])->one();
+                    $details = StorageRequest::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = StorageRequest::find()->where(['request_id' => $other->id])->one();
                     break;
                 case 3:
                     $details = MachineComputeRequest::find()->where(['request_id' => $this->id])->one();
@@ -470,7 +470,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         }
         else if ($this->project_type==2)
         {
-            $details=ColdStorageRequest::find()->where(['request_id'=>$this->id])->one();
+            $details=StorageRequest::find()->where(['request_id'=>$this->id])->one();
         }
         else if ($this->project_type==3)
         {
@@ -582,7 +582,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         if ($this->project_type==2)
         {
 
-            $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$this->id])->one();
+            $cold_storage_request=StorageRequest::find()->where(['request_id'=>$this->id])->one();
             $vm_type=$cold_storage_request->vm_type;
             $size=$cold_storage_request->storage;
             $name=$this->name;

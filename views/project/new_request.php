@@ -74,7 +74,7 @@ if (Userw::hasRole('Gold',$superAdminAllowed=true))
 ?>
 <div class="row justify-content-center">
     <div class="col-md-4 project">
-    	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-cold-storage-request']) ?>
+    	<?= ToolButton::createButton("$storage_icon Storage volumes", "",['/project/new-storage-request']) ?>
     </div>
 </div>
 <?php

@@ -202,7 +202,7 @@ class HotVolumes extends \yii\db\ActiveRecord
             foreach ($hotvolume as $hot) 
             {
                 $project=Project::find()->where(['id'=>$hot->project_id])->one();
-                $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                $cold_storage_request=StorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
                 $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
             }
         }
@@ -226,7 +226,7 @@ class HotVolumes extends \yii\db\ActiveRecord
             foreach ($hotvolume as $hot) 
             {
                 $project=Project::find()->where(['id'=>$hot->project_id])->one();
-                $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                $cold_storage_request=StorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
                 $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
             }
         }

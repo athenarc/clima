@@ -14,7 +14,7 @@ use app\models\ProjectRequest;
 use app\models\ProjectRequestCold;
 use app\models\ServiceRequest;
 use app\models\OndemandRequest;
-use app\models\ColdStorageRequest;
+use app\models\StorageRequest;
 use app\models\User;
 use yii\helpers\Url;
 use yii\helpers\Html;
