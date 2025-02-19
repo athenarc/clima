@@ -32,14 +32,14 @@ echo Headers::widget([
 <p>This page allows for the creation and management of API authentication & authorization keys that are used for running computational jobs in the context of an approved project. Keep in mind that the creation of multiple tokens for the same project is supported.</p>
 <br>
 
-<div style="float: right; ;text-align:center">
+<div style="float: right; text-align: center;">
     <?=Html::a("$new_icon New API key",['/project/new-token-request','id'=>$requestId, 'mode'=>$mode, 'uuid'=>$mode],['class'=>'btn btn-success create-vm-btn', 'style'=>'width:120px'])?>
-
 </div>
+
 <!-- Active API Keys Section -->
 <div class="row">
     <h3 class="col-md-12">
-        Active API keys (<?= count($active_tokens) ?>)
+        Active API keys (<?= is_array($active_tokens) ? count($active_tokens) : 0 ?>)
         <i class="fas fa-chevron-up" id="active-arrow" title="Hide active API keys" style="cursor: pointer" onclick="toggleSection('active-table', 'active-arrow')"></i>
     </h3>
 </div>
@@ -86,7 +86,7 @@ echo Headers::widget([
 <!-- Expired API Keys Section -->
 <div class="row">
     <h3 class="col-md-12">
-        Expired API keys (<?= count($expired_tokens) ?>)
+        Expired API keys (<?= is_array($expired_tokens) ? count($expired_tokens) : 0 ?>)
         <i class="fas fa-chevron-up" id="expired-arrow" title="Hide expired API keys" style="cursor: pointer" onclick="toggleSection('expired-table', 'expired-arrow')"></i>
     </h3>
 </div>
