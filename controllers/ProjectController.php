@@ -3970,7 +3970,7 @@ class ProjectController extends Controller
             $temp4 = $temp2.$username.$temp2.'}';
             $post_body = $temp1.$temp4;
             $return = Token::Register($URL, $headers, $post_body);
-            return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>0,'active_tokens'=>0,
+            return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>0,'active_tokens'=>0, 'expired_tokens' =>0,
                 'strArray'=>'', 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
         } else {
             // $URL = "http://62.217.122.242:8080/api_auth/contexts/{$pname}/users/{$username}/tokens?status=active";
