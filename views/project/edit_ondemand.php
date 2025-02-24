@@ -82,7 +82,7 @@ Headers::begin() ?>
 
                     $startDate = date('Y-m-d'); // Current date
                     $endDate = date('Y-m-d', strtotime($project->end_date . " +$maxExtensionDays days"));
-                    if ($extension_count <= $max_extension) {
+                    if ($extension_count < $max_extension) {
                         if ($exceed_limits == 0) {
                             echo '<label>Project end date *</label>';
                             echo DatePicker::widget([

@@ -2,12 +2,12 @@
 
 namespace app\models;
 
+use app\models\ProjectRequest;
 use Yii;
 use yii\db\Query;
 use yii\httpclient\Client;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\User;
-use app\models\ProjectRequest;
 
 /**
  * This is the model class for table "project".
@@ -1589,4 +1589,28 @@ class Project extends \yii\db\ActiveRecord
         $results=$query->all();
         return $results;
     }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+
+        // Retrieve the last autoapproved project request for this project.
+        $lastApprovedRequest = ProjectRequest::find()
+            ->where([
+                'project_id' => $this->id,
+                'status' => ProjectRequest::AUTOAPPROVED
+            ])
+            ->orderBy(['approval_date' => SORT_DESC])
+            ->one();
+
+        // If an autoapproved request exists, update the project_end_date.
+        if ($lastApprovedRequest !== null) {
+            // You can either use $this->project_end_date (if it’s already set correctly)
+            // or, if you want to base it on the approved request’s end_date:
+            $this->updateAttributes(['project_end_date' => $lastApprovedRequest->end_date]);
+        }
+
+    }
+
+
 }

@@ -70,7 +70,7 @@ Headers::begin() ?>
                 <h3>Project details</h3>
            
         <?= $form->field($project, 'name')->textInput(['readonly' => true, 'value' =>$project['name']]) ?>
-                <div style="margin-bottom: 20px;">
+       <div style="margin-bottom: 20px;">
                     <?php
 
                     $startDate = date('Y-m-d'); // Current date

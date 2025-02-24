@@ -927,7 +927,6 @@ class ProjectController extends Controller
                         EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
-
                     return $this->redirect(['project/index']);
                 }
             }
@@ -1563,7 +1562,7 @@ class ProjectController extends Controller
             $project->extension_count += 1;
             $project->updateAttributes(['extension_count' => $project->extension_count]);
         }
-// ✅ Update the project's `end_date` to reflect the approved request
+        // ✅ Update the project's `end_date` to reflect the approved request
         $project->project_end_date = $requestedEndDate->format('Y-m-d');
         if (!$project->save(false, ['extension_count', 'project_end_date'])) {
             Yii::$app->session->setFlash('error', 'Failed to update project.');
@@ -2845,19 +2844,19 @@ class ProjectController extends Controller
         $extension_count=$relatedProject->extension_count;
         $max_extension= $extensionLimit->max_extension;
 
-//        print_r($startDate);
-//        echo "\ntotal-\n";
-//        print_r($totalDurationDays);
-//        echo "\nend-\n";
-//        print_r($endDate);
-//        echo "\nmaxdays-\n";
-//        print_r($maxExtensionDays);
-//        echo "\nextecou-\n";
-//        print_r($extension_count);
-//        echo "\nmax-\n";
-//        print_r($max_extension);
-//        echo "\n------------\n";
-//        die();
+        print_r($startDate);
+        echo "\ntotal-\n";
+        print_r($totalDurationDays);
+        echo "\nend-\n";
+        print_r($endDate);
+        echo "\nmaxdays-\n";
+        print_r($maxExtensionDays);
+        echo "\nextecou-\n";
+        print_r($extension_count);
+        echo "\nmax-\n";
+        print_r($max_extension);
+        echo "\n------------\n";
+        //die();
         return $this->render($view_file, [
             'details' => $drequest,
             'project' => $prequest,
