@@ -506,7 +506,7 @@ class ProjectController extends Controller
             return $this->render('no_project_allowed', ['project'=>"Storage volume", 'user_type'=>$role]);
         }
 
-        $StorageModel=new StorageRequest;
+        $storageModel=new StorageRequest;
         $projectModel=new ProjectRequest;
         // $projectModel->duration=36;
         // $projectModel->end_date='2100-1-1';
@@ -567,7 +567,7 @@ class ProjectController extends Controller
 
 
 
-        if ( ($StorageModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
+        if ( ($storageModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
@@ -585,7 +585,7 @@ class ProjectController extends Controller
 
             $projectModel->user_list=$participant_ids;
             $isValid = $projectModel->validate();
-            $isValid = $StorageModel->validate() && $isValid;
+            $isValid = $storageModel->validate() && $isValid;
             // $projectModel->end_date='2100-1-1';
 
             if ($isValid)
@@ -600,7 +600,7 @@ class ProjectController extends Controller
                 $project_id=$messages[5];
                 if ($requestId!=-1)
                 {
-                    $messages=$StorageModel->uploadNew($requestId);
+                    $messages=$storageModel->uploadNew($requestId);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
@@ -638,7 +638,7 @@ class ProjectController extends Controller
         }
 
 
-        return $this->render('new_storage_request',['storage'=>$StorageModel, 'project'=>$projectModel,
+        return $this->render('new_storage_request',['storage'=>$storageModel, 'project'=>$projectModel,
             'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
             'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role,
             'new_project_allowed'=>$new_project_allowed, 'vm_types'=>$vm_types, 'multiple' => $multiple]);
@@ -4062,7 +4062,7 @@ class ProjectController extends Controller
             $temp4 = $temp2.$username.$temp2.'}';
             $post_body = $temp1.$temp4;
             $return = Token::Register($URL, $headers, $post_body);
-            return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>0,
+            return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>0,'active_tokens'=>0, 'expired_tokens' =>0,
                 'strArray'=>'', 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
         } else {
             // $URL = "http://62.217.122.242:8080/api_auth/contexts/{$pname}/users/{$username}/tokens?status=active";

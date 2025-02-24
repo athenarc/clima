@@ -328,7 +328,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             } elseif ($project_type == 1){
                 $project_typen = "24/7 Service";
             } elseif ($project_type == 2){
-                $project_typen = "Cold-Storage";
+                $project_typen = "Storage";
             } elseif ($project_type == 3){
                 $project_typen = "Machine Compute";
             } else {
@@ -582,9 +582,9 @@ class ProjectRequest extends \yii\db\ActiveRecord
         if ($this->project_type==2)
         {
 
-            $cold_storage_request=StorageRequest::find()->where(['request_id'=>$this->id])->one();
-            $vm_type=$cold_storage_request->vm_type;
-            $size=$cold_storage_request->storage;
+            $storage_request=StorageRequest::find()->where(['request_id'=>$this->id])->one();
+            $vm_type=$storage_request->vm_type;
+            $size=$storage_request->storage;
             $name=$this->name;
 
         }
@@ -595,7 +595,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         } elseif ($this->project_type == 1){
             $project_typen = "24/7 Service";
         } elseif ($this->project_type == 2){
-            $project_typen = "Cold-Storage";
+            $project_typen = "Storage";
         } elseif ($this->project_type == 3) {
             $project_typen = "Machine Compute";
         } else {
@@ -658,7 +658,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         } elseif ($this->project_type == 1){
             $project_typen = "24/7 Service";
         } elseif ($this->project_type == 2){
-            $project_typen = "Cold-Storage";
+            $project_typen = "Storage";
         } elseif ($this->project_type == 3) {
             $project_typen = "Machine Compute";
         } else {
@@ -1206,7 +1206,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $query=new Query;
 
         $volumes_service=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->innerJoin('hot_volumes as v','v.project_id=p.id')
@@ -1214,7 +1214,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
                         ->one();
         $query=new Query;
         $volumes_machines=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('cold_storage_request as c')
+                        ->from('storage_request as c')
                         ->innerJoin('project_request as pr','pr.id=c.request_id')
                         ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
                         ->innerJoin('hot_volumes as v','v.project_id=p.id')
