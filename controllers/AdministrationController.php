@@ -95,17 +95,18 @@ class AdministrationController extends Controller
     }
     public function actionInactive()
     {
-        $sixMonthsAgo = date('Y-m-d H:i:s', strtotime('-6 months'));
 
+        $sixMonthsAgo = (new \DateTime('-6 months', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s.u');
 
-        $query = AuthUser::find()->where(['<', 'last_login', $sixMonthsAgo]);
+        $query = AuthUser::find()
+            ->where("last_login < :sixMonthsAgo", [':sixMonthsAgo' => $sixMonthsAgo])
+            ->andWhere(['IS NOT', 'last_login', null]);
 
-        // Execute the query and fetch results
-        $inactiveUsers = $query->all();
+        // Debug Output
+        $inactiveUsers = $query->asArray()->all();
 
-        // Debug output
+        
         print_r($inactiveUsers);
-
         $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
         ]);
