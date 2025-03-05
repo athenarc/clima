@@ -100,16 +100,16 @@ class AdministrationController extends Controller
 
         // Build the query
         $query = AuthUser::find()
-            ->where(['<', 'last_login', new \yii\db\Expression('NOW() - INTERVAL \'6 months\'')]);
-
+            ->where(['<', 'last_login', new Expression('NOW() - INTERVAL \'6 months\'')]);
         // Create a data provider
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'pagination' => [
-                'pageSize' => 20, // Adjust as needed
-            ],
-        ]);
 
+        ]);
+        $sql = $query->createCommand()->rawSql;
+        echo $sql;
+        $models = $dataProvider->getModels();
+        print_r($models);
         // Pass the data provider to the view
         return $this->render('inactive', [
             'dataProvider' => $dataProvider,
