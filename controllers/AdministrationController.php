@@ -92,6 +92,23 @@ class AdministrationController extends Controller
     {
         return $this->render('index');
     }
+    public function actionInactive()
+    {
+        $sixMonthsAgo = date('Y-m-d H:i:s', strtotime('-6 months'));
+
+
+        $query = \app\models\AuthUser::find()
+            ->where(['<', 'last_login', $sixMonthsAgo]);
+
+        $dataProvider = new \yii\data\ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        return $this->render('inactive', [
+            'dataProvider' => $dataProvider
+        ]);
+    }
+
 
     public function actionConfigure()
     {

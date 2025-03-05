@@ -130,6 +130,8 @@ else
 		<br />
 		<?= ToolButton::createButton("$analytics_icon Manage Analytics", "",['administration/manage-analytics']) ?>
 		<br />
+        <?= ToolButton::createButton("$analytics_icon Inactive", "",['administration/inactive']) ?>
+        <br />
 	</div>
 </div>
 
