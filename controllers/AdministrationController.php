@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\AuthUser;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -97,19 +98,18 @@ class AdministrationController extends Controller
     }
     public function actionInactive()
     {
+        $query = (new Query())
+            ->select('*')
+            ->from('auth_user') // Specify table directly
+            ->where("last_login < (NOW() AT TIME ZONE 'UTC') - INTERVAL '6 months'")
+            ->andWhere(['IS NOT', 'last_login', null]); // Ensure we exclude NULL values
 
-        // Build the query
-        $query = AuthUser::find()
-            ->where(['<', 'last_login', new \yii\db\Expression("(NOW() AT TIME ZONE 'UTC') - INTERVAL '6 months'")]);
-        // Create a data provider
         $dataProvider = new ActiveDataProvider([
-            'query' => $query,
-
+            'query' => $query, // Now it's a QueryInterface instance
         ]);
-        $sql = $query->createCommand()->rawSql;
-        echo $sql;
-        $models = $dataProvider->getModels();
-        print_r($models);
+
+
+        print_r($query);
         // Pass the data provider to the view
         return $this->render('inactive', [
             'dataProvider' => $dataProvider,
