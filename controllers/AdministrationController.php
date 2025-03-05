@@ -103,13 +103,17 @@ class AdministrationController extends Controller
             ->from('auth_user') // Specify table directly
             ->where("last_login < (NOW() AT TIME ZONE 'UTC') - INTERVAL '6 months'")
             ->andWhere(['IS NOT', 'last_login', null]); // Ensure we exclude NULL values
+        $inactiveUsers = $query->all();
 
+        // Print the raw results
+        echo "<pre>";
+        print_r($inactiveUsers);
+        echo "</pre>";
         $dataProvider = new ActiveDataProvider([
             'query' => $query, // Now it's a QueryInterface instance
         ]);
 
 
-        print_r($query);
         // Pass the data provider to the view
         return $this->render('inactive', [
             'dataProvider' => $dataProvider,
