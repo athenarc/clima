@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\AuthUser;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -97,11 +98,13 @@ class AdministrationController extends Controller
         $sixMonthsAgo = date('Y-m-d H:i:s', strtotime('-6 months'));
 
 
-        $query = \app\models\AuthUser::find()
-            ->where(['<', 'last_login', $sixMonthsAgo]);
-        // Print results in the browser
-     
-        print_r($query);
+        $query = AuthUser::find()->where(['<', 'last_login', $sixMonthsAgo]);
+
+        // Execute the query and fetch results
+        $inactiveUsers = $query->all();
+
+        // Debug output
+        print_r($inactiveUsers);
 
         $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
