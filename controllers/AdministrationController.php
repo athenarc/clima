@@ -100,7 +100,7 @@ class AdministrationController extends Controller
 
         // Build the query
         $query = AuthUser::find()
-            ->where(['<', 'last_login', new Expression('NOW() - INTERVAL \'6 months\'')]);
+            ->where(['<', 'last_login', new \yii\db\Expression("(NOW() AT TIME ZONE 'UTC') - INTERVAL '6 months'")]);
         // Create a data provider
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
