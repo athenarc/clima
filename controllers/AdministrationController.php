@@ -99,6 +99,9 @@ class AdministrationController extends Controller
 
         $query = \app\models\AuthUser::find()
             ->where(['<', 'last_login', $sixMonthsAgo]);
+        // Print results in the browser
+     
+        print_r($query);
 
         $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
