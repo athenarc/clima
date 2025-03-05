@@ -2844,19 +2844,6 @@ class ProjectController extends Controller
         $extension_count=$relatedProject->extension_count;
         $max_extension= $extensionLimit->max_extension;
 
-        print_r($startDate);
-        echo "\ntotal-\n";
-        print_r($totalDurationDays);
-        echo "\nend-\n";
-        print_r($endDate);
-        echo "\nmaxdays-\n";
-        print_r($maxExtensionDays);
-        echo "\nextecou-\n";
-        print_r($extension_count);
-        echo "\nmax-\n";
-        print_r($max_extension);
-        echo "\n------------\n";
-        //die();
         return $this->render($view_file, [
             'details' => $drequest,
             'project' => $prequest,
@@ -3207,8 +3194,31 @@ class ProjectController extends Controller
                 }
             }
         }
+        $relatedProject = Project::findOne($prequest->project_id);
 
+
+        // Fetch extension limits for this user type
+        $extensionLimit = ExtensionLimits::findOne(['user_type' => $role]);
+
+
+
+        // Fetch project start-end date
+        $startDate = new DateTime($relatedProject->start_date);
+        $endDate = new DateTime($relatedProject->project_end_date);
+
+        // Calculate total project duration in days
+        $totalDurationDays = $startDate->diff($endDate)->days + 1;
+
+        // Calculate the maximum extension days allowed based on the extension limit percentage
+        $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+
+
+        $extension_count=$relatedProject->extension_count;
+        $max_extension= $extensionLimit->max_extension;
         return $this->render($view_file,['details'=>$drequest, 'images' => $images,'project'=>$prequest,
+            'maxExtensionDays' => $maxExtensionDays,
+            'extension_count' => $extension_count,
+            'max_extension' => $max_extension,
             'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown,'volume_exists'=>$volume_exists, 'exceed_limits'=>$exceed_limits]);
 
 
