@@ -4,6 +4,7 @@ namespace app\controllers;
 
 use app\models\AuthUser;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -97,22 +98,21 @@ class AdministrationController extends Controller
     public function actionInactive()
     {
 
-        $sixMonthsAgo = (new \DateTime('-6 months', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s.u');
-
-        
-
-        // Assuming your model is named AuthUser
+        // Build the query
         $query = AuthUser::find()
-            ->where(['<', 'last_login', new Expression('NOW() - INTERVAL \'6 months\'')]);
+            ->where(['<', 'last_login', new \yii\db\Expression('NOW() - INTERVAL \'6 months\'')]);
 
-
-        print_r($query);
-        $dataProvider = new \yii\data\ActiveDataProvider([
+        // Create a data provider
+        $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => 20, // Adjust as needed
+            ],
         ]);
 
+        // Pass the data provider to the view
         return $this->render('inactive', [
-            'dataProvider' => $dataProvider
+            'dataProvider' => $dataProvider,
         ]);
     }
 

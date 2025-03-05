@@ -28,16 +28,6 @@ $this->title = "Inactive Users";
                 'first_name',
                 'last_name',
                 'last_login',
-                'date_joined',
-                [
-                    'class' => 'yii\grid\ActionColumn',
-                    'template' => '{view}',
-                    'buttons' => [
-                        'view' => function ($url, $model) {
-                            return Html::a('View', ['user/view', 'id' => $model->id], ['class' => 'btn btn-primary']);
-                        },
-                    ],
-                ],
             ],
         ]); ?>
     </div>
