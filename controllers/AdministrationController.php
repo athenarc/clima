@@ -35,6 +35,7 @@ use app\models\Analytics;
 use app\models\StorageRequest;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\Schema;
+use yii\db\Expression;
 
 class AdministrationController extends Controller
 {
@@ -98,15 +99,14 @@ class AdministrationController extends Controller
 
         $sixMonthsAgo = (new \DateTime('-6 months', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s.u');
 
-        $query = AuthUser::find()
-            ->where("last_login < :sixMonthsAgo", [':sixMonthsAgo' => $sixMonthsAgo])
-            ->andWhere(['IS NOT', 'last_login', null]);
-
-        // Debug Output
-        $inactiveUsers = $query->asArray()->all();
-
         
-        print_r($inactiveUsers);
+
+        // Assuming your model is named AuthUser
+        $query = AuthUser::find()
+            ->where(['<', 'last_login', new Expression('NOW() - INTERVAL \'6 months\'')]);
+
+
+        print_r($query);
         $dataProvider = new \yii\data\ActiveDataProvider([
             'query' => $query,
         ]);
