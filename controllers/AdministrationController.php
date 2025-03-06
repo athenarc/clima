@@ -98,25 +98,23 @@ class AdministrationController extends Controller
     }
     public function actionInactive()
     {
-        $models = AuthUser::findBySql("
-            SELECT auth_user.username, auth_user.last_login 
+        // Raw SQL query
+        $sql = "SELECT id, username, email, last_login 
             FROM auth_user 
             WHERE last_login < CURRENT_TIMESTAMP - INTERVAL '6 MONTH'
-            AND last_login IS NOT NULL
-        ")->all();
+            AND last_login IS NOT NULL";
 
-        $result = [];
-        foreach ($models as $model) {
-            $result[] = [
-                "username" => $model->username,
-                "last_login" => $model->last_login,
-            ];
-        }
+        // Debugging Output: Print the raw SQL
+        echo "<pre>SQL Query: $sql</pre>";
+
+        // Execute the query
+        $models = AuthUser::findBySql($sql)->asArray()->all();
+
+        // Debugging Output: Print the result
         echo "<pre>";
         print_r($models);
-        echo "<pre>";
-        print_r($result);
-        echo "<pre>";
+        echo "</pre>";
+        exit();
         $dataProvider = new ActiveDataProvider([
             'models' => $models, // Now it's a QueryInterface instance
         ]);
