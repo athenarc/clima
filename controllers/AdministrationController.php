@@ -98,19 +98,27 @@ class AdministrationController extends Controller
     }
     public function actionInactive()
     {
-        $query = (new Query())
-            ->select('*')
-            ->from('auth_user') // Specify table directly
-            ->where("last_login < (NOW() AT TIME ZONE 'UTC') - INTERVAL '6 months'")
-            ->andWhere(['IS NOT', 'last_login', null]); // Ensure we exclude NULL values
-        $inactiveUsers = $query->all();
+        $models = AuthUser::findBySql("
+            SELECT auth_user.username, auth_user.last_login 
+            FROM auth_user 
+            WHERE last_login < CURRENT_TIMESTAMP - INTERVAL '6 MONTH'
+            AND last_login IS NOT NULL
+        ")->all();
 
-        // Print the raw results
+        $result = [];
+        foreach ($models as $model) {
+            $result[] = [
+                "username" => $model->username,
+                "last_login" => $model->last_login,
+            ];
+        }
         echo "<pre>";
-        print_r($inactiveUsers);
-        echo "</pre>";
+        print_r($models);
+        echo "<pre>";
+        print_r($result);
+        echo "<pre>";
         $dataProvider = new ActiveDataProvider([
-            'query' => $query, // Now it's a QueryInterface instance
+            'models' => $models, // Now it's a QueryInterface instance
         ]);
 
 
