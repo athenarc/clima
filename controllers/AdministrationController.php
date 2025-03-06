@@ -2,7 +2,10 @@
 
 namespace app\controllers;
 
+use app\models\AuthUser;
 use Yii;
+use yii\data\ActiveDataProvider;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -34,6 +37,7 @@ use app\models\Analytics;
 use app\models\StorageRequest;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\Schema;
+use yii\db\Expression;
 
 class AdministrationController extends Controller
 {
@@ -92,6 +96,36 @@ class AdministrationController extends Controller
     {
         return $this->render('index');
     }
+    public function actionInactive()
+    {
+        // Raw SQL query
+        $sql = "SELECT id, username, email, last_login 
+            FROM auth_user 
+            WHERE last_login < CURRENT_TIMESTAMP - INTERVAL '6 MONTH'
+            AND last_login IS NOT NULL";
+
+        // Debugging Output: Print the raw SQL
+        echo "<pre>SQL Query: $sql</pre>";
+
+        // Execute the query
+        $models = AuthUser::findBySql($sql)->asArray()->all();
+
+        // Debugging Output: Print the result
+        echo "<pre>";
+        print_r($models);
+        echo "</pre>";
+        exit();
+        $dataProvider = new ActiveDataProvider([
+            'models' => $models, // Now it's a QueryInterface instance
+        ]);
+
+
+        // Pass the data provider to the view
+        return $this->render('inactive', [
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
 
     public function actionConfigure()
     {
