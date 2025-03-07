@@ -107,7 +107,7 @@ class EmailEventsModerator extends \yii\db\ActiveRecord
             $recipient_ids=array_keys($all_users);
 
         }
-        if (!isset(Yii::$app->params['disableEmail']))
+        if (!(Yii::$app->params['disableEmail'] ?? false))
         {
             foreach ($all_users as $user) 
             {
@@ -191,7 +191,7 @@ class EmailEventsModerator extends \yii\db\ActiveRecord
             $recipient_ids=array_keys($moderators);
         }
 
-        if (!isset(Yii::$app->params['disableEmail']))
+        if (!(Yii::$app->params['disableEmail'] ?? false))
         {   
             foreach ($moderators as $user)
             {

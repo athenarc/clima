@@ -92,7 +92,7 @@ class EmailEventsUser extends \yii\db\ActiveRecord
 
         }
         
-        if (!isset(Yii::$app->params['disableEmail']))
+        if (!(Yii::$app->params['disableEmail'] ?? false))
         {
             foreach ($all_users as $user) 
             {
@@ -175,7 +175,7 @@ class EmailEventsUser extends \yii\db\ActiveRecord
             $recipient_ids=array_keys($project_users);
         }
 
-        if (!isset(Yii::$app->params['disableEmail']))
+        if (!(Yii::$app->params['disableEmail'] ?? false))
         {   
             foreach ($project_users as $user)
             {
@@ -305,7 +305,7 @@ class EmailEventsUser extends \yii\db\ActiveRecord
         }
         $message = "We would like to inform you that you have been upgraded to " .$role_assigned. " user." ;
         if (!empty($role_assigned)) {
-            if (!isset(Yii::$app->params['disableEmail']))
+            if (!(Yii::$app->params['disableEmail'] ?? false))
             {
                 try
                 {
