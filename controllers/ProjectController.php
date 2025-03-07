@@ -5,9 +5,9 @@ namespace app\controllers;
 use app\models\Token;
 use app\models\NewTokenRequestForm;
 use app\components\EmailVerifiedFilter;
-use app\models\ColdStorageAutoaccept;
-use app\models\ColdStorageLimits;
-use app\models\ColdStorageRequest;
+use app\models\StorageAutoaccept;
+use app\models\StorageLimits;
+use app\models\StorageRequest;
 use app\models\Configuration;
 use app\models\EmailEventsModerator;
 use app\models\EmailEventsUser;
@@ -30,6 +30,7 @@ use app\models\Smtp;
 use app\models\User;
 use app\models\Vm;
 use app\models\VmMachines;
+use DateTime;
 use webvimark\modules\UserManagement\models\User as Userw;
 use Yii;
 use yii\filters\AccessControl;
@@ -267,7 +268,7 @@ class ProjectController extends Controller
 
         $autoacceptlimits=$autoacceptModel::find()->where(['user_type'=>$role])->one();
 
-        $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2];
+        $project_types=['service'=>1, 'ondemand'=>0, 'storage'=>2];
 
         $form_params =
             [
@@ -393,7 +394,7 @@ class ProjectController extends Controller
         $serviceModel=new MachineComputeRequest;
         $projectModel=new ProjectRequest;
 
-        $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'machine_compute'=>3];
+        $project_types=['service'=>1, 'ondemand'=>0, 'storage'=>2, 'machine_compute'=>3];
 
         $form_params =
             [
@@ -490,34 +491,34 @@ class ProjectController extends Controller
 
 
 
-    public function actionNewColdStorageRequest()
+    public function actionNewStorageRequest()
     {
 
         $role=User::getRoleType();
-        $cold_storage_limits= ColdStorageLimits::find()->where(['user_type'=>$role])->one();
-        $cold_storage_maximum_number=$cold_storage_limits->number_of_projects;
+        $storage_limits= StorageLimits::find()->where(['user_type'=>$role])->one();
+        $storage_maximum_number=$storage_limits->number_of_projects;
         $number_of_user_projects=ProjectRequest::find()->where(['status'=>[1,2],'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $new_project_allowed=($number_of_user_projects-$cold_storage_maximum_number < 0) ? true :false;
+        $new_project_allowed=($number_of_user_projects-$storage_maximum_number < 0) ? true :false;
 
         if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)) )
         {
             return $this->render('no_project_allowed', ['project'=>"Storage volume", 'user_type'=>$role]);
         }
 
-        $coldStorageModel=new ColdStorageRequest;
+        $storageModel=new StorageRequest;
         $projectModel=new ProjectRequest;
         // $projectModel->duration=36;
         // $projectModel->end_date='2100-1-1';
         $projectModel->backup_services=false;
 
-        $limitsModel=new ColdStorageLimits;
-        $autoacceptModel=new ColdStorageAutoaccept;
+        $limitsModel=new StorageLimits;
+        $autoacceptModel=new StorageAutoaccept;
 
 
-        $cold_autoaccept= ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
-        $cold_autoaccept_number=$cold_autoaccept->autoaccept_number;
+        $autoaccept= StorageAutoaccept::find()->where(['user_type'=>$role])->one();
+        $autoaccept_number=$autoaccept->autoaccept_number;
         $autoaccepted_num=ProjectRequest::find()->where(['status'=>2,'project_type'=>2,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $autoaccept_allowed=($autoaccepted_num-$cold_autoaccept_number < 0) ? true :false;
+        $autoaccept_allowed=($autoaccepted_num-$autoaccept_number < 0) ? true :false;
 
 
         if (($role=='gold') || (Userw::hasRole('Admin', $superadminAllowed=true)) )
@@ -543,15 +544,15 @@ class ProjectController extends Controller
 
 
 
-        $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2];
+        $project_types=['service'=>1, 'ondemand'=>0, 'storage'=>2];
 
         $form_params =
             [
-                'action' => URL::to(['project/new-cold-storage-request']),
+                'action' => URL::to(['project/new-storage-request']),
                 'options' =>
                     [
-                        'class' => 'cold_storage_request_form',
-                        'id'=> "cold_storage_request_form"
+                        'class' => 'storage_request_form',
+                        'id'=> "storage_request_form"
                     ],
                 'method' => 'POST'
             ];
@@ -565,7 +566,7 @@ class ProjectController extends Controller
 
 
 
-        if ( ($coldStorageModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
+        if ( ($storageModel->load(Yii::$app->request->post())) && ($projectModel->load(Yii::$app->request->post())) )
         {
             $participant_ids_tmp=[];
             foreach ($participating as $participant)
@@ -583,13 +584,13 @@ class ProjectController extends Controller
 
             $projectModel->user_list=$participant_ids;
             $isValid = $projectModel->validate();
-            $isValid = $coldStorageModel->validate() && $isValid;
+            $isValid = $storageModel->validate() && $isValid;
             // $projectModel->end_date='2100-1-1';
 
             if ($isValid)
             {
 
-                $messages=$projectModel->uploadNew($project_types['coldstorage']);
+                $messages=$projectModel->uploadNew($project_types['storage']);
                 $errors.=$messages[0];
                 $success.=$messages[1];
                 $warnings.=$messages[2];
@@ -598,7 +599,7 @@ class ProjectController extends Controller
                 $project_id=$messages[5];
                 if ($requestId!=-1)
                 {
-                    $messages=$coldStorageModel->uploadNew($requestId);
+                    $messages=$storageModel->uploadNew($requestId);
                     $errors.=$messages[0];
                     $success.=$messages[1];
                     $warnings.=$messages[2];
@@ -636,7 +637,7 @@ class ProjectController extends Controller
         }
 
 
-        return $this->render('new_cold_storage_request',['coldStorage'=>$coldStorageModel, 'project'=>$projectModel,
+        return $this->render('new_storage_request',['storage'=>$storageModel, 'project'=>$projectModel,
             'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors,
             'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'autoaccept_allowed' => $autoaccept_allowed, 'role'=>$role,
             'new_project_allowed'=>$new_project_allowed, 'vm_types'=>$vm_types, 'multiple' => $multiple]);
@@ -681,7 +682,7 @@ class ProjectController extends Controller
 
 
 
-        $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2];
+        $project_types=['service'=>1, 'ondemand'=>0, 'storage'=>2];
 
         $form_params =
             [
@@ -832,7 +833,7 @@ class ProjectController extends Controller
 
 
         //need to change project type
-        $project_types=['service'=>1, 'ondemand'=>0, 'coldstorage'=>2, 'jupyter'=>4];
+        $project_types=['service'=>1, 'ondemand'=>0, 'storage'=>2, 'jupyter'=>4];
 
         $form_params =
             [
@@ -1181,7 +1182,7 @@ class ProjectController extends Controller
         }
         else if ($project_request->project_type==2)
         {
-            $details=ColdStorageRequest::findOne(['request_id'=>$id]);
+            $details=StorageRequest::findOne(['request_id'=>$id]);
             $vm_type="24/7 Service";
             $view_file='view_cold_request';
             $type="Storage volumes";
@@ -1482,7 +1483,7 @@ class ProjectController extends Controller
         }
         else if ($project_request->project_type==2)
         {
-            $details=ColdStorageRequest::findOne(['request_id'=>$id]);
+            $details=StorageRequest::findOne(['request_id'=>$id]);
             $view_file='view_cold_request_user';
             $type="Storage volumes";
             $remaining_jobs=0;
@@ -1651,7 +1652,7 @@ class ProjectController extends Controller
                 foreach ($hotvolume as $hot)
                 {
                     $project=Project::find()->where(['id'=>$hot->project_id])->one();
-                    $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                    $cold_storage_request=StorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
                     $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
                 }
             }
@@ -1804,7 +1805,7 @@ class ProjectController extends Controller
                 foreach ($hotvolume as $hot)
                 {
                     $project=Project::find()->where(['id'=>$hot->project_id])->one();
-                    $cold_storage_request=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+                    $cold_storage_request=StorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
                     $additional_storage[$hot->id]=['name'=>$hot->name, 'size'=>$cold_storage_request->storage,'mountpoint'=>$hot->mountpoint];
                 }
             }
@@ -2502,7 +2503,7 @@ class ProjectController extends Controller
         }
         else if ($prType==2)
         {
-            $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
+            $drequest=StorageRequest::find()->where(['request_id'=>$id])->one();
             $view_file='edit_cold_storage';
             for ($i=1; $i<31; $i++)
                 $num_vms_dropdown[$i]=$i;
@@ -2525,8 +2526,8 @@ class ProjectController extends Controller
                 $volume_exists=true;
             }
 
-            $upperlimits=ColdStorageLimits::find()->where(['user_type'=>$role])->one();
-            $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
+            $upperlimits=StorageLimits::find()->where(['user_type'=>$role])->one();
+            $autoacceptlimits=StorageAutoaccept::find()->where(['user_type'=>$role])->one();
 
         }
         else if ($prType==4)
@@ -2977,7 +2978,7 @@ class ProjectController extends Controller
         }
         else if ($prType==2)
         {
-            $drequest=ColdStorageRequest::find()->where(['request_id'=>$id])->one();
+            $drequest=StorageRequest::find()->where(['request_id'=>$id])->one();
             $view_file='edit_cold_storage';
             $prequest->duration='2100-1-1';
             $volume='';
@@ -2997,8 +2998,8 @@ class ProjectController extends Controller
             {
                 $volume_exists=true;
             }
-            $upperlimits=ColdStorageLimits::find()->where(['user_type'=>$role])->one();
-            $autoacceptlimits=ColdStorageAutoaccept::find()->where(['user_type'=>$role])->one();
+            $upperlimits=StorageLimits::find()->where(['user_type'=>$role])->one();
+            $autoacceptlimits=StorageAutoaccept::find()->where(['user_type'=>$role])->one();
         }
 
 
@@ -3257,7 +3258,7 @@ class ProjectController extends Controller
         /*
          * Get storage active projects for user
          */
-        $results=ColdStorageRequest::getActiveProjects();
+        $results=StorageRequest::getActiveProjects();
         $services=$results[0];
         $machines=$results[1];
 
@@ -3290,7 +3291,7 @@ class ProjectController extends Controller
         }
 
         $project=Project::find()->where(['id'=>$id])->one();
-        $crequest=ColdStorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
+        $crequest=StorageRequest::find()->where(['request_id'=>$project->latest_project_request_id])->one();
 
         if ($order>$crequest->num_of_volumes)
         {
@@ -3969,15 +3970,48 @@ class ProjectController extends Controller
             $temp4 = $temp2.$username.$temp2.'}';
             $post_body = $temp1.$temp4;
             $return = Token::Register($URL, $headers, $post_body);
-            return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>0,
+            return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>0,'active_tokens'=>0, 'expired_tokens' =>0,
                 'strArray'=>'', 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
         } else {
             // $URL = "http://62.217.122.242:8080/api_auth/contexts/{$pname}/users/{$username}/tokens?status=active";
             $URL = $schema_api_url."/api_auth/contexts/{$pname}/users/{$username}/tokens?status=active";
             //$URL = "http://62.217.122.242:8080/api_auth/contexts/context0/users/user0/tokens";
             $issued_tokens = Token::GetTokens($URL, $headers);
+            // Categorize tokens into expired and active
+            $active_tokens = [];
+            $expired_tokens = [];
+
+// Ensure $issued_tokens[1] exists and is an array
+            if (isset($issued_tokens[1]) && is_array($issued_tokens[1])) {
+                foreach ($issued_tokens[1] as $raw_token) {
+                    // Skip empty tokens
+                    if (empty($raw_token)) {
+                        continue;
+                    }
+
+                    // Ensure the token string is valid JSON
+                    $raw_token = strpos($raw_token, '{') === 0 ? $raw_token : '{' . $raw_token . '}';
+                    $decoded_token = json_decode($raw_token, true);
+
+                    // Skip invalid JSON
+                    if ($decoded_token === null || !isset($decoded_token['expiry'])) {
+                        continue;
+                    }
+
+                    // Categorize based on expiry
+                    $expiry_date = new DateTime($decoded_token['expiry']);
+                    $current_date = new DateTime();
+
+                    if ($expiry_date > $current_date) {
+                        $active_tokens[] = $decoded_token;
+                    } else {
+                        $expired_tokens[] = $decoded_token;
+                    }
+                }
+            }
             return $this->render('token_management',['model'=>$existing, 'requestId'=>$id, 'project'=>$project, 'issued_tokens'=>$issued_tokens[0],
-                'strArray'=>$issued_tokens[1], 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists]);
+                'strArray'=>$issued_tokens[1], 'URL'=>$URL, 'headers'=>$headers, 'project_exists'=>$project_exists,'active_tokens' => $active_tokens, // Pass active tokens
+                'expired_tokens' => $expired_tokens]);
         }
     }
 

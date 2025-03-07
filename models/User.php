@@ -280,7 +280,6 @@ class User extends UserIdentity
         
         return $results;
     }
-
     // public static function returnRegistrationIP($username)
     // {
     //     $query=new Query;

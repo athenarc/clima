@@ -13,12 +13,12 @@ use app\models\ContactForm;
 use app\models\ServiceAutoaccept;
 use app\models\OndemandAutoaccept;
 use app\models\JupyterAutoaccept;
-use app\models\ColdStorageAutoaccept;
+use app\models\StorageAutoaccept;
 use app\models\ServiceLimits;
 use app\models\OndemandLimits;
 use app\models\JupyterLimits;
 use app\models\JupyterServer;
-use app\models\ColdStorageLimits;
+use app\models\StorageLimits;
 use app\models\Configuration;
 use app\models\Openstack;
 use app\models\OpenstackMachines;
@@ -31,7 +31,7 @@ use app\models\EmailEventsAdmin;
 use app\models\Smtp;
 use app\models\Page;
 use app\models\Analytics;
-use app\models\ColdStorageRequest;
+use app\models\StorageRequest;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\Schema;
 
@@ -88,8 +88,6 @@ class AdministrationController extends Controller
      *
      * @return string
      */
-
-
     public function actionIndex()
     {
         return $this->render('index');
@@ -106,11 +104,11 @@ class AdministrationController extends Controller
         //new models
         $service=ServiceAutoaccept::find()->where(['user_type'=>$currentUser])->one();
         $ondemand=OndemandAutoaccept::find()->where(['user_type'=>$currentUser])->one();
-        $coldStorage=ColdStorageAutoaccept::find()->where(['user_type'=>$currentUser])->one();
+        $coldStorage=StorageAutoaccept::find()->where(['user_type'=>$currentUser])->one();
         $serviceLimits=ServiceLimits::find()->where(['user_type'=>$currentUser])->one();
         $ondemandLimits=OndemandLimits::find()->where(['user_type'=>$currentUser])->one();
         $machineComputationLimits=MachineComputeLimits::find()->where(['user_type'=>$currentUser])->one();
-        $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
+        $coldStorageLimits=StorageLimits::find()->where(['user_type'=>$currentUser])->one();
         $smtp= Smtp::find()->one();
         $openstack=Openstack::find()->one();
         $openstackMachines=OpenstackMachines::find()->one();
@@ -292,10 +290,10 @@ class AdministrationController extends Controller
 
                 $service=ServiceAutoaccept::find()->where(['user_type'=>$currentUser])->one();
                 $ondemand=OndemandAutoaccept::find()->where(['user_type'=>$currentUser])->one();
-                $coldStorage=ColdStorageAutoaccept::find()->where(['user_type'=>$currentUser])->one();
+                $coldStorage=StorageAutoaccept::find()->where(['user_type'=>$currentUser])->one();
                 $serviceLimits=ServiceLimits::find()->where(['user_type'=>$currentUser])->one();
                 $ondemandLimits=OndemandLimits::find()->where(['user_type'=>$currentUser])->one();
-                $coldStorageLimits=ColdStorageLimits::find()->where(['user_type'=>$currentUser])->one();
+                $coldStorageLimits=StorageLimits::find()->where(['user_type'=>$currentUser])->one();
                 $machineComputationLimits=MachineComputeLimits::find()->where(['user_type'=>$currentUser])->one();
                 $general=Configuration::find()->one();
                 $jupyter=JupyterAutoaccept::find()->where(['user_type'=>$currentUser])->one();
@@ -771,10 +769,10 @@ class AdministrationController extends Controller
         /*
          * Get storage active projects for user
          */
-        $results_active=ColdStorageRequest::getActiveProjectsAdmin();
+        $results_active=StorageRequest::getActiveProjectsAdmin();
         $active_services=$results_active[0];
         $active_machines=$results_active[1];
-        $results_expired=ColdStorageRequest::getExpiredProjectsAdmin();
+        $results_expired=StorageRequest::getExpiredProjectsAdmin();
         $expired_services=$results_expired[0];
         $expired_machines=$results_expired[1];
         

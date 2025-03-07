@@ -15,7 +15,6 @@ use app\components\NotificationWidget;
 use app\models\Analytics;
 use app\components\EnvironmentOverlay;
 
-
 AppAsset::register($this);
 
 $twitter_icon='<i class="fab fa-twitter fa-2x"></i>';
@@ -132,7 +131,7 @@ if (isset(Yii::$app->params['favicon']) && (!empty(Yii::$app->params['favicon'])
     // print_r($menuItems);
     // exit(0);
 
-    $menuItems[]=['label' => 'Guide', 'url' => ['/site/help']];
+    $menuItems[]=['label' => 'User Guide', 'url' => ['/site/help']];
     if(Yii::$app->user->getIsGuest() == false)
     {
         // $menuItems[]=[
