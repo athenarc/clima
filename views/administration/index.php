@@ -66,6 +66,8 @@ else
 		<br />
 		<?= ToolButton::createButton("$users_icon User statistics", "",['/administration/user-stats-list']) ?>
 		<br />
+        <?= ToolButton::createButton("$users_icon Inactive users", "",['administration/inactive']) ?>
+        <br />
 	</div>
 </div>
 

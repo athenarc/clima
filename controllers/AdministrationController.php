@@ -2,7 +2,11 @@
 
 namespace app\controllers;
 
+use app\models\AuthUser;
 use Yii;
+use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -34,6 +38,7 @@ use app\models\Analytics;
 use app\models\StorageRequest;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\Schema;
+use yii\db\Expression;
 
 class AdministrationController extends Controller
 {
@@ -92,6 +97,76 @@ class AdministrationController extends Controller
     {
         return $this->render('index');
     }
+    public function actionInactive()
+    {
+
+
+        $sql = "SELECT id, username, last_login 
+            FROM auth_user 
+            WHERE last_login < CURRENT_TIMESTAMP - INTERVAL '6 MONTH'
+            AND last_login IS NOT NULL";
+
+
+        $models = Yii::$app->db->createCommand($sql)->queryAll();
+
+
+        Yii::info("Query Result: " . print_r($models, true), __METHOD__);
+
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $models,  // ✅ Pass fetched data
+            'pagination' => [
+                'pageSize' => 10, // ✅ Adjust page size
+            ],
+            'sort' => [
+                'attributes' => ['username', 'last_login'], // ✅ Sortable columns
+            ],
+        ]);
+
+        // ✅ Render the View
+        return $this->render('inactive', [
+            'dataProvider' => $dataProvider,
+
+        ]);
+    }
+
+    public function actionViewProjects($username)
+    {
+
+        $project_type=Project::TYPES;
+        $projects = Project::find()
+            ->alias('p')
+            ->innerJoin('project_request pr', 'p.latest_project_request_id = pr.id')
+            ->innerJoin('"user" u', 'pr.submitted_by = u.id')
+            ->where(['u.username' => $username])
+            ->select([
+                'p.id AS project_id',
+                'p.name AS project_name',
+                'p.status',
+                'p.start_date',
+                'p.project_end_date',
+                'p.project_type',
+                'pr.id AS project_request_id',
+                'u.username'
+            ])
+            ->asArray()
+            ->all();
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $projects,
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'attributes' => ['project_name','project_id','username', 'project_end_date','project_type']
+            ],
+        ]);
+
+        return $this->render('view_projects', [
+            'dataProvider' => $dataProvider,
+            'username' => $username,
+            'project_type'=>$project_type,
+        ]);
+    }
+
 
     public function actionConfigure()
     {
