@@ -32,6 +32,7 @@ use app\models\User;
 use app\models\Vm;
 use app\models\VmMachines;
 use DateTime;
+use DateTimeZone;
 use webvimark\modules\UserManagement\models\User as Userw;
 use Yii;
 use yii\filters\AccessControl;
@@ -3195,12 +3196,8 @@ class ProjectController extends Controller
             }
         }
         $relatedProject = Project::findOne($prequest->project_id);
-
-
         // Fetch extension limits for this user type
         $extensionLimit = ExtensionLimits::findOne(['user_type' => $role]);
-
-
 
         // Fetch project start-end date
         $startDate = new DateTime($relatedProject->start_date);
@@ -3211,7 +3208,6 @@ class ProjectController extends Controller
 
         // Calculate the maximum extension days allowed based on the extension limit percentage
         $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
-
 
         $extension_count=$relatedProject->extension_count;
         $max_extension= $extensionLimit->max_extension;
@@ -4247,6 +4243,57 @@ class ProjectController extends Controller
 
 
     }
+
+    public function actionRevokeToken($id, $uuid)
+    {
+        $project = Project::findOne($id);
+
+        if (!$project) {
+            Yii::$app->session->setFlash('error', "Project not found.");
+            return $this->redirect(['project/token-management', 'id' => $id]);
+        }
+
+        $user = Userw::getCurrentUser();
+        $username = explode('@', $user['username'])[0];
+
+        // API Setup
+        $schema_api_url = Yii::$app->params['schema_api_url'];
+        $schema_api_token = Yii::$app->params['schema_api_token'];
+        $URL = "{$schema_api_url}/api_auth/contexts/{$project->name}/users/{$username}/tokens/{$uuid}";
+
+        // Expiry = now + 1 minute (to avoid 'must be after' validation error)
+        $now = new \DateTime('now', new \DateTimeZone('UTC'));
+        $now->modify('+1 minute');
+        $expiryFormatted = $now->format("Y-m-d\TH:i:s.u");
+
+        $patch = json_encode(["expiry" => $expiryFormatted]);
+
+        $headers = [
+            'Authorization: ' . $schema_api_token,
+            'Content-Type: application/json'
+        ];
+
+        // Call API (returns raw JSON string)
+        $response = Token::EditToken($URL, $headers, $patch);
+
+        // Try to parse the response
+        $decoded = json_decode($response, true);
+
+        if (is_array($decoded) && isset($decoded['expiry'])) {
+            $errorMessage = is_array($decoded['expiry'])
+                ? implode(', ', $decoded['expiry'])
+                : $decoded['expiry']; // just in case it's a string or something else
+
+
+        }
+
+        return $this->redirect(['project/token-management', 'id' => $id]);
+    }
+
+
+
+
+
 
     public function actionOnDemandAccess($id) {
 
