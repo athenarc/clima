@@ -136,12 +136,12 @@ $back_icon='<i class="fas fa-arrow-left"></i>';
 				<td class="col-md-6 text-left" scope="col"><?= $usage['total_ondemand'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Completed jobs</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['o_jobs'] ?></td>
+				<th class="col-md-6 text-right" scope="col">Total task executions</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['task_executions'] ?></td>
 			</tr>
 			<tr>
-				<th class="col-md-6 text-right" scope="col">Total execution time</th>
-				<td class="col-md-6 text-left" scope="col"><?= $usage['o_time'] ?></td>
+				<th class="col-md-6 text-right" scope="col">Running tasks</th>
+				<td class="col-md-6 text-left" scope="col"><?= $usage['running_tasks'] ?></td>
 			</tr>
 		</tbody>
 	</table>

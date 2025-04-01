@@ -398,15 +398,19 @@ class AdministrationController extends Controller
 
     public function actionPeriodStatistics()
     {
-        $schema=ProjectRequest::getSchemaPeriodUsage();
+//        $schema=ProjectRequest::getSchemaPeriodUsage();
         $usage=ProjectRequest::getEgciPeriodUsage();
         $users=User::find()->where(['like','username','elixir-europe.org'])
-        //->createCommand()->getRawSql();
-        ->count();
+            //->createCommand()->getRawSql();
+            ->count();
 
-        $usage['o_jobs']=$schema['total_jobs'];
-        $usage['o_time']=$schema['total_time'];
+//        $usage['o_jobs']=$schema['total_jobs'];
+//        $usage['o_time']=$schema['total_time'];
         $usage['users']=$users;
+
+        $metrics=Schema::getMetrics();
+        $usage['task_executions'] = $metrics['num_of_executions'] ?? "n/a";
+        $usage['running_tasks'] = $metrics['num_of_running_executions'] ?? "n/a";
 
         return $this->render('period_statistics',['usage'=>$usage]);
     }
