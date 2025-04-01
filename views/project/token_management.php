@@ -66,18 +66,23 @@ echo Headers::widget([
                     <td><?= Html::encode($title) ?></td>
                     <td><?= Html::encode($remaining_days) . " days" ?></td>
                     <td>
-<!--                        --><?php //= Html::a("Edit", ['/project/new-token-request', 'id' => $requestId, 'mode' => 1, 'uuid' => $uuid], ['class' => 'btn btn-secondary', 'style' => 'width:90px']) ?>
-<!--                        --><?php //= Html::a("Delete", ['/project/new-token-request', 'id' => $requestId, 'mode' => 2, 'uuid' => $uuid], [
-//                            'class' => "btn btn-secondary",
-//                            'style' => 'width:90px',
-//                            'data' => [
-//                                'confirm' => "Are you sure you want to delete the token {$title}?",
-//                                'method' => 'post',
-//                            ],
-//                        ]) ?>
+                        <?= Html::a("Edit", ['/project/new-token-request', 'id' => $requestId, 'mode' => 1, 'uuid' => $uuid], [
+                            'class' => 'btn btn-secondary',
+                            'style' => 'width:90px'
+                        ]) ?>
+                        <?= Html::a("Revoke", ['/project/revoke-token', 'id' => $requestId, 'uuid' => $uuid], [
+                            'class' => "btn btn-danger",
+                            'style' => 'width:90px',
+                            'data' => [
+                                'confirm' => "Are you sure you want to revoke the token '{$title}'? This will expire the token immediately.",
+                                'method' => 'post',
+                            ],
+                        ]) ?>
+
                     </td>
                 </tr>
             <?php endforeach; ?>
+
             </tbody>
         </table>
     </div>
@@ -98,7 +103,7 @@ echo Headers::widget([
             <tr>
                 <th class="col-md-2">Token name</th>
                 <th class="col-md-2">Expired since</th>
-                <th class="col-md-3">Actions</th>
+                <th class="col-md-3"></th>
             </tr>
             </thead>
             <tbody>
@@ -113,15 +118,15 @@ echo Headers::widget([
                     <td><?= Html::encode($title) ?></td>
                     <td><?= Html::encode($expired_days) . " days ago" ?></td>
                     <td>
-<!--                        --><?php //= Html::a("Edit", ['/project/new-token-request', 'id' => $requestId, 'mode' => 1, 'uuid' => $uuid], ['class' => 'btn btn-secondary', 'style' => 'width:90px']) ?>
-<!--                        --><?php //= Html::a("Delete", ['/project/new-token-request', 'id' => $requestId, 'mode' => 2, 'uuid' => $uuid], [
-//                            'class' => "btn btn-secondary",
-//                            'style' => 'width:90px',
-//                            'data' => [
-//                                'confirm' => "Are you sure you want to delete the token {$title}?",
-//                                'method' => 'post',
-//                            ],
-//                        ]) ?>
+                        <!--                        --><?php //= Html::a("Edit", ['/project/new-token-request', 'id' => $requestId, 'mode' => 1, 'uuid' => $uuid], ['class' => 'btn btn-secondary', 'style' => 'width:90px']) ?>
+                        <!--                        --><?php //= Html::a("Delete", ['/project/new-token-request', 'id' => $requestId, 'mode' => 2, 'uuid' => $uuid], [
+                        //                            'class' => "btn btn-secondary",
+                        //                            'style' => 'width:90px',
+                        //                            'data' => [
+                        //                                'confirm' => "Are you sure you want to delete the token {$title}?",
+                        //                                'method' => 'post',
+                        //                            ],
+                        //                        ]) ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

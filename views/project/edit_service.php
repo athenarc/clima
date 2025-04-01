@@ -63,30 +63,52 @@ Headers::begin() ?>
             <div class="col-md-6">
                 <h3>Project details</h3>
                 <?= $form->field($project, 'name')->textInput(['readonly' => true, 'value' =>$project['name']]) ?>
-                 <div style="margin-bottom: 20px;">
-                 <?php if($exceed_limits == 0){ 
-                    echo '<label>  Project end date *  </label>';
-                    echo DatePicker::widget([
-                    'model' => $project, 
-                    'attribute' => 'end_date',
-                    'options' => array('readonly' => 'readonly'),
-                    'pluginOptions' => [
-                    'endDate'=>"+".($upperlimits->duration-$interval)."D",
-                    'autoclose'=>true,
-                    'format'=>'yyyy-m-d'
-                    ]
-                ]);}?>
-                <?php if($exceed_limits == 1){ 
-                    echo '<label>  Project end date *  </label>';
-                    echo DatePicker::widget([
-                    'model' => $project, 
-                    'attribute' => 'end_date',
-                    'options' => array('readonly' => 'readonly'),
-                    'pluginOptions' => [
-                    'autoclose'=>true,
-                    'format'=>'yyyy-m-d'
-                    ]
-                ]);}?>
+                <div style="margin-bottom: 20px;">
+                    <?php
+
+                    $startDate = date('Y-m-d'); // Current date
+                    $endDate = date('Y-m-d', strtotime($project->end_date . " +$maxExtensionDays days"));
+                    if ($extension_count <= $max_extension) {
+                        if ($exceed_limits == 0) {
+                            echo '<label>Project end date *</label>';
+                            echo DatePicker::widget([
+                                'model' => $project,
+                                'attribute' => 'end_date',
+                                'options' => ['readonly' => true], // Prevent direct typing
+                                'pluginOptions' => [
+                                    'endDate' => $endDate,
+                                    'autoclose' => true,
+                                    'format' => 'yyyy-m-d'
+                                ]
+                            ]);
+                        } elseif ($exceed_limits == 1) {
+                            echo '<label>Project end date *</label>';
+                            echo DatePicker::widget([
+                                'model' => $project,
+                                'attribute' => 'end_date',
+                                'pluginOptions' => [
+                                    'startDate' => $startDate, // Start from today
+                                    'endDate' => $endDate,    // Restrict to allowed extension range
+                                    'autoclose' => true,
+                                    'format' => 'yyyy-m-d'
+                                ]
+                            ]);
+                        }
+                    } else {
+                        echo '<label>Project End Date</label>';
+                        echo DatePicker::widget([
+                            'model' => $project,
+                            'attribute' => 'end_date',
+                            'options' => ['readonly' => true, 'disabled' => true], // Fully disable modification
+                            'pluginOptions' => [
+                                'autoclose' => true,
+                                'format' => 'yyyy-m-d'
+                            ]
+                        ]);
+                        echo '<div class="alert alert-danger">You have reached the maximum number of extensions allowed.</div>';
+                    }
+                    ?>
+
                 </div>
         <?= $form->field($project, 'user_num') ?>
 

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ExtensionLimits;
 use app\models\Token;
 use app\models\NewTokenRequestForm;
 use app\components\EmailVerifiedFilter;
@@ -31,6 +32,7 @@ use app\models\User;
 use app\models\Vm;
 use app\models\VmMachines;
 use DateTime;
+use DateTimeZone;
 use webvimark\modules\UserManagement\models\User as Userw;
 use Yii;
 use yii\filters\AccessControl;
@@ -926,7 +928,6 @@ class ProjectController extends Controller
                         EmailEventsModerator::NotifyByEmail('project_decision', $project_id,$message_autoaccept_mod);
                         EmailEventsUser::NotifyByEmail('project_decision', $project_id,$message_autoaccept);
                     }
-
                     return $this->redirect(['project/index']);
                 }
             }
@@ -1530,8 +1531,46 @@ class ProjectController extends Controller
         }
 
         $request=ProjectRequest::find()->where(['id'=>$id])->one();
-        $request->approve();
+        $project = Project::findOne($request->project_id);
+        if (!$project) {
+            Yii::$app->session->setFlash('error', 'Associated project not found.');
+            return $this->redirect(['project/request-list']);
+        }
 
+        // Find the last approved request for this project
+        $lastApprovedRequest = ProjectRequest::find()
+            ->where(['project_id' => $project->id, 'status' =>  [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]])
+            ->orderBy(['approval_date' => SORT_DESC])
+            ->one();
+        // Get previous end date (either from the last approved request or from the project)
+        if ($lastApprovedRequest) {
+            $originalEndDate = new DateTime($lastApprovedRequest->end_date); // Use last approved end date
+        } elseif (!empty($project->project_end_date)) {
+            $originalEndDate = new DateTime($project->project_end_date); // Use existing project end date
+        } else {
+            $originalEndDate = null; // No previous end date (first-time approval)
+        }
+        $requestedEndDate = new DateTime($request->end_date);
+
+        // Check if this is an extension request
+        $isExtensionRequest = $requestedEndDate > $originalEndDate;
+
+        // Fetch extension limits for this user type
+        $extensionLimit = ExtensionLimits::findOne(['user_type' => User::getRoleType()]);
+
+        if ($isExtensionRequest) {
+            // Increase extension count
+            $project->extension_count += 1;
+            $project->updateAttributes(['extension_count' => $project->extension_count]);
+        }
+        // ✅ Update the project's `end_date` to reflect the approved request
+        $project->project_end_date = $requestedEndDate->format('Y-m-d');
+        if (!$project->save(false, ['extension_count', 'project_end_date'])) {
+            Yii::$app->session->setFlash('error', 'Failed to update project.');
+            return $this->redirect(['project/request-list']);
+        }
+        $project->updateAttributes(['project_end_date' => $project->project_end_date]);
+        $request->approve();
         $message='Project approved.';
 
 
@@ -2566,6 +2605,7 @@ class ProjectController extends Controller
                 'method' => 'POST'
             ];
 
+
         $errors='';
         $success='';
         $warnings='';
@@ -2783,11 +2823,50 @@ class ProjectController extends Controller
                 }
             }
         }
+        $relatedProject = Project::findOne($prequest->project_id);
 
 
-        return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest,
-            'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval, 'exceed_limits'=>$exceed_limits]);
+        // Fetch extension limits for this user type
+        $extensionLimit = ExtensionLimits::findOne(['user_type' => $role]);
 
+
+
+        // Fetch project start-end date
+        $startDate = new DateTime($relatedProject->start_date);
+        $endDate = new DateTime($relatedProject->project_end_date);
+
+        // Calculate total project duration in days
+        $totalDurationDays = $startDate->diff($endDate)->days + 1;
+
+        // Calculate the maximum extension days allowed based on the extension limit percentage
+        $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+
+
+        $extension_count=$relatedProject->extension_count;
+        $max_extension= $extensionLimit->max_extension;
+
+        return $this->render($view_file, [
+            'details' => $drequest,
+            'project' => $prequest,
+            'maxExtensionDays' => $maxExtensionDays,
+            'extension_count' => $extension_count,
+            'max_extension' => $max_extension,
+            'trls' => $trls,
+            'form_params' => $form_params,
+            'participating' => $participating,
+            'errors' => $errors,
+            'upperlimits' => $upperlimits,
+            'autoacceptlimits' => $autoacceptlimits,
+            'maturities' => $maturities,
+            'vm_exists' => $vm_exists,
+            'ends' => $ends,
+            'role' => $role,
+            'num_vms_dropdown' => $num_vms_dropdown,
+            'volume_exists' => $volume_exists,
+            'images' => $images,
+            'interval' => $interval,
+            'exceed_limits' => $exceed_limits
+        ]);
 
     }
 
@@ -3116,8 +3195,26 @@ class ProjectController extends Controller
                 }
             }
         }
+        $relatedProject = Project::findOne($prequest->project_id);
+        // Fetch extension limits for this user type
+        $extensionLimit = ExtensionLimits::findOne(['user_type' => $role]);
 
+        // Fetch project start-end date
+        $startDate = new DateTime($relatedProject->start_date);
+        $endDate = new DateTime($relatedProject->project_end_date);
+
+        // Calculate total project duration in days
+        $totalDurationDays = $startDate->diff($endDate)->days + 1;
+
+        // Calculate the maximum extension days allowed based on the extension limit percentage
+        $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+
+        $extension_count=$relatedProject->extension_count;
+        $max_extension= $extensionLimit->max_extension;
         return $this->render($view_file,['details'=>$drequest, 'images' => $images,'project'=>$prequest,
+            'maxExtensionDays' => $maxExtensionDays,
+            'extension_count' => $extension_count,
+            'max_extension' => $max_extension,
             'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown,'volume_exists'=>$volume_exists, 'exceed_limits'=>$exceed_limits]);
 
 
@@ -4146,6 +4243,57 @@ class ProjectController extends Controller
 
 
     }
+
+    public function actionRevokeToken($id, $uuid)
+    {
+        $project = Project::findOne($id);
+
+        if (!$project) {
+            Yii::$app->session->setFlash('error', "Project not found.");
+            return $this->redirect(['project/token-management', 'id' => $id]);
+        }
+
+        $user = Userw::getCurrentUser();
+        $username = explode('@', $user['username'])[0];
+
+        // API Setup
+        $schema_api_url = Yii::$app->params['schema_api_url'];
+        $schema_api_token = Yii::$app->params['schema_api_token'];
+        $URL = "{$schema_api_url}/api_auth/contexts/{$project->name}/users/{$username}/tokens/{$uuid}";
+
+        // Expiry = now + 1 minute (to avoid 'must be after' validation error)
+        $now = new \DateTime('now', new \DateTimeZone('UTC'));
+        $now->modify('+1 minute');
+        $expiryFormatted = $now->format("Y-m-d\TH:i:s.u");
+
+        $patch = json_encode(["expiry" => $expiryFormatted]);
+
+        $headers = [
+            'Authorization: ' . $schema_api_token,
+            'Content-Type: application/json'
+        ];
+
+        // Call API (returns raw JSON string)
+        $response = Token::EditToken($URL, $headers, $patch);
+
+        // Try to parse the response
+        $decoded = json_decode($response, true);
+
+        if (is_array($decoded) && isset($decoded['expiry'])) {
+            $errorMessage = is_array($decoded['expiry'])
+                ? implode(', ', $decoded['expiry'])
+                : $decoded['expiry']; // just in case it's a string or something else
+
+
+        }
+
+        return $this->redirect(['project/token-management', 'id' => $id]);
+    }
+
+
+
+
+
 
     public function actionOnDemandAccess($id) {
 

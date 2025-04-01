@@ -66,6 +66,8 @@ else
 		<br />
 		<?= ToolButton::createButton("$users_icon User statistics", "",['/administration/user-stats-list']) ?>
 		<br />
+        <?= ToolButton::createButton("$users_icon Inactive users", "",['administration/inactive']) ?>
+        <br />
 	</div>
 </div>
 
@@ -120,7 +122,7 @@ else
 	<div class="fieldset col-md-6">
 		<div class="fieldset-label">System</div>
 		<br />
-		<?= ToolButton::createButton("$statistics_icon Current $name statistics", "",['/administration/period-statistics']) ?>
+		<?= ToolButton::createButton("$statistics_icon $name statistics", "",['/administration/period-statistics']) ?>
 		<br />
 		<?= ToolButton::createButton("$icon_tickets Ticket management", "",['/ticket-admin/index']) ?>
 		<br />
