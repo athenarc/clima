@@ -36,60 +36,79 @@ echo Headers::widget(
 ?>
 <? Headers::end() ?>
 <br>
-<h4><b> Approved resources</b></h4>
-<div id="containerIntro">
-    <h4><b> &emsp; Jobs: &nbsp;</b></h4>
-    <p><?= $initial_jobs ?>&nbsp;(remaining: &nbsp;<?= $remaining_jobs ?>)</p> <br>
-    <h4><b> &emsp; Cores: &nbsp;</b></h4>
-    <p><?= $details->cores ?>&nbsp;(average use: &nbsp;<?= round($usage['cpu'] / 1000, 2) ?>)</p><br>
-    <h4><b> &emsp; Ram: &nbsp;</b></h4>
-    <p><?= $details->ram ?>GB&nbsp;(average use: &nbsp;<?= round($usage['ram'] / 1000, 2) ?>GB)</p><br><br>
 
-    <p>&nbsp;*These computational resources are available for the execution of containerized software packages and
-        workflows.</p>
-</div>
-
-<h4><b>Gaining access</b></h4>
-<p>
-    In order to use the task execution infrastructure an API keys is required. You can manage your API keys in the
-    page:
-</p>
-<div class="text-center">
-    <?= Html::a("API keys management", ['/project/token-management', 'id' => $id], ['class' => "btn btn-success btn-md $edit_button_class"]) ?>
-</div>
-
-<br>
-
-<h4><b> Using the resources</b></h4>
-<p>&emsp;&emsp;There are two ways to schedule task executions:</p> <br>
-<div class="p-4 row">
-    <div class="col-6 border-right border-muted">
-        <h5><b>SCHEMA api</b></h5>
-        <p>
-            Use our Job execution REST API to programmatically run computational analysis tasks
-        </p>
-        <div class="text-center">
-            <?= Html::a("SCHEMA api Swagger", Yii::$app->params["schema_api_url"] ?? "#", ['class' => "btn btn-success btn-md $access_button_class $ondemand_access_class"]) ?>
-        </div>
+<h4 class="mt-4"><b>Approved resources</b></h4>
+<div class="row text-left">
+    <div id="containerIntro">
+        <h4><b> &emsp; Jobs: &nbsp;</b></h4>
+        <p><?= $initial_jobs ?>&nbsp;(remaining: &nbsp;<?= $remaining_jobs ?>)</p> <br>
+        <h4><b> &emsp; Cores: &nbsp;</b></h4>
+        <p><?= $details->cores ?>&nbsp;(average use: &nbsp;<?= round($usage['cpu'] / 1000, 2) ?>)</p><br>
+        <h4><b> &emsp; Ram: &nbsp;</b></h4>
+        <p><?= $details->ram ?>GB&nbsp;(average use: &nbsp;<?= round($usage['ram'] / 1000, 2) ?>GB)</p><br><br>
     </div>
-    <div class="col-6">
-        <h5><b>HYPATIA lab</b></h5>
-        <p>
-            Use our Job execution User Interface (UI) to manually run
-            computational analysis tasks
-        </p>
-        <div class="text-center">
-            <?= Html::a("HYPATIA lab", Yii::$app->params["hypatia_lab_url"] ?? "#", ['class' => "btn btn-md $access_button_class $ondemand_access_class text-white", 'style' => 'background-color: #e6833b', 'target' => '_blank']) ?>
-        </div>
+</div>
+<div class="row mb-4">
+    <div class="col">
+        <p class="h4">*These computational resources are available for the execution of containerized software packages and workflows.</p>
     </div>
 </div>
 
-<br>
-
-<h4><b>How to schedule on-demand batch computation tasks</b></h4>
-<p>
-    Learn about the task execution infrastructure and how to run tasks on the provided documentation:
-<div class="text-center">
-    <?= Html::a("Documentation", Yii::$app->params["schema_api_docs_url"] ?? "#", ['class' => "btn btn-success btn-md $access_button_class $ondemand_access_class", 'target' => '_blank']) ?>
+<h4 class="mt-4"><b>Gaining access</b></h4>
+<div class="row ">
+    <div class="col">
+        <p class="h4">To use the task execution infrastructure, an API key is required. You can manage your API keys on the page below:</p>
+    </div>
 </div>
-</p>
+<div class="row text-center">
+    <div class="col text-center">
+        <?= Html::a("API keys management", ['/project/token-management', 'id' => $id], ['class' => "btn btn-success btn-md $edit_button_class"]) ?>
+    </div>
+</div>
+
+
+<h4 class="mt-4"><b>Using the resources</b></h4>
+<div class="row ">
+    <div class="col">
+        <p class="h4">There are two ways to schedule task executions:</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 border-end border-muted">
+        <h4 class="mb-3"><strong>SCHEMA API</strong></h4>
+        <p class="h4">Use our Job execution REST API to programmatically run computational analysis tasks.</p>
+        <div class="text-center mt-4">
+            <?= Html::a("SCHEMA API Swagger", Yii::$app->params["schema_api_url"] ?? "#", [
+                'class' => "btn btn-success btn-md $access_button_class $ondemand_access_class"
+            ]) ?>
+        </div>
+    </div>
+
+    <div class="col-md-6 mt-4 mt-md-0">
+        <h4 class="mb-3"><strong>HYPATIA Lab</strong></h4>
+        <p class="h4">Use our Job execution User Interface (UI) to manually run computational analysis tasks.</p>
+        <div class="text-center mt-4">
+            <?= Html::a("HYPATIA Lab", Yii::$app->params["hypatia_lab_url"] ?? "#", [
+                'class' => "btn btn-md text-white $access_button_class $ondemand_access_class",
+                'style' => 'background-color: #e6833b',
+                'target' => '_blank'
+            ]) ?>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-4"><b>How to schedule on-demand batch computation tasks</b></h4>
+<div class="row ">
+    <div class="col">
+        <p class="h4">Learn about the task execution infrastructure and how to run tasks in our documentation:</p>
+    </div>
+</div>
+<div class="row text-center">
+    <div class="col text-center">
+        <?= Html::a("Documentation", Yii::$app->params["schema_api_docs_url"] ?? "#", [
+            'class' => "btn btn-success btn-md $access_button_class $ondemand_access_class",
+            'target' => '_blank'
+        ]) ?>
+    </div>
+</div>
