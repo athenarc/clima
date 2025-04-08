@@ -65,9 +65,9 @@ else
 		<?= ToolButton::createButton("$users_icon User management", "",['/personal/superadmin-actions']) ?>
 		<br />
 		<?= ToolButton::createButton("$users_icon User statistics", "",['/administration/user-stats-list']) ?>
-		<br />
-        <?= ToolButton::createButton("$users_icon Inactive users", "",['administration/inactive']) ?>
-        <br />
+<!--		<br />-->
+<!--        --><?php //= ToolButton::createButton("$users_icon Inactive users", "",['administration/inactive']) ?>
+<!--        <br />-->
 	</div>
 </div>
 

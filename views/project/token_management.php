@@ -103,7 +103,7 @@ echo Headers::widget([
             <tr>
                 <th class="col-md-2">Token name</th>
                 <th class="col-md-2">Expired since</th>
-                <th class="col-md-3"></th>
+                <th class="col-md-2"></th>
             </tr>
             </thead>
             <tbody>
