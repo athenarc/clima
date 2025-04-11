@@ -12,14 +12,14 @@ use yii\helpers\Html;
 use yii\widgets\LinkPager;
 
 $name=Yii::$app->params['name'];
-$this->title="Current $name statistics";
+$this->title="$name statistics";
 
 echo Html::cssFile('@web/css/project/project_details.css');
 
 $back_icon='<i class="fas fa-arrow-left"></i>';
 /*
- * Users are able to view the name, version, start date, end date, mountpoint 
- * and running status of their previous software executions. 
+ * Users are able to view the name, version, start date, end date, mountpoint
+ * and running status of their previous software executions.
  */
 ?>
 <div class='title row'>
