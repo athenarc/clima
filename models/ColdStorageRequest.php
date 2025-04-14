@@ -276,7 +276,7 @@ class ColdStorageRequest extends \yii\db\ActiveRecord
             $username = User::returnUsernameById($submitted_by);
             $warnings='Your request will be reviewed.';
             $project_id=$project->id;
-            $message="The cold storage project '$project->name', created by user $username, has been modified and is pending approval.";
+            $message="The storage project '$project->name', created by user $username, has been modified and is pending approval.";
             EmailEventsModerator::NotifyByEmail('edit_project', $project_id,$message);
         }
 

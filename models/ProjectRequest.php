@@ -582,9 +582,9 @@ class ProjectRequest extends \yii\db\ActiveRecord
         if ($this->project_type==2)
         {
 
-            $storage_request=StorageRequest::find()->where(['request_id'=>$this->id])->one();
-            $vm_type=$storage_request->vm_type;
-            $size=$storage_request->storage;
+            $cold_storage_request=StorageRequest::find()->where(['request_id'=>$this->id])->one();
+            $vm_type=$cold_storage_request->vm_type;
+            $size=$cold_storage_request->storage;
             $name=$this->name;
 
         }
@@ -1085,6 +1085,21 @@ class ProjectRequest extends \yii\db\ActiveRecord
     {
         $query=new Query;
 
+        $active_notebooks=$query->select(['pr.id'])
+            ->from('project_request as pr')
+            ->innerJoin('jupyter_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->andWhere(['>','pr.end_date','NOW'])
+            ->count();
+        $query=new Query;
+
+        $total_notebooks=$query->select(['pr.id'])
+            ->from('project_request as pr')
+            ->innerJoin('jupyter_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->count();
+        $query=new Query;
+
         $active_services=$query->select(['pr.id'])
                         ->from('project_request as pr')
                         ->innerJoin('service_request as s','s.request_id=pr.id')
@@ -1197,6 +1212,14 @@ class ProjectRequest extends \yii\db\ActiveRecord
         
         $query=new Query;
 
+        $vm_total_notebooks_stats=$query->select(['sum(s.cores) as cores', 'sum(s.ram) as ram'])
+            ->from('project_request as pr')
+            ->innerJoin('jupyter_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->one();
+
+        $query=new Query;
+
         $vm_total_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
                         ->from('project_request as pr')
                         ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
@@ -1225,6 +1248,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $final=[
             'active_services'=>$active_services,
             'total_services'=>$total_services,
+            'active_notebooks'=>$active_notebooks,
+            'total_notebooks'=>$total_notebooks,
             'active_machines'=>$active_machines,
             'total_machines'=>$total_machines,
             'active_ondemand'=>$active_ondemand,
@@ -1237,7 +1262,9 @@ class ProjectRequest extends \yii\db\ActiveRecord
             'active_services_ram'=>$vm_active_services_stats['ram'],
             'active_services_storage'=>$vm_active_services_stats['storage']/1000.0,
             'total_services_cores'=>$vm_total_services_stats['cores'],
+            'total_notebooks_cores'=>$vm_total_notebooks_stats['cores'],
             'total_services_ram'=>$vm_total_services_stats['ram'],
+            'total_notebooks_ram'=>$vm_total_notebooks_stats['ram'],
             'total_services_storage'=>$vm_total_services_stats['storage']/1000.0,
             'active_machines_cores'=>$vm_active_machines_stats['cores'],
             'active_machines_ram'=>$vm_active_machines_stats['ram'],
