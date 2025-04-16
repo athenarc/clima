@@ -1087,7 +1087,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $active_notebooks=$query->select(['pr.id'])
             ->from('project_request as pr')
-            ->innerJoin('jupyter_request as s','s.request_id=pr.id')
+            ->innerJoin('jupyter_request_n as s','s.request_id=pr.id')
             ->where(['IN','pr.status',[1,2]])
             ->andWhere(['>','pr.end_date','NOW'])
             ->count();
@@ -1095,7 +1095,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $total_notebooks=$query->select(['pr.id'])
             ->from('project_request as pr')
-            ->innerJoin('jupyter_request as s','s.request_id=pr.id')
+            ->innerJoin('jupyter_request_n as s','s.request_id=pr.id')
             ->where(['IN','pr.status',[1,2]])
             ->count();
         $query=new Query;
@@ -1214,7 +1214,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $vm_total_notebooks_stats=$query->select(['sum(s.cores) as cores', 'sum(s.ram) as ram'])
             ->from('project_request as pr')
-            ->innerJoin('jupyter_request as s','s.request_id=pr.id')
+            ->innerJoin('jupyter_request_n as s','s.request_id=pr.id')
             ->where(['IN','pr.status',[1,2]])
             ->one();
 
