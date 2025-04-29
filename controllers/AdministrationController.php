@@ -2,7 +2,13 @@
 
 namespace app\controllers;
 
+use app\models\AuthUser;
+use app\models\ActiveProjectSearch;
+use app\models\ExpiredProjectSearch;
 use Yii;
+use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -34,6 +40,7 @@ use app\models\Analytics;
 use app\models\StorageRequest;
 use webvimark\modules\UserManagement\models\User as Userw;
 use app\models\Schema;
+use yii\db\Expression;
 
 class AdministrationController extends Controller
 {
@@ -92,12 +99,83 @@ class AdministrationController extends Controller
     {
         return $this->render('index');
     }
+    public function actionInactive()
+    {
+
+
+        $sql = (new Query())->select(['username','last_login'])
+            ->from('auth_user')
+            ->where(['<', 'last_login', new Expression("NOW() - INTERVAL '180 days'")])
+            ->orderBy(['last_login' => SORT_ASC])
+            ->all(Yii::$app->db2);
+
+
+
+
+
+        Yii::info("Query Result: " . print_r($sql, true), __METHOD__);
+
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $sql,  // ✅ Pass fetched data
+            'pagination' => [
+                'pageSize' => 10, // ✅ Adjust page size
+            ],
+            'sort' => [
+                'attributes' => ['username', 'last_login'], // ✅ Sortable columns
+            ],
+        ]);
+
+        // ✅ Render the View
+        return $this->render('inactive', [
+            'dataProvider' => $dataProvider,
+
+        ]);
+    }
+
+    public function actionViewProjects($username)
+    {
+
+        $project_type=Project::TYPES;
+        $projects = Project::find()
+            ->alias('p')
+            ->innerJoin('project_request pr', 'p.latest_project_request_id = pr.id')
+            ->innerJoin('"user" u', 'pr.submitted_by = u.id')
+            ->where(['u.username' => $username])
+            ->select([
+                'p.id AS project_id',
+                'p.name AS project_name',
+                'p.status',
+                'p.start_date',
+                'p.project_end_date',
+                'p.project_type',
+                'pr.id AS project_request_id',
+                'u.username'
+            ])
+            ->asArray()
+            ->all();
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $projects,
+            'pagination' => ['pageSize' => 10],
+            'sort' => [
+                'attributes' => ['project_name','project_id','username', 'project_end_date','project_type']
+            ],
+        ]);
+
+        return $this->render('view_projects', [
+            'dataProvider' => $dataProvider,
+            'username' => $username,
+            'project_type'=>$project_type,
+        ]);
+    }
+
 
     public function actionConfigure()
     {
-        
-      
-        
+
+
+
         $userTypes=["gold"=>"Gold","silver"=>"Silver", "bronze"=>"Bronze"];
         $currentUser=(!isset($_POST['currentUserType'])) ? "bronze": $_POST['currentUserType'] ;
 
@@ -118,10 +196,10 @@ class AdministrationController extends Controller
 
 
 
-        
+
         $general=Configuration::find()->one();
         $pages=Page::getPagesDropdown();
-        
+
         $activeButtons=['','','','','','','','',''];
         $activeTabs=['','','','','','','','',''];
 
@@ -131,34 +209,34 @@ class AdministrationController extends Controller
             $activeTabs[0]='tab-active';
             $hiddenActiveButton='general-button';
         }
-       
-        $form_params =
-        [
-            'action' => URL::to(['administration/configure']),
-            'options' => 
-            [
-                'class' => 'configuration_form',
-                'id'=> "configuration_form"
-            ],
-            'method' => 'POST'
-        ];
 
-        
+        $form_params =
+            [
+                'action' => URL::to(['administration/configure']),
+                'options' =>
+                    [
+                        'class' => 'configuration_form',
+                        'id'=> "configuration_form"
+                    ],
+                'method' => 'POST'
+            ];
+
+
         $user_email=Userw::getCurrentUser()['email'];
         if(empty($user_email))
-        {  
-          Yii::$app->session->setFlash('danger', "You must provide your email to receive email notifications.");
+        {
+            Yii::$app->session->setFlash('danger', "You must provide your email to receive email notifications.");
         }
 
-        if ( ($service->load(Yii::$app->request->post())) && ($machineComputationLimits->load(Yii::$app->request->post())) && ($general->load(Yii::$app->request->post())) 
+        if ( ($service->load(Yii::$app->request->post())) && ($machineComputationLimits->load(Yii::$app->request->post())) && ($general->load(Yii::$app->request->post()))
             &&  ($ondemand->load(Yii::$app->request->post())) && ($coldStorage->load(Yii::$app->request->post()))
-            && ($coldStorageLimits->load(Yii::$app->request->post())) && ($serviceLimits->load(Yii::$app->request->post())) 
-            && ($ondemandLimits->load(Yii::$app->request->post())) && ($smtp->load(Yii::$app->request->post())) 
+            && ($coldStorageLimits->load(Yii::$app->request->post())) && ($serviceLimits->load(Yii::$app->request->post()))
+            && ($ondemandLimits->load(Yii::$app->request->post())) && ($smtp->load(Yii::$app->request->post()))
             && ($openstack->load(Yii::$app->request->post())) && $openstackMachines->load(Yii::$app->request->post())
-            &&  ($jupyter->load(Yii::$app->request->post())) && ($jupyterLimits->load(Yii::$app->request->post())) 
-            )
+            &&  ($jupyter->load(Yii::$app->request->post())) && ($jupyterLimits->load(Yii::$app->request->post()))
+        )
         {
-            
+
             $password=$smtp->password;
             $encrypted_password=base64_encode($password);
             $smtp->password=$encrypted_password;
@@ -170,7 +248,7 @@ class AdministrationController extends Controller
             $openstackMachines->encode();
             $openstackMachines->save();
 
-           
+
 
             $isValid = $general->validate();
             $isValid = $service->validate() && $isValid;
@@ -181,11 +259,11 @@ class AdministrationController extends Controller
             $isValid = $ondemandLimits->validate() && $isValid;
             $isValid = $jupyter->validate() && $isValid;
             $isValid = $jupyterLimits->validate() && $isValid;
-            
-  
+
+
             if ($isValid)
             {
-                
+
                 $previousUserType=$_POST['previousUserType'];
                 $general->updateDB();
                 $success='Configuration successfully updated';
@@ -199,7 +277,7 @@ class AdministrationController extends Controller
                 }
                 elseif($max_autoaccepted_services > $service->autoaccept_number)
                 {
-                    
+
                     Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_autoaccepted_services active autoaccepted 24/7 service projects");
                     $success='';
                 }
@@ -224,7 +302,7 @@ class AdministrationController extends Controller
                 }
                 elseif($max_autoaccepted_ondemand > $ondemand->autoaccept_number)
                 {
-                    
+
                     Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_autoaccepted_ondemand active autoaccepted on-demand batch computation projects");
                     $success='';
                 }
@@ -241,10 +319,10 @@ class AdministrationController extends Controller
 
                 $jupyter->updateDB($previousUserType);
                 $jupyterLimits->updateDB($previousUserType);
-                   
 
 
-                
+
+
                 $max_autoaccepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$previousUserType,2);
                 $max_accepted_volumes=Project::getMaximumActiveAcceptedProjects(2,$previousUserType,[1,2]);
 
@@ -255,7 +333,7 @@ class AdministrationController extends Controller
                 }
                 elseif($max_autoaccepted_volumes > $coldStorage->autoaccept_number)
                 {
-                    
+
                     Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_autoaccepted_volumes autoaccepted active storage volumes");
                     $success='';
                 }
@@ -272,21 +350,21 @@ class AdministrationController extends Controller
 
 
                 $max_accepted_machines=Project::getMaximumActiveAcceptedProjects(3,$previousUserType,[1,2]);
-                if((($machineComputationLimits->number_of_projects==-1) && ($previousUserType=='gold')) || 
+                if((($machineComputationLimits->number_of_projects==-1) && ($previousUserType=='gold')) ||
                     ($max_accepted_machines <= $machineComputationLimits->number_of_projects))
                 {
-                        // print_r($max_accepted_machines);
-                        // exit(0);
-                        $machineComputationLimits->updateDB($previousUserType);
+                    // print_r($max_accepted_machines);
+                    // exit(0);
+                    $machineComputationLimits->updateDB($previousUserType);
                 }
                 else
                 {
                     Yii::$app->session->setFlash('danger', "There is a $previousUserType user with $max_accepted_machines active on-demand computation machines projects");
-                     $success='';
+                    $success='';
                 }
-                
-                
-                
+
+
+
 
                 $service=ServiceAutoaccept::find()->where(['user_type'=>$currentUser])->one();
                 $ondemand=OndemandAutoaccept::find()->where(['user_type'=>$currentUser])->one();
@@ -298,10 +376,10 @@ class AdministrationController extends Controller
                 $general=Configuration::find()->one();
                 $jupyter=JupyterAutoaccept::find()->where(['user_type'=>$currentUser])->one();
                 $jupyterLimits=JupyterLimits::find()->where(['user_type'=>$currentUser])->one();
-                
+
 
                 $activeButton=$_POST['hidden-active-button'];
-               
+
 
                 if ($activeButton=='ondemand-button')
                 {
@@ -326,7 +404,7 @@ class AdministrationController extends Controller
                     $activeButtons[4]='button-active';
                     $activeTabs[4]='tab-active';
                     $hiddenActiveButton='cold-button';
-                   
+
                 }
                 else if ($activeButton=='email-button')
                 {
@@ -368,25 +446,25 @@ class AdministrationController extends Controller
             $openstackMachines->decode();
 
             return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
-                                'ondemand'=>$ondemand,'general'=>$general,
-                                'jupyter'=>$jupyter, 'jupyterLimits'=>$jupyterLimits,
-                                'coldStorage'=>$coldStorage, 'success'=>$success,
-                                "hiddenUser" => $currentUser,'userTypes'=>$userTypes, 'serviceLimits'=>$serviceLimits,
-                                'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,
-                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,
-                                'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
+                'ondemand'=>$ondemand,'general'=>$general,
+                'jupyter'=>$jupyter, 'jupyterLimits'=>$jupyterLimits,
+                'coldStorage'=>$coldStorage, 'success'=>$success,
+                "hiddenUser" => $currentUser,'userTypes'=>$userTypes, 'serviceLimits'=>$serviceLimits,
+                'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,
+                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,
+                'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
         }
 
         $smtp->password=base64_decode($smtp->password);
         $openstack->decode();
         $openstackMachines->decode();
         return $this->render('configure',['form_params'=>$form_params,'service'=>$service,
-                                'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
-                                'jupyter'=>$jupyter, 'jupyterLimits'=>$jupyterLimits,
-                                'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,
-                                'userTypes'=>$userTypes, 'success'=>'',"hiddenUser" => $currentUser,
-                                'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,
-                                'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
+            'ondemand'=>$ondemand,'coldStorage'=>$coldStorage,'serviceLimits'=>$serviceLimits,
+            'jupyter'=>$jupyter, 'jupyterLimits'=>$jupyterLimits,
+            'ondemandLimits'=>$ondemandLimits,'coldStorageLimits'=>$coldStorageLimits,'general'=>$general,
+            'userTypes'=>$userTypes, 'success'=>'',"hiddenUser" => $currentUser,
+            'activeTabs'=>$activeTabs,'activeButtons' => $activeButtons,'hiddenActiveButton'=>$hiddenActiveButton, 'smtp'=>$smtp, 'machineComputationLimits'=>$machineComputationLimits,
+            'openstack'=>$openstack,'openstackMachines'=>$openstackMachines,'pages'=>$pages]);
     }
 
 
@@ -418,20 +496,20 @@ class AdministrationController extends Controller
 
     public function actionEmailNotifications()
     {
-        
+
         $user=Userw::getCurrentUser();
         $user_id=$user->id;
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
         $user_notifications=EmailEventsAdmin::find()->where(['user_id'=>$user_id])->one();
         if(empty($user_notifications))
         {
-                $user_notifications=new EmailEventsAdmin;
-                $user_notifications->user_id=$user_id;
-                $user_notifications->save();
-                
+            $user_notifications=new EmailEventsAdmin;
+            $user_notifications->user_id=$user_id;
+            $user_notifications->save();
+
         }
         $smtp_config=true;
         $smtp=Smtp::find()->one();
@@ -448,7 +526,7 @@ class AdministrationController extends Controller
             Yii::$app->session->setFlash('success', "Your changes have been successfully submitted");
             return $this->redirect(['index']);
         }
-        
+
 
         return $this->render('email_notifications', ['user'=>$user, 'user_notifications'=>$user_notifications, 'smtp_config'=>$smtp_config]);
     }
@@ -461,36 +539,36 @@ class AdministrationController extends Controller
         $smtp=Smtp::find()->one();
         $encrypted_password=$smtp->password;
         $decrypted_password= base64_decode($encrypted_password);
-       
+
 
         $mailer = Yii::$app->mailer->setTransport([
 
-        'class' => 'Swift_SmtpTransport',
-        'host' => $smtp->host,
-        'username' => $smtp->username,
-        'password' => $decrypted_password,
-        'port' => $smtp->port,
-        'encryption' => $smtp->encryption,
+            'class' => 'Swift_SmtpTransport',
+            'host' => $smtp->host,
+            'username' => $smtp->username,
+            'password' => $decrypted_password,
+            'port' => $smtp->port,
+            'encryption' => $smtp->encryption,
 
         ]);
 
-        try { 
-         $r=Yii::$app->mailer->compose()
-                 ->setFrom("$smtp->username")
-                 ->setTo("$user_email")
-                 ->setSubject('Test')
-                 ->setTextBody('Plain text content')
-                 ->setHtmlBody("Dear Mr/Mrs,  <br> <br> This email is send as a test to the SMTP configuration. 
+        try {
+            $r=Yii::$app->mailer->compose()
+                ->setFrom("$smtp->username")
+                ->setTo("$user_email")
+                ->setSubject('Test')
+                ->setTextBody('Plain text content')
+                ->setHtmlBody("Dear Mr/Mrs,  <br> <br> This email is send as a test to the SMTP configuration. 
                  <br> <br> Sincerely, <br> $name")
-                 ->send();
-                 Yii::$app->session->setFlash('success', "SMTP is configured properly. A test email has been sent to you.");
+                ->send();
+            Yii::$app->session->setFlash('success', "SMTP is configured properly. A test email has been sent to you.");
         }
         catch (\Exception $e)
         {
             Yii::$app->session->setFlash('danger', "SMTP is not configured properly.");
-            
+
         }
-        
+
 
         return $this->redirect(['configure']);
 
@@ -498,7 +576,7 @@ class AdministrationController extends Controller
 
     public function actionManagePages()
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -510,21 +588,21 @@ class AdministrationController extends Controller
 
     public function actionAddPage()
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
         $model=new Page;
         $form_params =
-        [
-            'action' => URL::to(['administration/add-page']),
-            'options' => 
             [
-                'class' => 'add_page_form',
-                'id'=> "add_page_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['administration/add-page']),
+                'options' =>
+                    [
+                        'class' => 'add_page_form',
+                        'id'=> "add_page_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         if ($model->load(Yii::$app->request->post()) && $model->validate())
         {
@@ -533,11 +611,11 @@ class AdministrationController extends Controller
         }
 
         return $this->render('add-page',['model'=>$model,'form_params'=>$form_params]);
-        
+
     }
     public function actionEditPage($id)
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -549,15 +627,15 @@ class AdministrationController extends Controller
         }
 
         $form_params =
-        [
-            'action' => URL::to(['administration/edit-page', 'id'=>$id]),
-            'options' => 
             [
-                'class' => 'edit_page_form',
-                'id'=> "edit_page_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['administration/edit-page', 'id'=>$id]),
+                'options' =>
+                    [
+                        'class' => 'edit_page_form',
+                        'id'=> "edit_page_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         if ($page->load(Yii::$app->request->post()) && $page->validate())
         {
@@ -569,7 +647,7 @@ class AdministrationController extends Controller
     }
     public function actionDeletePage($id)
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -583,11 +661,11 @@ class AdministrationController extends Controller
         $page->delete();
         $this->redirect(['administration/manage-pages']);
 
-        
+
     }
     public function actionViewPage($id)
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -603,7 +681,7 @@ class AdministrationController extends Controller
 
     public function actionAllProjects($exp='-1', $ptype='-1', $user='', $project='')
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -611,10 +689,10 @@ class AdministrationController extends Controller
         $schema_url=$configuration->schema_url;
 
         $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user', 
-                    2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user', 4=>'/project/view-jupyter-request-user'];
+        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user',
+            2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user', 4=>'/project/view-jupyter-request-user'];
 
-        
+
         $deleted=Project::getAllDeletedProjects();
 
         $filters=['exp'=>Yii::$app->request->post('expiry_date_t',$exp),'user'=>Yii::$app->request->post('username',$user), 'type'=>Yii::$app->request->post('project_type',$ptype), 'name'=>Yii::$app->request->post('project_name',$project)];
@@ -624,61 +702,66 @@ class AdministrationController extends Controller
         $role=User::getRoleType();
         $username=Userw::getCurrentUser()['username'];
         $user_split=explode('@',$username)[0];
-        
+
         $active=[];
         $expired=[];
-      
-        foreach ($all_projects as $project) 
+
+        foreach ($all_projects as $project)
         {
-            $now = strtotime(date("Y-m-d"));
-            $end_project = strtotime($project['end_date']);
-            $remaining_secs=$end_project-$now;
-            $remaining_days=$remaining_secs/86400;
-            $remaining_months=round($remaining_days/30);
-            if($username==$project['username'])
-            {
-                    array_push($project,'<b>You</b>' );
-                    array_push($project, $remaining_days);
-            }
-            else
-            {
-                array_push($project, "$project[username]");
-                array_push($project, $remaining_days);
-             }
-                $active[]=$project;
+            $remaining_days = (strtotime($project['end_date']) - strtotime(date("Y-m-d"))) / 86400;
+            $project['owner'] = ($username == $project['username']) ? '<b>You</b>' : $project['username'];
+            $project['expires_in'] = $remaining_days;
+            $active[] = $project;
         }
 
-        foreach ($expired_owner as $project) 
-        {
-            $now = strtotime(date("Y-m-d"));
-            $end_project = strtotime($project['end_date']);
-            $remaining_secs=$end_project-$now;
-            $remaining_days=$remaining_secs/86400;
-            $remaining_months=round($remaining_days/30);
-            if($username==$project['username'])
-            {
-                array_push($project,'<b>You</b>');
-                array_push($project, $project['end_date']);
-            }
-            else
-            {
-                array_push($project, "$project[username]");
-                array_push($project, $project['end_date']);
-            }
-            $expired[]=$project;
+        foreach ($expired_owner as $project) {
+            $project['owner'] = ($username == $project['username']) ? '<b>You</b>' : $project['username'];
+            $project['expires_in'] = $project['end_date'];
+            $expired[] = $project;
         }
-
-
         $number_of_active=count($all_projects);
         $number_of_expired=count($expired);
-        
-        $types_dropdown=['-1'=>'','0'=>'On-demand batch computations', '1'=>'24/7 Services', '2'=>'Storage volumes', '3'=>'On-demand computation machines', '4'=>'On demand notebooks'];
-        $expiry_date = ['-1'=>'','0'=>'Ascending', '1'=>'Descending'];
-        return $this->render('all_projects',['button_links'=>$button_links,
-            'project_types'=>$project_types,'role'=>$role, 'types_dropdown'=>$types_dropdown, 'filters'=>$filters,
-            'deleted'=>$deleted,'expired'=>$expired, 'active'=>$active, 'number_of_active'=>$number_of_active, 
-            'number_of_expired'=>$number_of_expired, 'schema_url'=>$schema_url, 'active_resources'=>$resources, 'expiry_date'=>$expiry_date,
-            'ptype'=>$ptype, 'exp'=>$exp, 'user'=>$user, 'project'=>$project]);
+
+        $searchModel = new ActiveProjectSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $active);
+
+        $searchModelExpired = new ExpiredProjectSearch();
+        $dataProviderExpired = $searchModelExpired->search(Yii::$app->request->queryParams, $expired, $resources);
+
+        $types_dropdown = [
+            '-1' => '',
+            '0' => 'On-demand batch computations',
+            '1' => '24/7 Services',
+            '2' => 'Storage volumes',
+            '3' => 'On-demand computation machines',
+            '4' => 'On demand notebooks'
+        ];
+
+        $expiry_date = ['-1' => '', '0' => 'Ascending', '1' => 'Descending'];
+
+        return $this->render('all_projects', [
+            'button_links' => $button_links,
+            'project_types' => $project_types,
+            'role' => $role,
+            'types_dropdown' => $types_dropdown,
+            'filters' => $filters,
+            'deleted' => Project::getAllDeletedProjects(),
+            'expired' => $expired,
+            'active' => $active,
+            'number_of_active' => count($active),
+            'number_of_expired' => count($expired),
+            'schema_url' => $schema_url,
+            'active_resources' => $resources,
+            'expiry_date' => $expiry_date,
+            'ptype' => $ptype,
+            'exp' => $exp,
+            'user' => $user,
+            'project' => $project,
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'searchModelExpired' => $searchModelExpired,
+            'dataProviderExpired' => $dataProviderExpired,
+        ]);
     }
 
     public function actionManageAnalytics()
@@ -693,15 +776,15 @@ class AdministrationController extends Controller
     {
         $model=new Analytics;
         $form_params =
-        [
-            'action' => URL::to(['administration/add-analytics']),
-            'options' => 
             [
-                'class' => 'add_analytics_form',
-                'id'=> "add_analytics_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['administration/add-analytics']),
+                'options' =>
+                    [
+                        'class' => 'add_analytics_form',
+                        'id'=> "add_analytics_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         if ($model->load(Yii::$app->request->post()) && $model->validate())
         {
@@ -710,11 +793,11 @@ class AdministrationController extends Controller
         }
 
         return $this->render('add-analytics',['model'=>$model,'form_params'=>$form_params]);
-        
+
     }
     public function actionEditAnalytics($id)
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -727,15 +810,15 @@ class AdministrationController extends Controller
         }
 
         $form_params =
-        [
-            'action' => URL::to(['administration/edit-analytics', 'id'=>$model->id]),
-            'options' => 
             [
-                'class' => 'edit_analytics_form',
-                'id'=> "edit_analytics_form"
-            ],
-            'method' => 'POST'
-        ];
+                'action' => URL::to(['administration/edit-analytics', 'id'=>$model->id]),
+                'options' =>
+                    [
+                        'class' => 'edit_analytics_form',
+                        'id'=> "edit_analytics_form"
+                    ],
+                'method' => 'POST'
+            ];
 
         if ($model->load(Yii::$app->request->post()) && $model->validate())
         {
@@ -747,7 +830,7 @@ class AdministrationController extends Controller
     }
     public function actionDeleteAnalytics($id)
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -761,12 +844,12 @@ class AdministrationController extends Controller
         $model->delete();
         $this->redirect(['administration/manage-analytics']);
 
-        
+
     }
 
     public  function actionStorageVolumes()
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))      
+        if (!Userw::hasRole('Admin',$superadminAllowed=true))
         {
             return $this->render('//project/error_unauthorized');
         }
@@ -779,14 +862,14 @@ class AdministrationController extends Controller
         $results_expired=StorageRequest::getExpiredProjectsAdmin();
         $expired_services=$results_expired[0];
         $expired_machines=$results_expired[1];
-        
+
         return $this->render('storage_volumes', ['services'=>$active_services, 'machines'=>$active_machines, 'results'=>$results_active,'expired_services'=>$expired_services, 'expired_machines'=>$expired_machines, 'expired_results'=>$results_expired]);
     }
 
     public function actionReactivate($id)
     {
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
-        
+
         if (empty($prequest))
         {
             return $this->render('//project/error_unauthorized');
@@ -841,7 +924,7 @@ class AdministrationController extends Controller
         $username=explode('@',$user->username)[0];
         $usage_owner=Project::userStatisticsOwner($user->id,$user->username);
         $usage_participant=Project::userStatisticsParticipant($user->id,$user->username);
-        
+
         return $this->render('user_statistics', ['usage_participant'=>$usage_participant,'usage_owner'=>$usage_owner, 'username'=>$username]);
     }
 
@@ -858,9 +941,9 @@ class AdministrationController extends Controller
         $users=User::getActiveUserStats($username,$activeFilter);
         $activeUsers=User::getActiveUserNum();
         $totalUsers=User::find()->count();
-        
-        return $this->render('user_stats_list', ['users'=>$users,'username'=>$username, 'activeFilter'=>$activeFilter, 
-                'activeFilterDrop'=>$activeFilterDrop, 'activeUsers'=>$activeUsers, 'totalUsers'=>$totalUsers]);
+
+        return $this->render('user_stats_list', ['users'=>$users,'username'=>$username, 'activeFilter'=>$activeFilter,
+            'activeFilterDrop'=>$activeFilterDrop, 'activeUsers'=>$activeUsers, 'totalUsers'=>$totalUsers]);
     }
 
     public function actionViewActiveJupyters()
