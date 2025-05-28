@@ -290,6 +290,25 @@ class User extends UserIdentity
 
     //     return $row['registration_ip'];
     // }
+    /**
+     * Check if the user has accepted the latest policy.
+     *
+     * @return bool
+     */
+    public function hasAcceptedPolicy(): bool
+    {
+        return (bool) $this->policy_accepted;
+    }
 
+    /**
+     * Mark the policy as accepted.
+     *
+     * @return bool
+     */
+    public function acceptPolicy(): bool
+    {
+        $this->policy_accepted = true;
+        return $this->save(false, ['policy_accepted']);
+    }
 
 }

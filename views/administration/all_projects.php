@@ -146,14 +146,12 @@ if (!empty($warnings)) {
                 [
                     'attribute' => 'name',
                     'format' => 'raw',
-                    'value' => function ($model) use ($expired_active_resources_icon, $active_resources) {
-                        $active = isset($active_resources[$model['project_type']][$model['id']]);
+                    'value' => function ($model) use ($active_resources, $expired_active_resources_icon) {
+                        // ✅ Ensure using 'project_id'
+                        $active = isset($active_resources[$model['project_type']][$model['project_id']]);
                         return $model['name'] . ($active ? '&nbsp;' . $expired_active_resources_icon : '');
                     },
-                    'contentOptions' => [
-                        'class' => 'col-md-2 text-center',
-                        'style' => 'vertical-align: middle!important;',
-                    ],
+                    'contentOptions' => ['class' => 'col-md-2 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
                 [
                     'attribute' => 'project_type',
@@ -176,12 +174,8 @@ if (!empty($warnings)) {
                         3 => 'Compute machines',
                         4 => 'Notebooks',
                     ],
-                    'contentOptions' => [
-                        'class' => 'col-md-2 text-center',
-                        'style' => 'vertical-align: middle!important;',
-                    ],
+                    'contentOptions' => ['class' => 'col-md-2 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
-
                 [
                     'attribute' => 'owner',
                     'label' => 'Owner',
@@ -191,7 +185,6 @@ if (!empty($warnings)) {
                     },
                     'contentOptions' => ['class' => 'col-md-2 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
-
                 [
                     'attribute' => 'expires_in',
                     'label' => 'Expired on',
@@ -203,13 +196,11 @@ if (!empty($warnings)) {
                     'attribute' => 'has_active_resources',
                     'label' => 'Active Resources',
                     'value' => function ($model) use ($active_resources) {
-                        $active = isset($active_resources[$model['project_type']][$model['id']]);
+                        // ✅ Correct check with project_id
+                        $active = isset($active_resources[$model['project_type']][$model['project_id']]);
                         return $active ? 'Yes' : 'No';
                     },
-                    'filter' => [
-                        '1' => 'Yes',
-                        '0' => 'No',
-                    ],
+                    'filter' => ['1' => 'Yes', '0' => 'No'],
                     'contentOptions' => ['class' => 'col-md-1 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
                 [
@@ -220,7 +211,7 @@ if (!empty($warnings)) {
                         'details' => function ($url, $model) use ($filters) {
                             return Html::a('<i class="fas fa-eye"></i> Details', [
                                 '/project/view-request-user',
-                                'id' => $model['id'],
+                                'id' => $model['project_id'],
                                 'return' => 'admin',
                                 'expired' => 1,
                                 'ptype' => $filters['type'],
@@ -242,3 +233,36 @@ if (!empty($warnings)) {
         ]) ?>
     </div>
 </div>
+
+<?php
+foreach ($dataProviderExpired->getModels() as $res) {
+    $pname = $res['name'];
+    $modalId = "reactivate-" . preg_replace('/[^a-zA-Z0-9_-]/', '-', $pname) . "-modal";
+    ?>
+    <div class="modal fade" id="<?= $modalId ?>" tabindex="-1" role="dialog" aria-labelledby="reactivate-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm re-activation</h5>
+                    <button type="button" class="close btn-cancel-modal" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to re-activate project '<?= Html::encode($pname) ?>'?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-cancel-modal" data-dismiss="modal">Cancel</button>
+                    <?= Html::a(
+                        '<i class="fas fa-sync-alt"></i> Re-activate',
+                        ['/administration/reactivate', 'id' => $res['id']],
+                        ['class' => 'btn btn-primary btn-md', 'title' => 'Re-activate project']
+                    ) ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+?>
+
