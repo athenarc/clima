@@ -270,6 +270,7 @@ class Token extends \yii\db\ActiveRecord
                 $URL = $schema_api_url."/api_auth/contexts/{$project_name}/users/{$username}/tokens/{$uuid}";
                 $hint = $strArray[3];
                 $hint = str_replace('"', '', $hint);
+                $hint = str_replace(',expiry', '', $hint);
                 $temp1 = '{"title":';
                 $temp2 = '"';
                 $temp3 = '"}';

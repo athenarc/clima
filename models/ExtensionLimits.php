@@ -11,7 +11,6 @@ use yii\db\ActiveRecord;
  * @property int $id
  * @property string $user_type
  * @property float $max_percent
- * @property int $min_days
  * @property int $max_days
  * @property string $created_at
  * @property string $updated_at
@@ -32,14 +31,14 @@ class ExtensionLimits extends ActiveRecord
     public function rules()
     {
         return [
-            [['user_type', 'max_percent', 'max_days', 'min_days'], 'required'],
+            [['user_type', 'project_type', 'max_percent', 'max_days', 'max_extension'], 'required'],
+            [['max_percent'], 'number'],
+            [['max_days', 'max_extension', 'project_type'], 'integer'],
             [['user_type'], 'string', 'max' => 50],
-            [['max_percent'], 'number', 'min' => 0, 'max' => 100],
-            [['max_extension', 'max_days'], 'integer', 'min' => 0],
-            [['user_type'], 'unique'],
-            [['created_at', 'updated_at'], 'safe'], // For handling timestamps
+            [['user_type', 'project_type'], 'unique', 'targetAttribute' => ['user_type', 'project_type']],
         ];
     }
+
 
     /**
      * {@inheritdoc}
@@ -49,6 +48,7 @@ class ExtensionLimits extends ActiveRecord
         return [
             'id' => 'ID',
             'user_type' => 'User Type',
+            'project_type' => 'ProjectType',
             'max_percent' => 'Maximum Percent',
             'max_extension' => 'Maximum Extension',
             'max_days' => 'Maximum Days',

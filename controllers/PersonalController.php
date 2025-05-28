@@ -62,6 +62,23 @@ class PersonalController extends Controller
             ],
         ];
     }
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        // Skip the check for login, logout, and policy acceptance
+        $allowedActions = ['login', 'logout', 'policy-acceptance'];
+
+        if (!in_array($action->id, $allowedActions)) {
+            if (!Yii::$app->user->isGuest && !Yii::$app->user->identity->policy_accepted) {
+                return $this->redirect(['site/policy-acceptance'])->send();
+            }
+        }
+        // Continue with the action
+        return true;
+    }
+
     public function actionIndex(){
         return $this->render('index');
     }

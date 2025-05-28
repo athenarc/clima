@@ -137,7 +137,7 @@ class EmailEventsUser extends \yii\db\ActiveRecord
         $project=Project::find()->where(['id'=>$project_id])->one();
         $project_name=$project->name;
 
-        $mailer = Yii::$app->mailer->setTransport([
+        Yii::$app->mailer->setTransport([
         'class' => 'Swift_SmtpTransport',
         'host' => $smtp->host,
         'username' => $smtp->username,
@@ -146,11 +146,52 @@ class EmailEventsUser extends \yii\db\ActiveRecord
         'encryption' => $smtp->encryption,
 
         ]);
+        $latestRequestId = $project->latest_project_request_id;
+        $projectRequest = ProjectRequest::findOne($latestRequestId);
+        $submitterId = $projectRequest->submitted_by ?? null;
+        $submitter = User::findOne($submitterId);
+        if (strpos($email_type, 'apikey_expires_') === 0) {
+            $submitterId = $projectRequest->submitted_by ?? null;
+            $submitter = User::findOne($submitterId);
+            echo "📋 Prepared to notify user ID: {$submitterId}\n";
 
-        
+            if ($submitter && $submitter->email) {
+                $project_users = [
+                    $submitter->id => [
+                        'email' => $submitter->email,
+                        'username' => $submitter->username
+                    ]
+                ];
+                echo "📧 Will send to: {$submitter->email}\n";
+
+                $recipient_ids = [$submitter->id];
+                $subject = 'API Token Expiry Notification for Project ' . $project_name;
+            } else {
+                echo "Submitter not found or has no email for project ID: $project_id\n";
+                return;
+            }
+        }
+        if (
+            strpos($email_type, 'expires_') === 0 ||
+            strpos($email_type, 'expired_resources_notify_') === 0
+        ) {
+            $project_users = self::getProjectUsers($project_id, $email_type);
+            if (empty($project_users)) {
+                echo "⚠️ No users found for project $project_id with email type $email_type\n";
+                return;
+            }
+            $recipient_ids = array_keys($project_users);
+            $subject = 'Expiration of project ' . $project_name;
+        } else {
+            echo "⚠️ Unknown email type: $email_type\n";
+            return;
+        }
+
+
+
         if($email_type=='expires_30')
         {
-            
+
             $project_users=self::getProjectUsers($project_id,$email_type);
             $subject='Expiration of project '. $project_name;
             $recipient_ids=array_keys($project_users);
@@ -176,12 +217,12 @@ class EmailEventsUser extends \yii\db\ActiveRecord
         }
 
         if (!(Yii::$app->params['disableEmail'] ?? false))
-        {   
+        {
             foreach ($project_users as $user)
             {
                 try
-                {    
-                    Yii::$app->mailer->compose()
+                {
+                    $result = Yii::$app->mailer->compose()
                          ->setFrom("$smtp->username")
                          ->setTo($user['email'])
                          ->setSubject($subject)
@@ -211,8 +252,57 @@ class EmailEventsUser extends \yii\db\ActiveRecord
                   ])->execute();
         }
 
-        
+
     }
+    public static function NotifyInactiveUserByEmailDate($email_type, $message, $date, $user_id, $email, $username)
+    {
+        $smtp = Smtp::find()->one();
+        $decrypted_password = base64_decode($smtp->password);
+        $name = Yii::$app->params['name'];
+
+        if (!$email) {
+            echo "❌ User $user_id has no email address.\n";
+            return;
+        }
+
+        $recipient_ids = [$user_id];
+        $subject = 'Inactive Account';
+
+
+        Yii::$app->mailer->setTransport([
+            'class' => 'Swift_SmtpTransport',
+            'host' => $smtp->host,
+            'username' => $smtp->username,
+            'password' => $decrypted_password,
+            'port' => $smtp->port,
+            'encryption' => $smtp->encryption,
+        ]);
+
+        if (!(Yii::$app->params['disableEmail'] ?? false)) {
+            try {
+                Yii::$app->mailer->compose()
+                    ->setFrom($smtp->username)
+                    ->setTo($email)
+                    ->setSubject($subject)
+                    ->setTextBody('Plain text version')
+                    ->setHtmlBody("Dear " . explode('@', $username)[0] . ",<br><br>$message<br><br>Sincerely,<br>the $name Team")
+                    ->send();
+            } catch (\Throwable $e) {
+                echo "❌ Failed to send email to $email: " . $e->getMessage() . "\n";
+            }
+
+            Yii::$app->db->createCommand()->insert('email', [
+                'recipient_ids' => $recipient_ids,
+                'type' => $email_type,
+                'sent_at' => new \yii\db\Expression('NOW()'),
+                'message' => $message,
+                'project_id' => null,
+                'related_user_id' => $user_id,
+            ])->execute();
+        }
+    }
+
+
 
 
     public static function getProjectUsers($project_id, $email_event)
