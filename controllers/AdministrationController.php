@@ -7,6 +7,7 @@ use app\models\ActiveProjectSearch;
 use app\models\ExpiredProjectSearch;
 use app\models\ViewProjectSearch;
 use Yii;
+use yii\base\DynamicModel;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
@@ -70,6 +71,7 @@ class AdministrationController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'logout' => ['post'],
+                    'reactivate' => ['POST'],
                 ],
             ],
         ];
@@ -1288,49 +1290,29 @@ class AdministrationController extends Controller
 
     public function actionReactivate($id)
     {
-        $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
-
-        if (empty($prequest))
-        {
-            return $this->render('//project/error_unauthorized');
+        if (!Yii::$app->request->isPost) {
+            throw new \yii\web\MethodNotAllowedHttpException('Method Not Allowed. Use POST.');
         }
 
+        $prequest = ProjectRequest::findOne(['project_id' => $id]);
 
-        /*
-         * If someone other than the project owner or an Admin are trying
-         * to edit the request, then show an error.
-         */
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))
-        {
-            return $this->render('//project/error_unauthorized');
-        }
-        /*
-         * Check that project is expired.
-         */
-        $date1 = new \DateTime($prequest->end_date);
-        $date2 = new \DateTime('now');
-
-        /*
-         * Since datetime involves time too
-         * equality will not work. Instead, check that
-         * the date strings are not the same
-         */
-        if (!(($date1->format("Y-m-d")!=$date2->format("Y-m-d")) && ($date2>$date1)))
-        {
-            Yii::$app->session->setFlash('danger', "Project is not expired");
+        if (!$prequest) {
+            Yii::$app->session->setFlash('danger', "Project not found.");
             return $this->redirect(['administration/all-projects']);
         }
 
         $prequest->reactivate();
-        if (!empty($prequest->errors))
-        {
-            Yii::$app->session->setFlash('danger', $prequest->errors);
-            return $this->redirect(['administration/all-projects']);
+
+        if (!empty($prequest->errors)) {
+            Yii::$app->session->setFlash('danger', implode(", ", $prequest->errors));
+        } else {
+            Yii::$app->session->setFlash('success', 'Project re-activated successfully.');
         }
 
-        Yii::$app->session->setFlash('success', "Project successfully re-activated");
         return $this->redirect(['administration/all-projects']);
     }
+
+
 
     public function actionUserStatistics($id)
     {
@@ -1350,20 +1332,90 @@ class AdministrationController extends Controller
 
     public function actionUserStatsList()
     {
-        $username='';
-        $activeFilterDrop=['all'=>'All', 'active'=>'Active', 'inactive'=>'Inactive'];
-        $activeFilter='all';
-        if (Yii::$app->request->post())
-        {
-            $username=Yii::$app->request->post('username');
-            $activeFilter=Yii::$app->request->post('activeFilter');
-        }
-        $users=User::getActiveUserStats($username,$activeFilter);
-        $activeUsers=User::getActiveUserNum();
-        $totalUsers=User::find()->count();
+        /* -----------------------------------------------------------
+         * 1. Collect filters coming from GridView
+         * ----------------------------------------------------------- */
+        $filter = Yii::$app->request->get('DynamicModel', []);
 
-        return $this->render('user_stats_list', ['users'=>$users,'username'=>$username, 'activeFilter'=>$activeFilter,
-            'activeFilterDrop'=>$activeFilterDrop, 'activeUsers'=>$activeUsers, 'totalUsers'=>$totalUsers]);
+        $username        = $filter['username']        ?? '';
+        $isActiveFilter  = $filter['is_active']       ?? '';   // "1" | "0" | ''
+        $userTypeFilter  = $filter['user_type']       ?? '';
+        $policyFilter    = $filter['policy_accepted'] ?? '';
+
+        /* -----------------------------------------------------------
+         * 2. Fetch users from your helper
+         * ----------------------------------------------------------- */
+        $users = User::getActiveUserStats($username, 'all');   // we’ll filter below
+
+        /* -----------------------------------------------------------
+         * 3. Enrich every row
+         * ----------------------------------------------------------- */
+        foreach ($users as &$u) {
+            // number of active projects that came as "active"
+            $u['active_projects'] = (int)$u['active'];
+
+            // boolean status used by the icon column
+            $u['is_active']       = $u['active_projects'] > 0 ? 1 : 0;
+
+            // role type (bronze | silver | gold)
+            $u['user_type']       = strtolower(User::getRoleType($u['id']));
+
+            // policy flag
+            $u['policy_accepted'] = (int)($u['policy_accepted'] ?? 0);
+        }
+        unset($u);
+        $searchModel = new DynamicModel([
+            'username'         => $username,
+            'is_active'        => $isActiveFilter,
+            'user_type'        => $userTypeFilter,
+            'policy_accepted'  => $policyFilter,
+            'email'            => $filter['email'] ?? '',
+            'active_projects'  => $filter['active_projects'] ?? '',
+        ]);
+
+        $searchModel->addRule(['username', 'email', 'active_projects'], 'string');
+        $searchModel->addRule(['is_active', 'user_type', 'policy_accepted'], 'safe');
+
+        /* -----------------------------------------------------------
+         * 4. Manual filtering
+         * ----------------------------------------------------------- */
+        $users = array_filter($users, function ($u) use (
+            $isActiveFilter, $userTypeFilter, $policyFilter
+        ) {
+            if ($isActiveFilter !== '' && (string)$u['is_active'] !== $isActiveFilter)
+                return false;
+            if ($userTypeFilter !== '' && $u['user_type'] !== $userTypeFilter)
+                return false;
+            if ($policyFilter !== '' && (string)$u['policy_accepted'] !== $policyFilter)
+                return false;
+
+            return true;
+        });
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels'  => array_values($users),
+            'pagination' => ['pageSize' => 20],
+            'sort'       => [
+                'defaultOrder' => ['username' => SORT_ASC],
+                'attributes'   => [
+                    'username', 'email',
+                    'active_projects',
+                    'is_active',
+                    'user_type',
+                    'policy_accepted',
+                ],
+            ],
+        ]);
+
+        $activeUsers = User::getActiveUserNum();
+        $totalUsers  = User::find()->count();
+
+        return $this->render('user_stats_list', [
+            'dataProvider' => $dataProvider,
+            'searchModel'  => $searchModel,
+            'activeUsers'  => $activeUsers,
+            'totalUsers'   => $totalUsers,
+        ]);
     }
 
     public function actionViewActiveJupyters()
