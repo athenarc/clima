@@ -87,7 +87,7 @@ $crossIcon = '<i class="fas fa-times text-danger"></i>';
         /* Policy Accepted? --------------------------------------- */
         [
             'attribute'      => 'policy_accepted',
-            'label'          => 'Policy&nbsp;Accepted',
+            'label'          => 'Policy Accepted',
             'encodeLabel'    => false,
             'format'         => 'raw',
             'value'          => fn($m) => $m['policy_accepted'] ? $checkIcon : $crossIcon,

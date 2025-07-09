@@ -238,7 +238,7 @@ class User extends UserIdentity
     {
         $query=new Query;
 
-        $query->select(['count(pr.id) as active', 'u.id','u.username', 'u.email'])
+        $query->select(['count(pr.id) as active', 'u.id','u.username', 'u.email','u.policy_accepted' ])
                 ->from('user as u')
                 ->leftJoin('project_request pr',"u.id = ANY(pr.user_list) AND pr.end_date>=NOW() AND pr.status IN (1,2)")
                 ->groupBy('u.id')

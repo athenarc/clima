@@ -1361,7 +1361,8 @@ class AdministrationController extends Controller
             $u['user_type']       = strtolower(User::getRoleType($u['id']));
 
             // policy flag
-            $u['policy_accepted'] = (int)($u['policy_accepted'] ?? 0);
+            $u['policy_accepted'] = in_array($u['policy_accepted'], [1, '1', true, 't'], true) ? 1 : 0;
+
         }
         unset($u);
         $searchModel = new DynamicModel([
