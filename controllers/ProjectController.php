@@ -2627,6 +2627,53 @@ class ProjectController extends Controller
         $dold=clone $drequest;
         $attr=$pold->getAttributes();
 
+        $relatedProject = Project::findOne($prequest->project_id);
+
+        $hasApprovedRequest = ProjectRequest::find()
+            ->where(['project_id' => $relatedProject->id])
+            ->andWhere(['status' => [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]])
+            ->exists();
+
+        if ($hasApprovedRequest) {
+            $extensionLimit = ExtensionLimits::findOne([
+                'user_type' => $role,
+                'project_type' => $prequest->project_type,
+            ]);
+
+            $startDate = new DateTime($relatedProject->start_date);
+            $currentEndDate = new DateTime($relatedProject->project_end_date);
+            $extension_count = $relatedProject->extension_count;
+            $max_extension = $extensionLimit->max_extension;
+
+            $startDate = new DateTime($relatedProject->start_date);
+            $currentEndDate = new DateTime($relatedProject->project_end_date);
+
+            if ($relatedProject->project_end_date === '2100-01-01') {
+                $fallbackEnd = (clone $startDate)->modify('+2 years');
+                $totalDurationDays = $startDate->diff($fallbackEnd)->days + 1;
+            } else {
+                $firstApprovedRequest = ProjectRequest::find()
+                    ->where(['project_id' => $relatedProject->id])
+                    ->orderBy(['approval_date' => SORT_ASC])
+                    ->limit(1)
+                    ->one();
+
+                if ($firstApprovedRequest && !empty($firstApprovedRequest->end_date)) {
+                    $firstApprovedEndDate = new DateTime($firstApprovedRequest->end_date);
+                    $totalDurationDays = $startDate->diff($firstApprovedEndDate)->days + 1;
+                } else {
+                    $totalDurationDays = 0;
+                }
+            }
+
+            $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+        } else {
+            $maxExtensionDays = null;
+            $extension_count = 0;
+            $max_extension = null;
+        }
+
+
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
             if ($prType==4){
@@ -2678,9 +2725,24 @@ class ProjectController extends Controller
                 }
 
             }
+            $newEndDate = new DateTime($prequest->end_date);
+            $extensionDays = $currentEndDate->diff($newEndDate)->days;
+
+            if ($newEndDate > $currentEndDate && !Userw::hasRole('Admin', true) && !Userw::hasRole('Moderator', true)) {
+                if ($extensionDays > $maxExtensionDays) {
+                    Yii::$app->session->setFlash('danger', "The requested extension of $extensionDays days exceeds the maximum allowed of $maxExtensionDays days.");
+                    $isValid = false;
+                }
+
+                if ($extension_count >= $max_extension) {
+                    Yii::$app->session->setFlash('danger', "You have reached the maximum number of extensions allowed ($max_extension).");
+                    $isValid = false;
+                }
+            }
 
             if ($isValid)
             {
+
 
                 if ($prType==4){
 
@@ -2834,32 +2896,7 @@ class ProjectController extends Controller
                 }
             }
         }
-        $relatedProject = Project::findOne($prequest->project_id);
 
-
-        // Fetch extension limits for this user type
-        $extensionLimit = ExtensionLimits::findOne([
-            'user_type' => $role,
-            'project_type' => $prequest->project_type,
-        ]);
-
-
-
-        // Fetch project start-end date
-        $startDate = new DateTime($relatedProject->start_date);
-        $endDate = new DateTime($relatedProject->project_end_date);
-
-        // Calculate total project duration in days
-        $totalDurationDays = $startDate->diff($endDate)->days + 1;
-
-        // Calculate the maximum extension days allowed based on the extension limit percentage
-        $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
-
-
-        $extension_count=$relatedProject->extension_count;
-        $max_extension= $extensionLimit->max_extension;
-        echo($extension_count);
-       // die();
         return $this->render($view_file, [
             'details' => $drequest,
             'project' => $prequest,
@@ -2957,6 +2994,7 @@ class ProjectController extends Controller
 
     public function actionModifyRequest($id)
     {
+        $images = '';
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
         $exceed_limits = 0;
         if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))|| (Userw::hasRole('Moderator', $superadminAllowed=false))){

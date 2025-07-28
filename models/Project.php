@@ -1605,7 +1605,9 @@ class Project extends \yii\db\ActiveRecord
     {
         parent::afterSave($insert, $changedAttributes);
 
-        // Retrieve the last autoapproved project request for this project.
+        $user = Yii::$app->user->identity ?? null;
+        $isModerator = $user && (Userw::hasRole('Admin', true) || Userw::hasRole('Moderator', true));
+
         $lastApprovedRequest = ProjectRequest::find()
             ->where([
                 'project_id' => $this->id,
@@ -1618,16 +1620,16 @@ class Project extends \yii\db\ActiveRecord
             $previousEndDate = $this->project_end_date;
             $newEndDate = $lastApprovedRequest->end_date;
 
-            // If the project_end_date is being extended
             if (strtotime($newEndDate) > strtotime($previousEndDate)) {
-                // Update project_end_date
                 $this->updateAttributes(['project_end_date' => $newEndDate]);
 
-                // Increase extension count
-                $this->updateAttributes(['extension_count' => $this->extension_count + 1]);
+                if (!$isModerator) {
+                    $this->updateAttributes(['extension_count' => $this->extension_count + 1]);
+                }
             }
         }
     }
+
 
 
 
