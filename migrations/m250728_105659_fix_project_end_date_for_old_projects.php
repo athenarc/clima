@@ -1,5 +1,6 @@
 <?php
 
+use app\models\ProjectRequest;
 use yii\db\Migration;
 use app\models\Project;
 
@@ -8,38 +9,51 @@ use app\models\Project;
  */
 class m250728_105659_fix_project_end_date_for_old_projects extends Migration
 {
-    /**
-     * {@inheritdoc}
-     */
     public function safeUp()
     {
-        $projects = Project::find()
-            ->where(['project_end_date' => '2100-01-01'])
-            ->all();
-
-        $updatedCount = 0;
+        $projects = Project::find()->all();
+        $updated = 0;
+        $skipped = 0;
 
         foreach ($projects as $project) {
-            if (!empty($project->start_date)) {
-                $start = new \DateTime($project->start_date);
-                $newEnd = (clone $start)->modify('+2 years');
+            $firstApproved = ProjectRequest::find()
+                ->where(['project_id' => $project->id])
+                ->andWhere(['not', ['approval_date' => null]])
+                ->andWhere(['not', ['approved_by' => null]])
+                ->orderBy(['approval_date' => SORT_ASC])
+                ->limit(1)
+                ->one();
 
-                $project->project_end_date = $newEnd->format('Y-m-d');
+            if (!$firstApproved || empty($firstApproved->end_date)) {
+                $skipped++;
+                continue;
+            }
+
+            $firstEndDate = new \DateTime($firstApproved->end_date);
+            $cutoff = new \DateTime('2100-01-01');
+
+            if ($firstEndDate < $cutoff) {
+                $project->project_end_date = $firstEndDate->format('Y-m-d');
                 if ($project->save(false)) {
-                    $updatedCount++;
+                    $updated++;
+                }
+            } else {
+                $submissionDate = new \DateTime($firstApproved->submission_date);
+                $newEndDate = (clone $submissionDate)->modify('+24 months');
+                $project->project_end_date = $newEndDate->format('Y-m-d');
+                if ($project->save(false)) {
+                    $updated++;
                 }
             }
         }
 
-        echo "✔ Updated $updatedCount project(s) with new project_end_date (start_date + 2 years)\n";
+        echo "Updated $updated projects.\n";
+        echo "Skipped $skipped projects (no valid approved request).\n";
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function safeDown()
     {
-        echo "Cannot revert fix_project_end_date_for_old_projects migration.\n";
+        echo "This migration cannot be reverted.\n";
         return false;
     }
 }

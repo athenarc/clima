@@ -2645,33 +2645,28 @@ class ProjectController extends Controller
             $extension_count = $relatedProject->extension_count;
             $max_extension = $extensionLimit->max_extension;
 
-            $startDate = new DateTime($relatedProject->start_date);
-            $currentEndDate = new DateTime($relatedProject->project_end_date);
+            $firstApprovedRequest = ProjectRequest::find()
+                ->where(['project_id' => $relatedProject->id])
+                ->andWhere(['not', ['approved_by' => null]])
+                ->andWhere(['not', ['approval_date' => null]])
+                ->orderBy(['approval_date' => SORT_ASC])
+                ->limit(1)
+                ->one();
 
-            if ($relatedProject->project_end_date === '2100-01-01') {
-                $fallbackEnd = (clone $startDate)->modify('+2 years');
-                $totalDurationDays = $startDate->diff($fallbackEnd)->days + 1;
+
+            if ($firstApprovedRequest && !empty($firstApprovedRequest->end_date)) {
+                $firstApprovedEndDate = new DateTime($firstApprovedRequest->end_date);
+                $totalDurationDays = $startDate->diff($firstApprovedEndDate)->days + 1;
+                $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
             } else {
-                $firstApprovedRequest = ProjectRequest::find()
-                    ->where(['project_id' => $relatedProject->id])
-                    ->orderBy(['approval_date' => SORT_ASC])
-                    ->limit(1)
-                    ->one();
-
-                if ($firstApprovedRequest && !empty($firstApprovedRequest->end_date)) {
-                    $firstApprovedEndDate = new DateTime($firstApprovedRequest->end_date);
-                    $totalDurationDays = $startDate->diff($firstApprovedEndDate)->days + 1;
-                } else {
-                    $totalDurationDays = 0;
-                }
+                $maxExtensionDays = 0;
             }
-
-            $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
         } else {
             $maxExtensionDays = null;
             $extension_count = 0;
             $max_extension = null;
         }
+
 
 
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
