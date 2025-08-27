@@ -1601,6 +1601,7 @@ class Project extends \yii\db\ActiveRecord
         return $results;
     }
 
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
@@ -1623,12 +1624,15 @@ class Project extends \yii\db\ActiveRecord
             if (strtotime($newEndDate) > strtotime($previousEndDate)) {
                 $this->updateAttributes(['project_end_date' => $newEndDate]);
 
-                if (!$isModerator) {
+                if ($isModerator) {
+                    $this->updateAttributes(['extension_count' => $this->extension_count]);
+                }else{
                     $this->updateAttributes(['extension_count' => $this->extension_count + 1]);
                 }
             }
         }
     }
+
 
 
 

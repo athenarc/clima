@@ -272,20 +272,31 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
 
 
         //get project request and project
-        $request=ProjectRequest::find()->where(['id'=>$requestId])->one();
-        $project=Project::find()->where(['id'=>$request->project_id])->one();
+        $request = ProjectRequest::find()->where(['id' => $requestId])->one();
+        $project = $request ? Project::find()->where(['id' => $request->project_id])->one() : null;
 
-        $old_jupyter_request = JupyterRequestNew::find()->where(['request_id'=>$project->latest_project_request_id])->one();
-        $old_image = $old_jupyter_request['image'];
+// If we don't have a previous request, skip comparison
+        $old_image = null;
+        if ($project && $project->latest_project_request_id) {
+            $old_jupyter_request = JupyterRequestNew::find()
+                ->where(['request_id' => $project->latest_project_request_id])
+                ->orderBy(['id' => SORT_DESC])
+                ->one();
 
-        //if the user changed the image, if active servers exist, delete them 
-        if ($this->image != $old_image){
-            $active_servers=JupyterServer::find()->where(['active'=>true,'project'=>$project])->all();
-            foreach ($active_servers as $server){
+            // use object access and guard null
+            $old_image = $old_jupyter_request ? $old_jupyter_request->image : null;
+        }
+
+// if the user changed the image, and we know the previous image, stop active servers
+        if ($old_image !== null && $this->image !== $old_image) {
+            // Assuming the JupyterServer has a foreign key like project_id (use the correct column name)
+            $active_servers = JupyterServer::find()
+                ->where(['active' => true, 'project_id' => $project->id])
+                ->all();
+            foreach ($active_servers as $server) {
                 $server->stopServer();
             }
-
-         }
+        }
 
 
         if (((($this->cores<=$row['cores']) && ($this->ram <=$row['ram']) && ( $autoaccept_allowed)) || $uchanged))

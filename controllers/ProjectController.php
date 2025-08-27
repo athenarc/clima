@@ -2644,7 +2644,6 @@ class ProjectController extends Controller
             $currentEndDate = new DateTime($relatedProject->project_end_date);
             $extension_count = $relatedProject->extension_count;
             $max_extension = $extensionLimit->max_extension;
-
             $firstApprovedRequest = ProjectRequest::find()
                 ->where(['project_id' => $relatedProject->id])
                 ->andWhere(['not', ['approved_by' => null]])
@@ -2661,14 +2660,10 @@ class ProjectController extends Controller
             } else {
                 $maxExtensionDays = 0;
             }
-        } else {
-            $maxExtensionDays = null;
-            $extension_count = 0;
-            $max_extension = null;
         }
 
 
-
+        print_r($project->project_end_date);
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
             if ($prType==4){
@@ -3169,11 +3164,29 @@ class ProjectController extends Controller
                 ->limit(1)
                 ->one();
 
-
+            $policyCap = null;
             if ($firstApprovedRequest && !empty($firstApprovedRequest->end_date)) {
                 $firstApprovedEndDate = new DateTime($firstApprovedRequest->end_date);
                 $totalDurationDays = $startDate->diff($firstApprovedEndDate)->days + 1;
                 $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+                $policyCap = (clone $firstApprovedEndDate)->modify("+{$maxExtensionDays} days");
+
+                $currentEnd = new DateTime($prequest->end_date); // what the view uses
+                $daysLeft   = max(0, $currentEnd->diff($policyCap)->days);
+
+                // 1) overwrite what the view uses
+                $maxExtensionDays = $daysLeft;
+
+                // 2) if no days left, force the view into "disabled" branch
+                if ($daysLeft === 0) {
+                    $extension_count = $max_extension;
+                }
+
+                // (optional) clamp displayed value so picker shows something valid
+                if ($currentEnd > $policyCap) {
+                    $prequest->end_date = $policyCap->format('Y-m-d');
+                }
+
             } else {
                 $maxExtensionDays = 0;
             }
@@ -3264,7 +3277,13 @@ class ProjectController extends Controller
 
             if ($isValid)
             {
-
+                if ($policyCap instanceof DateTime) {
+                    $newEndDate = new DateTime($prequest->end_date);
+                    if ($newEndDate > $policyCap) {
+                        Yii::$app->session->setFlash('danger', "You cannot set the end date beyond ".$policyCap->format('Y-m-d').".");
+                        $isValid = false;
+                    }
+                }
                 if ($prType==1 || $prType==3)
                 {
                     if ($dold->flavour != $drequest->flavour)
