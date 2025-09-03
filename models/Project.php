@@ -41,6 +41,7 @@ class Project extends \yii\db\ActiveRecord
             [['name'], 'string', 'max' => 200],
             [['favorite'], 'boolean'],
             [['project_end_date'], 'date', 'format' => 'php:Y-m-d'],
+            [['extension_count'], 'default', 'value' => 0],
         ];
     }
 

@@ -1323,9 +1323,27 @@ class ProjectController extends Controller
 
         // Configure general information about statistics and visualizations
         $excessiveRequest=false;
-        foreach ($resourcesStats as $resourceStats) {
-            if ($resourceStats['current']+$resourceStats['requested']>=$resourceStats['total']) {
-                $excessiveRequest=true;
+        foreach ($resourcesStats as $key => $resourceStats) {
+            // skip non-arrays (or stray metadata) safely
+            if (!is_array($resourceStats)) {
+                unset($resourcesStats[$key]);
+                continue;
+            }
+
+            // normalize with defaults
+            $current   = (int)($resourceStats['current']   ?? 0);
+            $requested = (int)($resourceStats['requested'] ?? 0);
+            // if total is missing, avoid false positives by using a big number
+            $total     = array_key_exists('total', $resourceStats) ? (int)$resourceStats['total'] : PHP_INT_MAX;
+
+            // write back normalized values (optional, but keeps view logic simple)
+            $resourcesStats[$key]['current']   = $current;
+            $resourcesStats[$key]['requested'] = $requested;
+            $resourcesStats[$key]['total']     = $total;
+
+            if ($current + $requested >= $total) {
+                $excessiveRequest = true;
+                // you can break here if any single resource being excessive is enough
                 break;
             }
         }
@@ -2413,6 +2431,8 @@ class ProjectController extends Controller
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
         $project=Project::find()->where(['id'=>$prequest->project_id])->one();
         $exceed_limits = 0;
+        $user = Yii::$app->user->identity ?? null;
+        $isModerator = $user && (Userw::hasRole('Admin', true) || Userw::hasRole('Moderator', true));
         if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))){
             $exceed_limits = 1;
         }
@@ -2907,7 +2927,8 @@ class ProjectController extends Controller
             'volume_exists' => $volume_exists,
             'images' => $images,
             'interval' => $interval,
-            'exceed_limits' => $exceed_limits
+            'exceed_limits' => $exceed_limits,
+            'isModerator' => $isModerator
         ]);
 
     }
@@ -2987,6 +3008,9 @@ class ProjectController extends Controller
         $images = '';
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
         $exceed_limits = 0;
+        $user = Yii::$app->user->identity ?? null;
+        $isModerator = $user && (Userw::hasRole('Admin', true) || Userw::hasRole('Moderator', true));
+
         if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))|| (Userw::hasRole('Moderator', $superadminAllowed=false))){
             $exceed_limits = 1;
         }
@@ -3330,6 +3354,7 @@ class ProjectController extends Controller
 
 
         return $this->render($view_file,['details'=>$drequest, 'images' => $images,'project'=>$prequest,
+            'isModerator' => $isModerator,
             'maxExtensionDays' => $maxExtensionDays,
             'extension_count' => $extension_count,
             'max_extension' => $max_extension,
