@@ -1610,29 +1610,61 @@ class Project extends \yii\db\ActiveRecord
         $user = Yii::$app->user->identity ?? null;
         $isModerator = $user && (Userw::hasRole('Admin', true) || Userw::hasRole('Moderator', true));
 
+
+        $firstApproved = ProjectRequest::find()
+            ->where([
+                'project_id' => $this->id,
+                'status' => [ProjectRequest::AUTOAPPROVED, ProjectRequest::APPROVED],
+            ])
+            ->orderBy(['approval_date' => SORT_ASC])
+            ->one();
+
+        // Last approved request for this project (AUTOAPPROVED or APPROVED)
         $lastApprovedRequest = ProjectRequest::find()
             ->where([
                 'project_id' => $this->id,
-                'status' => [ProjectRequest::AUTOAPPROVED, ProjectRequest::APPROVED]
+                'status' => [ProjectRequest::AUTOAPPROVED, ProjectRequest::APPROVED],
             ])
             ->orderBy(['approval_date' => SORT_DESC])
             ->one();
 
-        if ($lastApprovedRequest !== null) {
-            $previousEndDate = $this->project_end_date;
-            $newEndDate = $lastApprovedRequest->end_date;
+        if ($lastApprovedRequest === null) {
+            return;
+        }
 
-            if (strtotime($newEndDate) > strtotime($previousEndDate)) {
-                $this->updateAttributes(['project_end_date' => $newEndDate]);
+        $previousEndDate = $this->project_end_date;
+        $newEndDate      = $lastApprovedRequest->end_date;
 
-                if ($isModerator) {
-                    $this->updateAttributes(['extension_count' => $this->extension_count]);
-                }else{
-                    $this->updateAttributes(['extension_count' => $this->extension_count + 1]);
-                }
+        // Only act if the approved request actually extends the project end date
+        if (strtotime($newEndDate) > strtotime($previousEndDate)) {
+            // Always keep the canonical end date in sync
+            $this->updateAttributes(['project_end_date' => $newEndDate]);
+
+            // Count all approved requests for this project
+            $approvedCount = (int) ProjectRequest::find()
+                ->where([
+                    'project_id' => $this->id,
+                    'status' => [ProjectRequest::AUTOAPPROVED, ProjectRequest::APPROVED],
+                ])
+                ->count();
+
+            // First approval should NOT count as an extension
+            $effectiveExtensionCount = max(0, $approvedCount - 1);
+
+            if ($isModerator) {
+                // Moderators do not change the counter
+                $this->updateAttributes(['extension_count' => $this->extension_count]);
+            }
+            else if ($firstApproved){
+                $this->updateAttributes(['extension_count' => 0]);
+            }else
+            {
+                // Set to effective value (first approval -> 0; each further approval -> +1)
+                $this->updateAttributes(['extension_count' => $effectiveExtensionCount]);
             }
         }
     }
+
 
 
 
