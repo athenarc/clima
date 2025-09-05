@@ -327,23 +327,36 @@ class JupyterRequestNew extends \yii\db\ActiveRecord
             // $project=Project::find()->where(['id'=>$request->project_id])->one();
 
             //set status for old request to -3 (modified)
-            $old_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
-
-            $request->status=$old_request->status;
-            $request->approval_date='NOW()';
-            $request->approved_by=$old_request->approved_by;
-            $request->save(false);
-
-            if (!empty($old_request))
-            {
-                $old_request->status=-3;
-                $old_request->save(false);
+            $old_request = null;
+            if (!empty($project->latest_project_request_id)) {
+                $old_request = ProjectRequest::find()
+                    ->where(['id' => $project->latest_project_request_id])
+                    ->one();
             }
-            
-            $project->latest_project_request_id=$request->id;
-            $project->pending_request_id=null;
-            $project->status=$old_request->status;
-            $project->name=$request->name;
+
+            if ($old_request) {
+                $request->status        = $old_request->status;
+                $request->approval_date = new \yii\db\Expression('NOW()');
+                $request->approved_by   = $old_request->approved_by;
+                $request->save(false);
+
+                // mark old request as modified
+                $old_request->status = -3;
+                $old_request->save(false);
+
+                $project->pending_request_id = null;
+                $project->status             = $old_request->status;
+            } else {
+                $request->approval_date = null;
+                $request->approved_by   = null;
+
+                $request->save(false);
+
+                $project->pending_request_id = $request->id;
+                $project->status = $request->status ?? $project->status;
+            }
+
+            $project->name = $request->name;
             $project->save(false);
         }
 
