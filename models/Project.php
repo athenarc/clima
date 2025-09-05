@@ -1612,25 +1612,28 @@ class Project extends \yii\db\ActiveRecord
 
 
         $firstApproved = ProjectRequest::find()
-            ->where([
-                'project_id' => $this->id,
-                'status' => [ProjectRequest::AUTOAPPROVED, ProjectRequest::APPROVED],
-            ])
+            ->where(['project_id' => $this->id])
+            ->andWhere(['not', ['approval_date' => null]])
             ->orderBy(['approval_date' => SORT_ASC])
             ->one();
 
         // Last approved request for this project (AUTOAPPROVED or APPROVED)
         $lastApprovedRequest = ProjectRequest::find()
-            ->where([
-                'project_id' => $this->id,
-                'status' => [ProjectRequest::AUTOAPPROVED, ProjectRequest::APPROVED],
-            ])
+            ->where(['project_id' => $this->id])
+            ->andWhere(['not', ['approval_date' => null]])
+            ->andWhere(['status' => [ProjectRequest::AUTOAPPROVED, ProjectRequest::APPROVED]])
             ->orderBy(['approval_date' => SORT_DESC])
             ->one();
 
-        if ($lastApprovedRequest === null) {
+        if ($lastApprovedRequest == null) {
             return;
         }
+
+        if ($firstApproved->id == $lastApprovedRequest->id) {
+            $this->updateAttributes(['extension_count' => 0]);
+
+        }
+
 
         $previousEndDate = $this->project_end_date;
         $newEndDate      = $lastApprovedRequest->end_date;
@@ -1655,14 +1658,13 @@ class Project extends \yii\db\ActiveRecord
                 // Moderators do not change the counter
                 $this->updateAttributes(['extension_count' => $this->extension_count]);
             }
-            else if ($firstApproved){
-                $this->updateAttributes(['extension_count' => 0]);
-            }else
+            else
             {
                 // Set to effective value (first approval -> 0; each further approval -> +1)
                 $this->updateAttributes(['extension_count' => $effectiveExtensionCount]);
             }
         }
+
     }
 
 

@@ -1552,62 +1552,64 @@ class ProjectController extends Controller
 
     public function actionApprove($id,$filter='all')
     {
-        if ((!Userw::hasRole('Moderator',$superadminAllowed=true))  && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
-        {
+        if ((!Userw::hasRole('Moderator',$superadminAllowed=true)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) ) {
             return $this->render('error_unauthorized');
         }
 
-        $request=ProjectRequest::find()->where(['id'=>$id])->one();
+        $request = ProjectRequest::find()->where(['id'=>$id])->one();
         $project = Project::findOne($request->project_id);
         if (!$project) {
             Yii::$app->session->setFlash('error', 'Associated project not found.');
             return $this->redirect(['project/request-list']);
         }
 
-        // Find the last approved request for this project
+        // Last approved request with non-null approval_date
         $lastApprovedRequest = ProjectRequest::find()
-            ->where(['project_id' => $project->id, 'status' =>  [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]])
+            ->where([
+                'project_id' => $project->id,
+                'status'     => [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED],
+            ])
+            ->andWhere(['not', ['approval_date' => null]])
             ->orderBy(['approval_date' => SORT_DESC])
             ->one();
-        // Get previous end date (either from the last approved request or from the project)
-        if ($lastApprovedRequest) {
-            $originalEndDate = new DateTime($lastApprovedRequest->end_date); // Use last approved end date
+
+        // Previous end date (if any)
+        if ($lastApprovedRequest && !empty($lastApprovedRequest->end_date)) {
+            $originalEndDate = new DateTime($lastApprovedRequest->end_date);
         } elseif (!empty($project->project_end_date)) {
-            $originalEndDate = new DateTime($project->project_end_date); // Use existing project end date
+            $originalEndDate = new DateTime($project->project_end_date);
         } else {
-            $originalEndDate = null; // No previous end date (first-time approval)
+            $originalEndDate = null;
         }
+
         $requestedEndDate = new DateTime($request->end_date);
 
-        // Check if this is an extension request
-        $isExtensionRequest = $requestedEndDate > $originalEndDate;
+        // It's an extension only if there WAS an old end date and the new one is later
+        $isExtensionRequest = $originalEndDate && ($requestedEndDate > $originalEndDate);
 
-        // Fetch extension limits for this user type
-        $extensionLimit = ExtensionLimits::findOne(['user_type' => User::getRoleType(), 'project_type' => $request->project_type]);
+        // (If you need it later)
+        $extensionLimit = ExtensionLimits::findOne([
+            'user_type'    => User::getRoleType(),
+            'project_type' => $request->project_type
+        ]);
 
-
-
-        if ($isExtensionRequest) {
-            // Increase extension count
-            $project->extension_count += 1;
-            $project->updateAttributes(['extension_count' => $project->extension_count]);
-        }
-
-        // ✅ Update the project's `end_date` to reflect the approved request
-        $project->project_end_date = $requestedEndDate->format('Y-m-d');
-        if (!$project->save(false, ['extension_count', 'project_end_date'])) {
-            Yii::$app->session->setFlash('error', 'Failed to update project.');
-            return $this->redirect(['project/request-list']);
-        }
-        $project->updateAttributes(['project_end_date' => $project->project_end_date]);
+        // ✅ Approve the request FIRST (so approval_date/status are set)
         $request->approve();
-        $message='Project approved.';
 
+        // ✅ Now update the project without triggering afterSave (to avoid being overwritten)
+        $newEnd = $requestedEndDate->format('Y-m-d');
+        $newCount = $isExtensionRequest ? ((int)$project->extension_count + 1) : (int)$project->extension_count;
+        // First approval should keep it at 0; above line does exactly that
 
-        Yii::$app->session->setFlash('success', $message);
+        $project->updateAttributes([
+            'project_end_date' => $newEnd,
+            'extension_count'  => $newCount,
+        ]);
+
+        Yii::$app->session->setFlash('success', 'Project approved.');
         return $this->redirect(['project/request-list']);
-
     }
+
 
     public function actionReject($id,$filter='all')
     {
@@ -3319,7 +3321,9 @@ class ProjectController extends Controller
                 }
             }
         }
-
+        if ( $maxExtensionDays === null) {
+            $maxExtensionDays = 0;
+        }
         return $this->render($view_file, [
             'details' => $drequest,
             'images' => $images,
