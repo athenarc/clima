@@ -53,7 +53,6 @@ class m250728_105659_fix_project_end_date_for_old_projects extends Migration
 
     public function safeDown()
     {
-        echo "This migration cannot be reverted.\n";
-        return false;
+        return true;
     }
 }
