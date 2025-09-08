@@ -84,6 +84,35 @@ class SiteController extends Controller
 
         return $this->render('index',['page'=>$page]);
     }
+    public function actionPolicyAcceptance()
+    {
+        // Check if the user is a guest (not logged in)
+        if (Yii::$app->user->isGuest) {
+            return $this->redirect(['site/login']);
+        }
+
+        $user = Yii::$app->user->identity;
+
+        // Check if the user has already accepted the policy
+        if ($user->policy_accepted) {
+            Yii::$app->session->setFlash('info', 'You have already accepted the new policy.');
+            return $this->redirect(['site/index']);
+        }
+
+        if (Yii::$app->request->isPost) {
+            $user->policy_accepted = true;
+            if ($user->save(false, ['policy_accepted'])) {
+                Yii::$app->session->setFlash('success', 'Thank you for accepting the policy.');
+                return $this->redirect(['site/index']);
+            } else {
+                Yii::$app->session->setFlash('error', 'Failed to save your acceptance. Please try again.');
+            }
+        }
+
+        return $this->render('policy_acceptance', [
+            'policyContent' => 'This is your policy content.',
+        ]);
+    }
 
     public function actionHelp()
     {

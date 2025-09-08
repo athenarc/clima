@@ -311,13 +311,21 @@ class OndemandRequest extends \yii\db\ActiveRecord
 
         else
         {
-            $request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
-            $submitted_by = $request->submitted_by;
-            $username = User::returnUsernameById($submitted_by);
-            $warnings='Your request will be reviewed.';
-            $project_id=$project->id;
-            $message="The on-demand computation project '$project->name', created by user $username, has been modified and is pending approval.";
-            EmailEventsModerator::NotifyByEmail('edit_project', $project_id,$message);
+            $prev = null;
+            if (!empty($project->latest_project_request_id)) {
+                $prev = ProjectRequest::find()->where(['id' => $project->latest_project_request_id])->one();
+            }
+
+            // Safely resolve submitted_by
+            $submitted_by = $prev->submitted_by
+                ?? $request->submitted_by
+                ?? (Yii::$app->user->id ?? null);
+
+            $username   = $submitted_by ? User::returnUsernameById($submitted_by) : '(unknown user)';
+            $warnings   = 'Your request will be reviewed.';
+            $project_id = $project->id;
+            $message    = "The on-demand computation project '{$project->name}', created by user $username, has been modified and is pending approval.";
+            EmailEventsModerator::NotifyByEmail('edit_project', $project_id, $message);
         }
 
             

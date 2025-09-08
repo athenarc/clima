@@ -1,23 +1,22 @@
 <?php
 
-
 namespace app\models;
 
 use yii\base\Model;
 use yii\data\ArrayDataProvider;
 
-class ExpiredProjectSearch extends Model
+class ViewProjectSearch extends Model
 {
-    public $name;
+    public $project_name;
     public $project_type;
     public $owner;
-    public $expires_in;
+    public $project_end_date;
     public $has_active_resources;
 
     public function rules()
     {
         return [
-            [['name', 'project_type', 'owner', 'expires_in', 'has_active_resources'], 'safe'],
+            [['project_name', 'project_type', 'owner', 'project_end_date', 'has_active_resources'], 'safe'],
         ];
     }
 
@@ -28,13 +27,15 @@ class ExpiredProjectSearch extends Model
         $filtered = array_filter($data, function ($project) use ($active_resources) {
             $match = true;
 
-            if ($this->name && stripos($project['name'], $this->name) === false) {
+            if ($this->project_name && stripos($project['project_name'], $this->project_name) === false) {
                 $match = false;
             }
+
             if ($this->project_type !== null && $this->project_type !== '' && $project['project_type'] != $this->project_type) {
                 $match = false;
             }
-            if ($this->owner && stripos($project['owner'], $this->owner) === false) {
+
+            if ($this->owner && stripos($project['username'], $this->owner) === false) {
                 $match = false;
             }
 
@@ -48,19 +49,16 @@ class ExpiredProjectSearch extends Model
                 }
             }
 
-
             return $match;
         });
 
-
         return new ArrayDataProvider([
             'allModels' => array_values($filtered),
-            'pagination' => ['pageSize' => 20],
+            'pagination' => ['pageSize' => 10],
             'sort' => new \yii\data\Sort([
-                'attributes' => ['name', 'owner', 'expires_in'],
-                'sortParam' => 'expiredSort',
+                'attributes' => ['project_name', 'owner', 'project_end_date'],
+                'sortParam' => 'viewProjectSort',
             ]),
         ]);
     }
-
 }

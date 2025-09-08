@@ -5,7 +5,9 @@ namespace app\controllers;
 use app\models\AuthUser;
 use app\models\ActiveProjectSearch;
 use app\models\ExpiredProjectSearch;
+use app\models\ViewProjectSearch;
 use Yii;
+use yii\base\DynamicModel;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Query;
@@ -69,6 +71,7 @@ class AdministrationController extends Controller
                 'class' => VerbFilter::className(),
                 'actions' => [
                     'logout' => ['post'],
+                    'reactivate' => ['POST'],
                 ],
             ],
         ];
@@ -90,6 +93,23 @@ class AdministrationController extends Controller
         ];
     }
 
+    public function beforeAction($action)
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        // Skip the check for login, logout, and policy acceptance
+        $allowedActions = ['login', 'logout', 'policy-acceptance'];
+
+        if (!in_array($action->id, $allowedActions)) {
+            if (!Yii::$app->user->isGuest && !Yii::$app->user->identity->policy_accepted) {
+                return $this->redirect(['site/policy-acceptance'])->send();
+            }
+        }
+        // Continue with the action
+        return true;
+    }
+
     /**
      * Displays homepage.
      *
@@ -101,42 +121,74 @@ class AdministrationController extends Controller
     }
     public function actionInactive()
     {
+        $userData = (new \yii\db\Query())
+            ->select(['id', 'username', 'email', 'name', 'surname', 'created_at', 'updated_at'])
+            ->from('user')
+            ->all();
 
-
-        $sql = (new Query())->select(['username','last_login'])
+        $inactiveLogins = (new \yii\db\Query())
+            ->select(['username', 'last_login'])
             ->from('auth_user')
-            ->where(['<', 'last_login', new Expression("NOW() - INTERVAL '180 days'")])
+            ->where(['<', 'last_login', new \yii\db\Expression("NOW() - INTERVAL '180 days'")])
             ->orderBy(['last_login' => SORT_ASC])
             ->all(Yii::$app->db2);
 
+        $loginMap = [];
+        foreach ($inactiveLogins as $login) {
+            $loginMap[$login['username']] = $login['last_login'];
+        }
+
+        foreach ($userData as &$user) {
+            $user['last_login'] = isset($loginMap[$user['username']]) ? $loginMap[$user['username']] : null;
+        }
+        unset($user);
+
+
+        $usersWithActiveResources = (new \yii\db\Query())
+            ->select('u.id')
+            ->distinct()
+            ->from('user u')
+            ->innerJoin('project_request pr', 'pr.submitted_by = u.id')
+            ->innerJoin('project p', 'p.latest_project_request_id = pr.id')
+            ->where(['or',
+                ['<', 'p.project_end_date', new \yii\db\Expression('NOW()')],
+                ['p.status' => 0]
+            ])
+            ->andWhere(['in', 'p.id', (new \yii\db\Query())
+                ->select('project_id')
+                ->from('vm')
+                ->where(['active' => true])
+                ->union((new \yii\db\Query())
+                    ->select('project_id')
+                    ->from('vm_machines')
+                    ->where(['active' => true])
+                )
+            ])
+            ->column();
+        $userData = array_filter($userData, function ($user) use ($loginMap) {
+            return isset($loginMap[$user['username']]);
+        });
+
+
+        $searchModel = new \app\models\InactiveUserSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $userData, $usersWithActiveResources);
 
 
 
-
-        Yii::info("Query Result: " . print_r($sql, true), __METHOD__);
-
-
-        $dataProvider = new ArrayDataProvider([
-            'allModels' => $sql,  // ✅ Pass fetched data
-            'pagination' => [
-                'pageSize' => 10, // ✅ Adjust page size
-            ],
-            'sort' => [
-                'attributes' => ['username', 'last_login'], // ✅ Sortable columns
-            ],
-        ]);
-
-        // ✅ Render the View
         return $this->render('inactive', [
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-
+            'usersWithActiveResources' => $usersWithActiveResources,
         ]);
     }
 
+
+
+
     public function actionViewProjects($username)
     {
+        $project_type = Project::TYPES;
 
-        $project_type=Project::TYPES;
         $projects = Project::find()
             ->alias('p')
             ->innerJoin('project_request pr', 'p.latest_project_request_id = pr.id')
@@ -155,20 +207,34 @@ class AdministrationController extends Controller
             ->asArray()
             ->all();
 
-        $dataProvider = new ArrayDataProvider([
-            'allModels' => $projects,
-            'pagination' => ['pageSize' => 10],
-            'sort' => [
-                'attributes' => ['project_name','project_id','username', 'project_end_date','project_type']
-            ],
-        ]);
+        // Fetch active resources (as you do in all-projects)
+        [$active_jupyter, $active_vms, $active_machines, $active_volumes] = Project::getActiveResources();
+
+        // Correct project_type to resource mapping:
+        $active_resources = [
+            0 => $active_vms,        // On-demand batch computation => VMs
+            1 => $active_vms,        // 24/7 Service => VMs
+            2 => $active_volumes,    // Storage volumes
+            3 => $active_machines,   // Compute machines
+            4 => $active_jupyter,    // Notebooks
+        ];
+
+        $searchModel = new ViewProjectSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $projects, $active_resources);
 
         return $this->render('view_projects', [
             'dataProvider' => $dataProvider,
             'username' => $username,
-            'project_type'=>$project_type,
+            'project_type' => $project_type,
+            'active_resources' => $active_resources,
+            'searchModel' => $searchModel,
         ]);
     }
+
+
+
+
+
 
 
     public function actionConfigure()
@@ -469,6 +535,346 @@ class AdministrationController extends Controller
 
 
 
+    public function actionLoadTab($tab, $userType = 'bronze')
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
+
+        if ($tab === 'general') {
+            $model = \app\models\Configuration::find()->one();
+            $pages = \app\models\Page::getPagesDropdown();
+            return $this->renderPartial('_tab_general', ['model' => $model, 'pages' => $pages]);
+        }
+
+        if ($tab === 'ondemand') {
+            $userType = Yii::$app->request->get('userType', 'bronze');
+            $userTypes = [
+                'gold' => 'Gold',
+                'silver' => 'Silver',
+                'bronze' => 'Bronze',
+            ];
+
+            $ondemand = \app\models\OndemandAutoaccept::find()->where(['user_type' => $userType])->one();
+            $ondemandLimits = \app\models\OndemandLimits::find()->where(['user_type' => $userType])->one();
+
+            return $this->renderPartial('_tab_ondemand', [
+                'ondemand' => $ondemand,
+                'ondemandLimits' => $ondemandLimits,
+                'userTypes' => $userTypes,
+                'selectedUserType' => $userType,
+            ]);
+        }
+
+        if ($tab === 'service') {
+            $userType = Yii::$app->request->get('userType', 'bronze');
+            $userTypes = [
+                'gold' => 'Gold',
+                'silver' => 'Silver',
+                'bronze' => 'Bronze',
+            ];
+
+            $service = \app\models\ServiceAutoaccept::find()->where(['user_type' => $userType])->one();
+            $serviceLimits = \app\models\ServiceLimits::find()->where(['user_type' => $userType])->one();
+
+            return $this->renderPartial('_tab_service', [
+                'service' => $service,
+                'serviceLimits' => $serviceLimits,
+                'userTypes' => $userTypes,
+                'selectedUserType' => $userType,
+            ]);
+        }
+        if ($tab === 'machines') {
+            $userType = Yii::$app->request->get('userType', 'bronze');
+            $userTypes = [
+                'gold' => 'Gold',
+                'silver' => 'Silver',
+                'bronze' => 'Bronze',
+            ];
+
+            $machineComputationLimits = \app\models\MachineComputeLimits::find()->where(['user_type' => $userType])->one();
+
+            return $this->renderPartial('_tab_machines', [
+                'machineComputationLimits' => $machineComputationLimits,
+                'userTypes' => $userTypes,
+                'selectedUserType' => $userType,
+            ]);
+        }
+        if ($tab === 'storage') {
+            $userType = Yii::$app->request->get('userType', 'bronze');
+            $userTypes = [
+                'gold' => 'Gold',
+                'silver' => 'Silver',
+                'bronze' => 'Bronze',
+            ];
+
+            $storage = \app\models\StorageAutoaccept::find()->where(['user_type' => $userType])->one();
+            $storageLimits = \app\models\StorageLimits::find()->where(['user_type' => $userType])->one();
+
+            return $this->renderPartial('_tab_storage', [
+                'storage' => $storage,
+                'storageLimits' => $storageLimits,
+                'userTypes' => $userTypes,
+                'selectedUserType' => $userType,
+            ]);
+        }
+        if ($tab === 'smtp') {
+            $smtp = \app\models\Smtp::find()->one();
+            $smtp->password = base64_decode($smtp->password);
+            return $this->renderPartial('_tab_smtp', ['smtp' => $smtp]);
+        }
+        if ($tab === 'openstack') {
+            $openstack = \app\models\Openstack::find()->one();
+            $openstack->decode(); // assumes decode() sets plain-text for password fields
+            return $this->renderPartial('_tab_openstack', ['openstack' => $openstack]);
+        }
+        if ($tab === 'openstack-machines') {
+            $openstackMachines = \app\models\OpenstackMachines::find()->one();
+            $openstackMachines->decode(); // Decode sensitive fields
+            return $this->renderPartial('_tab_openstack_machines', [
+                'openstackMachines' => $openstackMachines,
+            ]);
+        }
+
+        if ($tab === 'jupyter') {
+            $userType = Yii::$app->request->get('userType', 'bronze');
+            $userTypes = [
+                'gold' => 'Gold',
+                'silver' => 'Silver',
+                'bronze' => 'Bronze',
+            ];
+
+            $jupyter = \app\models\JupyterAutoaccept::find()->where(['user_type' => $userType])->one();
+            $jupyterLimits = \app\models\JupyterLimits::find()->where(['user_type' => $userType])->one();
+
+            return $this->renderPartial('_tab_jupyter', [
+                'jupyter' => $jupyter,
+                'jupyterLimits' => $jupyterLimits,
+                'userTypes' => $userTypes,
+                'selectedUserType' => $userType,
+            ]);
+        }
+        if ($tab === 'extensions') {
+            $projectType = (int) Yii::$app->request->get('projectType', 0);
+
+            $projectTypes = \app\models\Project::TYPES;
+
+            $limits = \app\models\ExtensionLimits::find()
+                ->where(['project_type' => $projectType])
+                ->indexBy('user_type')
+                ->all();
+
+            return $this->renderPartial('_tab_extension', [
+                'limits' => $limits,
+                'projectTypes' => $projectTypes,
+                'selectedProjectType' => $projectType,
+            ]);
+        }
+
+
+
+
+
+
+        return '<div class="alert alert-danger">Unknown tab</div>';
+    }
+    public function actionSaveGeneral()
+    {
+        $model = \app\models\Configuration::find()->one();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'General settings saved successfully.');
+        } else {
+            Yii::$app->session->setFlash('danger', 'Failed to save general settings.');
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+    public function actionSaveOndemand()
+    {
+        $request = Yii::$app->request;
+        $userType = $request->post('user_type', 'bronze');
+
+        $ondemand = \app\models\OndemandAutoaccept::find()->where(['user_type' => $userType])->one();
+        $ondemandLimits = \app\models\OndemandLimits::find()->where(['user_type' => $userType])->one();
+
+        if (
+            $ondemand->load($request->post()) &&
+            $ondemandLimits->load($request->post()) &&
+            $ondemand->save() &&
+            $ondemandLimits->save()
+        ) {
+            Yii::$app->session->setFlash('success', "On-demand settings saved for $userType.");
+        } else {
+            Yii::$app->session->setFlash('danger', "Failed to save On-demand settings.");
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+    public function actionSaveService()
+    {
+        $request = Yii::$app->request;
+        $userType = $request->post('user_type', 'bronze');
+
+        $service = \app\models\ServiceAutoaccept::find()->where(['user_type' => $userType])->one();
+        $serviceLimits = \app\models\ServiceLimits::find()->where(['user_type' => $userType])->one();
+
+        if (
+            $service->load($request->post()) &&
+            $serviceLimits->load($request->post()) &&
+            $service->save() &&
+            $serviceLimits->save()
+        ) {
+            Yii::$app->session->setFlash('success', "Service settings saved for $userType.");
+        } else {
+            Yii::$app->session->setFlash('danger', "Failed to save service settings.");
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+
+    public function actionSaveMachines()
+    {
+        $request = Yii::$app->request;
+        $userType = $request->post('user_type', 'bronze');
+
+        $machineComputationLimits = \app\models\MachineComputeLimits::find()->where(['user_type' => $userType])->one();
+
+        if ($machineComputationLimits->load($request->post()) && $machineComputationLimits->save()) {
+            Yii::$app->session->setFlash('success', "Machine limits saved for $userType.");
+        } else {
+            Yii::$app->session->setFlash('danger', "Failed to save machine limits for $userType.");
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+
+    public function actionSaveStorage()
+    {
+        $request = Yii::$app->request;
+        $userType = $request->post('user_type', 'bronze');
+
+        $storage = \app\models\StorageAutoaccept::find()->where(['user_type' => $userType])->one();
+        $storageLimits = \app\models\StorageLimits::find()->where(['user_type' => $userType])->one();
+
+        if (
+            $storage->load($request->post()) &&
+            $storageLimits->load($request->post()) &&
+            $storage->save() &&
+            $storageLimits->save()
+        ) {
+            Yii::$app->session->setFlash('success', "Cold storage settings saved for $userType.");
+        } else {
+            Yii::$app->session->setFlash('danger', "Failed to save cold storage settings for $userType.");
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+
+    public function actionSaveSmtp()
+    {
+        $smtp = \app\models\Smtp::find()->one();
+        $smtp->password = base64_encode(Yii::$app->request->post('Smtp')['password']);
+
+        if ($smtp->load(Yii::$app->request->post()) && $smtp->save()) {
+            Yii::$app->session->setFlash('success', 'SMTP settings saved.');
+        } else {
+            Yii::$app->session->setFlash('danger', 'Failed to save SMTP settings.');
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+
+    public function actionSaveOpenstack()
+    {
+        $openstack = \app\models\Openstack::find()->one();
+
+        if ($openstack->load(Yii::$app->request->post())) {
+            $openstack->encode(); // securely encode sensitive fields
+            if ($openstack->save()) {
+                Yii::$app->session->setFlash('success', 'OpenStack settings saved.');
+            } else {
+                Yii::$app->session->setFlash('danger', 'Failed to save OpenStack settings.');
+            }
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+    public function actionSaveOpenstackMachines()
+    {
+        $openstackMachines = \app\models\OpenstackMachines::find()->one();
+
+        if ($openstackMachines->load(Yii::$app->request->post())) {
+            $openstackMachines->encode(); // Encode sensitive fields
+            if ($openstackMachines->save()) {
+                Yii::$app->session->setFlash('success', 'OpenStack Machines settings saved.');
+            } else {
+                Yii::$app->session->setFlash('danger', 'Failed to save OpenStack Machines settings.');
+            }
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+    public function actionSaveJupyter()
+    {
+        $request = Yii::$app->request;
+        $userType = $request->post('user_type', 'bronze');
+
+        $jupyter = \app\models\JupyterAutoaccept::find()->where(['user_type' => $userType])->one();
+        $jupyterLimits = \app\models\JupyterLimits::find()->where(['user_type' => $userType])->one();
+
+        if (
+            $jupyter->load($request->post()) &&
+            $jupyterLimits->load($request->post()) &&
+            $jupyter->save() &&
+            $jupyterLimits->save()
+        ) {
+            Yii::$app->session->setFlash('success', "Jupyter settings saved for $userType.");
+        } else {
+            Yii::$app->session->setFlash('danger', "Failed to save Jupyter settings for $userType.");
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+    public function actionSaveExtensionLimits()
+    {
+        $request = Yii::$app->request;
+        $postData = $request->post('ExtensionLimits', []);
+        $projectType = $request->post('project_type');
+
+        $success = true;
+        $errorMessages = [];
+
+        foreach ($postData as $id => $attributes) {
+            $model = \app\models\ExtensionLimits::findOne($id);
+
+            if (!$model) {
+                $success = false;
+                $errorMessages[] = "[ID $id] Not found.";
+                continue;
+            }
+
+            if (!$model->load(['ExtensionLimits' => $attributes]) || !$model->save()) {
+                $success = false;
+                $errors = $model->getFirstErrors();
+                $formattedErrors = implode(', ', array_map(fn($e) => Html::encode($e), $errors));
+                $errorMessages[] = ucfirst($model->user_type) . ": " . $formattedErrors;
+            }
+        }
+
+        if ($success) {
+            $projectTypeName = \app\models\Project::TYPES[$projectType] ?? "Unknown";
+            Yii::$app->session->setFlash('success', "Extension limits saved for project type: {$projectTypeName}.");
+
+        } else {
+            Yii::$app->session->setFlash('danger', "Failed to save Extension limits:<br>" . implode('<br>', $errorMessages));
+        }
+
+        return $this->redirect(['administration/configure']);
+    }
+
+
+
+
+
     public function actionAdministration()
     {
         return $this->render('administration');
@@ -679,48 +1085,62 @@ class AdministrationController extends Controller
         return $this->render('view-page',['page'=>$page]);
     }
 
-    public function actionAllProjects($exp='-1', $ptype='-1', $user='', $project='')
+    public function actionAllProjects($exp = '-1', $ptype = '-1', $user = '', $project = '')
     {
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))
-        {
+        if (!Userw::hasRole('Admin', $superadminAllowed = true)) {
             return $this->render('//project/error_unauthorized');
         }
-        $configuration=Configuration::find()->one();
-        $schema_url=$configuration->schema_url;
 
-        $project_types=Project::TYPES;
-        $button_links=[0=>'/project/view-ondemand-request-user', 1=>'/project/view-service-request-user',
-            2=>'/project/view-cold-storage-request-user', 3=>'/project/view-machine-compute-user', 4=>'/project/view-jupyter-request-user'];
+        $configuration = Configuration::find()->one();
+        $schema_url = $configuration->schema_url;
 
+        $project_types = Project::TYPES;
+        $button_links = [
+            0 => '/project/view-ondemand-request-user',
+            1 => '/project/view-service-request-user',
+            2 => '/project/view-cold-storage-request-user',
+            3 => '/project/view-machine-compute-user',
+            4 => '/project/view-jupyter-request-user'
+        ];
 
-        $deleted=Project::getAllDeletedProjects();
+        $filters = [
+            'exp' => Yii::$app->request->post('expiry_date_t', $exp),
+            'user' => Yii::$app->request->post('username', $user),
+            'type' => Yii::$app->request->post('project_type', $ptype),
+            'name' => Yii::$app->request->post('project_name', $project)
+        ];
 
-        $filters=['exp'=>Yii::$app->request->post('expiry_date_t',$exp),'user'=>Yii::$app->request->post('username',$user), 'type'=>Yii::$app->request->post('project_type',$ptype), 'name'=>Yii::$app->request->post('project_name',$project)];
-        $all_projects=Project::getAllActiveProjectsAdm($filters['user'],$filters['type'],$filters['exp'], $filters['name']);
-        $expired_owner=Project::getAllExpiredProjects($filters['user'],$filters['type'],$filters['exp'], $filters['name']);
-        $resources=Project::getActiveResources();
-        $role=User::getRoleType();
-        $username=Userw::getCurrentUser()['username'];
-        $user_split=explode('@',$username)[0];
+        $all_projects = Project::getAllActiveProjectsAdm($filters['user'], $filters['type'], $filters['exp'], $filters['name']);
+        $expired_owner = Project::getAllExpiredProjects($filters['user'], $filters['type'], $filters['exp'], $filters['name']);
 
-        $active=[];
-        $expired=[];
+        $resources = Project::getActiveResources();  // This already returns [$jupyter, $vms, $machines, $volumes]
 
-        foreach ($all_projects as $project)
-        {
+        $username = Userw::getCurrentUser()['username'];
+
+        $active = [];
+        foreach ($all_projects as $project) {
             $remaining_days = (strtotime($project['end_date']) - strtotime(date("Y-m-d"))) / 86400;
             $project['owner'] = ($username == $project['username']) ? '<b>You</b>' : $project['username'];
             $project['expires_in'] = $remaining_days;
+
+            $project['id'] = $project['project_id'];
+
+            $project['has_active_resources'] = isset($resources[$project['project_type']][$project['project_id']]);
+
             $active[] = $project;
         }
 
+        $expired = [];
         foreach ($expired_owner as $project) {
             $project['owner'] = ($username == $project['username']) ? '<b>You</b>' : $project['username'];
             $project['expires_in'] = $project['end_date'];
+
+            $project['id'] = $project['project_id'];
+
+            $project['has_active_resources'] = isset($resources[$project['project_type']][$project['project_id']]);
+
             $expired[] = $project;
         }
-        $number_of_active=count($all_projects);
-        $number_of_expired=count($expired);
 
         $searchModel = new ActiveProjectSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $active);
@@ -734,16 +1154,15 @@ class AdministrationController extends Controller
             '1' => '24/7 Services',
             '2' => 'Storage volumes',
             '3' => 'On-demand computation machines',
-            '4' => 'On demand notebooks'
+            '4' => 'On-demand notebooks'
         ];
 
         $expiry_date = ['-1' => '', '0' => 'Ascending', '1' => 'Descending'];
 
+
         return $this->render('all_projects', [
             'button_links' => $button_links,
             'project_types' => $project_types,
-            'role' => $role,
-            'types_dropdown' => $types_dropdown,
             'filters' => $filters,
             'deleted' => Project::getAllDeletedProjects(),
             'expired' => $expired,
@@ -757,12 +1176,15 @@ class AdministrationController extends Controller
             'exp' => $exp,
             'user' => $user,
             'project' => $project,
+            'role' => User::getRoleType(),
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
             'searchModelExpired' => $searchModelExpired,
             'dataProviderExpired' => $dataProviderExpired,
         ]);
     }
+
+
 
     public function actionManageAnalytics()
     {
@@ -868,49 +1290,29 @@ class AdministrationController extends Controller
 
     public function actionReactivate($id)
     {
-        $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
-
-        if (empty($prequest))
-        {
-            return $this->render('//project/error_unauthorized');
+        if (!Yii::$app->request->isPost) {
+            throw new \yii\web\MethodNotAllowedHttpException('Method Not Allowed. Use POST.');
         }
 
+        $prequest = ProjectRequest::findOne(['project_id' => $id]);
 
-        /*
-         * If someone other than the project owner or an Admin are trying
-         * to edit the request, then show an error.
-         */
-        if (!Userw::hasRole('Admin',$superadminAllowed=true))
-        {
-            return $this->render('//project/error_unauthorized');
-        }
-        /*
-         * Check that project is expired.
-         */
-        $date1 = new \DateTime($prequest->end_date);
-        $date2 = new \DateTime('now');
-
-        /*
-         * Since datetime involves time too
-         * equality will not work. Instead, check that 
-         * the date strings are not the same
-         */
-        if (!(($date1->format("Y-m-d")!=$date2->format("Y-m-d")) && ($date2>$date1)))
-        {
-            Yii::$app->session->setFlash('danger', "Project is not expired");
+        if (!$prequest) {
+            Yii::$app->session->setFlash('danger', "Project not found.");
             return $this->redirect(['administration/all-projects']);
         }
 
         $prequest->reactivate();
-        if (!empty($prequest->errors))
-        {
-            Yii::$app->session->setFlash('danger', $prequest->errors);
-            return $this->redirect(['administration/all-projects']);
+
+        if (!empty($prequest->errors)) {
+            Yii::$app->session->setFlash('danger', implode(", ", $prequest->errors));
+        } else {
+            Yii::$app->session->setFlash('success', 'Project re-activated successfully.');
         }
 
-        Yii::$app->session->setFlash('success', "Project successfully re-activated");
         return $this->redirect(['administration/all-projects']);
     }
+
+
 
     public function actionUserStatistics($id)
     {
@@ -930,20 +1332,91 @@ class AdministrationController extends Controller
 
     public function actionUserStatsList()
     {
-        $username='';
-        $activeFilterDrop=['all'=>'All', 'active'=>'Active', 'inactive'=>'Inactive'];
-        $activeFilter='all';
-        if (Yii::$app->request->post())
-        {
-            $username=Yii::$app->request->post('username');
-            $activeFilter=Yii::$app->request->post('activeFilter');
-        }
-        $users=User::getActiveUserStats($username,$activeFilter);
-        $activeUsers=User::getActiveUserNum();
-        $totalUsers=User::find()->count();
+        /* -----------------------------------------------------------
+         * 1. Collect filters coming from GridView
+         * ----------------------------------------------------------- */
+        $filter = Yii::$app->request->get('DynamicModel', []);
 
-        return $this->render('user_stats_list', ['users'=>$users,'username'=>$username, 'activeFilter'=>$activeFilter,
-            'activeFilterDrop'=>$activeFilterDrop, 'activeUsers'=>$activeUsers, 'totalUsers'=>$totalUsers]);
+        $username        = $filter['username']        ?? '';
+        $isActiveFilter  = $filter['is_active']       ?? '';   // "1" | "0" | ''
+        $userTypeFilter  = $filter['user_type']       ?? '';
+        $policyFilter    = $filter['policy_accepted'] ?? '';
+
+        /* -----------------------------------------------------------
+         * 2. Fetch users from your helper
+         * ----------------------------------------------------------- */
+        $users = User::getActiveUserStats($username, 'all');   // we’ll filter below
+
+        /* -----------------------------------------------------------
+         * 3. Enrich every row
+         * ----------------------------------------------------------- */
+        foreach ($users as &$u) {
+            // number of active projects that came as "active"
+            $u['active_projects'] = (int)$u['active'];
+
+            // boolean status used by the icon column
+            $u['is_active']       = $u['active_projects'] > 0 ? 1 : 0;
+
+            // role type (bronze | silver | gold)
+            $u['user_type']       = strtolower(User::getRoleType($u['id']));
+
+            // policy flag
+            $u['policy_accepted'] = in_array($u['policy_accepted'], [1, '1', true, 't'], true) ? 1 : 0;
+
+        }
+        unset($u);
+        $searchModel = new DynamicModel([
+            'username'         => $username,
+            'is_active'        => $isActiveFilter,
+            'user_type'        => $userTypeFilter,
+            'policy_accepted'  => $policyFilter,
+            'email'            => $filter['email'] ?? '',
+            'active_projects'  => $filter['active_projects'] ?? '',
+        ]);
+
+        $searchModel->addRule(['username', 'email', 'active_projects'], 'string');
+        $searchModel->addRule(['is_active', 'user_type', 'policy_accepted'], 'safe');
+
+        /* -----------------------------------------------------------
+         * 4. Manual filtering
+         * ----------------------------------------------------------- */
+        $users = array_filter($users, function ($u) use (
+            $isActiveFilter, $userTypeFilter, $policyFilter
+        ) {
+            if ($isActiveFilter !== '' && (string)$u['is_active'] !== $isActiveFilter)
+                return false;
+            if ($userTypeFilter !== '' && $u['user_type'] !== $userTypeFilter)
+                return false;
+            if ($policyFilter !== '' && (string)$u['policy_accepted'] !== $policyFilter)
+                return false;
+
+            return true;
+        });
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels'  => array_values($users),
+            'pagination' => ['pageSize' => 20],
+            'sort'       => [
+                'defaultOrder' => ['username' => SORT_ASC],
+                'attributes'   => [
+                    'username', 'email',
+                    'active_projects',
+                    'is_active',
+                    'user_type',
+                    'policy_accepted',
+                ],
+            ],
+        ]);
+
+        $activeUsers = User::getActiveUserNum();
+        $totalUsers  = User::find()->count();
+
+        return $this->render('user_stats_list', [
+            'dataProvider' => $dataProvider,
+            'searchModel'  => $searchModel,
+            'activeUsers'  => $activeUsers,
+            'totalUsers'   => $totalUsers,
+        ]);
     }
 
     public function actionViewActiveJupyters()

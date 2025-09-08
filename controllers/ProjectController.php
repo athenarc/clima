@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\ExtensionLimits;
 use app\models\Token;
 use app\models\NewTokenRequestForm;
 use app\components\EmailVerifiedFilter;
@@ -84,10 +85,19 @@ class ProjectController extends Controller
         if (!parent::beforeAction($action)) {
             return false;
         }
+        // Skip the check for login, logout, and policy acceptance
+        $allowedActions = ['login', 'logout', 'policy-acceptance'];
+
+        if (!in_array($action->id, $allowedActions)) {
+            if (!Yii::$app->user->isGuest && !Yii::$app->user->identity->policy_accepted) {
+                return $this->redirect(['site/policy-acceptance'])->send();
+            }
+        }
 
         // Continue with the action
         return true;
     }
+
 
     /**
      * {@inheritdoc}
@@ -1313,9 +1323,27 @@ class ProjectController extends Controller
 
         // Configure general information about statistics and visualizations
         $excessiveRequest=false;
-        foreach ($resourcesStats as $resourceStats) {
-            if ($resourceStats['current']+$resourceStats['requested']>=$resourceStats['total']) {
-                $excessiveRequest=true;
+        foreach ($resourcesStats as $key => $resourceStats) {
+            // skip non-arrays (or stray metadata) safely
+            if (!is_array($resourceStats)) {
+                unset($resourcesStats[$key]);
+                continue;
+            }
+
+            // normalize with defaults
+            $current   = (int)($resourceStats['current']   ?? 0);
+            $requested = (int)($resourceStats['requested'] ?? 0);
+            // if total is missing, avoid false positives by using a big number
+            $total     = array_key_exists('total', $resourceStats) ? (int)$resourceStats['total'] : PHP_INT_MAX;
+
+            // write back normalized values (optional, but keeps view logic simple)
+            $resourcesStats[$key]['current']   = $current;
+            $resourcesStats[$key]['requested'] = $requested;
+            $resourcesStats[$key]['total']     = $total;
+
+            if ($current + $requested >= $total) {
+                $excessiveRequest = true;
+                // you can break here if any single resource being excessive is enough
                 break;
             }
         }
@@ -1524,21 +1552,64 @@ class ProjectController extends Controller
 
     public function actionApprove($id,$filter='all')
     {
-        if ((!Userw::hasRole('Moderator',$superadminAllowed=true))  && (!Userw::hasRole('Admin',$superadminAllowed=true)) )
-        {
+        if ((!Userw::hasRole('Moderator',$superadminAllowed=true)) && (!Userw::hasRole('Admin',$superadminAllowed=true)) ) {
             return $this->render('error_unauthorized');
         }
 
-        $request=ProjectRequest::find()->where(['id'=>$id])->one();
+        $request = ProjectRequest::find()->where(['id'=>$id])->one();
+        $project = Project::findOne($request->project_id);
+        if (!$project) {
+            Yii::$app->session->setFlash('error', 'Associated project not found.');
+            return $this->redirect(['project/request-list']);
+        }
+
+        // Last approved request with non-null approval_date
+        $lastApprovedRequest = ProjectRequest::find()
+            ->where([
+                'project_id' => $project->id,
+                'status'     => [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED],
+            ])
+            ->andWhere(['not', ['approval_date' => null]])
+            ->orderBy(['approval_date' => SORT_DESC])
+            ->one();
+
+        // Previous end date (if any)
+        if ($lastApprovedRequest && !empty($lastApprovedRequest->end_date)) {
+            $originalEndDate = new DateTime($lastApprovedRequest->end_date);
+        } elseif (!empty($project->project_end_date)) {
+            $originalEndDate = new DateTime($project->project_end_date);
+        } else {
+            $originalEndDate = null;
+        }
+
+        $requestedEndDate = new DateTime($request->end_date);
+
+        // It's an extension only if there WAS an old end date and the new one is later
+        $isExtensionRequest = $originalEndDate && ($requestedEndDate > $originalEndDate);
+
+        // (If you need it later)
+        $extensionLimit = ExtensionLimits::findOne([
+            'user_type'    => User::getRoleType(),
+            'project_type' => $request->project_type
+        ]);
+
+        // ✅ Approve the request FIRST (so approval_date/status are set)
         $request->approve();
 
-        $message='Project approved.';
+        // ✅ Now update the project without triggering afterSave (to avoid being overwritten)
+        $newEnd = $requestedEndDate->format('Y-m-d');
+        $newCount = $isExtensionRequest ? ((int)$project->extension_count + 1) : (int)$project->extension_count;
+        // First approval should keep it at 0; above line does exactly that
 
+        $project->updateAttributes([
+            'project_end_date' => $newEnd,
+            'extension_count'  => $newCount,
+        ]);
 
-        Yii::$app->session->setFlash('success', $message);
+        Yii::$app->session->setFlash('success', 'Project approved.');
         return $this->redirect(['project/request-list']);
-
     }
+
 
     public function actionReject($id,$filter='all')
     {
@@ -2363,6 +2434,10 @@ class ProjectController extends Controller
         $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
         $project=Project::find()->where(['id'=>$prequest->project_id])->one();
         $exceed_limits = 0;
+        $user = Yii::$app->user->identity ?? null;
+
+        $isModerator = $user && (Userw::hasRole('Admin', true) || Userw::hasRole('Moderator', true));
+
         if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))){
             $exceed_limits = 1;
         }
@@ -2566,6 +2641,7 @@ class ProjectController extends Controller
                 'method' => 'POST'
             ];
 
+
         $errors='';
         $success='';
         $warnings='';
@@ -2576,6 +2652,43 @@ class ProjectController extends Controller
         $dold=clone $drequest;
         $attr=$pold->getAttributes();
 
+        $relatedProject = Project::findOne($prequest->project_id);
+
+        $hasApprovedRequest = ProjectRequest::find()
+            ->where(['project_id' => $relatedProject->id])
+            ->andWhere(['status' => [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]])
+            ->exists();
+
+        if ($hasApprovedRequest) {
+            $extensionLimit = ExtensionLimits::findOne([
+                'user_type' => $role,
+                'project_type' => $prequest->project_type,
+            ]);
+
+            $startDate = new DateTime($relatedProject->start_date);
+            $currentEndDate = new DateTime($relatedProject->project_end_date);
+            $extension_count = $relatedProject->extension_count;
+            $max_extension = $extensionLimit->max_extension;
+            $firstApprovedRequest = ProjectRequest::find()
+                ->where(['project_id' => $relatedProject->id])
+                ->andWhere(['not', ['approved_by' => null]])
+                ->andWhere(['not', ['approval_date' => null]])
+                ->orderBy(['approval_date' => SORT_ASC])
+                ->limit(1)
+                ->one();
+
+
+            if ($firstApprovedRequest && !empty($firstApprovedRequest->end_date)) {
+                $firstApprovedEndDate = new DateTime($firstApprovedRequest->end_date);
+                $totalDurationDays = $startDate->diff($firstApprovedEndDate)->days + 1;
+                $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+            } else {
+                $maxExtensionDays = 0;
+            }
+        }
+
+
+        print_r($project->project_end_date);
         if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
         {
             if ($prType==4){
@@ -2627,9 +2740,24 @@ class ProjectController extends Controller
                 }
 
             }
+            $newEndDate = new DateTime($prequest->end_date);
+            $extensionDays = $currentEndDate->diff($newEndDate)->days;
+
+            if ($newEndDate > $currentEndDate && !Userw::hasRole('Admin', true) && !Userw::hasRole('Moderator', true)) {
+                if ($extensionDays > $maxExtensionDays) {
+                    Yii::$app->session->setFlash('danger', "The requested extension of $extensionDays days exceeds the maximum allowed of $maxExtensionDays days.");
+                    $isValid = false;
+                }
+
+                if ($extension_count >= $max_extension) {
+                    Yii::$app->session->setFlash('danger', "You have reached the maximum number of extensions allowed ($max_extension).");
+                    $isValid = false;
+                }
+            }
 
             if ($isValid)
             {
+
 
                 if ($prType==4){
 
@@ -2784,10 +2912,29 @@ class ProjectController extends Controller
             }
         }
 
-
-        return $this->render($view_file,['details'=>$drequest, 'project'=>$prequest,
-            'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'vm_exists'=>$vm_exists, 'ends'=>$ends, 'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown, 'volume_exists'=>$volume_exists, 'images'=>$images, 'interval'=>$interval, 'exceed_limits'=>$exceed_limits]);
-
+        return $this->render($view_file, [
+            'details' => $drequest,
+            'project' => $prequest,
+            'maxExtensionDays' => $maxExtensionDays,
+            'extension_count' => $extension_count,
+            'max_extension' => $max_extension,
+            'trls' => $trls,
+            'form_params' => $form_params,
+            'participating' => $participating,
+            'errors' => $errors,
+            'upperlimits' => $upperlimits,
+            'autoacceptlimits' => $autoacceptlimits,
+            'maturities' => $maturities,
+            'vm_exists' => $vm_exists,
+            'ends' => $ends,
+            'role' => $role,
+            'num_vms_dropdown' => $num_vms_dropdown,
+            'volume_exists' => $volume_exists,
+            'images' => $images,
+            'interval' => $interval,
+            'exceed_limits' => $exceed_limits,
+            'isModerator' => $isModerator
+        ]);
 
     }
 
@@ -2863,252 +3010,310 @@ class ProjectController extends Controller
 
     public function actionModifyRequest($id)
     {
-        $prequest=ProjectRequest::find()->where(['id'=>$id])->one();
+        $images = '';
+        $prequest = ProjectRequest::find()->where(['id' => $id])->one();
         $exceed_limits = 0;
-        if((Userw::hasRole('Admin', $superadminAllowed=true)) || (Userw::hasRole('Moderator', $superadminAllowed=true))|| (Userw::hasRole('Moderator', $superadminAllowed=false))){
+
+        $user = Yii::$app->user->identity ?? null;
+        $isAdmin = $user && Userw::hasRole('Admin', true);
+        $isModerator = $user && Userw::hasRole('Moderator', true);
+        $canBypassPolicy = $isAdmin || $isModerator;
+
+        if ((Userw::hasRole('Admin', $superadminAllowed = true)) || (Userw::hasRole('Moderator', $superadminAllowed = true)) || (Userw::hasRole('Moderator', $superadminAllowed = false))) {
             $exceed_limits = 1;
         }
-        if (empty($prequest))
-        {
-            return $this->render('error_unauthorized');
-        }
-        $owner=($prequest->submitted_by==Userw::getCurrentUser()['id']);
 
-        if ( (!$owner) && (!Userw::hasRole('Admin',$superadminAllowed=true)) || (($prequest->status!=ProjectRequest::PENDING) && ($prequest->status!=ProjectRequest::APPROVED) && ($prequest->status!=ProjectRequest::AUTOAPPROVED)) )
-        {
+        if (empty($prequest)) {
             return $this->render('error_unauthorized');
         }
 
-        $start=date('Y-m-d',strtotime($prequest->submission_date));
-        $duration=$prequest->duration;
+        $owner = ($prequest->submitted_by == Userw::getCurrentUser()['id']);
 
-        if(empty($prequest->end_date))
-        {
-            $ends=date('Y-m-d', strtotime($start. " + $duration months"));
-        }
-        else
-        {
-            $ends= explode(' ', $prequest->end_date)[0];
+        if ((!$owner) && (!Userw::hasRole('Admin', $superadminAllowed = true)) || (($prequest->status != ProjectRequest::PENDING) && ($prequest->status != ProjectRequest::APPROVED) && ($prequest->status != ProjectRequest::AUTOAPPROVED))) {
+            return $this->render('error_unauthorized');
         }
 
-        $prequest->end_date=$ends;
-        $num_vms_dropdown=[];
+        $start = date('Y-m-d', strtotime($prequest->submission_date));
+        $duration = $prequest->duration;
 
-        $vm_exists=false;
+        if (empty($prequest->end_date)) {
+            $ends = date('Y-m-d', strtotime($start . " + $duration months"));
+        } else {
+            $ends = explode(' ', $prequest->end_date)[0];
+        }
+
+        $prequest->end_date = $ends;
+        $num_vms_dropdown = [];
+        $vm_exists = false;
 
         $prequest->fillUsernameList();
 
-        $prType=$prequest->project_type;
+        $prType = $prequest->project_type;
 
-        $project=Project::find()->where(['latest_project_request_id'=>$id])->one();
-        $trls=[];
-        $maturities=[];
-        $volume_exists=false;
+        $project = Project::find()->where(['latest_project_request_id' => $id])->one();
+        $trls = [];
+        $maturities = [];
+        $volume_exists = false;
 
-        $role=User::getRoleType();
-        if ($prType==0)
-        {
-            $drequest=OndemandRequest::find()->where(['request_id'=>$id])->one();
-            $view_file='edit_ondemand';
-            $upperlimits=OndemandLimits::find()->where(['user_type'=>$role])->one();
-            $autoacceptlimits=OndemandAutoaccept::find()->where(['user_type'=>$role])->one();
-            $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
+        $role = User::getRoleType();
+        if ($prType == 0) {
+            $drequest = OndemandRequest::find()->where(['request_id' => $id])->one();
+            $view_file = 'edit_ondemand';
+            $upperlimits = OndemandLimits::find()->where(['user_type' => $role])->one();
+            $autoacceptlimits = OndemandAutoaccept::find()->where(['user_type' => $role])->one();
+            $maturities = ["developing" => 'Developing', 'testing' => 'Testing', 'production' => 'Production'];
 
-        }
-        else if ($prType==4)
-        {
-            $drequest=JupyterRequestNew::find()->where(['request_id'=>$id])->one();
-            $view_file='edit_jupyter';
-            $upperlimits=JupyterLimits::find()->where(['user_type'=>$role])->one();
-            $autoacceptlimits=JupyterAutoaccept::find()->where(['user_type'=>$role])->one();
-            $maturities=["developing"=>'Developing', 'testing'=> 'Testing', 'production'=>'Production'];
-            $prequest->end_date=$ends;
-            $img=JupyterImages::find()->all();
-            $images=[];
+        } else if ($prType == 4) {
+            $drequest = JupyterRequestNew::find()->where(['request_id' => $id])->one();
+            $view_file = 'edit_jupyter';
+            $upperlimits = JupyterLimits::find()->where(['user_type' => $role])->one();
+            $autoacceptlimits = JupyterAutoaccept::find()->where(['user_type' => $role])->one();
+            $maturities = ["developing" => 'Developing', 'testing' => 'Testing', 'production' => 'Production'];
+            $prequest->end_date = $ends;
+            $img = JupyterImages::find()->all();
+            $images = [];
             $users_list_bef = $prequest['user_list'];
-            foreach ($img as $i)
-            {
-                $description=$i->description;
-                if ($i->gpu==true)
-                {
-                    $description.=' (GPU)';
+            foreach ($img as $i) {
+                $description = $i->description;
+                if ($i->gpu == true) {
+                    $description .= ' (GPU)';
+                }
+                $images[$i->id] = $description;
+            }
+
+        } else if ($prType == 1) {
+            $drequest = ServiceRequest::find()->where(['request_id' => $id])->one();
+            $drequest->flavour = $drequest->flavourIdName[$drequest->vm_flavour];
+            $view_file = 'edit_service';
+            $upperlimits = ServiceLimits::find()->where(['user_type' => $role])->one();
+            $autoacceptlimits = ServiceAutoaccept::find()->where(['user_type' => $role])->one();
+
+            $vm = VM::find()->where(['request_id' => $id, 'active' => true])->one();
+            if (!empty($vm)) {
+                $vm_exists = true;
+            }
+            $trls[0] = 'Unspecified';
+            for ($i = 1; $i < 10; $i++) {
+                $trls[$i] = 'Level ' . $i;
+            }
+
+        } else if ($prType == 3) {
+            $drequest = MachineComputeRequest::find()->where(['request_id' => $id])->one();
+            $drequest->flavour = $drequest->flavourIdName[$drequest->vm_flavour];
+            $view_file = 'edit_machine_compute';
+            $upperlimits = '';
+            $autoacceptlimits = '';
+            $vm = VM::find()->where(['request_id' => $id, 'active' => true])->one();
+
+            // Create dropdown for the number of VMs
+            for ($i = 1; $i < 31; $i++) {
+                $num_vms_dropdown[$i] = $i;
+            }
+            if (!empty($vm)) {
+                $vm_exists = true;
+            }
+
+        } else if ($prType == 2) {
+            $drequest = StorageRequest::find()->where(['request_id' => $id])->one();
+            $view_file = 'edit_cold_storage';
+            $prequest->duration = '2100-1-1';
+            $volume = '';
+            for ($i = 1; $i < 31; $i++) {
+                $num_vms_dropdown[$i] = $i;
+            }
+            if ($drequest->type == 'hot') {
+                $volume = HotVolumes::find()->where(['project_id' => $prequest->project_id, 'active' => true])->one();
+            } else {
+                // Placeholder for cold storage
+            }
+            if (!empty($volume)) {
+                $volume_exists = true;
+            }
+            $upperlimits = StorageLimits::find()->where(['user_type' => $role])->one();
+            $autoacceptlimits = StorageAutoaccept::find()->where(['user_type' => $role])->one();
+        }
+
+        $form_params = [
+            'action' => URL::to(['project/modify-request', 'id' => $id]),
+            'options' => [
+                'class' => 'service_request_form',
+                'id' => "service_request_form"
+            ],
+            'method' => 'POST'
+        ];
+
+        $relatedProject = Project::findOne($prequest->project_id);
+        $policyCap = null;
+        $maxExtensionDays = 0;
+        $extension_count = (int)($relatedProject->extension_count ?? 0);
+        $max_extension = null;
+
+        $hasApprovedRequest = ProjectRequest::find()
+            ->where(['project_id' => $relatedProject->id])
+            ->andWhere(['status' => [ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]])
+            ->exists();
+
+        if (!$canBypassPolicy && $hasApprovedRequest) {
+            $extensionLimit = ExtensionLimits::findOne([
+                'user_type' => $role,
+                'project_type' => $prequest->project_type,
+            ]);
+
+            $startDate = new DateTime($relatedProject->start_date);
+            $currentEndDate = new DateTime($relatedProject->project_end_date);
+            $extension_count = $relatedProject->extension_count;
+            $max_extension = $extensionLimit->max_extension;
+
+            $firstApprovedRequest = ProjectRequest::find()
+                ->where(['project_id' => $relatedProject->id])
+                ->andWhere(['not', ['approved_by' => null]])
+                ->andWhere(['not', ['approval_date' => null]])
+                ->orderBy(['approval_date' => SORT_ASC])
+                ->limit(1)
+                ->one();
+
+            if ($firstApprovedRequest && !empty($firstApprovedRequest->end_date)) {
+                $firstApprovedEndDate = new DateTime($firstApprovedRequest->end_date);
+                $totalDurationDays = $startDate->diff($firstApprovedEndDate)->days + 1;
+                $maxExtensionDays = ceil(($extensionLimit->max_percent / 100) * $totalDurationDays);
+                $policyCap = (clone $firstApprovedEndDate)->modify("+{$maxExtensionDays} days");
+
+                $currentEnd = new DateTime($prequest->end_date); // what the view uses
+                $daysLeft = max(0, $currentEnd->diff($policyCap)->days);
+
+                // 1) overwrite what the view uses
+                $maxExtensionDays = $daysLeft;
+
+                // 2) if no days left, force the view into "disabled" branch (regular users only)
+                if ($daysLeft === 0) {
+                    $extension_count = $max_extension;
                 }
 
-                $images[$i->id]=$description;
+                // (optional) clamp displayed value so picker shows something valid
+                if ($currentEnd > $policyCap) {
+                    $prequest->end_date = $policyCap->format('Y-m-d');
+                }
+            } else {
+                $maxExtensionDays = 0;
             }
 
-        }
-        else if ($prType==1)
-        {
+        } else if ($canBypassPolicy) {
+            // Moderators/Admins have no caps
+            $policyCap = null;
+            $maxExtensionDays = null;     // means "no limit"
+            $max_extension = null;
 
-            $drequest=ServiceRequest::find()->where(['request_id'=>$id])->one();
-            $drequest->flavour=$drequest->flavourIdName[$drequest->vm_flavour];
-            $view_file='edit_service';
-            $upperlimits=ServiceLimits::find()->where(['user_type'=>$role])->one();
-            $autoacceptlimits=ServiceAutoaccept::find()->where(['user_type'=>$role])->one();
-
-            $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
-            if (!empty($vm))
-            {
-                $vm_exists=true;
-            }
-            $trls[0]='Unspecified';
-            for ($i=1; $i<10; $i++)
-            {
-                $trls[$i]='Level ' . $i;
-            }
-        }
-        else if ($prType==3)
-        {
-            $drequest=MachineComputeRequest::find()->where(['request_id'=>$id])->one();
-            $drequest->flavour=$drequest->flavourIdName[$drequest->vm_flavour];
-            $view_file='edit_machine_compute';
-            $upperlimits='';
-            $autoacceptlimits='';
-            $vm=VM::find()->where(['request_id'=>$id, 'active'=>true])->one();
-            /*
-             * Create dropdown for the number of VMs
-             */
-            for ($i=1; $i<31; $i++)
-                $num_vms_dropdown[$i]=$i;
-            if (!empty($vm))
-            {
-                $vm_exists=true;
-            }
-        }
-        else if ($prType==2)
-        {
-            $drequest=StorageRequest::find()->where(['request_id'=>$id])->one();
-            $view_file='edit_cold_storage';
-            $prequest->duration='2100-1-1';
-            $volume='';
-            for ($i=1; $i<31; $i++)
-                $num_vms_dropdown[$i]=$i;
-            if ($drequest->type=='hot')
-            {
-                $volume=HotVolumes::find()->where(['project_id'=>$prequest->project_id, 'active'=>true])->one();
-            }
-            else
-            {
-                /*
-                 * Placeholder for cold storage
-                 */
-            }
-            if (!empty($volume))
-            {
-                $volume_exists=true;
-            }
-            $upperlimits=StorageLimits::find()->where(['user_type'=>$role])->one();
-            $autoacceptlimits=StorageAutoaccept::find()->where(['user_type'=>$role])->one();
+        } else {
+            // No prior approved request; don't impose caps for regulars either
+            $maxExtensionDays = null;
+            $extension_count = 0;
+            $max_extension = null;
         }
 
+        $errors = '';
+        $success = '';
+        $warnings = '';
+        $username = Userw::getCurrentUser()['username'];
+        $user_split = explode('@', $username)[0];
+        $participating = (isset($_POST['participating'])) ? $_POST['participating'] : $prequest->usernameList;
 
+        $pold = clone $prequest;
+        $dold = clone $drequest;
 
-        $form_params =
-            [
-                'action' => URL::to(['project/modify-request', 'id'=>$id]),
-                'options' =>
-                    [
-                        'class' => 'service_request_form',
-                        'id'=> "service_request_form"
-                    ],
-                'method' => 'POST'
-            ];
-
-
-
-
-        $errors='';
-        $success='';
-        $warnings='';
-        $username=Userw::getCurrentUser()['username'];
-        $user_split=explode('@',$username)[0];
-        $participating= (isset($_POST['participating'])) ? $_POST['participating'] : $prequest->usernameList;
-
-        $pold=clone $prequest;
-
-        $dold=clone $drequest;
-
-        if ( ($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post())) )
-        {
+        if (($drequest->load(Yii::$app->request->post())) && ($prequest->load(Yii::$app->request->post()))) {
 
             $isValid = $prequest->validate();
             $isValid = $drequest->validate() && $isValid;
 
-            // Enforce one volume for 24/7 service
-            if ($prType==2 && $drequest->vm_type==1) {
-                $drequest->num_of_volumes=1;
+            $oldEndDate = new DateTime($pold->end_date);
+            $newEndDate = new DateTime($prequest->end_date);
+
+            // Check only if the user tried to increase the end date
+            if (!$canBypassPolicy && $newEndDate > $oldEndDate) {
+                $extensionDays = $oldEndDate->diff($newEndDate)->days;
+
+                if ($maxExtensionDays !== null && $extensionDays > $maxExtensionDays) {
+                    Yii::$app->session->setFlash('danger', "The requested extension of $extensionDays days exceeds the maximum allowed of $maxExtensionDays days.");
+                    $isValid = false;
+                }
+
+                if ($max_extension !== null && $extension_count >= $max_extension) {
+                    Yii::$app->session->setFlash('danger', "You have reached the maximum number of extensions allowed ($max_extension).");
+                    $isValid = false;
+                }
             }
 
+            // Normalize only for regular users; keep null for moderators/admins
+            if (!$canBypassPolicy && $maxExtensionDays === null) {
+                $maxExtensionDays = 0;
+            }
+
+            // Enforce one volume for 24/7 service
+            if ($prType == 2 && $drequest->vm_type == 1) {
+                $drequest->num_of_volumes = 1;
+            }
 
             /*
              * Get participant ids
              */
-            $participant_ids_tmp=[];
-            foreach ($participating as $participant)
-            {
-                $username=$participant . '@elixir-europe.org';
-                $pid=User::findByUsername($username)->id;
-                $participant_ids_tmp[$pid]=null;
+            $participant_ids_tmp = [];
+            foreach ($participating as $participant) {
+                $username = $participant . '@elixir-europe.org';
+                $pid = User::findByUsername($username)->id;
+                $participant_ids_tmp[$pid] = null;
             }
 
-            $participant_ids=[];
-            foreach ($participant_ids_tmp as $pid => $dummy)
-            {
-                $participant_ids[]=$pid;
+            $participant_ids = [];
+            foreach ($participant_ids_tmp as $pid => $dummy) {
+                $participant_ids[] = $pid;
             }
 
+            $prequest->user_list = new yii\db\ArrayExpression($participant_ids, 'int4');
+            $pchanged_tmp = ProjectRequest::ProjectModelChanged($pold, $prequest);
+            $pchanged = $pchanged_tmp[0];
+            $uchanged = $pchanged_tmp[1];
+            $dchanged = ProjectRequest::modelChanged($dold, $drequest);
 
-            $prequest->user_list=new yii\db\ArrayExpression($participant_ids, 'int4');
-            $pchanged_tmp= ProjectRequest::ProjectModelChanged($pold,$prequest);
-            $pchanged=$pchanged_tmp[0];
-            $uchanged=$pchanged_tmp[1];
-            $dchanged= ProjectRequest::modelChanged($dold,$drequest);
+            $project_id = $prequest->project_id;
+            $vm = VM::find()->where(['project_id' => $project_id, 'active' => true])->one();
 
-            $project_id=$prequest->project_id;
-            $vm=VM::find()->where(['project_id'=>$project_id, 'active'=>true])->one();
-
-
-
-            if ($isValid)
-            {
-
-                if ($prType==1 || $prType==3)
-                {
-                    if ($dold->flavour != $drequest->flavour)
-                    {
-                        $dchanged=true;
+            if ($isValid) {
+                if (!$canBypassPolicy && $policyCap instanceof DateTime) {
+                    $newEndDate = new DateTime($prequest->end_date);
+                    if ($newEndDate > $policyCap) {
+                        Yii::$app->session->setFlash('danger', "You cannot set the end date beyond " . $policyCap->format('Y-m-d') . ".");
+                        $isValid = false;
                     }
                 }
 
-                if ($pchanged || $dchanged)
-                {
-//                    $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
+                if ($prType == 1 || $prType == 3) {
+                    if ($dold->flavour != $drequest->flavour) {
+                        $dchanged = true;
+                    }
+                }
+
+                if ($pchanged || $dchanged) {
+                    // $messages=$prequest->uploadNewEdit($participating,$prType,$id,$uchanged);
                     $messages = $prequest->uploadNewEdit($prType, $uchanged, $id);
-                    $errors .= $messages[0];
+                    $errors  .= $messages[0];
                     $success .= $messages[1];
                     $warnings .= $messages[2];
                     $requestId = $messages[3];
                     if ($requestId != -1) {
                         $messages = $drequest->uploadNewEdit($requestId, $uchanged);
-                        $errors .= $messages[0];
+                        $errors  .= $messages[0];
                         $success .= $messages[1];
                         $warnings .= $messages[2];
                     }
-                }
-                else
-                {
-                    $warnings.="Project $prequest->name was not changed.";
+                } else {
+                    $warnings .= "Project $prequest->name was not changed.";
                 }
 
-                if (empty($errors))
-                {
-                    if(!empty($success))
-                    {
+                if (empty($errors)) {
+                    if (!empty($success)) {
                         Yii::$app->session->setFlash('success', "$success");
                     }
-                    if(!empty($warnings))
-                    {
+                    if (!empty($warnings)) {
                         Yii::$app->session->setFlash('warning', "$warnings");
                     }
 
@@ -3116,12 +3321,34 @@ class ProjectController extends Controller
                 }
             }
         }
-
-        return $this->render($view_file,['details'=>$drequest, 'images' => $images,'project'=>$prequest,
-            'trls'=>$trls, 'form_params'=>$form_params, 'participating'=>$participating, 'errors'=>$errors, 'upperlimits'=>$upperlimits, 'autoacceptlimits'=>$autoacceptlimits,'maturities'=>$maturities, 'ends'=>$ends, 'vm_exists'=>$vm_exists,'role'=>$role, 'num_vms_dropdown'=>$num_vms_dropdown,'volume_exists'=>$volume_exists, 'exceed_limits'=>$exceed_limits]);
-
-
+        if ( $maxExtensionDays === null) {
+            $maxExtensionDays = 0;
+        }
+        return $this->render($view_file, [
+            'details' => $drequest,
+            'images' => $images,
+            'project' => $prequest,
+            'isModerator' => $isModerator,
+            'maxExtensionDays' => $maxExtensionDays,
+            'extension_count' => $extension_count,
+            'max_extension' => $max_extension,
+            'end_date' => $prequest->end_date,
+            'trls' => $trls,
+            'form_params' => $form_params,
+            'participating' => $participating,
+            'errors' => $errors,
+            'upperlimits' => $upperlimits,
+            'autoacceptlimits' => $autoacceptlimits,
+            'maturities' => $maturities,
+            'ends' => $ends,
+            'vm_exists' => $vm_exists,
+            'role' => $role,
+            'num_vms_dropdown' => $num_vms_dropdown,
+            'volume_exists' => $volume_exists,
+            'exceed_limits' => $exceed_limits
+        ]);
     }
+
 
     public function actionCancelRequest($id)
     {
@@ -4014,7 +4241,51 @@ class ProjectController extends Controller
                 'expired_tokens' => $expired_tokens]);
         }
     }
+    public function actionRevokeToken($id, $uuid)
+    {
+        $project = Project::findOne($id);
 
+        if (!$project) {
+            Yii::$app->session->setFlash('error', "Project not found.");
+            return $this->redirect(['project/token-management', 'id' => $id]);
+        }
+
+        $user = Userw::getCurrentUser();
+        $username = explode('@', $user['username'])[0];
+
+        // API Setup
+        $schema_api_url = Yii::$app->params['schema_api_url'];
+        $schema_api_token = Yii::$app->params['schema_api_token'];
+        $URL = "{$schema_api_url}/api_auth/contexts/{$project->name}/users/{$username}/tokens/{$uuid}";
+
+        // Expiry = now + 1 minute (to avoid 'must be after' validation error)
+        $now = new \DateTime('now', new \DateTimeZone('UTC'));
+        $now->modify('+0.01 sec');
+        $expiryFormatted = $now->format("Y-m-d\TH:i:s.u");
+
+        $patch = json_encode(["expiry" => $expiryFormatted]);
+
+        $headers = [
+            'Authorization: ' . $schema_api_token,
+            'Content-Type: application/json'
+        ];
+
+        // Call API (returns raw JSON string)
+        $response = Token::EditToken($URL, $headers, $patch);
+
+        // Try to parse the response
+        $decoded = json_decode($response, true);
+
+        if (is_array($decoded) && isset($decoded['expiry'])) {
+            $errorMessage = is_array($decoded['expiry'])
+                ? implode(', ', $decoded['expiry'])
+                : $decoded['expiry']; // just in case it's a string or something else
+
+
+        }
+
+        return $this->redirect(['project/token-management', 'id' => $id]);
+    }
     public function actionNewTokenRequest($id, $mode, $uuid){
         //retrieve schema API base url and authentication token
         // $schema_api=SchemaAPI::find()->one();

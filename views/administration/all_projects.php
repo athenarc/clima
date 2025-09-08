@@ -2,11 +2,8 @@
 
 use yii\grid\GridView;
 use yii\helpers\Html;
-use yii\bootstrap\NavBar;
-use yii\bootstrap\Nav;
 use yii\helpers\Url;
 use app\components\Headers;
-use yii\jui\DatePicker;
 
 $this->title = "All projects";
 
@@ -30,14 +27,6 @@ echo Headers::widget([
     ],
 ]);
 Headers::end();
-
-if (!empty($success)) {
-    echo '<div class="message row"><div class="col-md-12 alert alert-success" role="alert">' . $success . '</div></div>';
-}
-
-if (!empty($warnings)) {
-    echo '<div class="message row"><div class="col-md-12 alert alert-warning" role="alert">' . $warnings . '</div></div>';
-}
 ?>
 
 <div class="row">
@@ -53,7 +42,8 @@ if (!empty($warnings)) {
             'sorter' => ['sortParam' => 'activeSort'],
             'options' => ['id' => 'active-grid'],
             'columns' => [
-                ['attribute' => 'name',
+                [
+                    'attribute' => 'name',
                     'contentOptions' => [
                         'class' => 'col-md-1 text-center',
                         'style' => 'vertical-align: middle!important;',
@@ -86,7 +76,6 @@ if (!empty($warnings)) {
                         'style' => 'vertical-align: middle!important;',
                     ],
                 ],
-
                 [
                     'attribute' => 'owner',
                     'label' => 'Owner',
@@ -94,20 +83,17 @@ if (!empty($warnings)) {
                     'value' => function ($model) {
                         return ($model['owner'] === 'You') ? "<b>You</b>" : $model['owner'];
                     },
-
                     'contentOptions' => ['class' => 'col-md-3 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
                 [
                     'attribute' => 'expires_in',
                     'label' => 'Expires in',
                     'value' => fn($model) => $model['expires_in'] . ' days',
-                    'contentOptions' => [
-                        'class' => 'col-md-2 text-center',
-                        'style' => 'vertical-align: middle!important;',
-                    ],
-                    'filter' => false,                ],
+                    'contentOptions' => ['class' => 'col-md-2 text-center', 'style' => 'vertical-align: middle!important;'],
+                    'filter' => false,
+                ],
                 [
-                    'class' => 'yii\\grid\\ActionColumn',
+                    'class' => 'yii\grid\ActionColumn',
                     'template' => '{details}',
                     'header' => 'Actions',
                     'buttons' => [
@@ -146,14 +132,11 @@ if (!empty($warnings)) {
                 [
                     'attribute' => 'name',
                     'format' => 'raw',
-                    'value' => function ($model) use ($expired_active_resources_icon, $active_resources) {
-                        $active = isset($active_resources[$model['project_type']][$model['id']]);
-                        return $model['name'] . ($active ? '&nbsp;' . $expired_active_resources_icon : '');
+                    'value' => function ($model) use ($active_resources, $expired_active_resources_icon) {
+                        $active = isset($active_resources[$model['project_type']][$model['project_id']]);
+                        return Html::encode($model['name']) . ($active ? '&nbsp;' . $expired_active_resources_icon : '');
                     },
-                    'contentOptions' => [
-                        'class' => 'col-md-2 text-center',
-                        'style' => 'vertical-align: middle!important;',
-                    ],
+                    'contentOptions' => ['class' => 'col-md-2 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
                 [
                     'attribute' => 'project_type',
@@ -176,12 +159,8 @@ if (!empty($warnings)) {
                         3 => 'Compute machines',
                         4 => 'Notebooks',
                     ],
-                    'contentOptions' => [
-                        'class' => 'col-md-2 text-center',
-                        'style' => 'vertical-align: middle!important;',
-                    ],
+                    'contentOptions' => ['class' => 'col-md-2 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
-
                 [
                     'attribute' => 'owner',
                     'label' => 'Owner',
@@ -191,7 +170,6 @@ if (!empty($warnings)) {
                     },
                     'contentOptions' => ['class' => 'col-md-2 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
-
                 [
                     'attribute' => 'expires_in',
                     'label' => 'Expired on',
@@ -203,24 +181,21 @@ if (!empty($warnings)) {
                     'attribute' => 'has_active_resources',
                     'label' => 'Active Resources',
                     'value' => function ($model) use ($active_resources) {
-                        $active = isset($active_resources[$model['project_type']][$model['id']]);
+                        $active = isset($active_resources[$model['project_type']][$model['project_id']]);
                         return $active ? 'Yes' : 'No';
                     },
-                    'filter' => [
-                        '1' => 'Yes',
-                        '0' => 'No',
-                    ],
+                    'filter' => ['1' => 'Yes', '0' => 'No'],
                     'contentOptions' => ['class' => 'col-md-1 text-center', 'style' => 'vertical-align: middle!important;'],
                 ],
                 [
-                    'class' => 'yii\\grid\\ActionColumn',
+                    'class' => 'yii\grid\ActionColumn',
                     'template' => '{details} {reactivate}',
                     'header' => 'Actions',
                     'buttons' => [
                         'details' => function ($url, $model) use ($filters) {
                             return Html::a('<i class="fas fa-eye"></i> Details', [
                                 '/project/view-request-user',
-                                'id' => $model['id'],
+                                'id' => $model['project_id'],
                                 'return' => 'admin',
                                 'expired' => 1,
                                 'ptype' => $filters['type'],
@@ -230,15 +205,55 @@ if (!empty($warnings)) {
                             ], ['class' => 'btn btn-secondary btn-md']);
                         },
                         'reactivate' => function ($url, $model) {
-                            return Html::a('<i class="fas fa-sync-alt"></i> Re-activate', null, [
-                                'class' => 'btn btn-primary btn-md reactivate_btn',
+                            return Html::a('<i class="fas fa-sync-alt"></i> Re-activate', ['/administration/reactivate', 'id' => $model['project_id']], [
+                                'class' => 'btn btn-primary btn-md',
                                 'title' => 'Re-activate project',
-                                'data-modal-id' => "reactivate-{$model['name']}-modal"
+                                'data-confirm' => 'Are you sure you want to re-activate project "' . Html::encode($model['name']) . '"?',
+                                'data-method' => 'post',
                             ]);
                         },
+
                     ],
                 ],
             ],
         ]) ?>
     </div>
 </div>
+
+<?php foreach ($dataProviderExpired->getModels() as $res): ?>
+    <?php $modalId = 'reactivate-' . $res['project_id'] . '-modal'; ?>
+    <div class="modal fade" id="<?= Html::encode($modalId) ?>" tabindex="-1" role="dialog" aria-labelledby="reactivate-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm re-activation</h5>
+                    <button type="button" class="close btn-cancel-modal" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to re-activate project '<?= Html::encode($res['name']) ?>'?
+                </div>
+                <div class="modal-footer">
+                    <?= Html::beginForm(['/administration/reactivate', 'id' => $res['project_id']], 'post') ?>
+                    <?= Html::submitButton('<i class="fas fa-sync-alt"></i> Re-activate', [
+                        'class' => 'btn btn-primary btn-md',
+                        'title' => 'Re-activate project',
+                        'onclick' => 'this.disabled=true;this.form.submit();'
+                    ]) ?>
+                    <?= Html::endForm() ?>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
+
+<script>
+    $(document).on('click', '.reactivate_btn', function (e) {
+        e.preventDefault();
+        const modalId = $(this).data('modal-id');
+        if (modalId) {
+            $('#' + modalId).modal('show');
+        }
+    });
+</script>

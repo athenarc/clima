@@ -251,8 +251,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
                     $otherDetails = MachineComputeRequest::find()->where(['request_id' => $other->id])->one();
                     break;
                 case 4:
-                    $details = JupyterRequest::find()->where(['request_id' => $this->id])->one();
-                    $otherDetails = JupyterRequest::find()->where(['request_id' => $other->id])->one();
+                    $details = JupyterRequestNew::find()->where(['request_id' => $this->id])->one();
+                    $otherDetails = JupyterRequestNew::find()->where(['request_id' => $other->id])->one();
                     break;
             }
             if ($details && $otherDetails) $diff['details'] = $details->getDiff($otherDetails);
@@ -435,7 +435,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $newRequest->isNewRecord = true;
         unset($newRequest->id);
         $newRequest->end_date=new \DateTime('NOW');
-        $newRequest->end_date=$newRequest->end_date->modify('+2 days')->format('m-d-Y H:i:s');
+        $newRequest->end_date = (new \DateTime('now'))->modify('+2 days')->format('Y-m-d H:i:s');
         $newRequest->submission_date="NOW()";
         $newRequest->approval_date='NOW()';
 
@@ -479,7 +479,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         } 
         else if ($this->project_type==4)
         {
-            $details=JupyterRequest::find()->where(['request_id'=>$this->id])->one();
+            $details=JupyterRequestNew::find()->where(['request_id'=>$this->id])->one();
             
         }
 
@@ -488,7 +488,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         unset($newDetails->id);
         $newDetails->request_id=$newRequest->id;
         $newDetails->save(false);
-        
+
         return;
     }
 

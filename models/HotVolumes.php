@@ -141,7 +141,7 @@ class HotVolumes extends \yii\db\ActiveRecord
 
         $query->select(['user_list'])
               ->from('project_request as p')
-              ->innerJoin('cold_storage_request as c','p.id=c.request_id')
+              ->innerJoin('storage_request as c','p.id=c.request_id')
               ->where(['>', 'p.end_date','NOW'])
               ->andWhere(['p.project_type'=>2])
               ->andWhere(['p.status'=>[1,2]])
@@ -166,7 +166,7 @@ class HotVolumes extends \yii\db\ActiveRecord
 
         $query->select(['user_list'])
               ->from('project_request as p')
-              ->innerJoin('cold_storage_request as c','p.id=c.request_id')
+              ->innerJoin('storage_request as c','p.id=c.request_id')
               ->where(['>', 'p.end_date','NOW'])
               ->andWhere(['p.project_type'=>2])
               ->andWhere(['p.status'=>[1,2]])
