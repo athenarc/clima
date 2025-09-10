@@ -100,7 +100,7 @@ Headers::end();
                         'details' => function ($url, $model) use ($filters) {
                             return Html::a('<i class="fas fa-eye"></i> Details', [
                                 '/project/view-request-user',
-                                'id' => $model['id'],
+                                'id' => $model['project_request_id'], // <- inspect this
                                 'return' => 'admin',
                                 'expired' => 0,
                                 'ptype' => $filters['type'],
@@ -195,7 +195,7 @@ Headers::end();
                         'details' => function ($url, $model) use ($filters) {
                             return Html::a('<i class="fas fa-eye"></i> Details', [
                                 '/project/view-request-user',
-                                'id' => $model['project_id'],
+                                'id' => $model['project_request_id'],
                                 'return' => 'admin',
                                 'expired' => 1,
                                 'ptype' => $filters['type'],
