@@ -1124,6 +1124,11 @@ class AdministrationController extends Controller
             $project['expires_in'] = $remaining_days;
 
             $project['id'] = $project['project_id'];
+            $project['project_request_id'] = \app\models\ProjectRequest::find()
+                ->select('id')
+                ->where(['project_id' => $project['project_id']])
+                ->orderBy(['id' => SORT_DESC])
+                ->scalar();
 
             $project['has_active_resources'] = isset($resources[$project['project_type']][$project['project_id']]);
 
@@ -1136,7 +1141,11 @@ class AdministrationController extends Controller
             $project['expires_in'] = $project['end_date'];
 
             $project['id'] = $project['project_id'];
-
+            $project['project_request_id'] = \app\models\ProjectRequest::find()
+                ->select('id')
+                ->where(['project_id' => $project['project_id']])
+                ->orderBy(['id' => SORT_DESC])
+                ->scalar();
             $project['has_active_resources'] = isset($resources[$project['project_type']][$project['project_id']]);
 
             $expired[] = $project;
@@ -1290,12 +1299,12 @@ class AdministrationController extends Controller
 
     public function actionReactivate($id)
     {
+
         if (!Yii::$app->request->isPost) {
             throw new \yii\web\MethodNotAllowedHttpException('Method Not Allowed. Use POST.');
         }
 
         $prequest = ProjectRequest::findOne(['project_id' => $id]);
-
         if (!$prequest) {
             Yii::$app->session->setFlash('danger', "Project not found.");
             return $this->redirect(['administration/all-projects']);

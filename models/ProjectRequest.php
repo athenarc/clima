@@ -94,12 +94,12 @@ class ProjectRequest extends \yii\db\ActiveRecord
      */
     public function validateDates()
     {
-    	if(strtotime($this->end_date) < strtotime(date("Y-m-d")))
-    	{
-    		Yii::$app->session->setFlash('danger', 'Please give correct End date');
-        	$this->addError('end_date','Project end date cannot precede today');
-    	}
-	}
+        if(strtotime($this->end_date) < strtotime(date("Y-m-d")))
+        {
+            Yii::$app->session->setFlash('danger', 'Please give correct End date');
+            $this->addError('end_date','Project end date cannot precede today');
+        }
+    }
 
     public function machinesDuration30()
     {
@@ -288,37 +288,37 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $message='';
         $project_id='';
 
-        
+
 
         if (empty($this->user_list))
         {
             $errors="Error: You must specify at least one user participating in the project.";
         }
-        
-        
+
+
         if (empty($errors))
-        {            
+        {
             $submitted_by=User::findByUsername(Userw::getCurrentUser()['username'])->id;
 
             Yii::$app->db->createCommand()->insert('project', ['name' => $this->name,'project_type'=> $project_type, 'start_date' => 'NOW()'])->execute();
             $project_id=$id = Yii::$app->db->getLastInsertID();
 
             Yii::$app->db->createCommand()->insert('project_request', [
-            
-                        'name' => $this->name,
-                        // 'duration' => $this->duration,
-                        'end_date'=>$this->end_date,
-                        'user_num' => $this->user_num,
-                        'user_list' => $this->user_list,
-                        'backup_services' => ($this->backup_services=='1') ? true : false,
-                        'submission_date' => 'NOW()',
-                        'project_type' => $project_type,
-                        'submitted_by' => $submitted_by,
-                        'project_id' => $project_id,
-                    ])->execute();
-            
-            
-          
+
+                'name' => $this->name,
+                // 'duration' => $this->duration,
+                'end_date'=>$this->end_date,
+                'user_num' => $this->user_num,
+                'user_list' => $this->user_list,
+                'backup_services' => ($this->backup_services=='1') ? true : false,
+                'submission_date' => 'NOW()',
+                'project_type' => $project_type,
+                'submitted_by' => $submitted_by,
+                'project_id' => $project_id,
+            ])->execute();
+
+
+
             $success='';
             $request_id=$id = Yii::$app->db->getLastInsertID();
 
@@ -338,7 +338,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Yii::$app->db->createCommand()->update('project',['pending_request_id'=>$request_id], "id='$project_id'")->execute();
 
             $message="A new $project_typen project named '$this->name' has been submitted by user $username and is pending moderator approval.";
-           
+
         }
 
         return [$errors,$success,$warnings,$request_id, $message, $project_id];
@@ -355,19 +355,19 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             $errors="Error: You must specify at least one user participating in the project.";
         }
-        
+
         if (empty($errors))
         {
-           
-            
+
+
             //if user is Admin, keep the owner of the project the same as in the old request
             if (!empty($modify_req_id))
             {
                 $old_request=ProjectRequest::find()->where(['id'=>$modify_req_id])->one();
             }
 
-            
-            
+
+
             if ( (Userw::hasRole('Admin',$superadminAllowed=true)) || (Userw::hasRole('Moderator',$superadminAllowed=true)) )
             {
                 $submitted_by=$old_request->submitted_by;
@@ -376,29 +376,29 @@ class ProjectRequest extends \yii\db\ActiveRecord
             {
                 $submitted_by=User::findByUsername(Userw::getCurrentUser()['username'])->id;
             }
-            
+
 
             Yii::$app->db->createCommand()->insert('project_request', [
-            
-                        'name' => $this->name,
-                        // 'duration' => $this->duration,
-                        'end_date'=>$this->end_date,
-                        'user_num' => $this->user_num,
-                        'user_list' => $this->user_list,
-                        'backup_services' => ($this->backup_services=='1') ? true : false,
-                        'submission_date' => 'NOW()',
-                        'project_type' => $project_type,
-                        'submitted_by' => $submitted_by,
-                        //project_id is preloaded since the model was updated by the form
-                        'project_id' => $this->project_id,
-                    ])->execute();
-            
-           
-          
+
+                'name' => $this->name,
+                // 'duration' => $this->duration,
+                'end_date'=>$this->end_date,
+                'user_num' => $this->user_num,
+                'user_list' => $this->user_list,
+                'backup_services' => ($this->backup_services=='1') ? true : false,
+                'submission_date' => 'NOW()',
+                'project_type' => $project_type,
+                'submitted_by' => $submitted_by,
+                //project_id is preloaded since the model was updated by the form
+                'project_id' => $this->project_id,
+            ])->execute();
+
+
+
             $success='';
             $request_id=Yii::$app->db->getLastInsertID();
 
-           
+
             //invalidate old request if it is a modification
 
             $project=Project::find()->where(['id'=>$this->project_id])->one();
@@ -418,19 +418,19 @@ class ProjectRequest extends \yii\db\ActiveRecord
             }
             else
             {
-                $message="Project '$this->name' has been modified.";   
+                $message="Project '$this->name' has been modified.";
             }
-            
+
         }
 
-        
-        
+
+
 
         return [$errors,$success,$warnings,$request_id];
     }
 
     public function reactivate()
-    {        
+    {
         $newRequest=clone $this;
         $newRequest->isNewRecord = true;
         unset($newRequest->id);
@@ -443,7 +443,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             $this->errors='Failed to write to database';
         }
-        
+
         //invalidate old request if it is a modification
 
         $project=Project::find()->where(['id'=>$this->project_id])->one();
@@ -475,14 +475,14 @@ class ProjectRequest extends \yii\db\ActiveRecord
         else if ($this->project_type==3)
         {
             $details=MachineComputeRequest::find()->where(['request_id'=>$this->id])->one();
-            
-        } 
+
+        }
         else if ($this->project_type==4)
         {
             $details=JupyterRequestNew::find()->where(['request_id'=>$this->id])->one();
-            
-        }
 
+        }
+        $project['project_end_date'] = $newRequest->end_date;
         $newDetails=clone $details;
         $newDetails->isNewRecord = true;
         unset($newDetails->id);
@@ -495,14 +495,14 @@ class ProjectRequest extends \yii\db\ActiveRecord
     public static function getRequestList($filter)
     {
         $query=new Query;
-        
+
 
         $filters=['rejected'=>-1,'pending'=>0, 'approved'=>1, 'auto-approved'=>2];
 
         $query->select(['pr.id','pr.name','username',
-                        'pr.duration','pr.submission_date','pr.status','pr.viewed', 'pr.project_type'])
-              ->from('project_request as pr')
-              ->innerJoin('user','pr.submitted_by="user".id');
+            'pr.duration','pr.submission_date','pr.status','pr.viewed', 'pr.project_type'])
+            ->from('project_request as pr')
+            ->innerJoin('user','pr.submitted_by="user".id');
 
 
         if (isset($filters[$filter]))
@@ -510,13 +510,13 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $query->where(['pr.status'=>$filters[$filter]]);
         }
 
-       
+
 
         $pages = new Pagination(['totalCount' => $query->count()]);
         $pages->setPageSize(10);
-        
+
         $results = $query->orderBy('pr.submission_date DESC')->offset($pages->offset)->limit($pages->limit)->all();
-        
+
         return [$pages,$results];
     }
 
@@ -529,10 +529,10 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $user=Userw::getCurrentUser()['username'];
 
         $query->select(['pr.id','pr.name',"username",
-                        'pr.duration','pr.submission_date','pr.status','pr.viewed', 'pr.project_type'])
-              ->from('project_request as pr')
-              ->innerJoin('user','pr.submitted_by="user".id')
-              ->where(['user.username'=>$user]);
+            'pr.duration','pr.submission_date','pr.status','pr.viewed', 'pr.project_type'])
+            ->from('project_request as pr')
+            ->innerJoin('user','pr.submitted_by="user".id')
+            ->where(['user.username'=>$user]);
 
         if (isset($filters[$filter]))
         {
@@ -541,9 +541,9 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $pages = new Pagination(['totalCount' => $query->count()]);
         $pages->setPageSize(20);
-        
+
         $results = $query->orderBy('pr.submission_date DESC')->offset($pages->offset)->limit($pages->limit)->all();
-        
+
         return [$pages,$results];
     }
 
@@ -554,7 +554,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
     public function approve()
     {
-        
+
         $this->status=1;
         $this->approval_date='NOW()';
         $this->approved_by=Userw::getCurrentUser()['id'];
@@ -562,14 +562,14 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $project=Project::find()->where(['id'=>$this->project_id])->one();
         //set status for old request to -3 (modified)
-        
+
         if (!empty($project->latest_project_request_id))
         {
             $old_request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
             $old_request->status=-3;
             $old_request->save(false);
         }
-        
+
 
         $project->latest_project_request_id=$this->id;
         $request=ProjectRequest::find()->where(['id'=>$project->latest_project_request_id])->one();
@@ -600,7 +600,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $project_typen = "Machine Compute";
         } else {
             $project_typen = "Jupyter Notebook";
-        } 
+        }
 
         if ($this->project_type == 4){
             $servers=JupyterServer::find()->where(['active'=>true,'project'=>$this->name])->all();
@@ -612,21 +612,21 @@ class ProjectRequest extends \yii\db\ActiveRecord
             }
         }
 
-        $message="We are happy to inform you that your project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";  
-        $message_mod="We would like to inform you that the $project_typen project '$this->name', submitted by the user $username, has been approved.";  
+        $message="We are happy to inform you that your project '$this->name' has been approved. <br /> You can access the project resources via the " . Yii::$app->params['name'] . " website";
+        $message_mod="We would like to inform you that the $project_typen project '$this->name', submitted by the user $username, has been approved.";
 
 
-        foreach ($this->user_list as $user) 
+        foreach ($this->user_list as $user)
         {
             Notification::notify($user,$message,2,Url::to(['project/user-request-list','filter'=>'approved']));
         }
 
         EmailEventsModerator::NotifyByEmail('project_decision', $this->project_id,$message_mod);
         EmailEventsUser::NotifyByEmail('project_decision', $this->project_id,$message);
-             
+
 
     }
-    
+
     public function reject()
     {
         $this->status=-1;
@@ -640,7 +640,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             $project->latest_project_request_id=$this->id;
             $project->pending_request_id=null;
             $project->status=-1;
-            
+
         }
         else
         {
@@ -664,14 +664,14 @@ class ProjectRequest extends \yii\db\ActiveRecord
         } else {
             $project_typen = "Jupyter Notebook";
         }
-        
+
 
         $message="We are sorry to inform you that your request for the project '$this->name' has been rejected.";
         $message_mod="We would like to inform you that the request for the $project_typen project '$this->name', submitted by user $username, has been rejected.";
-        
-        foreach ($this->user_list as $user) 
+
+        foreach ($this->user_list as $user)
         {
-                
+
             Notification::notify($user,$message,-1,Url::to(['project/user-request-list','filter'=>'rejected']));
         }
         EmailEventsUser::NotifyByEmail('project_decision', $this->project_id,$message);
@@ -685,13 +685,13 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $query=new Query;
 
         $query->select(['r.id as rid',
-                        // "( ((DATE_PART('year',NOW())-DATE_PART('year',r.approval_date)) * 12) + (DATE_PART('month',NOW())-DATE_PART('month',r.approval_date))) as datediff",
-                        'project_id as pid',
-                    ])
-              ->from('project as p')
-              ->join('INNER JOIN', 'project_request as r', 'p.latest_project_request_id = r.id')
-              ->where("( ((DATE_PART('year',NOW())-DATE_PART('year',r.approval_date)) * 12) + (DATE_PART('month',NOW())-DATE_PART('month',r.approval_date))) > r.duration")
-              ->andWhere(['p.status'=>[ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]]);
+            // "( ((DATE_PART('year',NOW())-DATE_PART('year',r.approval_date)) * 12) + (DATE_PART('month',NOW())-DATE_PART('month',r.approval_date))) as datediff",
+            'project_id as pid',
+        ])
+            ->from('project as p')
+            ->join('INNER JOIN', 'project_request as r', 'p.latest_project_request_id = r.id')
+            ->where("( ((DATE_PART('year',NOW())-DATE_PART('year',r.approval_date)) * 12) + (DATE_PART('month',NOW())-DATE_PART('month',r.approval_date))) > r.duration")
+            ->andWhere(['p.status'=>[ProjectRequest::APPROVED, ProjectRequest::AUTOAPPROVED]]);
         // print_r($query->createCommand()->getRawSql());
         // exit(0);
         $rows=$query->all();
@@ -706,7 +706,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
             Yii::$app->db->createCommand()->update('project_request',['status'=>ProjectRequest::EXPIRED], "id=$rid")->execute();
         }
 
-        
+
     }
 
     public function cancel()
@@ -753,16 +753,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
         // print_r($filter);
         // exit(0);
 
-        
+
         $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
-                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
-                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id', 'v.ip_address'])
-              ->from('project_request as pr')
-              ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')
-              ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
-              //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
-              ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
-              ->where(['pr.project_type'=>1]);
+            'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
+            'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id', 'v.ip_address'])
+            ->from('project_request as pr')
+            ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')
+            ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+            //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
+            ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
+            ->where(['pr.project_type'=>1]);
         if ($filter=='active')
         {
             $query->andWhere(['v.active'=>true]);
@@ -784,32 +784,32 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             $query->andWhere("v.ip_address like '%$ip%'");
         }
-        
-              
+
+
         // print_r($query->createCommand()->getRawSql());
         // exit(0);
-       
+
 
         $pages = new Pagination(['totalCount' => $query->count()]);
         $pages->setPageSize(10);
-        
+
         $results = $query->orderBy('v.created_at DESC')->offset($pages->offset)->limit($pages->limit)->all();
-        
+
         return [$pages,$results];
     }
 
     public static function getVmCount($filter)
     {
         $query=new Query;
-        
+
         $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
-                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
-                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
-              ->from('project_request as pr')
-              ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')
-              ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
-              ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
-              ->where(['pr.project_type'=>1]);
+            'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
+            'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
+            ->from('project_request as pr')
+            ->join('LEFT JOIN','vm as v', 'pr.id=v.request_id')
+            ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+            ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
+            ->where(['pr.project_type'=>1]);
         if ($filter=='active')
         {
             $query->andWhere(['v.active'=>true]);
@@ -832,16 +832,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
         // print_r($filter);
         // exit(0);
 
-        
+
         $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
-                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
-                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id', 'v.ip_address'])
-              ->from('project_request as pr')
-              ->join('LEFT JOIN','vm_machines as v', 'pr.id=v.request_id')
-              ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
-              //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
-              ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
-              ->where(['pr.project_type'=>3]);
+            'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
+            'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id', 'v.ip_address'])
+            ->from('project_request as pr')
+            ->join('LEFT JOIN','vm_machines as v', 'pr.id=v.request_id')
+            ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+            //->join('INNER JOIN', 'project as p', 'p.latest_project_request_id=pr.id')
+            ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
+            ->where(['pr.project_type'=>3]);
         if ($filter=='active')
         {
             $query->andWhere(['v.active'=>true]);
@@ -862,17 +862,17 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             $query->andWhere("v.ip_address like '%$ip%'");
         }
-        
-              
+
+
         // print_r($query->createCommand()->getRawSql());
         // exit(0);
-       
+
 
         $pages = new Pagination(['totalCount' => $query->count()]);
         $pages->setPageSize(10);
-        
+
         $results = $query->orderBy('v.created_at DESC')->offset($pages->offset)->limit($pages->limit)->all();
-        
+
         return [$pages,$results];
     }
 
@@ -881,13 +881,13 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $query=new Query;
 
         $query->select(['pr.id as request_id','pr.project_id as project_id', 'pr.name as project_name', 'pr.end_date',
-                        'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
-                        'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
-              ->from('project_request as pr')
-              ->join('LEFT JOIN','vm_machines as v', 'pr.id=v.request_id')
-              ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
-              ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
-              ->where(['pr.project_type'=>3]);
+            'u1.username as created_by', 'u2.username as deleted_by', 'pr.project_type',
+            'v.created_at', 'v.deleted_at', 'v.active', 'v.id as vm_id'])
+            ->from('project_request as pr')
+            ->join('LEFT JOIN','vm_machines as v', 'pr.id=v.request_id')
+            ->join('INNER JOIN', '"user" as u1', 'u1.id=v.created_by')
+            ->join('LEFT JOIN', '"user" as u2', 'u2.id=v.deleted_by')
+            ->where(['pr.project_type'=>3]);
         if ($filter=='active')
         {
             $query->andWhere(['v.active'=>true]);
@@ -896,9 +896,9 @@ class ProjectRequest extends \yii\db\ActiveRecord
         {
             $query->andWhere(['v.active'=>false]);
         }
-        
+
         $results = $query->count();
-        
+
         return $results;
     }
 
@@ -918,8 +918,8 @@ class ProjectRequest extends \yii\db\ActiveRecord
     {
         if(preg_match('/[^a-z_\-0-9]/', $this->$attribute))
         {
-                $this->addError($attribute, "Name can only contain lowercase characters, numbers, hyphens( - ) and underscores( _ ).");
-                return false;
+            $this->addError($attribute, "Name can only contain lowercase characters, numbers, hyphens( - ) and underscores( _ ).");
+            return false;
         }
         return true;
     }
@@ -928,16 +928,16 @@ class ProjectRequest extends \yii\db\ActiveRecord
     {
         if (!empty($this->id))
         {
-             $old=ProjectRequest::find()->where(['id'=>$this->id])->one();
-             if ($old->name!=$this->name)
-             {
+            $old=ProjectRequest::find()->where(['id'=>$this->id])->one();
+            if ($old->name!=$this->name)
+            {
                 $existing=ProjectRequest::find()->where(['name'=>$this->name])->one();
                 if (!empty($existing))
                 {
                     $this->addError($attribute, "Name " . $this->name . " already exists.");
                     return false;
                 }
-             }
+            }
         }
         else
         {
@@ -953,7 +953,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
     public function more_users_than_allowed($attribute, $params, $validator)
     {
-        
+
         if ($this->user_num<count($this->user_list))
         {
             $this->addError($attribute, "You cannot add more users that the number specified.");
@@ -996,7 +996,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         sort($ulist1);
         sort($ulist2);
-        
+
         if ($ulist1!=$ulist2)
         {
             $listChanged=true;
@@ -1029,7 +1029,7 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         foreach ($attr1 as $name => $value)
         {
-        
+
             if ($value!=$attr2[$name])
             {
                 // exit(0);
@@ -1045,20 +1045,20 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $client = new Client();
         $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/project-usage")
-                ->setData($data)
-                ->send();
-        
+            ->setMethod('GET')
+            ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/project-usage")
+            ->setData($data)
+            ->send();
+
         $usage=($response->data==false) ? [
-                                            'count' => 0, 
-                                            'total_time' => '00:00:00', 
-                                            'avg_time' => '00:00:00', 
-                                            'ram' => 0, 
-                                            'cpu' => 0, 
-                                            'active_jupyter' => 0,
-                                            'total_jupyter' => 0
-                                          ] : $response->data;
+            'count' => 0,
+            'total_time' => '00:00:00',
+            'avg_time' => '00:00:00',
+            'ram' => 0,
+            'cpu' => 0,
+            'active_jupyter' => 0,
+            'total_jupyter' => 0
+        ] : $response->data;
         return $usage;
     }
 
@@ -1067,17 +1067,17 @@ class ProjectRequest extends \yii\db\ActiveRecord
 
         $client = new Client();
         $response = $client->createRequest()
-                ->setMethod('GET')
-                ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/period-statistics")
-                ->send();
+            ->setMethod('GET')
+            ->setUrl(Yii::$app->params['schema_url'] . "/index.php?r=api/period-statistics")
+            ->send();
         // if (!$response->getIsOk())
         // {
         //     return false;
         // }
         $usage=($response->data==false) ? [
-                                            'total_time'=>'0',
-                                            'total_jobs'=>'0'
-                                          ] : $response->data;
+            'total_time'=>'0',
+            'total_jobs'=>'0'
+        ] : $response->data;
         return $usage;
     }
 
@@ -1101,115 +1101,115 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $query=new Query;
 
         $active_services=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('service_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->andWhere(['>','pr.end_date','NOW'])
-                        ->count();
+            ->from('project_request as pr')
+            ->innerJoin('service_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->andWhere(['>','pr.end_date','NOW'])
+            ->count();
         $query=new Query;
 
         $total_services=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('service_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->count();
+            ->from('project_request as pr')
+            ->innerJoin('service_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->count();
         $query=new Query;
 
         $active_machines=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->andWhere(['>','pr.end_date','NOW'])
-                        ->count();
+            ->from('project_request as pr')
+            ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->andWhere(['>','pr.end_date','NOW'])
+            ->count();
         $query=new Query;
 
         $total_machines=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->count();
+            ->from('project_request as pr')
+            ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->count();
         $query=new Query;
 
         $active_ondemand=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('ondemand_request as o','o.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->andWhere(['>','pr.end_date','NOW'])
-                        ->count();
+            ->from('project_request as pr')
+            ->innerJoin('ondemand_request as o','o.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->andWhere(['>','pr.end_date','NOW'])
+            ->count();
 
         $query=new Query;
 
         $total_ondemand=$query->select(['pr.id'])
-                        ->from('project_request as pr')
-                        ->innerJoin('ondemand_request as o','o.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->count();
+            ->from('project_request as pr')
+            ->innerJoin('ondemand_request as o','o.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->count();
 
         $query=new Query;
 
         $vms_services_active=$query->select(['p.id'])
-                        ->from('project as p')
-                        ->innerJoin('vm as v','v.project_id=p.id')
-                        ->where(['IN','p.status',[1,2]])
-                        ->andWhere(['v.active'=>true])
-                        // ->andWhere(['>','pr.end_date','NOW'])
-                        ->count();
+            ->from('project as p')
+            ->innerJoin('vm as v','v.project_id=p.id')
+            ->where(['IN','p.status',[1,2]])
+            ->andWhere(['v.active'=>true])
+            // ->andWhere(['>','pr.end_date','NOW'])
+            ->count();
         $query=new Query;
 
         $vms_services_total=$query->select(['p.id'])
-                        ->from('project as p')
-                        ->innerJoin('vm as v','v.project_id=p.id')
-                        ->where(['IN','p.status',[1,2]])
-                        // ->andWhere(['v.active'=>true])
-                        ->count();
+            ->from('project as p')
+            ->innerJoin('vm as v','v.project_id=p.id')
+            ->where(['IN','p.status',[1,2]])
+            // ->andWhere(['v.active'=>true])
+            ->count();
         $query=new Query;
 
         $vms_machines_active=$query->select(['p.id'])
-                        ->from('project as p')
-                        ->innerJoin('vm_machines as v','v.project_id=p.id')
-                        ->where(['IN','p.status',[1,2]])
-                        ->andWhere(['v.active'=>true])
-                        // ->andWhere(['>','pr.end_date','NOW'])
-                        ->count();
+            ->from('project as p')
+            ->innerJoin('vm_machines as v','v.project_id=p.id')
+            ->where(['IN','p.status',[1,2]])
+            ->andWhere(['v.active'=>true])
+            // ->andWhere(['>','pr.end_date','NOW'])
+            ->count();
 
         $query=new Query;
 
         $vms_machines_total=$query->select(['pr.id'])
-                        ->from('project as p')
-                        ->innerJoin('vm_machines as v','v.project_id=p.id')
-                        ->where(['IN','p.status',[1,2]])
-                        // ->andWhere(['v.active'=>true])
-                        ->count();
+            ->from('project as p')
+            ->innerJoin('vm_machines as v','v.project_id=p.id')
+            ->where(['IN','p.status',[1,2]])
+            // ->andWhere(['v.active'=>true])
+            ->count();
         $query=new Query;
 
         $vm_active_services_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm as v','v.project_id=pr.project_id')
-                        ->innerJoin('service_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->andWhere(['v.active'=>true])
-                        // ->andWhere(['>','pr.end_date','NOW'])
-                        ->one();
-        
+            ->from('project_request as pr')
+            ->innerJoin('vm as v','v.project_id=pr.project_id')
+            ->innerJoin('service_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->andWhere(['v.active'=>true])
+            // ->andWhere(['>','pr.end_date','NOW'])
+            ->one();
+
         $query=new Query;
 
         $vm_active_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
-                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->andWhere(['v.active'=>true])
-                        // ->andWhere(['>','pr.end_date','NOW'])
-                        ->one();
+            ->from('project_request as pr')
+            ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
+            ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->andWhere(['v.active'=>true])
+            // ->andWhere(['>','pr.end_date','NOW'])
+            ->one();
 
-        $query=new Query;             
+        $query=new Query;
         $vm_total_services_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm as v','v.request_id=pr.id')
-                        ->innerJoin('service_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->one();
-        
+            ->from('project_request as pr')
+            ->innerJoin('vm as v','v.request_id=pr.id')
+            ->innerJoin('service_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->one();
+
         $query=new Query;
 
         $vm_total_notebooks_stats=$query->select(['sum(s.cores) as cores', 'sum(s.ram) as ram'])
@@ -1221,29 +1221,29 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $query=new Query;
 
         $vm_total_machines_stats=$query->select(['sum(s.num_of_cores) as cores', 'sum(s.ram) as ram', 'sum(s.storage) as storage'])
-                        ->from('project_request as pr')
-                        ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
-                        ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
-                        ->where(['IN','pr.status',[1,2]])
-                        ->one();
+            ->from('project_request as pr')
+            ->innerJoin('vm_machines as v','v.project_id=pr.project_id')
+            ->innerJoin('machine_compute_request as s','s.request_id=pr.id')
+            ->where(['IN','pr.status',[1,2]])
+            ->one();
         $query=new Query;
 
         $volumes_service=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('storage_request as c')
-                        ->innerJoin('project_request as pr','pr.id=c.request_id')
-                        ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
-                        ->innerJoin('hot_volumes as v','v.project_id=p.id')
-                        ->where(['v.vm_type'=>1,'v.active'=>true])
-                        ->one();
+            ->from('storage_request as c')
+            ->innerJoin('project_request as pr','pr.id=c.request_id')
+            ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
+            ->innerJoin('hot_volumes as v','v.project_id=p.id')
+            ->where(['v.vm_type'=>1,'v.active'=>true])
+            ->one();
         $query=new Query;
         $volumes_machines=$query->select(['count(v.id) as number','sum(c.storage) as total'])
-                        ->from('storage_request as c')
-                        ->innerJoin('project_request as pr','pr.id=c.request_id')
-                        ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
-                        ->innerJoin('hot_volumes as v','v.project_id=p.id')
-                        ->where(['v.vm_type'=>2,'v.active'=>true])
-                        ->one();
-        
+            ->from('storage_request as c')
+            ->innerJoin('project_request as pr','pr.id=c.request_id')
+            ->innerJoin('project as p', 'p.latest_project_request_id=pr.id' )
+            ->innerJoin('hot_volumes as v','v.project_id=p.id')
+            ->where(['v.vm_type'=>2,'v.active'=>true])
+            ->one();
+
 
         $final=[
             'active_services'=>$active_services,
@@ -1289,20 +1289,20 @@ class ProjectRequest extends \yii\db\ActiveRecord
         $query=new Query;
 
         $query->select(['username'])
-              ->from('project_request as pr')
-              ->innerJoin('user','pr.submitted_by="user".id')
-              ->where(['pr.name' => $name]);
-     }
+            ->from('project_request as pr')
+            ->innerJoin('user','pr.submitted_by="user".id')
+            ->where(['pr.name' => $name]);
+    }
 
-     public function GetProjectEndDate($name, $id, $pid) {
+    public function GetProjectEndDate($name, $id, $pid) {
         $query=new Query;
         $query->select(['pr.end_date'])
-              ->from('project_request as pr')
-              ->innerJoin('jupyter_request_n as jup', 'jup.request_id=pr.id')
-              ->where(['=', 'pr.name', $name])
-              ->andwhere(['=', 'jup.request_id', $id]);
+            ->from('project_request as pr')
+            ->innerJoin('jupyter_request_n as jup', 'jup.request_id=pr.id')
+            ->where(['=', 'pr.name', $name])
+            ->andwhere(['=', 'jup.request_id', $id]);
         $result = $query->one();
         return $result;
     }
-    
+
 }
