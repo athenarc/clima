@@ -1355,7 +1355,20 @@ class AdministrationController extends Controller
          * 2. Fetch users from your helper
          * ----------------------------------------------------------- */
         $users = User::getActiveUserStats($username, 'all');   // we’ll filter below
+        $inactiveLogins = (new \yii\db\Query())
+            ->select(['username', 'last_login'])
+            ->from('auth_user')
+            ->where(['<', 'last_login', new \yii\db\Expression("NOW() - INTERVAL '180 days'")])
+            ->orderBy(['last_login' => SORT_ASC])
+            ->all(Yii::$app->db2);
 
+        // Build a fast lookup set of inactive usernames
+        $inactiveSet = [];
+        foreach ($inactiveLogins as $row) {
+            if (!empty($row['username'])) {
+                $inactiveSet[$row['username']] = true;
+            }
+        }
         /* -----------------------------------------------------------
          * 3. Enrich every row
          * ----------------------------------------------------------- */
@@ -1364,7 +1377,7 @@ class AdministrationController extends Controller
             $u['active_projects'] = (int)$u['active'];
 
             // boolean status used by the icon column
-            $u['is_active']       = $u['active_projects'] > 0 ? 1 : 0;
+            $u['is_active'] = isset($inactiveSet[$u['username']]) ? 0 : 1;
 
             // role type (bronze | silver | gold)
             $u['user_type']       = strtolower(User::getRoleType($u['id']));
