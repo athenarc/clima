@@ -233,6 +233,25 @@ class User extends UserIdentity
             return 'bronze';
         }
     }
+    public static function getRoleTypeById(int $userId): string
+    {
+        $role = (new Query())
+            ->select('item_name')
+            ->from('auth_assignment')
+            ->where(['user_id' => $userId])
+            ->scalar();
+
+        $role = strtolower((string)$role);
+
+        if ($role === 'gold') {
+            return 'gold';
+        }
+        if ($role === 'silver') {
+            return 'silver';
+        }
+        return 'bronze';
+    }
+
 
     public static function getActiveUserStats($username='', $activeFilter='all')
     {

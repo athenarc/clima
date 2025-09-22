@@ -76,13 +76,15 @@ $crossIcon = '<i class="fas fa-times text-danger"></i>';
             'attribute'   => 'user_type',
             'label'       => 'User&nbsp;Type',
             'encodeLabel' => false,
-            'value'       => fn($m) => ucfirst($m['user_type']),
+            'value' => fn($m) => ucfirst($m['user_type'] ?? ''),
+
             'filter'      => [
                 'bronze' => 'Bronze',
                 'silver' => 'Silver',
                 'gold'   => 'Gold',
             ],
         ],
+
 
         /* Policy Accepted? --------------------------------------- */
         [

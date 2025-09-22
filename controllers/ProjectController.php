@@ -393,8 +393,7 @@ class ProjectController extends Controller
         $machineLimits=MachineComputeLimits::find()->where(['user_type'=>$role])->one();
         $machine_maximum_number=$machineLimits->number_of_projects;
         $number_of_user_projects=ProjectRequest::find()->where(['status'=>1,'project_type'=>3,'submitted_by'=>Userw::getCurrentUser()['id'],])->andWhere(['>=','end_date', date("Y-m-d")])->count();
-        $new_project_allowed=($number_of_user_projects-$machine_maximum_number < 0) ? true :false;
-        $new_project_allowed=($machine_maximum_number==-1)? true : false;
+        $new_project_allowed = ($machine_maximum_number == -1) || ($number_of_user_projects < $machine_maximum_number);
 
         if((!$new_project_allowed) && (!Userw::hasRole('Admin', $superadminAllowed=true)) && (!Userw::hasRole('Moderator', $superadminAllowed=true)))
         {
@@ -2685,6 +2684,8 @@ class ProjectController extends Controller
             } else {
                 $maxExtensionDays = 0;
             }
+
+
         }
 
 
@@ -2742,7 +2743,6 @@ class ProjectController extends Controller
             }
             $newEndDate = new DateTime($prequest->end_date);
             $extensionDays = $currentEndDate->diff($newEndDate)->days;
-
             if ($newEndDate > $currentEndDate && !Userw::hasRole('Admin', true) && !Userw::hasRole('Moderator', true)) {
                 if ($extensionDays > $maxExtensionDays) {
                     Yii::$app->session->setFlash('danger', "The requested extension of $extensionDays days exceeds the maximum allowed of $maxExtensionDays days.");

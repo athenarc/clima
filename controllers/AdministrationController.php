@@ -1378,10 +1378,8 @@ class AdministrationController extends Controller
 
             // boolean status used by the icon column
             $u['is_active'] = isset($inactiveSet[$u['username']]) ? 0 : 1;
-
-            // role type (bronze | silver | gold)
-            $u['user_type']       = strtolower(User::getRoleType($u['id']));
-
+            $uid = $u['id'] ?? $u['user_id'] ?? null;
+            $u['user_type'] = $uid ? User::getRoleTypeById((int)$uid) : '';
             // policy flag
             $u['policy_accepted'] = in_array($u['policy_accepted'], [1, '1', true, 't'], true) ? 1 : 0;
 
